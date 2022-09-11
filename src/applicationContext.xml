@@ -27,7 +27,7 @@
   </bean>
 
   <!-- a sample POJO which uses a Spring JmsTemplate -->
-  <bean id="producer" class="nz.govt.nzqa.emi.client.adapter.spring.SpringProducer">
+  <bean id="producer" class="nz.co.pukeko.msginf.client.adapter.spring.SpringProducer">
     <property name="template">
       <ref bean="jmsTemplate"></ref>
     </property>

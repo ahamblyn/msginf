@@ -13,7 +13,7 @@
 		<layout class="org.apache.log4j.xml.XMLLayout" />
 	</appender>
 	
-	<logger name="nz.govt.nzqa" additivity="true" >
+	<logger name="nz.co.pukeko" additivity="true" >
 		<level value="DEBUG" /> 
 		<appender-ref ref="msginf"/>		
 	</logger>

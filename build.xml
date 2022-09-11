@@ -163,9 +163,9 @@
 	<pathelement path="${build.test.classes.dir}"/>
       </classpath>
       <formatter type="xml"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.activemq.ActiveMQEchoTest" todir="${junit.build.dir}"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.activemq.ActiveMQReplyTest" todir="${junit.build.dir}"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.activemq.ActiveMQSubmitTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.activemq.ActiveMQEchoTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.activemq.ActiveMQReplyTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.activemq.ActiveMQSubmitTest" todir="${junit.build.dir}"/>
     </junit>
   </target>
   <target name="junit_jboss" depends="compile">
@@ -179,9 +179,9 @@
 	<pathelement path="${build.test.classes.dir}"/>
       </classpath>
       <formatter type="xml"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.jboss.JBossEchoTest" todir="${junit.build.dir}"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.jboss.JBossReplyTest" todir="${junit.build.dir}"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.jboss.JBossSubmitTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.jboss.JBossEchoTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.jboss.JBossReplyTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.jboss.JBossSubmitTest" todir="${junit.build.dir}"/>
     </junit>
   </target>
   <target name="junit_joram" depends="compile">
@@ -195,9 +195,9 @@
 	<pathelement path="${build.test.classes.dir}"/>
       </classpath>
       <formatter type="xml"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.joram.JORAMEchoTest" todir="${junit.build.dir}"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.joram.JORAMReplyTest" todir="${junit.build.dir}"/>
-      <test name="nz.govt.nzqa.emi.client.adapter.joram.JORAMSubmitTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.joram.JORAMEchoTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.joram.JORAMReplyTest" todir="${junit.build.dir}"/>
+      <test name="nz.co.pukeko.msginf.client.adapter.joram.JORAMSubmitTest" todir="${junit.build.dir}"/>
     </junit>
   </target>
 
@@ -206,7 +206,7 @@
   <!-- ********************************************************* -->
   <target name="javadocs" depends="prepare">
     <mkdir dir="${javadocs.build.dir}"/>
-    <javadoc packagenames="nz.govt.nzqa.emi.*"
+    <javadoc packagenames="nz.co.pukeko.msginf.*"
       sourcepath="${source.dir}"
       defaultexcludes="yes"
       destdir="${javadocs.build.dir}"
@@ -216,7 +216,7 @@
       windowtitle="Messaging Infrastructure API">
       <classpath refid="compile.class.path" />
       <doctitle><![CDATA[<h1>Messaging Infrastructure</h1>]]></doctitle>
-      <bottom><![CDATA[<i>Copyright &#169; 2005 NZQA All Rights Reserved.</i>]]></bottom>
+      <bottom><![CDATA[<i>Copyright &#169; 2022 Pukeko Corporation All Rights Reserved.</i>]]></bottom>
     </javadoc>
     <!-- Tar and gzip the javadocs files -->
     <tar tarfile="${dist.dir}/msginf-javadocs.tar" basedir="${build.dir}" includes="javadocs/**"/>
@@ -239,17 +239,17 @@
   <target name="findaddress" depends="compile">
     <jar destfile="findaddress.jar">
       <fileset dir="${build.test.classes.dir}">
-        <include name="nz/govt/nzqa/emi/client/util/FindAddress.class"/>
+        <include name="nz/co/pukeko/msginf/client/util/FindAddress.class"/>
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.util.FindAddress"/>
+        <attribute name="Main-Class" value="nz.co.pukeko.msginf.client.util.FindAddress"/>
       </manifest>
     </jar>
     <!-- Create the shell scripts -->
     <echo file="findaddress.bat" message="@echo off${line.separator}"/>
-    <echo file="findaddress.bat" append="yes" message="java -classpath findaddress.jar nz.govt.nzqa.emi.client.util.FindAddress"/>
+    <echo file="findaddress.bat" append="yes" message="java -classpath findaddress.jar nz.co.pukeko.msginf.client.util.FindAddress"/>
     <echo file="findaddress.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="findaddress.sh" append="yes" message="java -classpath findaddress.jar nz.govt.nzqa.emi.client.util.FindAddress"/>
+    <echo file="findaddress.sh" append="yes" message="java -classpath findaddress.jar nz.co.pukeko.msginf.client.util.FindAddress"/>
     <chmod file="findaddress.sh" perm="u+x"/>
   </target>
 
@@ -260,8 +260,8 @@
     <mkdir dir="${config.build.dir}"/>
     <jar destfile="${config.build.dir}/config.jar">
       <fileset dir="${build.classes.dir}">
-        <include name="nz/govt/nzqa/emi/configuration/**"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/configuration/**"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
       </fileset>
     </jar>
     <!-- Copy the other jar files -->
@@ -275,9 +275,9 @@
     <copy file="${xmlbeans.dir}/msginf_xmlbeans.jar" todir="${config.build.dir}"/>
     <!-- Create the shell scripts -->
     <echo file="${config.build.dir}/runconfig.bat" message="@echo off${line.separator}"/>
-    <echo file="${config.build.dir}/runconfig.bat" append="yes" message="java -classpath config.jar;commons-logging-1.0.3.jar;log4j-1.2.8.jar;jsr173_1.0_api.jar;resolver.jar;xbean.jar;xbean_xpath.jar;xmlpublic.jar;msginf_xmlbeans.jar nz.govt.nzqa.emi.configuration.ConfigurationApplication"/>
+    <echo file="${config.build.dir}/runconfig.bat" append="yes" message="java -classpath config.jar;commons-logging-1.0.3.jar;log4j-1.2.8.jar;jsr173_1.0_api.jar;resolver.jar;xbean.jar;xbean_xpath.jar;xmlpublic.jar;msginf_xmlbeans.jar nz.co.pukeko.msginf.configuration.ConfigurationApplication"/>
     <echo file="${config.build.dir}/runconfig.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${config.build.dir}/runconfig.sh" append="yes" message="java -classpath config.jar:commons-logging-1.0.3.jar:log4j-1.2.8.jar:jsr173_1.0_api.jar:resolver.jar:xbean.jar:xbean_xpath.jar:xmlpublic.jar:msginf_xmlbeans.jar nz.govt.nzqa.emi.configuration.ConfigurationApplication"/>
+    <echo file="${config.build.dir}/runconfig.sh" append="yes" message="java -classpath config.jar:commons-logging-1.0.3.jar:log4j-1.2.8.jar:jsr173_1.0_api.jar:resolver.jar:xbean.jar:xbean_xpath.jar:xmlpublic.jar:msginf_xmlbeans.jar nz.co.pukeko.msginf.configuration.ConfigurationApplication"/>
     <chmod file="${config.build.dir}/runconfig.sh" perm="u+x"/>
     <!-- Zip the config files -->
     <zip destfile="${build.dir}/config.zip" basedir="${config.build.dir}"/>
@@ -290,8 +290,8 @@
     <mkdir dir="${viewer.build.dir}"/>
     <jar destfile="${viewer.build.dir}/viewer.jar">
       <fileset dir="${build.classes.dir}">
-        <include name="nz/govt/nzqa/emi/viewer/**"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/viewer/**"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
         <include name="log4j.properties"/>
       </fileset>
     </jar>
@@ -309,9 +309,9 @@
     <copy file="${xmlbeans.dir}/msginf_xmlbeans.jar" todir="${viewer.build.dir}"/>
     <!-- Create the shell scripts -->
     <echo file="${viewer.build.dir}/runviewer.bat" message="@echo off${line.separator}"/>
-    <echo file="${viewer.build.dir}/runviewer.bat" append="yes" message="java -classpath .;viewer.jar;concurrent-1.3.4.jar;commons-logging-1.0.3.jar;log4j-1.2.8.jar;geronimo-spec-j2ee-management-1.0-rc4.jar;geronimo-spec-jms-1.1-rc4.jar;jsr173_1.0_api.jar;resolver.jar;xbean.jar;xbean_xpath.jar;xmlpublic.jar;msginf_xmlbeans.jar nz.govt.nzqa.emi.viewer.MessageViewer"/>
+    <echo file="${viewer.build.dir}/runviewer.bat" append="yes" message="java -classpath .;viewer.jar;concurrent-1.3.4.jar;commons-logging-1.0.3.jar;log4j-1.2.8.jar;geronimo-spec-j2ee-management-1.0-rc4.jar;geronimo-spec-jms-1.1-rc4.jar;jsr173_1.0_api.jar;resolver.jar;xbean.jar;xbean_xpath.jar;xmlpublic.jar;msginf_xmlbeans.jar nz.co.pukeko.msginf.viewer.MessageViewer"/>
     <echo file="${viewer.build.dir}/runviewer.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${viewer.build.dir}/runviewer.sh" append="yes" message="java -classpath .:viewer.jar:concurrent-1.3.4.jar:commons-logging-1.0.3.jar:log4j-1.2.8.jar:geronimo-spec-j2ee-management-1.0-rc4.jar:geronimo-spec-jms-1.1-rc4.jar:jsr173_1.0_api.jar:resolver.jar:xbean.jar:xbean_xpath.jar:xmlpublic.jar:msginf_xmlbeans.jar nz.govt.nzqa.emi.viewer.MessageViewer"/>
+    <echo file="${viewer.build.dir}/runviewer.sh" append="yes" message="java -classpath .:viewer.jar:concurrent-1.3.4.jar:commons-logging-1.0.3.jar:log4j-1.2.8.jar:geronimo-spec-j2ee-management-1.0-rc4.jar:geronimo-spec-jms-1.1-rc4.jar:jsr173_1.0_api.jar:resolver.jar:xbean.jar:xbean_xpath.jar:xmlpublic.jar:msginf_xmlbeans.jar nz.co.pukeko.msginf.viewer.MessageViewer"/>
     <chmod file="${viewer.build.dir}/runviewer.sh" perm="u+x"/>
     <!-- Zip the viewer files -->
     <zip destfile="${build.dir}/viewer.zip" basedir="${viewer.build.dir}"/>
@@ -324,14 +324,14 @@
     <mkdir dir="${test.build.dir}"/>
     <!-- Create the test scripts -->
     <echo file="${test.build.dir}/test.bat" message="@echo off${line.separator}"/>
-    <echo file="${test.build.dir}/test.bat" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir};../../${build.test.classes.dir};${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.adapter.TestQueueManager %1 %2 %3 %4 %5 %6 %7"/>
+    <echo file="${test.build.dir}/test.bat" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir};../../${build.test.classes.dir};${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.co.pukeko.msginf.client.adapter.TestQueueManager %1 %2 %3 %4 %5 %6 %7"/>
     <echo file="${test.build.dir}/test.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${test.build.dir}/test.sh" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir}:../../${build.test.classes.dir}:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.adapter.TestQueueManager $1 $2 $3 $4 $5 $6 $7"/>
+    <echo file="${test.build.dir}/test.sh" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir}:../../${build.test.classes.dir}:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.co.pukeko.msginf.client.adapter.TestQueueManager $1 $2 $3 $4 $5 $6 $7"/>
     <chmod file="${test.build.dir}/test.sh" perm="u+x"/>
     <echo file="${test.build.dir}/gui.bat" message="@echo off${line.separator}"/>
-    <echo file="${test.build.dir}/gui.bat" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir};../../${build.test.classes.dir};${windows.classpath.property} nz.govt.nzqa.emi.client.testapp.TestRunner"/>
+    <echo file="${test.build.dir}/gui.bat" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir};../../${build.test.classes.dir};${windows.classpath.property} nz.co.pukeko.msginf.client.testapp.TestRunner"/>
     <echo file="${test.build.dir}/gui.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${test.build.dir}/gui.sh" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir}:../../${build.test.classes.dir}:${unix.classpath.property} nz.govt.nzqa.emi.client.testapp.TestRunner"/>
+    <echo file="${test.build.dir}/gui.sh" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir}:../../${build.test.classes.dir}:${unix.classpath.property} nz.co.pukeko.msginf.client.testapp.TestRunner"/>
     <chmod file="${test.build.dir}/gui.sh" perm="u+x"/>
   </target>
 
@@ -445,97 +445,97 @@
   <target name="activemq_messagelistener_scripts" depends="activemq_jndi">
     <!-- Create the run message listener shell scripts -->
     <echo file="${build.env.activemq.dir}/activeMQListener.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.activemq.dir}/activeMQListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply activemq QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.activemq.dir}/activeMQListener.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply activemq QueueConnectionFactory RequestQueue ReplyQueue true"/>
     <echo file="${build.env.activemq.dir}/activeMQListener.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.activemq.dir}/activeMQListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply activemq QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.activemq.dir}/activeMQListener.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply activemq QueueConnectionFactory RequestQueue ReplyQueue true"/>
     <chmod file="${build.env.activemq.dir}/activeMQListener.sh" perm="u+x"/>
     <echo file="${build.env.activemq.dir}/activeMQReceiver.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.activemq.dir}/activeMQReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver activemq QueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.activemq.dir}/activeMQReceiver.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver activemq QueueConnectionFactory TestQueue"/>
     <echo file="${build.env.activemq.dir}/activeMQReceiver.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.activemq.dir}/activeMQReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver activemq QueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.activemq.dir}/activeMQReceiver.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver activemq QueueConnectionFactory TestQueue"/>
     <chmod file="${build.env.activemq.dir}/activeMQReceiver.sh" perm="u+x"/>
   </target>
 
   <target name="joram_messagelistener_scripts" depends="joram_jndi">
     <!-- Create the run message listener shell scripts -->
     <echo file="${build.env.joram.dir}/joramListener.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.joram.dir}/joramListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply joram qcf RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.joram.dir}/joramListener.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply joram qcf RequestQueue ReplyQueue true"/>
     <echo file="${build.env.joram.dir}/joramListener.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.joram.dir}/joramListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply joram qcf RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.joram.dir}/joramListener.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply joram qcf RequestQueue ReplyQueue true"/>
     <chmod file="${build.env.joram.dir}/joramListener.sh" perm="u+x"/>
     <echo file="${build.env.joram.dir}/joramReceiver.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.joram.dir}/joramReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver joram qcf TestQueue"/>
+    <echo file="${build.env.joram.dir}/joramReceiver.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver joram qcf TestQueue"/>
     <echo file="${build.env.joram.dir}/joramReceiver.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.joram.dir}/joramReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver joram qcf TestQueue"/>
+    <echo file="${build.env.joram.dir}/joramReceiver.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver joram qcf TestQueue"/>
     <chmod file="${build.env.joram.dir}/joramReceiver.sh" perm="u+x"/>
   </target>
 
   <target name="openjms_messagelistener_scripts" depends="openjms_jndi">
     <!-- Create the run message listener shell scripts -->
     <echo file="${build.env.openjms.dir}/openjmsListener.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.openjms.dir}/openjmsListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply openjms TCPQueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.openjms.dir}/openjmsListener.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply openjms TCPQueueConnectionFactory RequestQueue ReplyQueue true"/>
     <echo file="${build.env.openjms.dir}/openjmsListener.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.openjms.dir}/openjmsListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply openjms TCPQueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.openjms.dir}/openjmsListener.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply openjms TCPQueueConnectionFactory RequestQueue ReplyQueue true"/>
     <chmod file="${build.env.openjms.dir}/openjmsListener.sh" perm="u+x"/>
     <echo file="${build.env.openjms.dir}/openjmsReceiver.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.openjms.dir}/openjmsReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver openjms TCPQueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.openjms.dir}/openjmsReceiver.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver openjms TCPQueueConnectionFactory TestQueue"/>
     <echo file="${build.env.openjms.dir}/openjmsReceiver.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.openjms.dir}/openjmsReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver openjms TCPQueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.openjms.dir}/openjmsReceiver.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver openjms TCPQueueConnectionFactory TestQueue"/>
     <chmod file="${build.env.openjms.dir}/openjmsReceiver.sh" perm="u+x"/>
   </target>
 
   <target name="jboss_messagelistener_scripts" depends="jboss_jndi">
     <!-- Create the run message listener shell scripts -->
     <echo file="${build.env.jboss.dir}/jbossListener.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.jboss.dir}/jbossListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageRequestReply jboss UIL2ConnectionFactory queue/RequestQueue queue/ReplyQueue true"/>
+    <echo file="${build.env.jboss.dir}/jbossListener.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.co.pukeko.msginf.client.listener.MessageRequestReply jboss UIL2ConnectionFactory queue/RequestQueue queue/ReplyQueue true"/>
     <echo file="${build.env.jboss.dir}/jbossListener.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.jboss.dir}/jbossListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageRequestReply jboss UIL2ConnectionFactory queue/RequestQueue queue/ReplyQueue true"/>
+    <echo file="${build.env.jboss.dir}/jbossListener.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.co.pukeko.msginf.client.listener.MessageRequestReply jboss UIL2ConnectionFactory queue/RequestQueue queue/ReplyQueue true"/>
     <chmod file="${build.env.jboss.dir}/jbossListener.sh" perm="u+x"/>
     <echo file="${build.env.jboss.dir}/jbossReceiver.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.jboss.dir}/jbossReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageReceiver jboss UIL2ConnectionFactory queue/SubmitQueue"/>
+    <echo file="${build.env.jboss.dir}/jbossReceiver.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.co.pukeko.msginf.client.listener.MessageReceiver jboss UIL2ConnectionFactory queue/SubmitQueue"/>
     <echo file="${build.env.jboss.dir}/jbossReceiver.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.jboss.dir}/jbossReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageReceiver jboss UIL2ConnectionFactory queue/SubmitQueue"/>
+    <echo file="${build.env.jboss.dir}/jbossReceiver.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.co.pukeko.msginf.client.listener.MessageReceiver jboss UIL2ConnectionFactory queue/SubmitQueue"/>
     <chmod file="${build.env.jboss.dir}/jbossReceiver.sh" perm="u+x"/>
   </target>
 
   <target name="mom4j_messagelistener_scripts" depends="mom4j_jndi">
     <!-- Create the run message listener shell scripts -->
     <echo file="${build.env.mom4j.dir}/mom4jListener.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.mom4j.dir}/mom4jListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mom4j QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.mom4j.dir}/mom4jListener.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply mom4j QueueConnectionFactory RequestQueue ReplyQueue true"/>
     <echo file="${build.env.mom4j.dir}/mom4jListener.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.mom4j.dir}/mom4jListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mom4j QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.mom4j.dir}/mom4jListener.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply mom4j QueueConnectionFactory RequestQueue ReplyQueue true"/>
     <chmod file="${build.env.mom4j.dir}/mom4jListener.sh" perm="u+x"/>
     <echo file="${build.env.mom4j.dir}/mom4jReceiver.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.mom4j.dir}/mom4jReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mom4j QueueConnectionFactory SubmitQueue"/>
+    <echo file="${build.env.mom4j.dir}/mom4jReceiver.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver mom4j QueueConnectionFactory SubmitQueue"/>
     <echo file="${build.env.mom4j.dir}/mom4jReceiver.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.mom4j.dir}/mom4jReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mom4j QueueConnectionFactory SubmitQueue"/>
+    <echo file="${build.env.mom4j.dir}/mom4jReceiver.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver mom4j QueueConnectionFactory SubmitQueue"/>
     <chmod file="${build.env.mom4j.dir}/mom4jReceiver.sh" perm="u+x"/>
   </target>
 
   <target name="mqseries_messagelistener_scripts" depends="mqseries_jndi">
     <!-- Create the run message listener shell scripts -->
     <echo file="${build.env.mqseries.dir}/mqseriesListener.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.mqseries.dir}/mqseriesListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mqseries QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesListener.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply mqseries QueueConnectionFactory RequestQueue ReplyQueue true"/>
     <echo file="${build.env.mqseries.dir}/mqseriesListener.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.mqseries.dir}/mqseriesListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mqseries QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesListener.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageRequestReply mqseries QueueConnectionFactory RequestQueue ReplyQueue true"/>
     <chmod file="${build.env.mqseries.dir}/mqseriesListener.sh" perm="u+x"/>
     <echo file="${build.env.mqseries.dir}/mqseriesReceiver.bat" message="@echo off${line.separator}"/>
-    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mqseries QueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.bat" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver mqseries QueueConnectionFactory TestQueue"/>
     <echo file="${build.env.mqseries.dir}/mqseriesReceiver.sh" message="#! /bin/sh${line.separator}"/>
-    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mqseries QueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.sh" append="yes" message="java -Xmx512M -Dmsginf.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.co.pukeko.msginf.client.listener.MessageReceiver mqseries QueueConnectionFactory TestQueue"/>
     <chmod file="${build.env.mqseries.dir}/mqseriesReceiver.sh" perm="u+x"/>
   </target>
 
   <target name="activemq_jar_messagelistener" depends="compile">
     <jar destfile="${build.env.activemq.dir}/messagelistener.jar">
       <fileset dir="${build.env.activemq.dir}/classes">
-        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/client/listener/Message*.class"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
         <include name="jndi.properties"/>
         <include name="log4j.properties"/>
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+        <attribute name="Main-Class" value="nz.co.pukeko.msginf.client.listener.MessageRequestReply"/>
       </manifest>
     </jar>
   </target>
@@ -543,13 +543,13 @@
   <target name="joram_jar_messagelistener" depends="compile">
     <jar destfile="${build.env.joram.dir}/messagelistener.jar">
       <fileset dir="${build.env.joram.dir}/classes">
-        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/client/listener/Message*.class"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
         <include name="jndi.properties"/>
         <include name="log4j.properties"/>
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+        <attribute name="Main-Class" value="nz.co.pukeko.msginf.client.listener.MessageRequestReply"/>
       </manifest>
     </jar>
   </target>
@@ -557,13 +557,13 @@
   <target name="openjms_jar_messagelistener" depends="compile">
     <jar destfile="${build.env.openjms.dir}/messagelistener.jar">
       <fileset dir="${build.env.openjms.dir}/classes">
-        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/client/listener/Message*.class"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
         <include name="jndi.properties"/>
         <include name="log4j.properties"/>
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+        <attribute name="Main-Class" value="nz.co.pukeko.msginf.client.listener.MessageRequestReply"/>
       </manifest>
     </jar>
   </target>
@@ -571,13 +571,13 @@
   <target name="jboss_jar_messagelistener" depends="compile">
     <jar destfile="${build.env.jboss.dir}/messagelistener.jar">
       <fileset dir="${build.env.jboss.dir}/classes">
-        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/client/listener/Message*.class"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
         <include name="jndi.properties"/>
         <include name="log4j.properties"/>
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+        <attribute name="Main-Class" value="nz.co.pukeko.msginf.client.listener.MessageRequestReply"/>
       </manifest>
     </jar>
   </target>
@@ -585,13 +585,13 @@
   <target name="mom4j_jar_messagelistener" depends="compile">
     <jar destfile="${build.env.mom4j.dir}/messagelistener.jar">
       <fileset dir="${build.env.mom4j.dir}/classes">
-        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/client/listener/Message*.class"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
         <include name="jndi.properties"/>
         <include name="log4j.properties"/>
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+        <attribute name="Main-Class" value="nz.co.pukeko.msginf.client.listener.MessageRequestReply"/>
       </manifest>
     </jar>
   </target>
@@ -599,13 +599,13 @@
   <target name="mqseries_jar_messagelistener" depends="compile">
     <jar destfile="${build.env.mqseries.dir}/messagelistener.jar">
       <fileset dir="${build.env.mqseries.dir}/classes">
-        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
-        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="nz/co/pukeko/msginf/client/listener/Message*.class"/>
+        <include name="nz/co/pukeko/msginf/infrastructure/**"/>
         <include name="jndi.properties"/>
         <include name="log4j.properties"/>
       </fileset>
       <manifest>
-        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+        <attribute name="Main-Class" value="nz.co.pukeko.msginf.client.listener.MessageRequestReply"/>
       </manifest>
     </jar>
   </target>

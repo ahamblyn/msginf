@@ -1,159 +1,159 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<emi:configuration emi:log4jPropertiesFile="/log4j.properties" xmlns:emi="http://nzqa.govt.nz/emi/infrastructure/pref/xmlbeans">
-  <emi:system emi:name="activemq" emi:initialContextFactory="org.apache.activemq.jndi.ActiveMQInitialContextFactory" emi:url="tcp://localhost:61616">
-    <emi:jarFiles>
-      <emi:jarFile emi:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activemq-core-4.0.2.jar"/>
-      <emi:jarFile emi:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activeio-core-3.0-beta4.jar"/>
-      <emi:jarFile emi:jarFileName="C:\java\incubator-activemq-4.0.2\lib\optional\activemq-optional-4.0.2.jar"/>
-    </emi:jarFiles>
-    <emi:queues>
-      <emi:queue emi:jndiName="TestQueue" emi:physicalName="TEST.QUEUE"/>
-      <emi:queue emi:jndiName="RequestQueue" emi:physicalName="REQUEST.QUEUE"/>
-      <emi:queue emi:jndiName="ReplyQueue" emi:physicalName="REPLY.QUEUE"/>
-      <emi:queue emi:jndiName="DeadLetterQueue" emi:physicalName="DL.QUEUE"/>
-    </emi:queues>
-    <emi:connectors emi:useConnectionPooling="true" emi:minConnections="5" emi:maxConnections="20">
-      <emi:submit emi:connectorName="activemq_submit_text" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="TestQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:submitQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:submit emi:connectorName="activemq_submit_binary" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="TestQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:submitQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:request-reply emi:connectorName="activemq_rr_text_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="activemq_rr_text_future" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="activemq_rr_binary_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="activemq_rr_binary_future" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-    </emi:connectors>
-  </emi:system>
-<!--  <emi:system emi:name="joram" emi:initialContextFactory="fr.dyade.aaa.jndi2.client.NamingContextFactory" emi:host="localhost" emi:port="16400">
-    <emi:jarFiles>
-      <emi:jarFile emi:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/joram-client.jar"/>
-      <emi:jarFile emi:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/joram-shared.jar"/>
-      <emi:jarFile emi:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/ow_monolog.jar"/>
-    </emi:jarFiles>
-    <emi:connectors emi:useConnectionPooling="true" emi:minConnections="5" emi:maxConnections="20">
-      <emi:submit emi:connectorName="joram_submit_text" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="TestQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:submitQueueConnFactoryName="qcf" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:submit emi:connectorName="joram_submit_binary" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="TestQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:submitQueueConnFactoryName="qcf" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:request-reply emi:connectorName="joram_rr_text_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="qcf" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="joram_rr_binary_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="qcf" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-    </emi:connectors>
-  </emi:system> -->
-  <emi:system emi:name="jboss" emi:initialContextFactory="org.jnp.interfaces.NamingContextFactory" emi:url="jnp://localhost:1099" emi:namingFactoryUrlPkgs="org.jnp.interfaces:org.jboss.naming">
-    <emi:jarFiles>
-      <emi:jarFile emi:jarFileName="C:\java\jboss-4.0.4.GA\client\jbossall-client.jar"/>
-      <emi:jarFile emi:jarFileName="C:\java\jboss-4.0.4.GA\client\jboss-j2ee.jar"/>
-      <emi:jarFile emi:jarFileName="C:\java\jboss-4.0.4.GA\server\default\deploy\uuid-key-generator.sar"/>
-      <emi:jarFile emi:jarFileName="C:\java\jboss-4.0.4.GA\lib\jboss-system.jar"/>
-    </emi:jarFiles>
-    <emi:connectors emi:useConnectionPooling="true" emi:minConnections="5" emi:maxConnections="20">
-      <emi:submit emi:connectorName="jboss_submit_text" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="queue/SubmitQueue" emi:deadLetterQueueName="queue/DeadLetterQueue" emi:submitQueueConnFactoryName="UIL2ConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:submit emi:connectorName="jboss_submit_binary" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="queue/SubmitQueue" emi:deadLetterQueueName="queue/DeadLetterQueue" emi:submitQueueConnFactoryName="UIL2ConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:request-reply emi:connectorName="jboss_rr_text_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="queue/RequestQueue" emi:replyQueueName="queue/ReplyQueue" emi:deadLetterQueueName="queue/DeadLetterQueue" emi:requestQueueConnFactoryName="UIL2ConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="jboss_rr_text_future" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="queue/RequestQueue" emi:replyQueueName="queue/ReplyQueue" emi:deadLetterQueueName="queue/DeadLetterQueue" emi:requestQueueConnFactoryName="UIL2ConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="jboss_rr_binary_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="queue/RequestQueue" emi:replyQueueName="queue/ReplyQueue" emi:deadLetterQueueName="queue/DeadLetterQueue" emi:requestQueueConnFactoryName="UIL2ConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="jboss_rr_binary_future" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="queue/RequestQueue" emi:replyQueueName="queue/ReplyQueue" emi:deadLetterQueueName="queue/DeadLetterQueue" emi:requestQueueConnFactoryName="UIL2ConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-    </emi:connectors>
-  </emi:system>
-<!--  <emi:system emi:name="mom4j" emi:initialContextFactory="org.mom4j.jndi.InitialCtxFactory" emi:url="xcp://localhost:8001">
-    <emi:jarFiles>
-      <emi:jarFile emi:jarFileName="/home/alisdairh/java/mom4j/lib/mom4j-client.jar"/>
-      <emi:jarFile emi:jarFileName="/home/alisdairh/java/mom4j/lib/mom4j.jar"/>
-    </emi:jarFiles>
-    <emi:connectors emi:useConnectionPooling="true" emi:minConnections="5" emi:maxConnections="20">
-      <emi:submit emi:connectorName="mom4j_submit_text" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="SubmitQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:submitQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:submit emi:connectorName="mom4j_submit_binary" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="SubmitQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:submitQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:request-reply emi:connectorName="mom4j_rr_text_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="mom4j_rr_text_future" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="mom4j_rr_binary_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-      <emi:request-reply emi:connectorName="mom4j_rr_binary_future" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="RequestQueue" emi:replyQueueName="ReplyQueue" emi:deadLetterQueueName="DeadLetterQueue" emi:requestQueueConnFactoryName="QueueConnectionFactory" emi:messageClassName="javax.jms.BytesMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-    </emi:connectors>
-  </emi:system>
-  <emi:system emi:name="mqseries" emi:initialContextFactory="com.sun.jndi.fscontext.RefFSContextFactory" emi:url="file:/home/alisdairh/mqclient/jndi/">
-    <emi:jarFiles>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/com.ibm.mqbind.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/com.ibm.mq.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/com.ibm.mqjms.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/connector.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/fscontext.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/jms.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/jndi.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/jta.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/ldap.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/postcard.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/providerutil.jar"/>
-      <emi:jarFile emi:jarFileName="/opt/mqm/java/lib/rmm.jar"/>
-    </emi:jarFiles>
-    <emi:connectors emi:useConnectionPooling="false" emi:minConnections="5" emi:maxConnections="5">
-      <emi:submit emi:connectorName="bnz_submit_text" emi:mimeType="text/xml" emi:submitSchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateSubmit="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Submit Message Source" emi:destinationName="Submit Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:submit-connection emi:submitQueueName="bnzSubmitQueue" emi:deadLetterQueueName="bnzDLQueue" emi:submitQueueConnFactoryName="bnzQCF" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:submit>
-      <emi:request-reply emi:connectorName="bnz_rr_text_consumer" emi:mimeType="text/xml" emi:requestSchema="http://localhost/test http://localhost/schema/test.xsd" emi:replySchema="http://localhost/test http://localhost/schema/test.xsd" emi:validateRequest="false" emi:validateReply="false" emi:putValidationErrorOnDeadLetterQueue="true" emi:compressBinaryMessages="true">
-        <emi:soap emi:sourceName="Request Reply Message Source" emi:destinationName="Request Reply Message Destination" emi:useSOAPEnvelope="false"/>
-        <emi:request-reply-connection emi:requestQueueName="bnzRequestQueue" emi:replyQueueName="bnzReplyQueue" emi:deadLetterQueueName="bnzDLQueue" emi:requestQueueConnFactoryName="bnzQCF" emi:messageClassName="javax.jms.TextMessage" emi:requesterClassName="nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester" emi:messageTimeToLive="0" emi:replyWaitTime="20000"/>
-      </emi:request-reply>
-    </emi:connectors>
-  </emi:system> -->
-</emi:configuration>
+<msginf:configuration msginf:log4jPropertiesFile="/log4j.properties" xmlns:msginf="http://pukeko.co.nz/msginf/infrastructure/pref/xmlbeans">
+  <msginf:system msginf:name="activemq" msginf:initialContextFactory="org.apache.activemq.jndi.ActiveMQInitialContextFactory" msginf:url="tcp://localhost:61616">
+    <msginf:jarFiles>
+      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activemq-core-4.0.2.jar"/>
+      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activeio-core-3.0-beta4.jar"/>
+      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\optional\activemq-optional-4.0.2.jar"/>
+    </msginf:jarFiles>
+    <msginf:queues>
+      <msginf:queue msginf:jndiName="TestQueue" msginf:physicalName="TEST.QUEUE"/>
+      <msginf:queue msginf:jndiName="RequestQueue" msginf:physicalName="REQUEST.QUEUE"/>
+      <msginf:queue msginf:jndiName="ReplyQueue" msginf:physicalName="REPLY.QUEUE"/>
+      <msginf:queue msginf:jndiName="DeadLetterQueue" msginf:physicalName="DL.QUEUE"/>
+    </msginf:queues>
+    <msginf:connectors msginf:useConnectionPooling="true" msginf:minConnections="5" msginf:maxConnections="20">
+      <msginf:submit msginf:connectorName="activemq_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="TestQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:submit msginf:connectorName="activemq_submit_binary" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="TestQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:request-reply msginf:connectorName="activemq_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="activemq_rr_text_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="activemq_rr_binary_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="activemq_rr_binary_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+    </msginf:connectors>
+  </msginf:system>
+<!--  <msginf:system msginf:name="joram" msginf:initialContextFactory="fr.dyade.aaa.jndi2.client.NamingContextFactory" msginf:host="localhost" msginf:port="16400">
+    <msginf:jarFiles>
+      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/joram-client.jar"/>
+      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/joram-shared.jar"/>
+      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/ow_monolog.jar"/>
+    </msginf:jarFiles>
+    <msginf:connectors msginf:useConnectionPooling="true" msginf:minConnections="5" msginf:maxConnections="20">
+      <msginf:submit msginf:connectorName="joram_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="TestQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:submit msginf:connectorName="joram_submit_binary" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="TestQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:request-reply msginf:connectorName="joram_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="joram_rr_binary_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+    </msginf:connectors>
+  </msginf:system> -->
+  <msginf:system msginf:name="jboss" msginf:initialContextFactory="org.jnp.interfaces.NamingContextFactory" msginf:url="jnp://localhost:1099" msginf:namingFactoryUrlPkgs="org.jnp.interfaces:org.jboss.naming">
+    <msginf:jarFiles>
+      <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\client\jbossall-client.jar"/>
+      <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\client\jboss-j2ee.jar"/>
+      <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\server\default\deploy\uuid-key-generator.sar"/>
+      <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\lib\jboss-system.jar"/>
+    </msginf:jarFiles>
+    <msginf:connectors msginf:useConnectionPooling="true" msginf:minConnections="5" msginf:maxConnections="20">
+      <msginf:submit msginf:connectorName="jboss_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="queue/SubmitQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:submitQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:submit msginf:connectorName="jboss_submit_binary" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="queue/SubmitQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:submitQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:request-reply msginf:connectorName="jboss_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="queue/RequestQueue" msginf:replyQueueName="queue/ReplyQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:requestQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="jboss_rr_text_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="queue/RequestQueue" msginf:replyQueueName="queue/ReplyQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:requestQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="jboss_rr_binary_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="queue/RequestQueue" msginf:replyQueueName="queue/ReplyQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:requestQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="jboss_rr_binary_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="queue/RequestQueue" msginf:replyQueueName="queue/ReplyQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:requestQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+    </msginf:connectors>
+  </msginf:system>
+<!--  <msginf:system msginf:name="mom4j" msginf:initialContextFactory="org.mom4j.jndi.InitialCtxFactory" msginf:url="xcp://localhost:8001">
+    <msginf:jarFiles>
+      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/mom4j/lib/mom4j-client.jar"/>
+      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/mom4j/lib/mom4j.jar"/>
+    </msginf:jarFiles>
+    <msginf:connectors msginf:useConnectionPooling="true" msginf:minConnections="5" msginf:maxConnections="20">
+      <msginf:submit msginf:connectorName="mom4j_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="SubmitQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:submit msginf:connectorName="mom4j_submit_binary" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="SubmitQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:request-reply msginf:connectorName="mom4j_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="mom4j_rr_text_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="mom4j_rr_binary_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+      <msginf:request-reply msginf:connectorName="mom4j_rr_binary_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+    </msginf:connectors>
+  </msginf:system>
+  <msginf:system msginf:name="mqseries" msginf:initialContextFactory="com.sun.jndi.fscontext.RefFSContextFactory" msginf:url="file:/home/alisdairh/mqclient/jndi/">
+    <msginf:jarFiles>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/com.ibm.mqbind.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/com.ibm.mq.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/com.ibm.mqjms.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/connector.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/fscontext.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/jms.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/jndi.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/jta.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/ldap.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/postcard.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/providerutil.jar"/>
+      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/rmm.jar"/>
+    </msginf:jarFiles>
+    <msginf:connectors msginf:useConnectionPooling="false" msginf:minConnections="5" msginf:maxConnections="5">
+      <msginf:submit msginf:connectorName="bnz_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:submit-connection msginf:submitQueueName="bnzSubmitQueue" msginf:deadLetterQueueName="bnzDLQueue" msginf:submitQueueConnFactoryName="bnzQCF" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:submit>
+      <msginf:request-reply msginf:connectorName="bnz_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
+        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
+        <msginf:request-reply-connection msginf:requestQueueName="bnzRequestQueue" msginf:replyQueueName="bnzReplyQueue" msginf:deadLetterQueueName="bnzDLQueue" msginf:requestQueueConnFactoryName="bnzQCF" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
+      </msginf:request-reply>
+    </msginf:connectors>
+  </msginf:system> -->
+</msginf:configuration>
