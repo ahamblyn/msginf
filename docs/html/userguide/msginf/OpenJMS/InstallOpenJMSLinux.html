@@ -1,0 +1,523 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Installing Open JMS 0.7.6.1 onto Linux</title>
+</head>
+<body>
+<span style="font-family: serif;"></span><a href="../../index.html">Index</a>
+| <a href="OpenJMS.html">Open JMS</a><br>
+<hr style="width: 100%; height: 2px;">
+<h3>Installing Open JMS 0.7.6.1 onto Linux</h3>
+This document outlines the process to install <a
+ href="http://openjms.sourceforge.net/">Open JMS 0.7.6.1</a> into a
+user's home directory and run it as a service.<br>
+<br>
+Open JMS is an open source JMS compliant messaging system written in
+Java.<br>
+<h4>Setting up the Java Environment</h4>
+Add the following to your <span style="font-family: monospace;">.bash_profile</span>
+file to set up your Java environment:<br>
+<br>
+<span style="font-family: monospace;">JAVA_HOME=/usr/java/jdk1.5.0_03</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">export JAVA_HOME</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">PATH=/usr/java/jdk1.5.0_03/bin:"${PATH}"</span><br
+ style="font-family: monospace;">
+<h4>Installing Open JMS 0.7.6.1</h4>
+The latest source distribution <span style="font-family: monospace;">openjms-0.7.6.1.zip</span>
+can be found on the 172.20.20.59 FTP server. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory.<br>
+<br>
+Unzip this file:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$unzip openjms-0.7.6.1.zip</span><br
+ style="font-family: monospace;">
+<br>
+This will create an <span style="font-family: monospace;">openjms-0.7.6.1</span>
+directory in your home directory. <br>
+<h4>Configuring Open JMS 0.7.6.1</h4>
+Add the following to your <span style="font-family: monospace;">.bash_profile</span>
+file to set up the <span style="font-family: monospace;">OPENJMS_HOME</span>
+environment variable:<br>
+<br>
+<span style="font-family: monospace;">OPENJMS_HOME=~/openjms-0.7.6.1</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">export OPENJMS_HOME</span><br
+ style="font-family: monospace;">
+<br>
+All of the JNDI objects and factories are defined in the <span
+ style="font-family: monospace;">~/openjms-0.7.6.1/config/openjms.xml</span>
+file.<br>
+<br>
+Edit the <span style="font-family: monospace;">~/openjms-0.7.6.1/config/openjms.xml</span>
+file until it looks like:<br>
+<br>
+<span style="font-family: monospace;">&lt;?xml version="1.0"?&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;!-- OpenJMS configuration:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; . RMI
+connectors</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; . JDBM
+persistency</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; .
+embedded JNDI provider</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; .
+embedded RMI registry, running on port 1099</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; .
+preconfigured destinations</span><br style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; NOTES:
+this configuration shows all configuration elements relevant</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+when using an RMI connector.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;--&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;Configuration&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;!-- Optional. This
+represents the default configuration&nbsp; --&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;ServerConfiguration
+host="depression" embeddedJNDI="true" /&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;TcpConfiguration
+port="3030" jndiPort="3035"/&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;!-- Required when
+using an RMI connector --&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;Connectors&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;Connector
+scheme="tcp"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;ConnectionFactories&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;QueueConnectionFactory name="TCPQueueConnectionFactory"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;TopicConnectionFactory name="TCPTopicConnectionFactory"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/ConnectionFactories&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/Connector&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;Connector
+scheme="rmi"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;ConnectionFactories&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;QueueConnectionFactory name="JmsQueueConnectionFactory" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;TopicConnectionFactory name="JmsTopicConnectionFactory" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/ConnectionFactories&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/Connector&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;/Connectors&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;!-- Required&nbsp;
+--&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;
+&lt;DatabaseConfiguration&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;JdbmDatabaseConfiguration name="openjms.db" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;
+&lt;/DatabaseConfiguration&gt;</span><br style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;!-- Required --&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;AdminConfiguration
+script="${openjms.home}\bin\startup.bat" /&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;!-- Optional. If not
+specified, no destinations will be created --&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;
+&lt;AdministeredDestinations&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;AdministeredTopic name="topic1"&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Subscriber name="sub1" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Subscriber name="sub2" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/AdministeredTopic&gt;</span><br style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;AdministeredQueue name="TestQueue" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;AdministeredQueue name="RequestQueue" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;AdministeredQueue name="ReplyQueue" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;AdministeredQueue name="DeadLetterQueue" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;
+&lt;/AdministeredDestinations&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;!-- Optional. If not
+specified, no users will be created --&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;Users&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;User
+name="admin" password="openjms" /&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;/Users&gt;</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;/Configuration&gt;</span><br
+ style="font-family: monospace;">
+<br>
+Change the permissions of the server startup scripts:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$chmod u+x *.sh</span><br
+ style="font-family: monospace;">
+<br>
+Run Open JMS:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./startup.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Using OPENJMS_HOME:
+/home/alisdairh/openjms-0.7.6.1</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Using
+JAVA_HOME:&nbsp;&nbsp;&nbsp; /usr/java/j2sdk1.4.2</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">OpenJMS 0.7.6.1</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">The OpenJMS Group. (C) 1999-2004.
+All rights reserved.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">http://openjms.sourceforge.net</span><br
+ style="font-family: monospace;">
+<br>
+<span style="font-family: monospace;">Ctrl-C</span> to stop Open JMS.<br>
+<h4>Install Open JMS 0.7.6.1 as a Service</h4>
+<a
+ href="http://wrapper.tanukisoftware.org/doc/english/introduction.html">Java
+Service Wrapper</a> is used to run Open JMS as a service. This allows
+Open JMS to be started with a script which takes stop, start, and
+restart as parameters. More details can be found <a
+ href="http://wrapper.tanukisoftware.org/doc/english/integrate-simple-nix.html">here</a>.<br>
+<br>
+The Java Service Wrapper binary <span style="font-family: monospace;">wrapper_linux_3.1.2.tar.gz</span>
+can be found on the 172.20.20.59 FTP server. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory and unpack:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$gunzip wrapper_linux_3.1.2.tar.gz</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$tar -xvf wrapper_linux_3.1.2.tar</span><br
+ style="font-family: monospace;">
+<br>
+Create the Open JMS <span style="font-family: monospace;">service</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir service</span><br
+ style="font-family: monospace;">
+<br>
+Create the <span style="font-family: monospace;">bin</span>, <span
+ style="font-family: monospace;">conf</span>, <span
+ style="font-family: monospace;">config</span>, <span
+ style="font-family: monospace;">lib</span>, and <span
+ style="font-family: monospace;">logs</span> directories in the <span
+ style="font-family: monospace;">service</span> directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir conf</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir config</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir logs</span><br
+ style="font-family: monospace;">
+<br>
+Copy the <span style="font-family: monospace;">~/wrapper_linux_3.1.2/bin/wrapper</span>
+and <span style="font-family: monospace;">~/wrapper_linux_3.1.2/bin/wrapper/src/bin/sh.script.in</span>
+files to the <span style="font-family: monospace;">~/openjms-0.7.6.1/service/bin</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/bin/wrapper .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/src/bin/sh.script.in .</span><br
+ style="font-family: monospace;">
+<br>
+Rename the <span style="font-family: monospace;">sh.script.in</span>
+file to <span style="font-family: monospace;">openjms</span>:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv sh.script.in openjms</span><br
+ style="font-family: monospace;">
+<br>
+Edit the <span style="font-family: monospace;">openjms</span> script
+and set the <span style="font-family: monospace;">APP_NAME</span> and <span
+ style="font-family: monospace;">APP_LONG_NAME</span> properties:<br>
+<br>
+<span style="font-family: monospace;">APP_NAME="OPENJMS"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">APP_LONG_NAME="OPENJMS Messaging
+System"</span><br style="font-family: monospace;">
+<br>
+Set the <span style="font-family: monospace;">openjms</span> script to
+be executable:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$chmod u+x openjms</span><br
+ style="font-family: monospace;">
+<br>
+Copy the following files into the <span style="font-family: monospace;">~/openjms-0.7.6.1/service/lib</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/lib/libwrapper.so .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/lib/wrapper.jar .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp ~/openjms-0.7.6.1/lib/*.jar .</span><br
+ style="font-family: monospace;">
+<br>
+Copy the following files into the <span style="font-family: monospace;">~/openjms-0.7.6.1/service/conf</span>
+directory and rename:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/conf</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/src/conf/wrapper.conf.in .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv wrapper.conf.in wrapper.conf</span><br
+ style="font-family: monospace;">
+<br>
+Copy the following files into the <span style="font-family: monospace;">~/openjms-0.7.6.1/service/config</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd
+~/openjms-0.7.6.1/service/config</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/openjms-0.7.6.1/config/*.xml .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/openjms-0.7.6.1/config/*.policy .</span><br
+ style="font-family: monospace;">
+<br>
+Before the wrapper can be configured to launch Open JMS, the full Java
+command created by the current <span style="font-family: monospace;">~/openjms-0.7.6.1/bin/openjms.sh</span>
+script is required.<br>
+<br>
+Copy the <span style="font-family: monospace;">~/openjms-0.7.6.1/bin/openjms.sh</span>
+file to <span style="font-family: monospace;">~/openjms-0.7.6.1/bin/openjms.sh.tmp</span>.<br>
+<br>
+Edit the <span style="font-family: monospace;">~/openjms-0.7.6.1/bin/openjms.sh</span>
+file to output this information.<br>
+<br>
+Find the line:<br>
+<br>
+<span style="font-family: monospace;">elif [ "$1" = "start" ] ; then</span><br
+ style="font-family: monospace;">
+<br>
+Change the <span style="font-family: monospace;">"$_RUNJAVA"</span>
+lines immediately after it to:<br>
+<br>
+<span style="font-family: monospace;">echo "$_RUNJAVA $JAVA_OPTS
+-Dopenjms.home=$OPENJMS_HOME \</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-classpath $CLASSPATH \</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-Djava.security.manager -Djava.security.policy=$POLICY_FILE \</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+org.exolab.jms.server.JmsServer $@"</span><br
+ style="font-family: monospace;">
+<br>
+Run the <span style="font-family: monospace;">~/openjms-0.7.6.1/bin/startup.sh</span>
+script which will call the <span style="font-family: monospace;">openjms.sh</span>
+script:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./startup.sh</span><br
+ style="font-family: monospace;">
+<br>
+This will output the full Java command:<br>
+<br>
+<span style="font-family: monospace;">/usr/java/j2sdk1.4.2/bin/java
+-Dopenjms.home=/home/alisdairh/openjms-0.7.6.1 -classpath
+:/home/alisdairh/openjms-0.7.6.1/lib/openjms-0.7.6.1.jar
+-Djava.security.manager
+-Djava.security.policy=/home/alisdairh/openjms-0.7.6.1/config/openjms.policy
+org.exolab.jms.server.JmsServer</span><br
+ style="font-family: monospace;">
+<br>
+Replace the original <span style="font-family: monospace;">openjms.sh</span>
+script:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$rm openjms.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv openjms.sh.tmp openjms.sh</span><br
+ style="font-family: monospace;">
+<br>
+Using the information provided by the echo command above, make the
+following changes to the <span style="font-family: monospace;">~/openjms-0.7.6.1/service/conf/wrapper.conf</span>
+file:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Current</th>
+      <th style="vertical-align: top;">Change To</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.logfile=../logs/wrapper.log</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.logfile=../logs/openjms.log</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.command=java</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.command=/usr/java/jdk1.5.0_03/bin/java</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">#wrapper.java.maxmemory=64</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.maxmemory=512</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.classpath.1=../lib/wrapper.jar</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.classpath.1=../lib/wrapper.jar<br>
+wrapper.java.classpath.2=../conf<br>
+wrapper.java.classpath.3=../lib/openjms-0.7.6.1.jar</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">#wrapper.java.additional.1=</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.additional.1=-Dopenjms.home=..<br>
+wrapper.java.additional.2=-Djava.security.manager<br>
+wrapper.java.additional.3=-Djava.security.policy=../config/openjms.policy</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.app.parameter.1=&lt;YourMainClass&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.app.parameter.1=org.exolab.jms.server.JmsServer</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Start Open JMS 0.7.6.1 in console mode to test:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./openjms console</span><br
+ style="font-family: monospace;">
+<br>
+The following output should be seen:<br>
+<br>
+<span style="font-family: monospace;">Running OPENJMS Messaging
+System...</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | --&gt; Wrapper
+Started as Console</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | Launching a JVM...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | Wrapper
+(Version 3.1.2) http://wrapper.tanukisoftware.org</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | OpenJMS
+0.7.6.1</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | The
+OpenJMS Group. (C) 1999-2004. All rights reserved.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+http://openjms.sourceforge.net</span><br style="font-family: monospace;">
+<br>
+<span style="font-family: monospace;">Ctrl-C</span> to shutdown Open
+JMS 0.7.6.1:<br>
+<br>
+<span style="font-family: monospace;">wrapper&nbsp; | INT
+trapped.&nbsp; Shutting down.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | &lt;-- Wrapper
+Stopped</span><br style="font-family: monospace;">
+<br>
+To start Open JMS 0.7.6.1 as a service:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./openjms start</span><br
+ style="font-family: monospace;">
+<br>
+The following output should be seen:<br>
+<br>
+<span style="font-family: monospace;">Starting OPENJMS Messaging
+System...</span><br>
+<br>
+To stop Open JMS 0.7.6.1:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./openjms stop</span><br
+ style="font-family: monospace;">
+<br>
+The following output should be seen:<br>
+<br>
+<span style="font-family: monospace;">Stopping OPENJMS Messaging
+System...</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Stopped OPENJMS Messaging System.</span><br
+ style="font-family: monospace;">
+<br>
+The output seen during the console test is logged in the <span
+ style="font-family: monospace;">~/openjms-0.7.6.1/service/logs/openjms.log</span>
+file. <br>
+<hr style="width: 100%; height: 2px;"><a href="../../index.html">Index</a>
+| <a href="OpenJMS.html">Open JMS</a><br>
+</body>
+</html>

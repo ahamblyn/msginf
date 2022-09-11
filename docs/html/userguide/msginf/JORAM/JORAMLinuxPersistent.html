@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Making the JORAM Server Persistent</title>
+</head>
+<body>
+<span style="font-family: serif;"></span><a href="../../index.html">Index</a>
+| <a href="JORAM.html">JORAM</a>
+<hr style="width: 100%; height: 2px;"><a href="JORAM.html"></a>
+<h3>Making the JORAM Server Persistent</h3>
+This document outlines the steps to make the JORAM server on Linux
+persistent, ie remember the Queue objects registered between startups.<br>
+<br>
+JORAM cannot use a database to store messages. It can only use the file
+system.<br>
+<br>
+It is assumed that JORAM has been <a href="InstallJORAMLinux.html">installed
+on Linux</a> already.<br>
+<br>
+Stop the JORAM message listener:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/messagelisteners/joram/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./msgrr stop</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Stopping Message Request Reply...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Stopped Message Request Reply.</span><br
+ style="font-family: monospace;">
+<br>
+Stop the JORAM message server:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./joram stop</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Stopping JORAM Messaging System...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Stopped JORAM Messaging System.</span><br
+ style="font-family: monospace;">
+<br>
+Make the following changes to the <span style="font-family: monospace;">~/joram-4_2_0/service/run/a3servers.xml</span>
+file:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Current</th>
+      <th style="vertical-align: top;">Change To</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">&lt;property
+name="Transaction" value="fr.dyade.aaa.util.NullTransaction"/&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">&lt;property
+name="Transaction" value="fr.dyade.aaa.util.NTransaction"/&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Restart the JORAM message server:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./joram start</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Starting JORAM Messaging System...</span><br
+ style="font-family: monospace;">
+<br>
+Re-register the queue objects:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./createTestQueues.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue factory: qcf</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 19, 2005 5:03:47 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue factory:
+qcf</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: TestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 19, 2005 5:03:49 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue: TestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: RequestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 19, 2005 5:03:51 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue:
+RequestQueue</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: ReplyQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 19, 2005 5:03:53 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue:
+ReplyQueue</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: DeadLetterQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 19, 2005 5:03:55 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue:
+DeadLetterQueue</span><br style="font-family: monospace;">
+<br>
+Restart the JORAM&nbsp; message listener:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/messagelisteners/joram/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./msgrr start</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Starting Message Request Reply...</span><br
+ style="font-family: monospace;">
+<hr style="width: 100%; height: 2px;"><span style="font-family: serif;"></span><a
+ href="../../index.html">Index</a> | <a href="JORAM.html">JORAM</a><br>
+</body>
+</html>

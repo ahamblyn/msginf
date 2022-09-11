@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Using Postgres for JBossMQ Message Persistence</title>
+</head>
+<body>
+<span style="font-family: serif;"></span><a href="../../index.html">Index</a>
+| <a href="JBossMQ.html">JBossMQ</a>
+<hr style="width: 100%; height: 2px;"><a href="JBossMQ.html"></a>
+<h3>Using Postgres for JBossMQ Message Persistence</h3>
+This document outlines how to configure <a
+ href="http://wiki.jboss.org/wiki/Wiki.jsp?page=JBossMQ">JBossMQ</a> to
+use a <a href="http://www.postgresql.org/">Postgres</a> database for
+persistence.<br>
+<h4>Setting up Postgres</h4>
+It is assumed that a Postgres server already exists. For this document,
+Postgres was installed on a Windows PC: <span
+ style="font-family: monospace;">dmpeintw5386</span>.<br>
+<br>
+A user <span style="font-family: monospace;">pguser</span> (password:
+<span style="font-family: monospace;">user</span>) was created:<br>
+<br>
+<span style="font-family: monospace;">CREATE USER pguser</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; WITH SYSID 101</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; ENCRYPTED PASSWORD
+'md5631bd54ecaf464e1a96afa328649894a'</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; NOCREATEDB NOCREATEUSER;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">ALTER GROUP template1_users ADD
+USER pguser;</span><br style="font-family: monospace;">
+<br>
+A database called <span style="font-family: monospace;">pg_test</span>
+was created with <span style="font-family: monospace;">pguser</span>
+as the owner:<br>
+<br>
+<span style="font-family: monospace;">CREATE DATABASE pg_test</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; WITH OWNER = pguser</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ENCODING = 'UNICODE'</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TABLESPACE = pg_default;</span><br>
+<h4>Stop JBoss</h4>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd jboss-4.0.1RC1/bin/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./jboss stop</span><br>
+<h4>Deploy and Configure the Postgres Datasource</h4>
+The Postgres JDBC drivers <span style="font-family: monospace;">pg74.214.jdbc3.jar</span>
+can be found on the 172.20.20.59 FTP server. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory and copy to the <span
+ style="font-family: monospace;">~/jboss-4.0.1RC1/server/default/lib/</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp pg74.214.jdbc3.jar
+jboss-4.0.1RC1/server/default/lib/</span><br
+ style="font-family: monospace;">
+<br>
+Copy the postgres datasource to JBoss:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+jboss-4.0.1RC1/docs/examples/jca/postgres-ds.xml
+jboss-4.0.1RC1/server/default/deploy/</span><br
+ style="font-family: monospace;">
+<br>
+Edit the <span style="font-family: monospace;">~/jboss-4.0.1RC1/server/default/deploy/postgres-ds.xml</span>
+file:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Current</th>
+      <th style="vertical-align: top;">Change To</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">&lt;connection-url&gt;jdbc:postgresql://[servername]:[port]/[database
+name]&lt;/connection-url&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">&lt;connection-url&gt;jdbc:postgresql://dmpeintw5386:5432/pg_test&lt;/connection-url&gt;</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">&lt;user-name&gt;x&lt;/user-name&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">&lt;user-name&gt;pguser&lt;/user-name&gt;</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">&lt;password&gt;y&lt;/password&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">&lt;password&gt;user&lt;/password&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h4>Change the Persistence Configuration</h4>
+Copy the postgres persistence configuration file to JBoss:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+jboss-4.0.1RC1/docs/examples/jms/postgres-jdbc2-service.xml
+jboss-4.0.1RC1/server/default/deploy/jms/</span><br
+ style="font-family: monospace;">
+<br>
+Move the old hsqldb configuration:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv
+jboss-4.0.1RC1/server/default/deploy/jms/hsqldb-jdbc2-service.xml
+jboss-4.0.1RC1/</span><br>
+<h4>Change the State Manager</h4>
+Copy the current hsqldb state manager file:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd
+jboss-4.0.1RC1/server/default/deploy/jms/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp hsqldb-jdbc-state-service.xml
+postgres-jdbc-state-service.xml</span><br
+ style="font-family: monospace;">
+<br>
+Move the old hsqldb configuration:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv
+jboss-4.0.1RC1/server/default/deploy/jms/hsqldb-jdbc-state-service.xml
+jboss-4.0.1RC1/</span><br style="font-family: monospace;">
+<br>
+Edit the new <span style="font-family: monospace;">~/jboss-4.0.1RC1/server/default/deploy/jms/postgres-jdbc-state-service.xml</span>
+file:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Current</th>
+      <th style="vertical-align: top;">Change To</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">&lt;depends
+optional-attribute-name="ConnectionManager"&gt;jboss.jca:service=DataSourceBinding,name=DefaultDS<br>
+&lt;/depends&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">&lt;depends
+optional-attribute-name="ConnectionManager"&gt;jboss.jca:service=DataSourceBinding,name=PostgresDS<br>
+&lt;/depends&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h4>Change the JBossMQ Login Configuration</h4>
+Edit the <span style="font-family: monospace;">~/jboss-4.0.1RC1/server/default/conf/login-config.xml</span>
+file.<br>
+<br>
+In the <span style="font-family: monospace;">&lt;!-- Security domain
+for JBossMQ --&gt;</span> section:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Current</th>
+      <th style="vertical-align: top;">Change To</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">&lt;module-option
+name = "dsJndiName"&gt;java:/DefaultDS&lt;/module-option&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">&lt;module-option
+name = "dsJndiName"&gt;java:/PostgresDS&lt;/module-option&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h4>Start JBoss</h4>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd jboss-4.0.1RC1/bin/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./jboss start</span><br
+ style="font-family: monospace;">
+<hr style="width: 100%; height: 2px;"><span style="font-family: serif;"></span><a
+ href="../../index.html">Index</a>
+| <a href="JBossMQ.html">JBossMQ</a><br>
+</body>
+</html>

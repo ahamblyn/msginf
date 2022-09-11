@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+    	<layout class="org.apache.log4j.SimpleLayout"/>
+	</appender>
+
+	<appender name="msginf" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="msginf-log.xml" />
+		<param name="Append" value="true" />
+		<layout class="org.apache.log4j.xml.XMLLayout" />
+	</appender>
+	
+	<logger name="nz.govt.nzqa" additivity="true" >
+		<level value="DEBUG" /> 
+		<appender-ref ref="msginf"/>		
+	</logger>
+	
+  <root>
+    <level value="error" />
+    <appender-ref ref="ConsoleAppender"/>
+  </root>
+	
+</log4j:configuration> 

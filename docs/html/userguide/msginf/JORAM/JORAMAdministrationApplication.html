@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>JORAM Administration Application</title>
+</head>
+<body>
+<span style="font-family: serif;"></span><a href="../../index.html">Index</a>
+| <a href="JORAM.html">JORAM</a>
+<hr style="width: 100%; height: 2px;"><a href="JORAM.html"></a>
+<h3>JORAM Administration Application</h3>
+Once <a href="http://joram.objectweb.org/">JORAM</a> has been <a
+ href="InstallJORAMLinux.html">installed</a> and made <a
+ href="JORAMLinuxPersistent.html">persistent</a>, queues and queue
+connection factories have to be created. An administration application
+has been written to do this.<br>
+<h4>Building the JORAM Administration Application</h4>
+In order to build the JORAM administration application, SVN and Ant
+will need to be installed on your PC.<br>
+<br>
+The source code for the JORAM administration application is in SVN at: <span
+ style="font-family: monospace;">http://updraft/svn/dm2repos/unisys/messaging/trunk/Implementation/Project/joram</span><br>
+<br>
+Check the code out to a directory (referred to as <span
+ style="font-family: monospace;">JORAM_HOME</span>).<br>
+<br>
+The following Ant targets can be run from the <span
+ style="font-family: monospace;">JORAM_HOME</span> directory:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Ant Target Name</th>
+      <th style="vertical-align: top;">Description</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">clean</td>
+      <td style="vertical-align: top;">Deletes the <span
+ style="font-family: monospace;">JORAM_HOME/build</span> directory.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">compile</td>
+      <td style="vertical-align: top;">Compiles the code into the <span
+ style="font-family: monospace;">JORAM_HOME/build/classes</span>
+directory.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">makeadmin</td>
+      <td style="vertical-align: top;">Creates the <span
+ style="font-family: monospace;">joramadmin.zip</span> file in the <span
+ style="font-family: monospace;">JORAM_HOME/build</span> directory.</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The <span style="font-family: monospace;">joramadmin.zip</span>
+contains everything required to run the JORAM administration
+application.<br>
+<br>
+Unzip this file in a directory (eg <span
+ style="font-family: monospace;">c:\joram</span>) and run the <span
+ style="font-family: monospace;">runadmin.bat</span> script to start
+the JORAM administration application.<br>
+<h4>JORAM Administration Application Basics</h4>
+Starting the JORAM administration application shows the following
+screen:<br>
+<br>
+<img alt="JORAM Server" src="images/joram_server.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+The JORAM server has two components: <span
+ style="font-family: monospace;">Server</span> and <span
+ style="font-family: monospace;">JNDI</span> and represented by the two
+tabs above. Clicking on the <span style="font-family: monospace;">JNDI</span>
+tab:<br>
+<br>
+<img alt="JORAM JNDI" src="images/joram_jndi.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+By default the application uses <span style="font-family: monospace;">localhost</span>
+for both tabs. Note that the default port has also changed.<br>
+<br>
+If a different server and jndi host are to be used, it is <span
+ style="font-weight: bold;">ABSOLUTELY VITAL</span> that <span
+ style="font-weight: bold;">BOTH</span> tabs refer to the same host as
+the application uses the information from both screens when creating
+queues and queue connection factories and if one still refers to <span
+ style="font-family: monospace;">localhost</span> then problems <span
+ style="font-weight: bold;">WILL</span> occur. <br>
+<br>
+Clicking on the <span style="font-family: monospace;">Refresh</span>
+button on the <span style="font-family: monospace;">Server</span> tab
+results in:<br>
+<br>
+<img alt="JORAM Server Refresh" src="images/joram_server_refresh.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+The application connects to the JORAM server using the host name and
+port provided and lists the server objects in a tree.<br>
+<br>
+Clicking on the <span style="font-family: monospace;">Refresh</span>
+button on the <span style="font-family: monospace;">JNDI</span> tab
+results in:<br>
+<br>
+<img alt="JORAM JNDI Refresh" src="images/joram_jndi_refresh.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+The application connects to the JORAM JNDI context using the host name
+and port provided and lists the JNDI objects in a tree.<br>
+<h4>Creating a Queue Connection Factory</h4>
+On the <span style="font-family: monospace;">Server</span> tab,
+right-click on the <span style="font-family: monospace;">S0</span>
+server and select the <span style="font-family: monospace;">New Queue
+Connection Factory...</span> item on the pop-up menu:<br>
+<br>
+<img alt="JORAM Create QCF 1" src="images/joram_create_qcf1.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+Enter the new queue connection factory details on the right panel:<br>
+<br>
+<img alt="JORAM Create QCF 2" src="images/joram_create_qcf2.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+Click the <span style="font-family: monospace;">Save</span> button:<br>
+<br>
+<img alt="JORAM Create QCF 3" src="images/joram_create_qcf3.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+As the queue connection factory is actually a JNDI object, go to the <span
+ style="font-family: monospace;">JNDI</span> tab and press the <span
+ style="font-family: monospace;">Refresh</span> button to see the new
+queue connection factory:<br>
+<br>
+<img alt="JORAM Create QCF 4" src="images/joram_create_qcf4.png"
+ style="width: 800px; height: 600px;"><br>
+<h4>Deleting a Queue Connection Factory</h4>
+On the <span style="font-family: monospace;">JNDI</span> tab,
+right-click on the queue connection factory you wish to delete and
+select the <span style="font-family: monospace;">Delete Queue
+Connection Factory...</span> item on the pop-up menu.<br>
+<br>
+<img alt="JORAM Delete QCF 1" src="images/joram_delete_qcf1.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+The queue connection factory is deleted:<br>
+<br>
+<img alt="JORAM Delete QCF 2" src="images/joram_delete_qcf2.png"
+ style="width: 800px; height: 600px;"><br>
+<h4>Creating a Queue</h4>
+On the <span style="font-family: monospace;">Server</span> tab,
+right-click on the <span style="font-family: monospace;">S0</span>
+server and select the <span style="font-family: monospace;">New
+Queue...</span> item on the pop-up menu:<br>
+<br>
+<img alt="JORAM Create Queue 1" src="images/joram_create_queue1.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+Enter the new queue name on the input dialog box:<br>
+<br>
+<img alt="JORAM Create Queue 2" src="images/joram_create_queue2.png"
+ style="width: 297px; height: 121px;"><br>
+<br>
+Click the <span style="font-family: monospace;">OK</span> button:<br>
+<br>
+<img alt="JORAM Create Queue 3" src="images/joram_create_queue3.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+Go to the <span style="font-family: monospace;">JNDI</span> tab and
+press the <span style="font-family: monospace;">Refresh</span> button
+to see the new JNDI queue:<br>
+<br>
+<img alt="JORAM Create Queue 4" src="images/joram_create_queue4.png"
+ style="width: 800px; height: 600px;"><br>
+<h4>Deleting a Queue</h4>
+On the <span style="font-family: monospace;">Server</span> tab,
+right-click on the queue you wish to delete and select the <span
+ style="font-family: monospace;">Delete Destination...</span> item on
+the pop-up menu.<br>
+<br>
+<img alt="JORAM Delete Queue 1" src="images/joram_delete_queue1.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+The queue is deleted:<br>
+<br>
+<img alt="JORAM Delete Queue 2" src="images/joram_delete_queue2.png"
+ style="width: 800px; height: 600px;"><br>
+<br>
+Go to the <span style="font-family: monospace;">JNDI</span> tab and
+press the <span style="font-family: monospace;">Refresh</span> button
+to see that the JNDI queue has been deleted:<br>
+<br>
+<img alt="JORAM Delete Queue 3" src="images/joram_delete_queue3.png"
+ style="width: 800px; height: 600px;"><br>
+<hr style="width: 100%; height: 2px;"><span style="font-family: serif;"></span><a
+ href="../../index.html">Index</a> | <a href="JORAM.html">JORAM</a><br>
+</body>
+</html>

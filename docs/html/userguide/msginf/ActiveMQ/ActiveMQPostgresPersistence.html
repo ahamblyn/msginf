@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Using Postgres for ActiveMQ Message Persistence</title>
+</head>
+<body>
+<span style="font-family: serif;"></span><a href="../../index.html">Index</a>
+| <a href="ActiveMQ.html">ActiveMQ</a><br>
+<hr style="width: 100%; height: 2px;">
+<h3>Using Postgres for ActiveMQ Message Persistence</h3>
+This document outlines how to get <a
+ href="http://activemq.codehaus.org/">ActiveMQ</a> to use a <a
+ href="http://www.postgresql.org/">Postgres</a> database for
+persistence.<br>
+<h4>Setting up Postgres</h4>
+It is assumed that a Postgres server already exists. For this document,
+Postgres was installed on a Windows PC: <span
+ style="font-family: monospace;">dmpeintw5386</span>.<br>
+<br>
+A user <span style="font-family: monospace;">pguser</span> (password:
+user) was created:<br>
+<br>
+<span style="font-family: monospace;">CREATE USER pguser</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; WITH SYSID 101</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; ENCRYPTED PASSWORD
+'md5631bd54ecaf464e1a96afa328649894a'</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; NOCREATEDB NOCREATEUSER;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">ALTER GROUP template1_users ADD
+USER pguser;</span><br style="font-family: monospace;">
+<br>
+A database called <span style="font-family: monospace;">pg_test</span>
+was created with <span style="font-family: monospace;">pguser</span>
+as the owner:<br>
+<br>
+<span style="font-family: monospace;">CREATE DATABASE pg_test</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; WITH OWNER = pguser</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ENCODING = 'UNICODE'</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TABLESPACE = pg_default;</span><br style="font-family: monospace;">
+<br>
+The following tables were created:<br>
+<br>
+<span style="font-family: monospace;">CREATE TABLE activemq_acks</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">(</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; sub varchar(250) NOT NULL,</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; container varchar(250),</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; last_acked_id int4,</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; se_id int4,</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; se_client_id varchar(250),</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; se_consumer_name
+varchar(250),</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; se_selector varchar(250),</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; CONSTRAINT
+activemq_acks_pkey PRIMARY KEY (sub)</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">) </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">WITH OIDS;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">ALTER TABLE activemq_acks OWNER
+TO pguser;</span><br style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">CREATE TABLE activemq_msgs</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">(</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; id int4 NOT NULL,</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; container varchar(250),</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; msgid varchar(250),</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; msg bytea,</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; CONSTRAINT
+activemq_msgs_pkey PRIMARY KEY (id)</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">) </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">WITH OIDS;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">ALTER TABLE activemq_msgs OWNER
+TO pguser;</span><br style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">CREATE TABLE activemq_txs</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">(</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; xid varchar(250) NOT NULL,</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; tx bytea,</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; CONSTRAINT
+activemq_txs_pkey PRIMARY KEY (xid)</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">) </span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">WITH OIDS;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">ALTER TABLE activemq_txs OWNER TO
+pguser;</span><br>
+<h4>Setup ActiveMQ</h4>
+Telnet to <span style="font-family: monospace;">depression</span>.<br>
+<br>
+Stop ActiveMQ:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd ~/activemq-3.1/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./mq stop</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Stopping ActiveMQ Messaging
+System...</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Stopped ActiveMQ Messaging System.</span><br
+ style="font-family: monospace;">
+<br>
+The Postgres JDBC drivers file <span style="font-family: monospace;">pg74.214.jdbc3.jar</span>
+can be found on the 172.20.20.59 FTP server. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory and copy to <span
+ style="font-family: monospace;">~/activemq-3.1/lib/optional/</span>.<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp pg74.214.jdbc3.jar
+activemq-3.1/lib/optional/</span><br style="font-family: monospace;">
+<br>
+Edit the <span style="font-family: monospace;">~/activemq-3.1/conf/wrapper.conf</span>
+file and add the new jar file to the end of the Java classpath section:<br>
+<br>
+<span style="font-family: monospace;">wrapper.java.classpath.17=../lib/optional/pg74.214.jdbc3.jar</span><br>
+<br>
+Edit the <span style="font-family: monospace;">~/activemq-3.1/conf/activemq.xml</span>
+file.<br>
+<br>
+Replace the <span style="font-family: monospace;">&lt;persistence&gt;...&lt;/persistence&gt;</span>
+XML with:<br>
+<br>
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;persistence&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;jdbcPersistence dataSourceRef="postgres-ds"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/persistence&gt;</span><br style="font-family: monospace;">
+<br>
+Replace the <span style="font-family: monospace;">&lt;bean&gt;...&lt;/bean&gt;</span>
+XML with:<br>
+<br>
+<span style="font-family: monospace;">&nbsp; &lt;bean id="postgres-ds"
+class="org.apache.commons.dbcp.BasicDataSource"
+destroy-method="close"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;property
+name="driverClassName"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;value&gt;org.postgresql.Driver&lt;/value&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/property&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;property
+name="url"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;value&gt;jdbc:postgresql://dmpeintw5386:5432/pg_test&lt;/value&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/property&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;property
+name="username"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;value&gt;pguser&lt;/value&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/property&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;property
+name="password"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;value&gt;user&lt;/value&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/property&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;property
+name="poolPreparedStatements"&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;value&gt;true&lt;/value&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/property&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;/bean&gt;</span><br
+ style="font-family: monospace;">
+<br>
+Restart in console to test:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd ~/activemq-3.1/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./mq console</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">alisdairh@depression:~/activemq-3.1/bin$
+./mq console</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Running ActiveMQ Messaging
+System...</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | --&gt; Wrapper
+Started as Console</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | Launching a JVM...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | Wrapper
+(Version 3.1.2) http://wrapper.tanukisoftware.org</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+ActiveMQ Message Broker</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | Loading
+Mesaage Broker from activemq.xml on the CLASSPATH</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 INFO&nbsp; ActiveMQ 3.1 JMS Message Broker
+(ID:depression-34481-1115677559870-0:0) is starting</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 INFO&nbsp; For help or more information please see:
+www.protique.com</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 WARN&nbsp; Database driver NOT recognized:
+[postgresql_native_driver].&nbsp; Will use default JDBC implementation.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 WARN&nbsp; Could not create JDBC tables; they could already
+exist. Failure was: CREATE TABLE ACTIVEMQ_MSGS(ID INTEGER NOT NULL,
+CONTAINER VARCHAR(250), MSGID VARCHAR(250), MSG BLOB, PRIMARY KEY ( ID
+) ) Message: ERROR: type "blob" does not exist</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |&nbsp;
+SQLState: 42704 Vendor code: 0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 WARN&nbsp; Could not create JDBC tables; they could already
+exist. Failure was: CREATE INDEX ACTIVEMQ_MSGS_MIDX ON ACTIVEMQ_MSGS
+(MSGID) Message: ERROR: current transaction is aborted, commands
+ignored until end of transaction block</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |&nbsp;
+SQLState: 25P02 Vendor code: 0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 WARN&nbsp; Could not create JDBC tables; they could already
+exist. Failure was: CREATE INDEX ACTIVEMQ_MSGS_CIDX ON ACTIVEMQ_MSGS
+(CONTAINER) Message: ERROR: current transaction is aborted, commands
+ignored until end of transaction block</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |&nbsp;
+SQLState: 25P02 Vendor code: 0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 WARN&nbsp; Could not create JDBC tables; they could already
+exist. Failure was: CREATE TABLE ACTIVEMQ_TXS(XID VARCHAR(250) NOT
+NULL, PRIMARY KEY ( XID )) Message: ERROR: current transaction is
+aborted, commands ignored until end of transaction block</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |&nbsp;
+SQLState: 25P02 Vendor code: 0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 WARN&nbsp; Could not create JDBC tables; they could already
+exist. Failure was: CREATE TABLE ACTIVEMQ_ACKS(SUB VARCHAR(250) NOT
+NULL, CONTAINER VARCHAR(250) NOT NULL, LAST_ACKED_ID INTEGER, SE_ID
+INTEGER, SE_CLIENT_ID VARCHAR(250), SE_CONSUMER_NAME VARCHAR(250),
+SE_SELECTOR VARCHAR(250), PRIMARY KEY ( SUB, CONTAINER )) Message:
+ERROR: current transaction is aborted, commands ignored until end of
+transaction block</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |&nbsp;
+SQLState: 25P02 Vendor code: 0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 WARN&nbsp; Could not create JDBC tables; they could already
+exist. Failure was: CREATE INDEX ACTIVEMQ_ACKS_CIDX ON ACTIVEMQ_ACKS
+(CONTAINER) Message: ERROR: current transaction is aborted, commands
+ignored until end of transaction block</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |&nbsp;
+SQLState: 25P02 Vendor code: 0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 INFO&nbsp; Listening for connections at: tcp://0.0.0.0:61616</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 INFO&nbsp; ActiveMQ connector started:
+TcpTransportServerChannel@tcp://0.0.0.0:61616</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+10:26:01 INFO&nbsp; ActiveMQ JMS Message Broker
+(ID:depression-34481-1115677559870-0:0) has started</span><br
+ style="font-family: monospace;">
+<br>
+Don't worry about the errors.<br>
+<br>
+Stop the above with <span style="font-family: monospace;">CTRL-C</span>
+and start normally:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd ~/activemq-3.1/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./mq start</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Starting ActiveMQ Messaging
+System...</span><br style="font-family: monospace;">
+<hr style="width: 100%; height: 2px;"><span style="font-family: serif;"></span><a
+ href="../../index.html">Index</a> | <a href="ActiveMQ.html">ActiveMQ</a><br>
+</body>
+</html>

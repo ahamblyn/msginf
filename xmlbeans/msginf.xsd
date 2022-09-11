@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:emi="http://nzqa.govt.nz/emi/infrastructure/pref/xmlbeans" targetNamespace="http://nzqa.govt.nz/emi/infrastructure/pref/xmlbeans" elementFormDefault="qualified">
+
+  <!-- definition of simple elements -->
+  <xs:element name="orderperson" type="xs:string"/>
+
+  <!-- definition of attributes -->
+  <xs:attribute name="log4jPropertiesFile" type="xs:string"/>
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="initialContextFactory" type="xs:string"/>
+  <xs:attribute name="url" type="xs:string"/>
+  <xs:attribute name="host" type="xs:string"/>
+  <xs:attribute name="port" type="xs:integer"/>
+  <xs:attribute name="namingFactoryUrlPkgs" type="xs:string"/>
+  <xs:attribute name="jarFileName" type="xs:string"/>
+  <xs:attribute name="jndiName" type="xs:string"/>
+  <xs:attribute name="physicalName" type="xs:string"/>
+  <xs:attribute name="useConnectionPooling" type="xs:boolean"/>
+  <xs:attribute name="minConnections" type="xs:integer"/>
+  <xs:attribute name="maxConnections" type="xs:integer"/>
+  <xs:attribute name="connectorName" type="xs:string"/>
+  <xs:attribute name="mimeType" type="xs:string"/>
+  <xs:attribute name="submitSchema" type="xs:string"/>
+  <xs:attribute name="requestSchema" type="xs:string"/>
+  <xs:attribute name="replySchema" type="xs:string"/>
+  <xs:attribute name="validateSubmit" type="xs:boolean"/>
+  <xs:attribute name="validateRequest" type="xs:boolean"/>
+  <xs:attribute name="validateReply" type="xs:boolean"/>
+  <xs:attribute name="putValidationErrorOnDeadLetterQueue" type="xs:boolean"/>
+  <xs:attribute name="compressBinaryMessages" type="xs:boolean"/>
+  <xs:attribute name="sourceName" type="xs:string"/>
+  <xs:attribute name="destinationName" type="xs:string"/>
+  <xs:attribute name="useSOAPEnvelope" type="xs:boolean"/>
+  <xs:attribute name="submitQueueName" type="xs:string"/>
+  <xs:attribute name="requestQueueName" type="xs:string"/>
+  <xs:attribute name="replyQueueName" type="xs:string"/>
+  <xs:attribute name="deadLetterQueueName" type="xs:string"/>
+  <xs:attribute name="submitQueueConnFactoryName" type="xs:string"/>
+  <xs:attribute name="requestQueueConnFactoryName" type="xs:string"/>
+  <xs:attribute name="messageClassName" type="xs:string"/>
+  <xs:attribute name="requesterClassName" type="xs:string"/>
+  <xs:attribute name="messageTimeToLive" type="xs:integer"/>
+  <xs:attribute name="replyWaitTime" type="xs:integer"/>
+
+  <!-- definition of complex elements -->
+
+  <xs:element name="jarFile">
+    <xs:complexType>
+      <xs:attribute ref="emi:jarFileName" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="jarFiles">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="emi:jarFile" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="queue">
+    <xs:complexType>
+      <xs:attribute ref="emi:jndiName" use="required"/>
+      <xs:attribute ref="emi:physicalName" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="queues">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="emi:queue" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="soap">
+    <xs:complexType>
+      <xs:attribute ref="emi:sourceName" use="required"/>
+      <xs:attribute ref="emi:destinationName" use="required"/>
+      <xs:attribute ref="emi:useSOAPEnvelope" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="submit-connection">
+    <xs:complexType>
+      <xs:attribute ref="emi:submitQueueName" use="required"/>
+      <xs:attribute ref="emi:deadLetterQueueName" use="required"/>
+      <xs:attribute ref="emi:submitQueueConnFactoryName" use="required"/>
+      <xs:attribute ref="emi:messageClassName" use="required"/>
+      <xs:attribute ref="emi:messageTimeToLive" use="required"/>
+      <xs:attribute ref="emi:replyWaitTime" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="request-reply-connection">
+    <xs:complexType>
+      <xs:attribute ref="emi:requestQueueName" use="required"/>
+      <xs:attribute ref="emi:replyQueueName" use="required"/>
+      <xs:attribute ref="emi:deadLetterQueueName" use="required"/>
+      <xs:attribute ref="emi:requestQueueConnFactoryName" use="required"/>
+      <xs:attribute ref="emi:messageClassName" use="required"/>
+      <xs:attribute ref="emi:requesterClassName" use="required"/>
+      <xs:attribute ref="emi:messageTimeToLive" use="required"/>
+      <xs:attribute ref="emi:replyWaitTime" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="submit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="emi:soap" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="emi:submit-connection" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute ref="emi:connectorName" use="required"/>
+      <xs:attribute ref="emi:mimeType" use="required"/>
+      <xs:attribute ref="emi:submitSchema" use="required"/>
+      <xs:attribute ref="emi:validateSubmit" use="required"/>
+      <xs:attribute ref="emi:putValidationErrorOnDeadLetterQueue" use="required"/>
+      <xs:attribute ref="emi:compressBinaryMessages" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="request-reply">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="emi:soap" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="emi:request-reply-connection" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute ref="emi:connectorName" use="required"/>
+      <xs:attribute ref="emi:mimeType" use="required"/>
+      <xs:attribute ref="emi:requestSchema" use="required"/>
+      <xs:attribute ref="emi:replySchema" use="required"/>
+      <xs:attribute ref="emi:validateRequest" use="required"/>
+      <xs:attribute ref="emi:validateReply" use="required"/>
+      <xs:attribute ref="emi:putValidationErrorOnDeadLetterQueue" use="required"/>
+      <xs:attribute ref="emi:compressBinaryMessages" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="connectors">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="emi:submit" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="emi:request-reply" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute ref="emi:useConnectionPooling" use="required"/>
+      <xs:attribute ref="emi:minConnections" use="required"/>
+      <xs:attribute ref="emi:maxConnections" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="system">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="emi:jarFiles" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="emi:queues" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="emi:connectors" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute ref="emi:name" use="required"/>
+      <xs:attribute ref="emi:initialContextFactory" use="required"/>
+      <xs:attribute ref="emi:url"/>
+      <xs:attribute ref="emi:host"/>
+      <xs:attribute ref="emi:port"/>
+      <xs:attribute ref="emi:namingFactoryUrlPkgs"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="emi:system" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute ref="emi:log4jPropertiesFile" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

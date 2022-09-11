@@ -1,0 +1,1434 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Request Reply Comparison</title>
+</head>
+<body>
+<a href="../index.html">Index</a> | <a
+ href="MessagingSystemComparisons.html">Messaging Systems Comparisons</a>
+<hr style="width: 100%; height: 2px;"><a
+ href="MessagingSystemComparisons.html"></a>
+<h3>Request Reply Comparison</h3>
+<h4>Setup</h4>
+ActiveMQ 3.1, JORAM 4.2.0, JBossMQ 4.0, and Mom4J 1.1 were installed
+onto the
+<span style="font-family: monospace;">depression</span> Linux server. <br>
+<br>
+The <a
+ href="MessagingInfrastructureTests.html#Setting_Up_the_Message_Listeners">message
+listeners</a> were deployed to
+listen to a request queue for XML messages and put a
+reply onto a reply queue of the size and type requested in the XML.<br>
+<br>
+A Java programme was run on a client PC <span
+ style="font-family: monospace;">(dmpeintw5386)</span> which put the
+XML
+messages onto the request queue and waited for replies
+from the message listener program on the reply queue. The programme
+recorded
+the time taken for the round trip.<br>
+<br>
+ActiveMQ, JORAM, JBossMQ, Mom4J and the client programme were all
+running
+with the Java maximum memory setting of 512MB: <span
+ style="font-family: monospace;">-Xmx512M</span>. <br>
+<br>
+100 messages were sent in each test using the Consumer message
+requester.<br>
+<br>
+ActiveMQ, JORAM, and JBossMQ were tested in both persistent and
+non-persistent modes. The following table outlines what is meant by
+persistent and non-persistent.<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <th style="vertical-align: top;">ActiveMQ</th>
+      <th style="vertical-align: top;">JORAM</th>
+      <th style="vertical-align: top;">JBossMQ</th>
+      <th style="vertical-align: top;">Mom4J<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Non-Persistent</td>
+      <td style="vertical-align: top;">Memory</td>
+      <td style="vertical-align: top;">Memory</td>
+      <td style="vertical-align: top;">Default HypersonicSQL Database</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Persistent</td>
+      <td style="vertical-align: top;">Default journal database</td>
+      <td style="vertical-align: top;">File system</td>
+      <td style="vertical-align: top;">Postgres</td>
+      <td style="vertical-align: top;">File system</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The non-persistent option was not tested for Mom4J as it does not exist.<br>
+<h4>Non-Persistent Text Messages</h4>
+All times are in milliseconds.<br>
+<h5>ActiveMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">79<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+      <td style="vertical-align: top;">77<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">44<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+      <td style="vertical-align: top;">42<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">100<br>
+      </td>
+      <td style="vertical-align: top;">46<br>
+      </td>
+      <td style="vertical-align: top;">54<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">1089<br>
+      </td>
+      <td style="vertical-align: top;">694<br>
+      </td>
+      <td style="vertical-align: top;">395<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">1681<br>
+      </td>
+      <td style="vertical-align: top;">1144<br>
+      </td>
+      <td style="vertical-align: top;">537<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">2310<br>
+      </td>
+      <td style="vertical-align: top;">1504<br>
+      </td>
+      <td style="vertical-align: top;">806<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">2796<br>
+      </td>
+      <td style="vertical-align: top;">1831<br>
+      </td>
+      <td style="vertical-align: top;">965<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">3011<br>
+      </td>
+      <td style="vertical-align: top;">2019<br>
+      </td>
+      <td style="vertical-align: top;">992<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JORAM</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">16<br>
+      </td>
+      <td style="vertical-align: top;">5<br>
+      </td>
+      <td style="vertical-align: top;">11<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">14<br>
+      </td>
+      <td style="vertical-align: top;">4<br>
+      </td>
+      <td style="vertical-align: top;">10<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">51<br>
+      </td>
+      <td style="vertical-align: top;">15<br>
+      </td>
+      <td style="vertical-align: top;">36<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">503<br>
+      </td>
+      <td style="vertical-align: top;">189<br>
+      </td>
+      <td style="vertical-align: top;">314<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">659<br>
+      </td>
+      <td style="vertical-align: top;">212<br>
+      </td>
+      <td style="vertical-align: top;">447<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">838<br>
+      </td>
+      <td style="vertical-align: top;">260<br>
+      </td>
+      <td style="vertical-align: top;">578<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">1051<br>
+      </td>
+      <td style="vertical-align: top;">314<br>
+      </td>
+      <td style="vertical-align: top;">737<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">1126<br>
+      </td>
+      <td style="vertical-align: top;">267<br>
+      </td>
+      <td style="vertical-align: top;">859<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JBossMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">18<br>
+      </td>
+      <td style="vertical-align: top;">4<br>
+      </td>
+      <td style="vertical-align: top;">14<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">18<br>
+      </td>
+      <td style="vertical-align: top;">5<br>
+      </td>
+      <td style="vertical-align: top;">13<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">66<br>
+      </td>
+      <td style="vertical-align: top;">28<br>
+      </td>
+      <td style="vertical-align: top;">38<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">1069<br>
+      </td>
+      <td style="vertical-align: top;">435<br>
+      </td>
+      <td style="vertical-align: top;">634<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">2389<br>
+      </td>
+      <td style="vertical-align: top;">2047<br>
+      </td>
+      <td style="vertical-align: top;">342<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">4164<br>
+      </td>
+      <td style="vertical-align: top;">2705<br>
+      </td>
+      <td style="vertical-align: top;">1459<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">6136<br>
+      </td>
+      <td style="vertical-align: top;">4637<br>
+      </td>
+      <td style="vertical-align: top;">1499<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+For non-persistent text messages, JORAM is faster. JBossMQ slowed down
+on larger messages.<br>
+<h4>Non-Persistent Binary Messages</h4>
+All times are in milliseconds.<br>
+<h5>ActiveMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">79<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+      <td style="vertical-align: top;">77<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">59<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+      <td style="vertical-align: top;">57<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">91<br>
+      </td>
+      <td style="vertical-align: top;">40<br>
+      </td>
+      <td style="vertical-align: top;">51<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">895<br>
+      </td>
+      <td style="vertical-align: top;">592<br>
+      </td>
+      <td style="vertical-align: top;">303<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">1337<br>
+      </td>
+      <td style="vertical-align: top;">962<br>
+      </td>
+      <td style="vertical-align: top;">375<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">1851<br>
+      </td>
+      <td style="vertical-align: top;">1281<br>
+      </td>
+      <td style="vertical-align: top;">570<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">2317<br>
+      </td>
+      <td style="vertical-align: top;">1581<br>
+      </td>
+      <td style="vertical-align: top;">736<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">2535<br>
+      </td>
+      <td style="vertical-align: top;">1835<br>
+      </td>
+      <td style="vertical-align: top;">700<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JORAM</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">15<br>
+      </td>
+      <td style="vertical-align: top;">3<br>
+      </td>
+      <td style="vertical-align: top;">12<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">14<br>
+      </td>
+      <td style="vertical-align: top;">3<br>
+      </td>
+      <td style="vertical-align: top;">11<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">26<br>
+      </td>
+      <td style="vertical-align: top;">7<br>
+      </td>
+      <td style="vertical-align: top;">19<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">418<br>
+      </td>
+      <td style="vertical-align: top;">216<br>
+      </td>
+      <td style="vertical-align: top;">202<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">609<br>
+      </td>
+      <td style="vertical-align: top;">289<br>
+      </td>
+      <td style="vertical-align: top;">320<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">757<br>
+      </td>
+      <td style="vertical-align: top;">323<br>
+      </td>
+      <td style="vertical-align: top;">434<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">895<br>
+      </td>
+      <td style="vertical-align: top;">347<br>
+      </td>
+      <td style="vertical-align: top;">548<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">897<br>
+      </td>
+      <td style="vertical-align: top;">231<br>
+      </td>
+      <td style="vertical-align: top;">666<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JBossMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">19<br>
+      </td>
+      <td style="vertical-align: top;">5<br>
+      </td>
+      <td style="vertical-align: top;">14<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">24<br>
+      </td>
+      <td style="vertical-align: top;">7<br>
+      </td>
+      <td style="vertical-align: top;">17<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">47<br>
+      </td>
+      <td style="vertical-align: top;">21<br>
+      </td>
+      <td style="vertical-align: top;">26<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">1178<br>
+      </td>
+      <td style="vertical-align: top;">532<br>
+      </td>
+      <td style="vertical-align: top;">646<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">2773<br>
+      </td>
+      <td style="vertical-align: top;">1975<br>
+      </td>
+      <td style="vertical-align: top;">798<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">3891<br>
+      </td>
+      <td style="vertical-align: top;">3025<br>
+      </td>
+      <td style="vertical-align: top;">866<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">4719<br>
+      </td>
+      <td style="vertical-align: top;">2693<br>
+      </td>
+      <td style="vertical-align: top;">2098<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+ActiveMQ, JORAM, and JBossMQ all handle binary messages faster than
+text ones. JORAM and JBossMQ are faster for small binary messages but
+JBossMQ slows down with larger messages.<br>
+<h4>Persistent Text Messages</h4>
+All times are in milliseconds.<br>
+<h5>ActiveMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">79<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+      <td style="vertical-align: top;">77<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">45<br>
+      </td>
+      <td style="vertical-align: top;">3<br>
+      </td>
+      <td style="vertical-align: top;">42<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">223<br>
+      </td>
+      <td style="vertical-align: top;">45<br>
+      </td>
+      <td style="vertical-align: top;">178<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">1220<br>
+      </td>
+      <td style="vertical-align: top;">720<br>
+      </td>
+      <td style="vertical-align: top;">500<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">1850<br>
+      </td>
+      <td style="vertical-align: top;">1097<br>
+      </td>
+      <td style="vertical-align: top;">753<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">2749<br>
+      </td>
+      <td style="vertical-align: top;">1477<br>
+      </td>
+      <td style="vertical-align: top;">1272<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">3320<br>
+      </td>
+      <td style="vertical-align: top;">1764<br>
+      </td>
+      <td style="vertical-align: top;">1556<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">3887<br>
+      </td>
+      <td style="vertical-align: top;">2025<br>
+      </td>
+      <td style="vertical-align: top;">1862<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JORAM</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">129<br>
+      </td>
+      <td style="vertical-align: top;">57<br>
+      </td>
+      <td style="vertical-align: top;">72<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">254<br>
+      </td>
+      <td style="vertical-align: top;">123<br>
+      </td>
+      <td style="vertical-align: top;">131<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">2325<br>
+      </td>
+      <td style="vertical-align: top;">1165<br>
+      </td>
+      <td style="vertical-align: top;">1160<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JBossMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">28<br>
+      </td>
+      <td style="vertical-align: top;">7<br>
+      </td>
+      <td style="vertical-align: top;">21<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">31<br>
+      </td>
+      <td style="vertical-align: top;">12<br>
+      </td>
+      <td style="vertical-align: top;">19<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">126<br>
+      </td>
+      <td style="vertical-align: top;">72<br>
+      </td>
+      <td style="vertical-align: top;">54<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">1313<br>
+      </td>
+      <td style="vertical-align: top;">950<br>
+      </td>
+      <td style="vertical-align: top;">363<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">2726<br>
+      </td>
+      <td style="vertical-align: top;">2195<br>
+      </td>
+      <td style="vertical-align: top;">531<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">6076<br>
+      </td>
+      <td style="vertical-align: top;">4610<br>
+      </td>
+      <td style="vertical-align: top;">1466<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">7300<br>
+      </td>
+      <td style="vertical-align: top;">5433<br>
+      </td>
+      <td style="vertical-align: top;">1867<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>Mom4J</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">1032<br>
+      </td>
+      <td style="vertical-align: top;">11<br>
+      </td>
+      <td style="vertical-align: top;">1021<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">1034<br>
+      </td>
+      <td style="vertical-align: top;">18<br>
+      </td>
+      <td style="vertical-align: top;">1016<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">1162<br>
+      </td>
+      <td style="vertical-align: top;">138<br>
+      </td>
+      <td style="vertical-align: top;">1024<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">2308<br>
+      </td>
+      <td style="vertical-align: top;">993<br>
+      </td>
+      <td style="vertical-align: top;">1315<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">3587<br>
+      </td>
+      <td style="vertical-align: top;">1546<br>
+      </td>
+      <td style="vertical-align: top;">2041<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">3974<br>
+      </td>
+      <td style="vertical-align: top;">1930<br>
+      </td>
+      <td style="vertical-align: top;">2044<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">4676<br>
+      </td>
+      <td style="vertical-align: top;">2471<br>
+      </td>
+      <td style="vertical-align: top;">2205<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">5298<br>
+      </td>
+      <td style="vertical-align: top;">3010<br>
+      </td>
+      <td style="vertical-align: top;">2288<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Mom4J was the slowest especially for small messages.<br>
+<br>
+When the message sizes got
+above 100K, JORAM crawled to a stop and couldn't put replies onto
+the&nbsp; reply queue before the client timed out waiting for the reply
+after 20 seconds. No times were consequently
+recorded.<br>
+<br>
+As expected, the persistent times for ActiveMQ and JBossMQ are slower.<br>
+<h4>Persistent Binary Messages</h4>
+All times are in milliseconds.<br>
+<h5>ActiveMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">79<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+      <td style="vertical-align: top;">77<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">43<br>
+      </td>
+      <td style="vertical-align: top;">2<br>
+      </td>
+      <td style="vertical-align: top;">41<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">220<br>
+      </td>
+      <td style="vertical-align: top;">40<br>
+      </td>
+      <td style="vertical-align: top;">180<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">1029<br>
+      </td>
+      <td style="vertical-align: top;">663<br>
+      </td>
+      <td style="vertical-align: top;">366<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">1681<br>
+      </td>
+      <td style="vertical-align: top;">1047<br>
+      </td>
+      <td style="vertical-align: top;">634<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">2433<br>
+      </td>
+      <td style="vertical-align: top;">1423<br>
+      </td>
+      <td style="vertical-align: top;">1010<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">3181<br>
+      </td>
+      <td style="vertical-align: top;">1685<br>
+      </td>
+      <td style="vertical-align: top;">1496<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">3642<br>
+      </td>
+      <td style="vertical-align: top;">2167<br>
+      </td>
+      <td style="vertical-align: top;">1475<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JORAM</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">128<br>
+      </td>
+      <td style="vertical-align: top;">56<br>
+      </td>
+      <td style="vertical-align: top;">72<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">256<br>
+      </td>
+      <td style="vertical-align: top;">123<br>
+      </td>
+      <td style="vertical-align: top;">133<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">2412<br>
+      </td>
+      <td style="vertical-align: top;">1161<br>
+      </td>
+      <td style="vertical-align: top;">1251<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>JBossMQ</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">28<br>
+      </td>
+      <td style="vertical-align: top;">9<br>
+      </td>
+      <td style="vertical-align: top;">19<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">31<br>
+      </td>
+      <td style="vertical-align: top;">13<br>
+      </td>
+      <td style="vertical-align: top;">18<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">114<br>
+      </td>
+      <td style="vertical-align: top;">80<br>
+      </td>
+      <td style="vertical-align: top;">34<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">1325<br>
+      </td>
+      <td style="vertical-align: top;">1030<br>
+      </td>
+      <td style="vertical-align: top;">295<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">2697<br>
+      </td>
+      <td style="vertical-align: top;">2205<br>
+      </td>
+      <td style="vertical-align: top;">492<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">4681<br>
+      </td>
+      <td style="vertical-align: top;">3970<br>
+      </td>
+      <td style="vertical-align: top;">711<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">5540<br>
+      </td>
+      <td style="vertical-align: top;">4637<br>
+      </td>
+      <td style="vertical-align: top;">903<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h5>Mom4J</h5>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Message Size</th>
+      <th style="vertical-align: top;">Round Trip<br>
+      </th>
+      <th style="vertical-align: top;">Message Listener</th>
+      <th style="vertical-align: top;">Difference<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1K<br>
+      </td>
+      <td style="vertical-align: top;">1036<br>
+      </td>
+      <td style="vertical-align: top;">13<br>
+      </td>
+      <td style="vertical-align: top;">1023<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">10K<br>
+      </td>
+      <td style="vertical-align: top;">1041<br>
+      </td>
+      <td style="vertical-align: top;">21<br>
+      </td>
+      <td style="vertical-align: top;">1020<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">100K<br>
+      </td>
+      <td style="vertical-align: top;">1264<br>
+      </td>
+      <td style="vertical-align: top;">227<br>
+      </td>
+      <td style="vertical-align: top;">1037<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">1M<br>
+      </td>
+      <td style="vertical-align: top;">2271<br>
+      </td>
+      <td style="vertical-align: top;">1216<br>
+      </td>
+      <td style="vertical-align: top;">1055<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">2M<br>
+      </td>
+      <td style="vertical-align: top;">3487<br>
+      </td>
+      <td style="vertical-align: top;">1912<br>
+      </td>
+      <td style="vertical-align: top;">1575<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">3M<br>
+      </td>
+      <td style="vertical-align: top;">4536<br>
+      </td>
+      <td style="vertical-align: top;">2459<br>
+      </td>
+      <td style="vertical-align: top;">2077<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">4M<br>
+      </td>
+      <td style="vertical-align: top;">6174<br>
+      </td>
+      <td style="vertical-align: top;">3128<br>
+      </td>
+      <td style="vertical-align: top;">3046<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">5M<br>
+      </td>
+      <td style="vertical-align: top;">6832<br>
+      </td>
+      <td style="vertical-align: top;">3729<br>
+      </td>
+      <td style="vertical-align: top;">3103<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Mom4J was the slowest especially for small messages.<br>
+<br>
+When the message sizes got
+above 100K, JORAM crawled to a stop and couldn't put replies onto the
+reply queue before the client timed out waiting for the reply
+after 20 seconds. No times were consequently
+recorded.<br>
+<br>
+As expected, the persistent times for ActiveMQ and JBossMQ are slower.<br>
+<h4>Custom Database Persistence</h4>
+It is possible to write a custom transaction class for JORAM to use to
+persist the messages and queues to a database.<br>
+<hr style="width: 100%; height: 2px;"><a href="../index.html">Index</a>
+| <a href="MessagingSystemComparisons.html">Messaging Systems
+Comparisons</a><br>
+</body>
+</html>

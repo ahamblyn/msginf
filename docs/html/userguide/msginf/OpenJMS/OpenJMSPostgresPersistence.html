@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Using Postgres for Open JMS Message Persistence</title>
+</head>
+<body>
+<a href="../../index.html">Index</a> | <a href="OpenJMS.html">Open JMS</a>
+<hr style="width: 100%; height: 2px;"><a href="OpenJMS.html"></a>
+<h3>Using Postgres for Open JMS Message Persistence</h3>
+This document outlines how to configure <a
+ href="http://openjms.sourceforge.net/">Open JMS</a> to use a <a
+ href="http://www.postgresql.org/">Postgres</a> database for
+persistence.<br>
+<h4>Setting up Postgres</h4>
+It is assumed that a Postgres server already exists. For this document,
+Postgres was installed on a Windows PC: <span
+ style="font-family: monospace;">dmpeintw5386</span>.<br>
+<br>
+A user <span style="font-family: monospace;">pg_user</span> (password:
+<span style="font-family: monospace;">user</span>) was created:<br>
+<br>
+<span style="font-family: monospace;">CREATE USER pg_user</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; WITH SYSID 101</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; ENCRYPTED PASSWORD
+'md5631bd54ecaf464e1a96afa328649894a'</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; NOCREATEDB NOCREATEUSER;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">ALTER GROUP template1_users ADD
+USER pg_user;</span><br style="font-family: monospace;">
+<br>
+A database called <span style="font-family: monospace;">pg_test</span>
+was created with <span style="font-family: monospace;">pg_user</span>
+as the owner:<br>
+<br>
+<span style="font-family: monospace;">CREATE DATABASE pg_test</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; WITH OWNER = pg_user</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ENCODING = 'UNICODE'</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TABLESPACE = pg_default;</span><br style="font-family: monospace;">
+<br style="font-family: monospace;">
+The <span style="font-family: monospace;">~/openjms-0.7.6.1/config/db</span>
+directory contains scripts to create the required tables for most major
+relational databases.<br>
+<br>
+Comment out the <span style="font-family: monospace;">DROP TABLE</span>
+statements from the <span style="font-family: monospace;">create_postgresql.sql</span>
+script and run against the <span style="font-family: monospace;">pg_test</span>
+database. <br>
+<br>
+The following tables were created:<br>
+<ul>
+  <li>consumers</li>
+  <li>destinations</li>
+  <li>message_handles</li>
+  <li>messages</li>
+  <li>seeds</li>
+  <li>system_data</li>
+  <li>users</li>
+</ul>
+Set the owner of these tables to <span style="font-family: monospace;">pg_user</span>.<br>
+<h4>Setup Open JMS</h4>
+Stop Open JMS:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./openjms stop</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Stopping OPENJMS Messaging
+System...</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Stopped OPENJMS Messaging System.</span><br
+ style="font-family: monospace;">
+<br>
+The Postgres JDBC drivers <span style="font-family: monospace;">pg74.214.jdbc3.jar</span>
+can be found on the 172.20.20.59 FTP server. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory and copy to <span
+ style="font-family: monospace;">~/openjms-0.7.6.1/service/lib/</span>.<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp pg74.214.jdbc3.jar
+openjms-0.7.6.1/service/</span><br style="font-family: monospace;">
+<br>
+Edit the <span style="font-family: monospace;">~/openjms-0.7.6.1/service/conf/wrapper.conf</span>
+file and add the new jar file to the end of the Java classpath section:<br>
+<br>
+<span style="font-family: monospace;">wrapper.java.classpath.4=../lib/pg74.214.jdbc3.jar</span><br>
+<br>
+Edit the <span style="font-family: monospace;">~/openjms-0.7.6.1/service/config/openjms.xml</span>
+file:<br>
+<br>
+Replace the <span style="font-family: monospace;">&lt;DatabaseConfiguration&gt;...&lt;/DatabaseConfiguration&gt;</span>
+XML with:<br>
+<br>
+<span style="font-family: monospace;">&lt;DatabaseConfiguration&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;
+&lt;RdbmsDatabaseConfiguration driver="org.postgresql.Driver"
+url="jdbc:postgresql://dmpeintw5386:5432/pg_test" user="pg_user"
+password="user" /&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;/DatabaseConfiguration&gt;</span><br
+ style="font-family: monospace;">
+<br>
+Restart in console to test:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./openjms console</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Running OPENJMS Messaging
+System...</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | --&gt; Wrapper
+Started as Console</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | Launching a JVM...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | Wrapper
+(Version 3.1.2) http://wrapper.tanukisoftware.org</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | OpenJMS
+0.7.6.1</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | The
+OpenJMS Group. (C) 1999-2004. All rights reserved.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+http://openjms.sourceforge.net</span><br style="font-family: monospace;">
+<br>
+Stop the above with <span style="font-family: monospace;">CTRL-C</span>
+and start normally:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cd ~/openjms-0.7.6.1/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./openjms start</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Starting OPENJMS Messaging
+System...</span><br style="font-family: monospace;">
+<hr style="width: 100%; height: 2px;"><a href="../../index.html">Index</a>
+| <a href="OpenJMS.html">Open JMS</a><br>
+</body>
+</html>

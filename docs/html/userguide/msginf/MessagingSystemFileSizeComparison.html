@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>File Size Comparison</title>
+</head>
+<body>
+<a href="../index.html">Index</a> | <a
+ href="MessagingSystemComparisons.html">Messaging Systems Comparisons</a><br>
+<hr style="width: 100%; height: 2px;">
+<h3>File Size Comparison</h3>
+<h4>Setup</h4>
+ActiveMQ 3.1, JORAM 4.2.0, JBossMQ 4.0, and Mom4J 1.1 were installed
+onto the
+depression Linux server.<br>
+<br>
+A Java programme was run on a client PC <span
+ style="font-family: monospace;">(dmpeintw5386)</span> which put up to
+10 binary files of varying sizes onto the submit queue. Another client
+program dequeued the messages after each test and saved them to disk.
+The test effectively copied the binary files from one location on the
+client PC to another using a messaging system.<br>
+<br>
+ActiveMQ, JORAM, JBossMQ, Mom4J and the client programme were all
+running
+with the Java maximum memory setting of 512MB: <span
+ style="font-family: monospace;">-Xmx512M</span>.<br>
+<br>
+ActiveMQ, JORAM, and JBossMQ were tested in the persistent (file and
+Postgres) and non-persistent modes the following table allows:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <th style="vertical-align: top;">ActiveMQ</th>
+      <th style="vertical-align: top;">JORAM</th>
+      <th style="vertical-align: top;">JBossMQ</th>
+      <th style="vertical-align: top;">Mom4J<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Non-Persistent</td>
+      <td style="vertical-align: top;">Memory</td>
+      <td style="vertical-align: top;">Memory</td>
+      <td style="vertical-align: top;">Default HypersonicSQL Database</td>
+      <td style="vertical-align: top;">Not supported</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Persistent (file)</td>
+      <td style="vertical-align: top;">Supported</td>
+      <td style="vertical-align: top;">Supported</td>
+      <td style="vertical-align: top;">Not supported</td>
+      <td style="vertical-align: top;">Supported<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Persistent (Postgres)</td>
+      <td style="vertical-align: top;">Supported</td>
+      <td style="vertical-align: top;">Not supported</td>
+      <td style="vertical-align: top;">Supported</td>
+      <td style="vertical-align: top;">Not supported</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Therefore ActiveMQ was tested using all three persistence options.
+JORAM was tested in non-persistent and persistent (file) modes. JBossMQ
+was tested in non-persistent and persistent (Postgres) modes.<br>
+<br>
+The non-persistent and Postgres options were not tested for Mom4J as
+they do not exist.<br>
+<br>
+The file name contains the size of the file in bytes and are real PDF
+and ZIP files. The files retrieved off the queues were opened to test
+that the binary data was the same.<br>
+<h4>Non-Persistent Binary Messages</h4>
+All times are in milliseconds.<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">File Name</th>
+      <th style="vertical-align: top;">ActiveMQ</th>
+      <th style="vertical-align: top;">JORAM</th>
+      <th style="vertical-align: top;">JBossMQ</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">8520.pdf</td>
+      <td style="vertical-align: top;">9<br>
+      </td>
+      <td style="vertical-align: top;">3<br>
+      </td>
+      <td style="vertical-align: top;">20<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">174997.zip</td>
+      <td style="vertical-align: top;">84<br>
+      </td>
+      <td style="vertical-align: top;">68<br>
+      </td>
+      <td style="vertical-align: top;">75<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">905727.pdf</td>
+      <td style="vertical-align: top;">404<br>
+      </td>
+      <td style="vertical-align: top;">310<br>
+      </td>
+      <td style="vertical-align: top;">401<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">1040145.zip</td>
+      <td style="vertical-align: top;">497<br>
+      </td>
+      <td style="vertical-align: top;">311<br>
+      </td>
+      <td style="vertical-align: top;">510<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">2245626.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">682<br>
+      </td>
+      <td style="vertical-align: top;">1497<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">3518838.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">1189<br>
+      </td>
+      <td style="vertical-align: top;">2209<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">4455079.pdf</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">2058<br>
+      </td>
+      <td style="vertical-align: top;">2396<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">5475787.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">1751<br>
+      </td>
+      <td style="vertical-align: top;">4180<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">8303555.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">2480<br>
+      </td>
+      <td style="vertical-align: top;">10558<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">9212182.pdf</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">2778<br>
+      </td>
+      <td style="vertical-align: top;">6878<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">11376201.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">3341<br>
+      </td>
+      <td style="vertical-align: top;">16360<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">15749689.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">4573<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">21719782.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">6026<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">35197601.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">10232<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+JORAM was faster than both ActiveMQ and JBossMQ and could handle larger
+binary files.<br>
+<h4>Persistent (File) Binary Messages</h4>
+All times are in milliseconds.<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">File Name</th>
+      <th style="vertical-align: top;">ActiveMQ</th>
+      <th style="vertical-align: top;">JORAM</th>
+      <th style="vertical-align: top;">Mom4J<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">8520.pdf</td>
+      <td style="vertical-align: top;">9<br>
+      </td>
+      <td style="vertical-align: top;">28<br>
+      </td>
+      <td style="vertical-align: top;">20<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">174997.zip</td>
+      <td style="vertical-align: top;">226<br>
+      </td>
+      <td style="vertical-align: top;">373<br>
+      </td>
+      <td style="vertical-align: top;">146<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">905727.pdf</td>
+      <td style="vertical-align: top;">396<br>
+      </td>
+      <td style="vertical-align: top;">892<br>
+      </td>
+      <td style="vertical-align: top;">613<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">1040145.zip</td>
+      <td style="vertical-align: top;">502<br>
+      </td>
+      <td style="vertical-align: top;">1656<br>
+      </td>
+      <td style="vertical-align: top;">1179<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">2245626.zip</td>
+      <td style="vertical-align: top;">1121<br>
+      </td>
+      <td style="vertical-align: top;">3608<br>
+      </td>
+      <td style="vertical-align: top;">2091<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">3518838.zip</td>
+      <td style="vertical-align: top;">1928<br>
+      </td>
+      <td style="vertical-align: top;">6987<br>
+      </td>
+      <td style="vertical-align: top;">3109<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">4455079.pdf</td>
+      <td style="vertical-align: top;">2747<br>
+      </td>
+      <td style="vertical-align: top;">6883<br>
+      </td>
+      <td style="vertical-align: top;">3698<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">5475787.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">4899<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">8303555.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">6502<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">9212182.pdf</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">7223<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">11376201.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">9407<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">15749689.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">13276<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">21719782.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">13901<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">35197601.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Both ActiveMQ and JORAM stopped performing after a while. Mom4J could
+handle larger files and performed faster than JORAM.<br>
+<h4>Persistent (Postgres) Binary Messages</h4>
+As JORAM does not support persistence using a JDBC database, it could
+not be tested.<br>
+<br>
+A
+Postgres database was installed on the client PC.<br>
+<br>
+All times are in milliseconds.<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">File Name</th>
+      <th style="vertical-align: top;">ActiveMQ</th>
+      <th style="vertical-align: top;">JBossMQ</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">8520.pdf</td>
+      <td style="vertical-align: top;">8<br>
+      </td>
+      <td style="vertical-align: top;">26<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">174997.zip</td>
+      <td style="vertical-align: top;">878<br>
+      </td>
+      <td style="vertical-align: top;">426<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">905727.pdf</td>
+      <td style="vertical-align: top;">1765<br>
+      </td>
+      <td style="vertical-align: top;">1883<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">1040145.zip</td>
+      <td style="vertical-align: top;">2485<br>
+      </td>
+      <td style="vertical-align: top;">3522<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">2245626.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">6274<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">3518838.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">8641<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">4455079.pdf</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">7747<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">5475787.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">11772<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">8303555.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">16702<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">9212182.pdf</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">18283<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">11376201.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">22378<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">15749689.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">21719782.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">35197601.zip</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Large binary messages with ActiveMQ and JBossMQ crashed Postgres on the
+Windows PC.<br>
+<hr style="width: 100%; height: 2px;"><a href="../index.html">Index</a>
+| <a href="MessagingSystemComparisons.html">Messaging Systems
+Comparisons</a><br>
+</body>
+</html>

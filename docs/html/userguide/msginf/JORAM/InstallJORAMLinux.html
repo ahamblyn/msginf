@@ -1,0 +1,648 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Installing JORAM 4.2 onto Linux</title>
+</head>
+<body>
+<span style="font-family: serif;"></span><a href="../../index.html">Index</a>
+| <a href="JORAM.html">JORAM</a><br>
+<hr style="width: 100%; height: 2px;">
+<h3>Installing JORAM 4.2 onto Linux</h3>
+This document outlines the process to install JORAM 4.2 into a user's
+home directory and run it as a service.<br>
+<br>
+<a href="http://joram.objectweb.org/">JORAM</a> is an open source JMS
+compliant messaging system written in Java.<br>
+<h4>Setting up the Java Environment</h4>
+Add the following to your <span style="font-family: monospace;">.bash_profile</span>
+file to set up your Java environment:<br>
+<br>
+<span style="font-family: monospace;">JAVA_HOME=/usr/java/jdk1.5.0_03</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">export JAVA_HOME</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">PATH=/usr/java/jdk1.5.0_03/bin:"${PATH}"</span><br
+ style="font-family: monospace;">
+<br>
+Ant also needs to be installed first as the JORAM code needs to be
+built.<br>
+<h4>Installing JORAM 4.2</h4>
+The latest source distribution <span style="font-family: monospace;">joram-4.2.0-src.tar</span>
+can be found on the 172.20.20.59 FTP server in the <span
+ style="font-family: monospace;">JORAM</span> directory. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory.<br>
+<br>
+Unpack this file:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$tar -xvf joram-4.2.0-src.tar</span><br
+ style="font-family: monospace;">
+<br>
+This will create a <span style="font-family: monospace;">joram-4_2_0</span>
+directory in your home directory. <br>
+<h4>Configuring JORAM 4.2</h4>
+Some adjustments need to be made to make JORAM run. <br>
+<br>
+Add the following to your <span style="font-family: monospace;">.bash_profile</span>
+file to set up the <span style="font-family: monospace;">JORAM_HOME</span>
+environment variable:<br>
+<br>
+<span style="font-family: monospace;">JORAM_HOME=~/joram-4_2_0</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">export JORAM_HOME</span><br
+ style="font-family: monospace;">
+<br>
+Build the code using Ant:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/src</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$ant clean ship.joram</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Buildfile: build.xml</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">clean:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">init:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">clean:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">clean:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">init:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">clean:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">ship.joram:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">init:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">init.joram:</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">prepare:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [mkdir]
+Created dir: /home/alisdairh/joram-4_2_0/classes</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [mkdir]
+Created dir: /home/alisdairh/joram-4_2_0/build</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [mkdir]
+Created dir: /home/alisdairh/joram-4_2_0/doc</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">compile:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [javac]
+Compiling 579 source files to /home/alisdairh/joram-4_2_0/classes</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [javac] Note:
+Some input files use or override a deprecated API.</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [javac] Note:
+Recompile with -deprecation for details.</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">build.joram:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [mkdir]
+Created dir: /home/alisdairh/joram-4_2_0/build/META-INF</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar: /home/alisdairh/joram-4_2_0/build/joram-shared.jar</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar: /home/alisdairh/joram-4_2_0/build/joram-mom.jar</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar: /home/alisdairh/joram-4_2_0/build/joram-client.jar</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar:
+/home/alisdairh/joram-4_2_0/build/joram-connector.jar</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar: /home/alisdairh/joram-4_2_0/build/joram-raconfig.jar</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar: /home/alisdairh/joram-4_2_0/build/joram-config.jar</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar: /home/alisdairh/joram-4_2_0/build/joram-gui.jar</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">build.kjoram:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [javac]
+Compiling 129 source files to /home/alisdairh/joram-4_2_0/classes</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[jar] Building jar: /home/alisdairh/joram-4_2_0/build/joram-kclient.jar</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">ship:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [mkdir]
+Created dir: /home/alisdairh/joram-4_2_0/ship</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [mkdir]
+Created dir: /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 1 file to /home/alisdairh/joram-4_2_0/ship/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; [mkdir]
+Created dir: /home/alisdairh/joram-4_2_0/ship/licenses</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp; [copy]
+Copying 3 files to /home/alisdairh/joram-4_2_0/ship/licenses</span><br
+ style="font-family: monospace;">
+<br style="font-family: monospace;">
+<span style="font-family: monospace;">BUILD SUCCESSFUL</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Total time: 18 seconds</span><br
+ style="font-family: monospace;">
+<br>
+Change the permissions of the server startup scripts:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/samples/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$chmod u+x *.sh</span><br
+ style="font-family: monospace;">
+<br>
+Run the JORAM server:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/samples/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./single_server.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">== Launching a non persistent
+server#0 ==</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">AgentServer#0 started: OK</span><br>
+<h4>Register the Queue Objects</h4>
+Each time the non persistent server is restarted, the JNDI queue
+objects have to be re-registered.<br>
+<br>
+FTP the following files in the <span style="font-family: monospace;">JORAM</span>
+directory on the 172.20.20.59 FTP server to the <span
+ style="font-family: monospace;">JORAM_HOME</span>
+directory. Login as <span style="font-family: monospace;">anonymous</span>
+and use your email address as the password.<br>
+<ul>
+  <li><span style="font-family: monospace;">admin.jar</span></li>
+  <li><span style="font-family: monospace;">registerQueue.sh</span></li>
+  <li><span style="font-family: monospace;">createTestQueues.sh</span></li>
+</ul>
+<span style="font-family: monospace;"></span>The latest source
+distribution <span style="font-family: monospace;">joram-4.2.0-src.tar</span>
+can be found on the 172.20.20.59 FTP server in the <span
+ style="font-family: monospace;">JORAM</span> directory. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br style="font-family: monospace;">
+<br>
+Change the permissions of the <span style="font-family: monospace;">registerQueue.sh</span>
+and <span style="font-family: monospace;">createTestQueues.sh</span>
+scripts:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$chmod u+x registerQueue.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$chmod u+x createTestQueues.sh</span><br
+ style="font-family: monospace;">
+<br>
+Ensure the scripts are in Unix format:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$dos2unix registerQueue.sh
+registerQueue.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">$dos2unix registerQueue.sh
+createTestQueues.sh</span><br style="font-family: monospace;">
+<br>
+Create the JNDI queue objects:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"></span><span
+ style="font-family: monospace;">$./createTestQueues.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue factory: qcf</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 16, 2005 7:35:35 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue factory:
+qcf</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: TestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 16, 2005 7:35:37 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue: TestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: RequestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 16, 2005 7:35:39 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue:
+RequestQueue</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: ReplyQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 16, 2005 7:35:41 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue:
+ReplyQueue</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Creating queue: DeadLetterQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Apr 16, 2005 7:35:43 AM
+org.objectweb.util.monolog.wrapper.javaLog.Logger log</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO:
+ReliableTcpConnection.windowSize=100</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Finished creating queue:
+DeadLetterQueue</span><br>
+<h4>Install JORAM 4.2 as a Service</h4>
+<a
+ href="http://wrapper.tanukisoftware.org/doc/english/introduction.html">Java
+Service Wrapper</a> is used to run JORAM as a service. This allows
+JORAM to be started with a script which takes stop, start, and restart
+as parameters. More details can be found <a
+ href="http://wrapper.tanukisoftware.org/doc/english/integrate-simple-nix.html">here</a>.<br>
+<br>
+The Java Service Wrapper binary <span style="font-family: monospace;">wrapper_linux_3.1.2.tar.gz</span>
+can be found on the 172.20.20.59 FTP server. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory and unpack:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$gunzip wrapper_linux_3.1.2.tar.gz</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$tar -xvf wrapper_linux_3.1.2.tar</span><br
+ style="font-family: monospace;">
+<br>
+Create the JORAM <span style="font-family: monospace;">service</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir service</span><br
+ style="font-family: monospace;">
+<br>
+Create the <span style="font-family: monospace;">bin</span>, <span
+ style="font-family: monospace;">conf</span>, <span
+ style="font-family: monospace;">lib</span>, <span
+ style="font-family: monospace;">logs</span>, and <span
+ style="font-family: monospace;">run</span> directories in the <span
+ style="font-family: monospace;">service</span> directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir conf</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir logs</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir run</span><br
+ style="font-family: monospace;">
+<br>
+Copy the <span style="font-family: monospace;">~/wrapper_linux_3.1.2/bin/wrapper</span>
+and <span style="font-family: monospace;">~/wrapper_linux_3.1.2/bin/wrapper/src/bin/sh.script.in</span>
+files to the <span style="font-family: monospace;">~/joram-4_2_0/service/bin</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/bin/wrapper .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/src/bin/sh.script.in .</span><br
+ style="font-family: monospace;">
+<br>
+Rename the <span style="font-family: monospace;">sh.script.in</span>
+file to <span style="font-family: monospace;">joram</span>:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv sh.script.in joram</span><br
+ style="font-family: monospace;">
+<br>
+Edit the <span style="font-family: monospace;">joram</span> script and
+set the <span style="font-family: monospace;">APP_NAME</span> and <span
+ style="font-family: monospace;">APP_LONG_NAME</span> properties:<br>
+<br>
+<span style="font-family: monospace;">APP_NAME="JORAM"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">APP_LONG_NAME="JORAM Messaging
+System"</span><br style="font-family: monospace;">
+<br>
+Set the <span style="font-family: monospace;">joram</span> script to
+be executable:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$chmod u+x joram</span><br
+ style="font-family: monospace;">
+<br>
+Copy the following files into the <span style="font-family: monospace;">~/joram-4_2_0/service/lib</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/lib/libwrapper.so .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/lib/wrapper.jar .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp ~/joram-4_2_0/ship/lib/*.jar .</span><br
+ style="font-family: monospace;">
+<br>
+Copy the following file into the <span style="font-family: monospace;">~/joram-4_2_0/service/conf</span>
+directory and rename:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/conf</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/src/conf/wrapper.conf.in .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv wrapper.conf.in wrapper.conf</span><br
+ style="font-family: monospace;">
+<br>
+Copy the following files into the <span style="font-family: monospace;">~/joram-4_2_0/service/run</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/run</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/joram-4_2_0/samples/config/a3config.dtd .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/joram-4_2_0/samples/config/a3debug.cfg .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/joram-4_2_0/samples/config/centralized_a3servers.xml .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/joram-4_2_0/samples/config/jndi.properties .</span><br
+ style="font-family: monospace;">
+<br>
+Rename <span style="font-family: monospace;">centralized_a3servers.xml</span>
+to <span style="font-family: monospace;">a3servers.xml</span>:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/run</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv centralized_a3servers.xml
+a3servers.xml</span><br style="font-family: monospace;">
+<br>
+Before the wrapper can be configured to launch JORAM, the full Java
+command created by the current <span style="font-family: monospace;">~/joram-4_2_0/samples/bin/single_server.sh</span>
+script is required.<br>
+<br>
+Copy the <span style="font-family: monospace;">~/joram-4_2_0/samples/bin/single_server.sh</span>
+file to <span style="font-family: monospace;">~/joram-4_2_0/samples/bin/single_server.sh.tmp</span>.<br>
+<br>
+Edit the <span style="font-family: monospace;">~/joram-4_2_0/samples/bin/single_server.sh</span>
+file to output this information.<br>
+<br>
+Find the line: <br>
+<br>
+<span style="font-family: monospace;">cd $RUN_DIR; exec
+$JAVA_HOME/bin/java -classpath $CLASSPATH
+fr.dyade.aaa.agent.AgentServer 0 ./s0</span><br>
+<br>
+Change it to:<br>
+<br>
+<span style="font-family: monospace;">echo "$JAVA_HOME/bin/java
+-Xmx512M -classpath $CLASSPATH fr.dyade.aaa.agent.AgentServer 0 ./s0"</span><br>
+<br>
+Run the <span style="font-family: monospace;">~/joram-4_2_0/samples/bin/single_server.sh</span>
+script:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/samples/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./single_server.sh</span><br
+ style="font-family: monospace;">
+<br>
+This will output the full Java command:<br>
+<br>
+<span style="font-family: monospace;">/usr/java/j2sdk1.4.2/bin/java
+-Xmx512M -classpath
+/home/alisdairh/joram-4_2_0/ship/lib/joram-mom.jar:/home/alisdairh/joram-4_2_0/ship/lib/joram-shared.jar:/home/alisdairh/joram-4_2_0/ship/lib/jakarta-regexp-1.2.jar:/home/alisdairh/joram-4_2_0/ship/lib/JCup.jar:/home/alisdairh/joram-4_2_0/ship/lib/ow_monolog.jar:/home/alisdairh/joram-4_2_0/ship/lib/jmxri.jar:/home/alisdairh/joram-4_2_0/samples/run
+fr.dyade.aaa.agent.AgentServer 0 ./s0</span><br
+ style="font-family: monospace;">
+<br>
+Replace the original <span style="font-family: monospace;">single_server.sh</span>
+script:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/samples/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$rm single_server.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv single_server.sh.tmp
+single_server.sh</span><br style="font-family: monospace;">
+<br>
+Using the information provided by the echo command above, make the
+following changes to the <span style="font-family: monospace;">~/joram-4_2_0/service/conf/wrapper.conf</span>
+file:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Current</th>
+      <th style="vertical-align: top;">Change To</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.logfile=../logs/wrapper.log</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.logfile=../logs/joram.log</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.command=java</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.command=/usr/java/jdk1.5.0_03/bin/java</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">#wrapper.java.maxmemory=64</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.maxmemory=512</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.classpath.1=../lib/wrapper.jar</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.classpath.1=../lib/wrapper.jar<br>
+wrapper.java.classpath.2=../conf<br>
+wrapper.java.classpath.3=../run<br>
+wrapper.java.classpath.4=../lib/joram-mom.jar<br>
+wrapper.java.classpath.5=../lib/joram-shared.jar<br>
+wrapper.java.classpath.6=../lib/jakarta-regexp-1.2.jar<br>
+wrapper.java.classpath.7=../lib/JCup.jar<br>
+wrapper.java.classpath.8=../lib/ow_monolog.jar<br>
+wrapper.java.classpath.9=../lib/jmxri.jar</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.app.parameter.1=&lt;YourMainClass&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.app.parameter.1=fr.dyade.aaa.agent.AgentServer<br>
+wrapper.app.parameter.2=0<br>
+wrapper.app.parameter.3=./s0</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Start JORAM 4.2 in console mode to test:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./joram console</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Running JORAM Messaging System...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | --&gt; Wrapper
+Started as Console</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | Launching a JVM...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; | Wrapper
+(Version 3.1.2) http://wrapper.tanukisoftware.org</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">jvm 1&nbsp;&nbsp;&nbsp; |
+AgentServer#0 started: OK</span><br style="font-family: monospace;">
+<br>
+<span style="font-family: monospace;">Ctrl-C</span> to shutdown JORAM
+4.2:<br>
+<br>
+<span style="font-family: monospace;">wrapper&nbsp; | INT
+trapped.&nbsp; Shutting down.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">wrapper&nbsp; | &lt;-- Wrapper
+Stopped</span><br style="font-family: monospace;">
+<br>
+To start JORAM 4.2 as a service:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./joram start</span><br
+ style="font-family: monospace;">
+<br>
+The following output should be seen:<br>
+<br>
+<span style="font-family: monospace;">Starting JORAM Messaging System...</span><br>
+<br>
+To stop JORAM 4.2:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/joram-4_2_0/service/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./joram stop</span><br
+ style="font-family: monospace;">
+<br>
+The following output should be seen:<br>
+<br>
+<span style="font-family: monospace;">Stopping JORAM Messaging System...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Stopped JORAM Messaging System.</span><br
+ style="font-family: monospace;">
+<br>
+The output seen during the console test is logged in the <span
+ style="font-family: monospace;">~/joram-4_2_0/service/logs/joram.log</span>
+file.<br>
+<hr style="width: 100%; height: 2px;"><span style="font-family: serif;"></span><a
+ href="../../index.html">Index</a> | <a href="JORAM.html">JORAM</a><br>
+</body>
+</html>

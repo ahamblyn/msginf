@@ -1,0 +1,518 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Running the Messaging Infrastructure Tests</title>
+</head>
+<body>
+<a href="../index.html">Index</a><br>
+<hr style="width: 100%; height: 2px;">
+<h3>Running the Messaging Infrastructure Tests</h3>
+This page outlines how to set up and run the messaging infrastructure
+tests. It assumes the messaging systems to be tested have been
+installed and the queues set up.<br>
+<h4><a name="Setting_Up_the_Message_Listeners"></a>Setting Up the
+Message Listeners</h4>
+The message listener is a small piece of code which listens for
+messages on the request queue
+and put replies onto the reply queue, as defined in the reply to queue
+parameter of the message.<br>
+<br>
+The message listener can return different results based on the test run
+from <a href="#Running_the_Tests_From_the_Command_Line">the command
+line</a> or the <a href="#Running_the_Tests_Using_the_GUI">GUI.</a><br>
+<br>
+The message listener supports two types of results: echo, and reply. <br>
+<h5>Echo</h5>
+Echo returns the message sent back onto the reply queue.<br>
+<h5>Reply</h5>
+This allows the testing of reply messages of various sizes and attempts
+to mimic a real system which could return messages of various sizes and
+types.<br>
+<br>
+If the message is an instance of <span style="font-family: monospace;">javax.jms.TextMessage</span>
+and it is in the following format:<br>
+<br>
+<span style="font-family: monospace;">&lt;?xml version="1.0"?&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;DataRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;
+&lt;ReplyType&gt;text&lt;/ReplyType&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;
+&lt;ReplySize&gt;1024&lt;/ReplySize&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;/DataRequest&gt;</span><br
+ style="font-family: monospace;">
+<br>
+the message listener will create a random string of 1024 bytes in
+length and put it onto the reply queue as a <span
+ style="font-family: monospace;">javax.jms.TextMessage</span>. If the
+&lt;ReplyType&gt; element has the word <span
+ style="font-family: monospace;">binary</span> in it, the message
+listener will create a <span style="font-family: monospace;">javax.jms.BytesMessage</span>
+instead. <br>
+<br>
+If the text message is not XML or not in the above format, the message
+listener will put a message like the one below onto the reply
+queue:<br>
+<br>
+<span style="font-family: monospace;">TextMessage processed at: Fri Aug
+05 04:45:34 NZST 2005</span><br>
+<br>
+If a binary message is put onto the reply queue, the message listener
+will put a message like the one below onto the reply queue:<br>
+<br>
+<span style="font-family: monospace;">BytesMessage processed at: Fri
+Aug 05 04:45:34 NZST 2005</span><br>
+<br>
+<a
+ href="MessagingInfrastructureOverview.html#Building_the_Messaging_Infrastructure">Building
+the Messaging Infrastructure</a> details how to checkout the code and
+the Ant targets.<br>
+<br>
+The <span style="font-family: monospace;">all_messagelisteners</span>
+Ant target creates the message listening code and scripts for all the
+supported messaging systems in the <span
+ style="font-family: monospace;">MSGINF_HOME/build/env</span>
+directory, one directory for each messaging system.<br>
+<br>
+Beacuse the <span style="font-family: monospace;">MSGINF_HOME/build</span>
+directory could be cleaned out, the message listening code and scripts
+created in the <span style="font-family: monospace;">env</span>
+directory need to be moved to another directory, e.g. <span
+ style="font-family: monospace;">C:\messagelisteners</span>.<br>
+<br>
+This will create the following directory and file structure in the <span
+ style="font-family: monospace;">C:\messagelisteners</span> directory:<br>
+<br>
+<span style="font-family: monospace;">messagelisteners</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; +--activemq</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--activeMQListener.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--activeMQListener.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--activeMQReceiver.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--activeMQReceiver.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; +--jboss</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--jbossListener.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--jbossListener.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--jbossReceiver.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--jbossReceiver.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; +--joram</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--joramListener.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--joramListener.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--joramReceiver.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |&nbsp;
++--joramReceiver.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp; +--openjms</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++--openjmsListener.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++--openjmsListener.sh</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++--openjmsReceiver.bat</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++--openjmsReceiver.sh</span><br style="font-family: monospace;">
+<br>
+The listener scripts start the message listener programme listening to
+the request queue.<br>
+<br>
+For example, the <span style="font-family: monospace;">activeMQListener</span>
+script will display the following when started:<br>
+<br>
+<span style="font-family: monospace;">&nbsp;INFO [main]
+(MessageRequestReply.java:98) - Using: QueueConnectionFactory</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [main]
+(MessageRequestReply.java:99) - Listening to: RequestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;"></span><br>
+When messages are put onto the ActiveMQ request queue by the test code
+(see below), the following output will be seen:<br>
+<br>
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:111) - TextMessage received...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:148) - Number of messages received: 10</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:150) - Messages count reset to 0</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;INFO [JmsSessionDispatcher:
+1] (MessageRequestReply.java:153) - Queue Statistics for
+MessageRequestReply:</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Messages
+Sent:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Failed
+Messages:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Average Time Per Message (ms):
+11.100000381469727</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Median Time Per Message
+(ms):&nbsp; 0.0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Max Message Time
+(ms):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 103</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Min Message Time
+(ms):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0</span><br
+ style="font-family: monospace;">
+<br>
+The receiver scripts will "dequeue" messages of the submit queue.<br>
+<br>
+For example, the <span style="font-family: monospace;">activeMQReceiver</span>
+script will display the following when text messages are on the
+ActiveMQ submit queue:<br>
+<br>
+<span style="font-family: monospace;">Queue Connection Factory name is
+QueueConnectionFactory</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">Queue name is TestQueue</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Text Message: &lt;?xml
+version="1.0"?&gt;&lt;InvoiceRequest
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">xmlns="http://localhost/invoice/request"&gt;&nbsp;
+&lt;InvoiceReferenceNo&gt;4100174199&lt;/InvoiceReferenceNo&gt;&lt;/InvoiceRequest&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Waiting 10s for next message...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Messages dealt with: 10</span><br>
+<h4><a name="Running_the_Tests_From_the_Command_Line"></a>Running the
+Tests From the Command Line<br>
+</h4>
+When a test is run for a particular messaging system, the messaging
+system server must be running first and the corresponding message
+listener must also be running in a <span style="font-weight: bold;">DIFFERENT</span>
+DOS or Unix session.<br>
+<br>
+The <span style="font-family: monospace;">test</span> Ant target
+creates the test script <span style="font-family: monospace;">MSGINF_HOME/build/test/test.sh</span>:<br>
+<br>
+All the scripts take the same required parameters:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Parameter Name</th>
+      <th style="vertical-align: top;">Example Value</th>
+      <th style="vertical-align: top;">Description</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Test Name<br>
+      </td>
+      <td style="vertical-align: top;"><span
+ style="font-family: monospace;">submit|echo|reply</span><span
+ style="font-family: monospace;"></span></td>
+      <td style="vertical-align: top;"><span
+ style="font-family: monospace;">submit</span>: puts the message onto
+the submit queue defined in the connector below.<br>
+      <span style="font-family: monospace;">echo</span>: puts the
+message onto the request queue defined in the connector below and tells
+the message listener to put an echo message onto the reply queue.<br>
+      <span style="font-family: monospace;">reply</span>: puts the
+message onto the request queue defined in the connector below
+and tells the message listener to put a reply message onto the reply
+queue of the type and size defined in the XML data in the message.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">System<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">activemq<br>
+      </td>
+      <td style="vertical-align: top;">The name of the system to be
+used as defined in the xml properties file.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Connector Name<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">activemq_rr_text_consumer<br>
+      </td>
+      <td style="vertical-align: top;">The name of the connector to be
+used as defined in the xml properties file.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Number of Threads</td>
+      <td style="vertical-align: top; font-family: monospace;">1<br>
+      </td>
+      <td style="vertical-align: top;">The number of threads to use in
+the test.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Number of Messages in Thread</td>
+      <td style="vertical-align: top; font-family: monospace;">10<br>
+      </td>
+      <td style="vertical-align: top;">The number of messages to send
+per thread.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Data file</td>
+      <td style="vertical-align: top; font-family: monospace;">../../data/request.xml</td>
+      <td style="vertical-align: top;">Relative path from the <span
+ style="font-family: monospace;">MSGINF_HOME/build/test</span>
+directory to a valid file. The data in the file will be sent in each
+message.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Port</td>
+      <td style="vertical-align: top; font-family: monospace;">9955</td>
+      <td style="vertical-align: top;">The port the shutdown thread is listening to.
+      If a process connects to this port, the messaging infrastructure will shut down immediately.</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The following are examples of tests:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Scenario</th>
+      <th style="vertical-align: top;">Command Line Command</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Send 1000 XML requests to
+ActiveMQ in 10 threads using the consumer message requester while
+expecting an echoed reply.<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">test.sh
+echo activemq activemq_rr_text_consumer 10 100 ../../data/request.xml 9955</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Send 1000 XML requests to
+ActiveMQ in 10 threads using the text consumer message requester while
+expecting a binary reply of 100K.<br>
+      </td>
+      <td style="vertical-align: top; font-family: monospace;">test.sh
+reply activemq activemq_rr_text_consumer 10 100
+../../data/request_binary_100K.xml 9955</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Send 1000 binary files to
+ActiveMQ in 10 threads while <span style="font-weight: bold;">NOT</span>
+expecting a reply.</td>
+      <td style="vertical-align: top; font-family: monospace;">test.sh
+submit activemq activemq_submit_binary 10 100 ../../data/8520.pdf 9955</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h4><a name="Running_the_Tests_Using_the_GUI"></a>Running the Tests
+Using the GUI Application</h4>
+Instead of running the tests using the command line, a GUI application
+can be used instead.<br>
+<br>
+This GUI application asks the user for the parameters to the test
+script above and runs the test. First the XML properties file needs to
+be loaded to give the user a list of available messaging systems and
+connectors.<br>
+<br>
+The <span style="font-family: monospace;">MSGINF_HOME/build/test/gui.sh</span>
+or <span style="font-family: monospace;">MSGINF_HOME/build/test/gui.bat</span>
+script will start the GUI:<br>
+<br>
+<div style="text-align: center;"><img alt="Test Runner"
+ src="images/TestRunner/TestRunner.png"
+ style="width: 974px; height: 734px;"><br>
+</div>
+<br>
+The user then needs to load the test <span
+ style="font-family: monospace;">msginf.xml</span> file using the <span
+ style="font-family: monospace;">File|Open...</span> menu option:<br>
+<br>
+<div style="text-align: center;"><img alt="Open"
+ src="images/TestRunner/Open.png" style="width: 530px; height: 368px;"><br>
+</div>
+<br>
+<div style="text-align: center;"><img alt="Opened XML File"
+ src="images/TestRunner/OpenedXMLFile.png"
+ style="width: 974px; height: 734px;"><br>
+</div>
+<br>
+The user then clicks on the required connector. For example the <span
+ style="font-family: monospace;">activemq_rr_text_consumer</span>
+connector in the left hand tree is clicked. This will open a new panel
+where the user enters the test parameters:<br>
+<br>
+<div style="text-align: center;"><img alt="Connector"
+ src="images/TestRunner/Connector.png"
+ style="width: 974px; height: 734px;"><br>
+</div>
+<br>
+The user then selects the required parameters in the new panel. The <span
+ style="font-family: monospace;">Browse...</span> button allows the
+user to select a file in the <span style="font-family: monospace;">MSGINF_HOME/data</span>
+directory.<br>
+<br>
+To run <span style="font-family: monospace;">./test.sh echo activemq
+activemq_rr_text_consumer 1 10 ../../data/test.xml 9955</span> command, the
+following parameters are chosen:<br>
+<br>
+<div style="text-align: center;"><img alt="Test Parameters"
+ src="images/TestRunner/TestParameters.png"
+ style="width: 974px; height: 734px;"><br>
+</div>
+<br>
+The <span style="font-family: monospace;">Run</span> button is pressed
+to run the command:<br>
+<br>
+<div style="text-align: center;"><img alt="Test Completed"
+ src="images/TestRunner/TestCompleted.png"
+ style="width: 974px; height: 734px;"><br>
+</div>
+The output from the command is put into the console.<br>
+<hr style="width: 100%; height: 2px;"><a href="../index.html">Index</a><br>
+<br>
+</body>
+</html>

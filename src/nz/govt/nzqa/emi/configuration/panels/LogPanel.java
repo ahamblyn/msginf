@@ -1,0 +1,66 @@
+package nz.govt.nzqa.emi.configuration.panels;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+
+import nz.govt.nzqa.emi.configuration.ConfigurationApplication;
+
+/**
+ * Panel containing the log4j file details.
+ * @author alisdairh
+ */
+public class LogPanel extends JPanel {
+	private JLabel label = new JLabel("Log4J Properties File:");
+	private JTextField log4JPropertiesFile = new JTextField(20);
+	private JPanel leftPanel = new JPanel();
+	private Border border;
+	private TitledBorder titledBorder;
+	
+	/**
+	 * Constructs the log4j panel.
+	 */
+	public LogPanel() {
+		init();
+	}
+	
+	private void init() {
+		this.setBackground(ConfigurationApplication.BG_COLOR);
+		leftPanel.setBackground(ConfigurationApplication.BG_COLOR);
+		this.setLayout(new BorderLayout());
+		leftPanel.setLayout(new GridBagLayout());
+		leftPanel.add(label, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		leftPanel.add(log4JPropertiesFile, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+	    this.add(leftPanel, BorderLayout.WEST);
+	    border = BorderFactory.createEtchedBorder(Color.white,new Color(142, 142, 142));
+	    titledBorder = new TitledBorder(border, "Log4J File");
+	    this.setBorder(titledBorder);
+	}
+	
+	/**
+	 * Returns the log4j properties file name.
+	 * @return the log4j properties file name.
+	 */
+	public String getLog4JPropertiesFile() {
+		return log4JPropertiesFile.getText();
+	}
+	
+	/**
+	 * Sets the log4j properties file name.
+	 * @param file
+	 */
+	public void setLog4JPropertiesFile(String file) {
+		log4JPropertiesFile.setText(file);
+	}
+}

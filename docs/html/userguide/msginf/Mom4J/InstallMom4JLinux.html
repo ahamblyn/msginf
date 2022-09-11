@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Installing Mom4J 1.1 onto Linux</title>
+</head>
+<body>
+<span style="font-family: serif;"></span><a href="../../index.html">Index</a>
+| <a href="Mom4J.html">Mom4J</a><br>
+<hr style="width: 100%; height: 2px;">
+<h3>Installing Mom4J 1.1 onto Linux</h3>
+This document outlines the process to install Mom4J 1.1 into a user's
+home directory and run it as a service.<br>
+<br>
+<a href="http://mom4j.sourceforge.net/index.html">Mom4J</a> is an open
+source JMS
+compliant messaging system written in Java.<br>
+<h4>Setting up the Java Environment</h4>
+Add the following to your <span style="font-family: monospace;">.bash_profile</span>
+file to set up your Java environment:<br>
+<br>
+<span style="font-family: monospace;">JAVA_HOME=/usr/java/jdk1.5.0_03</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">export JAVA_HOME</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">PATH=/usr/java/jdk1.5.0_03/bin:"${PATH}"</span><br
+ style="font-family: monospace;">
+<br>
+Ant also needs to be installed first as the Mom4J code needs to be
+built.<br>
+<h4>Installing Mom4J 1.1<br>
+</h4>
+The latest source distribution <span style="font-family: monospace;">mom4j-src-dist-1.1.tar.gz</span><span
+ style="font-family: monospace;"></span> can be found on the
+172.20.20.59 FTP server in the <span style="font-family: monospace;">mom4j</span>
+directory. Login as <span style="font-family: monospace;">anonymous</span>
+and use your email address as the password.<br>
+<br>
+FTP this file to your home directory.<br>
+<br>
+Unpack this file:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$gunzip mom4j-src-dist-1.1.tar.gz<br>
+$tar -xf mom4j-src-dist-1.1.tar<br style="font-family: monospace;">
+</span><br>
+This will create a <span style="font-family: monospace;">mom4j</span>
+directory in your home directory. <br>
+<h4>Configuring Mom4J 1.1<br>
+</h4>
+Some adjustments need to be made to make Mom4J run. <br>
+<br>
+FTP all the jar files in the <span style="font-family: monospace;">mom4j</span>
+directory on the 172.20.20.59 FTP server to the <span
+ style="font-family: monospace;">~/mom4j/lib</span>
+directory. Login as <span style="font-family: monospace;">anonymous</span>
+and use your email address as the password.<br>
+<br>
+Because the Java 1.5 JDK is being used and the Mom4J code unfortunately
+uses the 1.5 specific keyword <span style="font-family: monospace;">"enum"</span>
+as a variable name, the ant compile target needs to be modified to tell
+Java 1.5 that the source is 1.4 specific.<br>
+<br>
+Edit the <span style="font-family: monospace;">compile-src</span>
+target in the <span style="font-family: monospace;">~/mom4j/build.xml</span>
+target to add <span style="font-family: monospace;">source="1.4"</span>
+(in red):<br>
+<br>
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;target
+name="compile-src"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;javac destdir="${targetdir}"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+srcdir="${srcdir}/java"</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+includes="**/*.java"</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+deprecation="true"</span><br style="font-family: monospace;">
+<span style="font-family: monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+source="1.4"</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+debug="yes"&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;classpath refid="mom4j.classpath"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/javac&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;/target&gt;</span><br>
+<br>
+Build the code from the <span style="font-family: monospace;">~/mom4j</span>
+directory using Ant with the following targets in order:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Target<br>
+      </th>
+      <th style="vertical-align: top;">Description<br>
+      </th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">ant clean</td>
+      <td style="vertical-align: top;">Creates empty subdirectories
+'classes', 'store' and 'log'</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">ant
+compile</td>
+      <td style="vertical-align: top;">Compiles all the sources into
+the 'classes' subdirectory</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">ant
+makelib</td>
+      <td style="vertical-align: top;">Generates 'lib/mom4j.jar' and
+'lib/mom4j-client.jar'</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j<br>
+$ant clean<br>
+Buildfile: build.xml<br>
+<br>
+clean:<br>
+&nbsp;&nbsp;&nbsp; [mkdir] Created dir: /home/alisdairh/mom4j/classes<br>
+&nbsp;&nbsp; [delete] Deleting directory /home/alisdairh/mom4j/store<br>
+&nbsp;&nbsp;&nbsp; [mkdir] Created dir: /home/alisdairh/mom4j/store<br>
+&nbsp;&nbsp;&nbsp; [mkdir] Created dir: /home/alisdairh/mom4j/log<br>
+<br>
+BUILD SUCCESSFUL<br>
+Total time: 0 seconds<br>
+<br>
+$ant compile<br>
+Buildfile: build.xml<br>
+<br>
+compile-src:<br>
+&nbsp;&nbsp;&nbsp; [javac] Compiling 115 source files to
+/home/alisdairh/mom4j/classes<br>
+&nbsp;&nbsp;&nbsp; [javac] ...<br>
+&nbsp;&nbsp;&nbsp; [javac] 18 warnings<br>
+<br>
+compile:<br>
+<br>
+BUILD SUCCESSFUL<br>
+Total time: 4 seconds<br>
+<br>
+$ant makelib<br>
+Buildfile: build.xml<br>
+<br>
+makelib:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [jar] Building jar:
+/home/alisdairh/mom4j/lib/mom4j.jar<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [jar] Building jar:
+/home/alisdairh/mom4j/lib/mom4j-client.jar<br>
+<br>
+BUILD SUCCESSFUL<br>
+Total time: 1 second<br>
+</span><br>
+Change the permissions of the server startup scripts and remove the DOS
+batch file:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin<br>
+$rm run.bat<br>
+$chmod u+x run.sh<br>
+</span><br>
+Run the Mom4J server:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin<br>
+</span><span style="font-family: monospace;">$./run.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">Aug 16, 2005 3:07:43 AM
+org.mom4j.messaging.Launcher start<br>
+INFO: Launching messaging server ...<br>
+Aug 16, 2005 3:07:43 AM org.mom4j.messaging.MessagingServer start<br>
+INFO: FileSystemStore created with root directory
+'/home/alisdairh/mom4j/./store'<br>
+Aug 16, 2005 3:07:43 AM org.mom4j.messaging.MessagingServer start<br>
+INFO: JNDI Server started on port '8001'.<br>
+Aug 16, 2005 3:07:43 AM org.mom4j.messaging.MessagingServer start<br>
+INFO: Launched Console successfully<br>
+Aug 16, 2005 3:07:43 AM org.mom4j.messaging.MessagingServer start<br>
+INFO: XCP transport layer initialized successfully.<br>
+Aug 16, 2005 3:07:43 AM org.mom4j.messaging.MessagingServer start<br>
+INFO: messaging server running on port 4444<br>
+Aug 16, 2005 3:07:43 AM org.mom4j.messaging.MessagingServer start<br>
+INFO: admin server listening on port 8888<br>
+Aug 16, 2005 3:07:43 AM org.mom4j.messaging.Launcher start<br>
+INFO: Launching messaging server ... done.<br>
+<br>
+<span style="font-weight: bold;"></span>Ctrl-C</span> to stop the Mom4J
+server:<br>
+<br>
+<span style="font-family: monospace;">Aug 16, 2005 3:08:57 AM
+org.mom4j.messaging.Console$Shutdown run</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">INFO: Shutdown in progress ...</span><br
+ style="font-family: monospace;">
+<h4>Add the Queues<br>
+</h4>
+Edit the <span style="font-family: monospace;">~/mom4j/config/mom4j-config.xml</span>
+file to add the queues (in red):<br>
+<br>
+<span style="font-family: monospace;">&lt;?xml version="1.0"?&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;mom4j-config&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;server&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;port&gt;4444&lt;/port&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;admin-port&gt;8888&lt;/admin-port&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;jndi-port&gt;8001&lt;/jndi-port&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;thread-count&gt;3&lt;/thread-count&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;/server&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;users&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;user id="system" admin="true" password="secret"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;/users&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;store&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;messages&gt;&lt;![CDATA[ store&nbsp; ]]&gt;&lt;/messages&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;durables&gt;&lt;![CDATA[ config/durable.dat&nbsp;
+]]&gt;&lt;/durables&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;/store&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;client&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;poll-interval sync="500" async="1000"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp; &lt;/client&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;destinations&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;queue name="testQueue"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;queue name="SubmitQueue"/&gt;</span><br
+ style="font-family: monospace; color: rgb(255, 0, 0);">
+<span style="font-family: monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;queue name="RequestQueue"/&gt;</span><br
+ style="font-family: monospace; color: rgb(255, 0, 0);">
+<span style="font-family: monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;queue name="ReplyQueue"/&gt;</span><br
+ style="font-family: monospace; color: rgb(255, 0, 0);">
+<span style="font-family: monospace; color: rgb(255, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;queue name="DeadLetterQueue"/&gt;</span><br
+ style="font-family: monospace; color: rgb(255, 0, 0);">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;topic name="testTopic"/&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/destinations&gt;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;/mom4j-config&gt;</span><br>
+<h4>Install MOM4J 1.1 as a Service</h4>
+<a
+ href="http://wrapper.tanukisoftware.org/doc/english/introduction.html">Java
+Service Wrapper</a> is used to run Mom4J as a service. This allows
+Mom4J to be started with a script which takes stop, start, and restart
+as parameters. More details can be found <a
+ href="http://wrapper.tanukisoftware.org/doc/english/integrate-simple-nix.html">here</a>.<br>
+<br>
+The Java Service Wrapper binary <span style="font-family: monospace;">wrapper_linux_3.1.2.tar.gz</span>
+can be found on the 172.20.20.59 FTP server. Login as <span
+ style="font-family: monospace;">anonymous</span> and use your email
+address as the password.<br>
+<br>
+FTP this file to your home directory and unpack:<br>
+<br>
+<span style="font-family: monospace;">$cd</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$gunzip wrapper_linux_3.1.2.tar.gz</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$tar -xvf wrapper_linux_3.1.2.tar</span><br
+ style="font-family: monospace;">
+<br>
+Create the Mom4J <span style="font-family: monospace;">conf</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir conf</span><br
+ style="font-family: monospace;">
+<br>
+Copy the <span style="font-family: monospace;">~/wrapper_linux_3.1.2/bin/wrapper</span>
+and <span style="font-family: monospace;">~/wrapper_linux_3.1.2/bin/wrapper/src/bin/sh.script.in</span>
+files to the <span style="font-family: monospace;">~/mom4j/bin</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/bin/wrapper .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/src/bin/sh.script.in .</span><br
+ style="font-family: monospace;">
+<br>
+Rename the <span style="font-family: monospace;">sh.script.in</span>
+file to <span style="font-family: monospace;">mom4j</span>:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/</span><span
+ style="font-family: monospace;">mom4j</span><span
+ style="font-family: monospace;">/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv sh.script.in mom4j</span><br
+ style="font-family: monospace;">
+<br>
+Edit the <span style="font-family: monospace;">mom4j</span> script and
+set the <span style="font-family: monospace;">APP_NAME</span> and <span
+ style="font-family: monospace;">APP_LONG_NAME</span> properties:<br>
+<br>
+<span style="font-family: monospace;">APP_NAME="Mom4J"</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">APP_LONG_NAME="</span><span
+ style="font-family: monospace;">Mom4J</span><span
+ style="font-family: monospace;"> Messaging
+System"</span><br style="font-family: monospace;">
+<br>
+Set the <span style="font-family: monospace;">mom4j</span> script to
+be executable:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/</span><span
+ style="font-family: monospace;">mom4j</span><span
+ style="font-family: monospace;">/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$chmod u+x mom4j</span><br
+ style="font-family: monospace;">
+<br>
+Create the bin/config directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/</span><span
+ style="font-family: monospace;">mom4j</span><span
+ style="font-family: monospace;">/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mkdir config</span><br>
+<br>
+Copy the durable.dat file:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/</span><span
+ style="font-family: monospace;">mom4j</span><span
+ style="font-family: monospace;">/bin/config</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp ~/mom4j/config/durable.dat .</span><br>
+<br>
+Copy the following files into the <span style="font-family: monospace;">~/mom4j/lib</span>
+directory:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/lib</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/lib/libwrapper.so .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/lib/wrapper.jar .</span><span
+ style="font-family: monospace;"></span><br
+ style="font-family: monospace;">
+<br>
+Copy the following file into the <span style="font-family: monospace;">~/mom4j/conf</span>
+directory and rename:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/conf</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$cp
+~/wrapper_linux_3.1.2/src/conf/wrapper.conf.in .</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv wrapper.conf.in wrapper.conf</span><br
+ style="font-family: monospace;">
+<br>
+Before the wrapper can be configured to launch Mom4J, the full Java
+command created by the current <span style="font-family: monospace;">~/mom4j/bin/run.sh</span>
+script is required.<br>
+<br>
+Copy the <span style="font-family: monospace;">~/mom4j/bin/run.sh</span>
+file to <span style="font-family: monospace;">~/mom4j/bin/run.sh.tmp</span>.<br>
+<br>
+Edit the <span style="font-family: monospace;">~/mom4j/bin/run.sh</span>
+file to output this information.<br>
+<br>
+Find the line: <br>
+<br>
+<span style="font-family: monospace;">java -classpath $CP
+org.mom4j.messaging.Launcher config/mom4j-config.xml</span><br>
+<br>
+Change it to:<br>
+<br>
+<span style="font-family: monospace;">echo "java -classpath $CP
+org.mom4j.messaging.Launcher config/mom4j-config.xml"</span><br>
+<br>
+Run the <span style="font-family: monospace;">~/mom4j/bin/run.sh</span>
+script:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./run.sh</span><br
+ style="font-family: monospace;">
+<br>
+This will output the full Java command:<br>
+<br>
+<span style="font-family: monospace;">java -classpath
+:lib/mom4j.jar:lib/jms.jar:lib/jmxri.jar:lib/jmxtools.jar:lib/xercesImpl.jar:lib/xml-apis.jar:lib/commons-logging.jar:lib/log4j.jar:config
+org.mom4j.messaging.Launcher config/mom4j-config.xml</span><br
+ style="font-family: monospace;">
+<br>
+Replace the original <span style="font-family: monospace;">run.sh</span>
+script:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$rm run.sh</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$mv run.sh.tmp run.sh</span><br
+ style="font-family: monospace;">
+<br>
+Using the information provided by the echo command above, make the
+following changes to the <span style="font-family: monospace;">~/mom4j/conf/wrapper.conf</span>
+file:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <th style="vertical-align: top;">Current</th>
+      <th style="vertical-align: top;">Change To</th>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.logfile=../logs/wrapper.log</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.logfile=../log/mom4j.log</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.command=java</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.command=/usr/java/jdk1.5.0_03/bin/java</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">#wrapper.java.maxmemory=64</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.maxmemory=512</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.classpath.1=../lib/wrapper.jar</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.java.classpath.1=../lib/wrapper.jar<br>
+wrapper.java.classpath.2=../conf<br>
+wrapper.java.classpath.3=../config<br>
+wrapper.java.classpath.4=../lib/mom4j.jar<br>
+wrapper.java.classpath.5=../lib/jms.jar<br>
+wrapper.java.classpath.6=../lib/jmxri.jar<br>
+wrapper.java.classpath.7=../lib/jmxtools.jar<br>
+wrapper.java.classpath.8=../lib/xercesImpl.jar<br>
+wrapper.java.classpath.9=../lib/xml-apis.jar<br>
+wrapper.java.classpath.10=../lib/commons-logging.jar<br>
+wrapper.java.classpath.11=../lib/log4j.jar<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.app.parameter.1=&lt;YourMainClass&gt;</td>
+      <td style="vertical-align: top; font-family: monospace;">wrapper.app.parameter.1=<span
+ style="font-family: monospace;">org.mom4j.messaging.Launcher</span><br>
+wrapper.app.parameter.2=<span style="font-family: monospace;">../config/mom4j-config.xml</span><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Start Mom4J 1.1 in console mode to test:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./mom4j console<br>
+Running Mom4J Messaging System...<br>
+wrapper&nbsp; | --&gt; Wrapper Started as Console<br>
+wrapper&nbsp; | Launching a JVM...<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Wrapper (Version 3.1.2)
+http://wrapper.tanukisoftware.org<br>
+jvm 1&nbsp;&nbsp;&nbsp; |<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.Launcher start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: Launching messaging server ...<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.MessagingServer start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: FileSystemStore created with root
+directory '/home/alisdairh/mom4j/bin/./store'<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.MessagingServer start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: JNDI Server started on port '8001'.<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.MessagingServer start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: Launched Console successfully<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.MessagingServer start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: XCP transport layer initialized
+successfully.<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.MessagingServer start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: messaging server running on port 4444<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.MessagingServer start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: admin server listening on port 8888<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:49:53 AM
+org.mom4j.messaging.Launcher start<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: Launching messaging server ... done.<br>
+<br>
+</span><span style="font-family: monospace;">Ctrl-C</span> to shutdown
+Mom4J 1.1:<br>
+<br>
+<span style="font-family: monospace;">wrapper&nbsp; | INT
+trapped.&nbsp; Shutting down.<br>
+jvm 1&nbsp;&nbsp;&nbsp; | Aug 16, 2005 3:50:55 AM
+org.mom4j.messaging.Console$Shutdown run<br>
+jvm 1&nbsp;&nbsp;&nbsp; | INFO: Shutdown in progress ...<br>
+wrapper&nbsp; | &lt;-- Wrapper Stopped<br>
+</span><br>
+To start Mom4J 1.1 as a service:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./mom4j start</span><br
+ style="font-family: monospace;">
+<br>
+The following output should be seen:<br>
+<br>
+<span style="font-family: monospace;">Starting Mom4J Messaging System...</span><br>
+<br>
+To stop Mom4J 1.1:<br>
+<br>
+<span style="font-family: monospace;">$cd ~/mom4j/bin</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">$./mom4j stop</span><br
+ style="font-family: monospace;">
+<br>
+The following output should be seen:<br>
+<br>
+<span style="font-family: monospace;">Stopping Mom4J Messaging System...<br>
+Stopped Mom4J Messaging System.</span><span
+ style="font-family: monospace;"></span><br
+ style="font-family: monospace;">
+<br>
+The output seen during the console test is logged in the <span
+ style="font-family: monospace;">~/mom4j/log/mom4j.log</span>
+file.<br>
+<hr style="width: 100%; height: 2px;"><span style="font-family: serif;"></span><a
+ href="../../index.html">Index</a> | <a href="Mom4J.html">Mom4J</a>
+</body>
+</html>

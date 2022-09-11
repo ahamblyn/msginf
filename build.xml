@@ -1,0 +1,633 @@
+<project name="msginf" default="targets" basedir=".">
+
+  <!-- ********************************************************* -->
+  <!-- * Main Directories                                      * -->
+  <!-- ********************************************************* -->
+  <property name="source.dir" value="src" />
+  <property name="test.source.dir" value="test" />
+  <property name="html.dir" value="html" />
+  <property name="tomcat.dir" value="WEB-INF" />
+  <property name="lib.dir" value="lib" />
+  <property name="xmlbeans.dir" value="xmlbeans" />
+  <property name="data.dir" value="data" />
+  <property name="dd.dir" value="dd" />
+  <property name="dist.dir" value="dist" />
+  <property name="build.dir" value="build" />
+  <property name="build.classes.dir" value="build/classes" />
+  <property name="build.test.classes.dir" value="build/testclasses" />
+  <property name="build.env.dir" value="build/env" />
+  <property name="build.env.activemq.dir" value="build/env/activemq" />
+  <property name="build.env.joram.dir" value="build/env/joram" />
+  <property name="build.env.openjms.dir" value="build/env/openjms" />
+  <property name="build.env.jboss.dir" value="build/env/jboss" />
+  <property name="build.env.mom4j.dir" value="build/env/mom4j" />
+  <property name="build.env.mqseries.dir" value="build/env/mqseries" />
+  <property name="junit.build.dir" value="build/junit" />
+  <property name="config.build.dir" value="build/config" />
+  <property name="viewer.build.dir" value="build/viewer" />
+  <property name="test.build.dir" value="build/test" />
+  <property name="test.data.build.dir" value="build/test/data" />
+  <property name="javadocs.build.dir" value="build/javadocs/api" />
+  <property name="html.docs.dir" value="docs/html" />
+  <property name="debug" value="on" />
+
+  <!-- ********************************************************* -->
+  <!-- * Class paths                                           * -->
+  <!-- ********************************************************* -->
+  <path id="compile.class.path">
+    <pathelement path="${lib.dir}/commons-discovery-0.2.jar" />
+    <pathelement path="${lib.dir}/commons-fileupload-1.0.jar" />
+    <pathelement path="${lib.dir}/commons-httpclient-2.0.2.jar" />
+    <pathelement path="${lib.dir}/commons-lang-2.1.jar" />
+    <pathelement path="${lib.dir}/commons-logging-1.0.3.jar" />
+    <pathelement path="${lib.dir}/concurrent-1.3.4.jar" />
+    <pathelement path="${lib.dir}/dom2.jar" />
+    <pathelement path="${lib.dir}/exolabcore-0.3.7.jar" />
+    <pathelement path="${lib.dir}/geronimo-spec-j2ee-jacc-1.0-rc4.jar" />
+    <pathelement path="${lib.dir}/geronimo-spec-j2ee-management-1.0-rc4.jar" />
+    <pathelement path="${lib.dir}/geronimo-spec-jms-1.1-rc4.jar" />
+    <pathelement path="${lib.dir}/geronimo-spec-jta-1.0.1B-rc4.jar" />
+    <pathelement path="${lib.dir}/jsr173_1.0_api.jar" />
+    <pathelement path="${lib.dir}/junit.jar" />
+    <pathelement path="${lib.dir}/log4j-1.2.8.jar" />
+    <pathelement path="${xmlbeans.dir}/msginf_xmlbeans.jar" />
+    <pathelement path="${lib.dir}/resolver.jar" />
+    <pathelement path="${lib.dir}/saaj.jar" />
+    <pathelement path="${lib.dir}/servlet-api.jar" />
+    <pathelement path="${lib.dir}/spring-1.1.jar" />
+    <pathelement path="${lib.dir}/xalan.jar" />
+    <pathelement path="${lib.dir}/xbean.jar" />
+    <pathelement path="${lib.dir}/xbean_xpath.jar" />
+    <pathelement path="${lib.dir}/xercesImpl.jar" />
+    <pathelement path="${lib.dir}/xmlpublic.jar" />
+    <pathelement path="${lib.dir}/xsltc.jar" />
+  </path>
+
+  <path id="compile.test.class.path">
+    <pathelement path="${build.classes.dir}" />
+    <path refid="compile.class.path"/>
+  </path>
+
+  <property name="compile.class.path.property" refid="compile.class.path" />
+
+  <!-- ********************************************************* -->
+  <!-- * Clean and Prepare Targets                             * -->
+  <!-- ********************************************************* -->
+  <target name="prepare">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+    <!-- Create the classpath files and properties. Used in test target -->
+    <echo file="${build.dir}/windows.classpath" message="${compile.class.path.property}"/>
+    <echo file="${build.dir}/unix.classpath" message="${compile.class.path.property}"/>
+    <loadfile property="windows.classpath.property" srcFile="${build.dir}/windows.classpath"/>
+    <loadfile property="unix.classpath.property" srcFile="${build.dir}/unix.classpath"/>
+  </target>
+
+  <target name="clean" description="Clean the build and distribution package">
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Display Targets                                       * -->
+  <!-- ********************************************************* -->
+  <target name="targets">
+    <echo message="**********************************************************"/>
+    <echo message="* The following targets are available                    *"/>
+    <echo message="**********************************************************"/>
+    <echo message="clean                  Deletes the ./build and ./dist directories."/>
+    <echo message="compile                Compiles the source and test code into the ./build/classes directory."/>
+    <echo message="jar                    Creates the ./dist/msginf.jar file from the compiled source code."/>
+    <echo message="junit_activemq         Runs the ActiveMQ junit tests. Results are in the ./build/junit directory."/>
+    <echo message="junit_jboss            Runs the JBoss junit tests. Results are in the ./build/junit directory."/>
+    <echo message="junit_joram            Runs the JORAM junit tests. Results are in the ./build/junit directory."/>
+    <echo message="javadocs               Creates the javadocs from the source in the ./build/javadocs/api directory. Creates ./dist/msginf-javadocs.jar."/>
+    <echo message="userguide              Creates the ./dist/userguide.zip file containing the user guide HTML docs."/>
+    <echo message="makeconfigtool         Creates the XML configuration file editor application in the ./build/config directory."/>
+    <echo message="makeviewer             Creates the message viewer application in the ./build/viewer directory."/>
+    <echo message="test                   Creates the test code and scripts in the /build/test directory."/>
+    <echo message="war                    Creates the ./dist/msginf.war file for deployment to Tomcat."/>
+    <echo message="all_messagelisteners   Creates the message listeners and receivers for all the supported environments in the ./build/env directory."/>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Compile Target                                        * -->
+  <!-- ********************************************************* -->
+  <target name="compile" depends="prepare">
+    <!-- create the build classes directory -->
+    <mkdir dir="${build.classes.dir}" />
+    <mkdir dir="${build.test.classes.dir}" />
+    <!-- build the java files -->
+    <javac srcdir="${source.dir}"
+           destdir="${build.classes.dir}"
+           includes="**/*.java"
+           debug="${debug}">
+           <classpath refid="compile.class.path" />
+           <compilerarg value="-Xlint:unchecked"/>
+           <compilerarg value="-Xlint:deprecation"/>
+    </javac>
+    <javac srcdir="${test.source.dir}"
+           destdir="${build.test.classes.dir}"
+           includes="**/*.java"
+           debug="${debug}">
+           <classpath refid="compile.test.class.path" />
+           <compilerarg value="-Xlint:unchecked"/>
+           <compilerarg value="-Xlint:deprecation"/>
+    </javac>
+    <!-- copy resource files -->
+    <copy file="${source.dir}/log4j.properties" todir="${build.classes.dir}"/>
+    <copy file="${source.dir}/msginf.xml" todir="${build.classes.dir}"/>
+    <copy file="${source.dir}/applicationContext.xml" todir="${build.classes.dir}"/>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Jar Target                                            * -->
+  <!-- ********************************************************* -->
+  <target name="jar" depends="compile">
+    <jar destfile="${dist.dir}/msginf.jar">
+      <fileset dir="${build.classes.dir}"/>
+    </jar>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Junit Targets                                         * -->
+  <!-- ********************************************************* -->
+  <target name="junit_activemq" depends="compile">
+    <!-- create junit directory -->
+    <mkdir dir="${junit.build.dir}"/>
+    <!-- run junit tests -->
+    <junit fork="yes" printsummary="withOutAndErr">
+      <classpath>
+	<path refid="compile.class.path"/>
+	<pathelement path="${build.classes.dir}"/>
+	<pathelement path="${build.test.classes.dir}"/>
+      </classpath>
+      <formatter type="xml"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.activemq.ActiveMQEchoTest" todir="${junit.build.dir}"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.activemq.ActiveMQReplyTest" todir="${junit.build.dir}"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.activemq.ActiveMQSubmitTest" todir="${junit.build.dir}"/>
+    </junit>
+  </target>
+  <target name="junit_jboss" depends="compile">
+    <!-- create junit directory -->
+    <mkdir dir="${junit.build.dir}"/>
+    <!-- run junit tests -->
+    <junit fork="yes" printsummary="withOutAndErr">
+      <classpath>
+	<path refid="compile.class.path"/>
+	<pathelement path="${build.classes.dir}"/>
+	<pathelement path="${build.test.classes.dir}"/>
+      </classpath>
+      <formatter type="xml"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.jboss.JBossEchoTest" todir="${junit.build.dir}"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.jboss.JBossReplyTest" todir="${junit.build.dir}"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.jboss.JBossSubmitTest" todir="${junit.build.dir}"/>
+    </junit>
+  </target>
+  <target name="junit_joram" depends="compile">
+    <!-- create junit directory -->
+    <mkdir dir="${junit.build.dir}"/>
+    <!-- run junit tests -->
+    <junit fork="yes" printsummary="withOutAndErr">
+      <classpath>
+	<path refid="compile.class.path"/>
+	<pathelement path="${build.classes.dir}"/>
+	<pathelement path="${build.test.classes.dir}"/>
+      </classpath>
+      <formatter type="xml"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.joram.JORAMEchoTest" todir="${junit.build.dir}"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.joram.JORAMReplyTest" todir="${junit.build.dir}"/>
+      <test name="nz.govt.nzqa.emi.client.adapter.joram.JORAMSubmitTest" todir="${junit.build.dir}"/>
+    </junit>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Javadocs Target                                       * -->
+  <!-- ********************************************************* -->
+  <target name="javadocs" depends="prepare">
+    <mkdir dir="${javadocs.build.dir}"/>
+    <javadoc packagenames="nz.govt.nzqa.emi.*"
+      sourcepath="${source.dir}"
+      defaultexcludes="yes"
+      destdir="${javadocs.build.dir}"
+      author="true"
+      version="true"
+      use="true"
+      windowtitle="Messaging Infrastructure API">
+      <classpath refid="compile.class.path" />
+      <doctitle><![CDATA[<h1>Messaging Infrastructure</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 2005 NZQA All Rights Reserved.</i>]]></bottom>
+    </javadoc>
+    <!-- Tar and gzip the javadocs files -->
+    <tar tarfile="${dist.dir}/msginf-javadocs.tar" basedir="${build.dir}" includes="javadocs/**"/>
+    <gzip zipfile="${dist.dir}/msginf-javadocs.tar.gz" src="${dist.dir}/msginf-javadocs.tar"/>
+    <delete file="${dist.dir}/msginf-javadocs.tar"/>
+  </target>
+  
+  <!-- ********************************************************* -->
+  <!-- * User Guide Target                                     * -->
+  <!-- ********************************************************* -->
+  <target name="userguide" depends="prepare">
+    <tar tarfile="${dist.dir}/userguide.tar" basedir="${html.docs.dir}" includes="userguide/**" excludes="**/*.svn"/>
+    <gzip zipfile="${dist.dir}/userguide.tar.gz" src="${dist.dir}/userguide.tar"/>
+    <delete file="${dist.dir}/userguide.tar"/>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Find Address Target                                   * -->
+  <!-- ********************************************************* -->
+  <target name="findaddress" depends="compile">
+    <jar destfile="findaddress.jar">
+      <fileset dir="${build.test.classes.dir}">
+        <include name="nz/govt/nzqa/emi/client/util/FindAddress.class"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.util.FindAddress"/>
+      </manifest>
+    </jar>
+    <!-- Create the shell scripts -->
+    <echo file="findaddress.bat" message="@echo off${line.separator}"/>
+    <echo file="findaddress.bat" append="yes" message="java -classpath findaddress.jar nz.govt.nzqa.emi.client.util.FindAddress"/>
+    <echo file="findaddress.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="findaddress.sh" append="yes" message="java -classpath findaddress.jar nz.govt.nzqa.emi.client.util.FindAddress"/>
+    <chmod file="findaddress.sh" perm="u+x"/>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Configuration Tool Target                             * -->
+  <!-- ********************************************************* -->
+  <target name="makeconfigtool" depends="compile">
+    <mkdir dir="${config.build.dir}"/>
+    <jar destfile="${config.build.dir}/config.jar">
+      <fileset dir="${build.classes.dir}">
+        <include name="nz/govt/nzqa/emi/configuration/**"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+      </fileset>
+    </jar>
+    <!-- Copy the other jar files -->
+    <copy file="${lib.dir}/commons-logging-1.0.3.jar" todir="${config.build.dir}"/>
+    <copy file="${lib.dir}/log4j-1.2.8.jar" todir="${config.build.dir}"/>
+    <copy file="${lib.dir}/jsr173_1.0_api.jar" todir="${config.build.dir}"/>
+    <copy file="${lib.dir}/resolver.jar" todir="${config.build.dir}"/>
+    <copy file="${lib.dir}/xbean.jar" todir="${config.build.dir}"/>
+    <copy file="${lib.dir}/xbean_xpath.jar" todir="${config.build.dir}"/>
+    <copy file="${lib.dir}/xmlpublic.jar" todir="${config.build.dir}"/>
+    <copy file="${xmlbeans.dir}/msginf_xmlbeans.jar" todir="${config.build.dir}"/>
+    <!-- Create the shell scripts -->
+    <echo file="${config.build.dir}/runconfig.bat" message="@echo off${line.separator}"/>
+    <echo file="${config.build.dir}/runconfig.bat" append="yes" message="java -classpath config.jar;commons-logging-1.0.3.jar;log4j-1.2.8.jar;jsr173_1.0_api.jar;resolver.jar;xbean.jar;xbean_xpath.jar;xmlpublic.jar;msginf_xmlbeans.jar nz.govt.nzqa.emi.configuration.ConfigurationApplication"/>
+    <echo file="${config.build.dir}/runconfig.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${config.build.dir}/runconfig.sh" append="yes" message="java -classpath config.jar:commons-logging-1.0.3.jar:log4j-1.2.8.jar:jsr173_1.0_api.jar:resolver.jar:xbean.jar:xbean_xpath.jar:xmlpublic.jar:msginf_xmlbeans.jar nz.govt.nzqa.emi.configuration.ConfigurationApplication"/>
+    <chmod file="${config.build.dir}/runconfig.sh" perm="u+x"/>
+    <!-- Zip the config files -->
+    <zip destfile="${build.dir}/config.zip" basedir="${config.build.dir}"/>
+  </target>
+  
+  <!-- ********************************************************* -->
+  <!-- * Viewer Target                                         * -->
+  <!-- ********************************************************* -->
+  <target name="makeviewer" depends="compile">
+    <mkdir dir="${viewer.build.dir}"/>
+    <jar destfile="${viewer.build.dir}/viewer.jar">
+      <fileset dir="${build.classes.dir}">
+        <include name="nz/govt/nzqa/emi/viewer/**"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="log4j.properties"/>
+      </fileset>
+    </jar>
+    <!-- Copy the other jar files -->
+    <copy file="${lib.dir}/concurrent-1.3.4.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/commons-logging-1.0.3.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/log4j-1.2.8.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/geronimo-spec-jms-1.1-rc4.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/geronimo-spec-j2ee-management-1.0-rc4.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/jsr173_1.0_api.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/resolver.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/xbean.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/xbean_xpath.jar" todir="${viewer.build.dir}"/>
+    <copy file="${lib.dir}/xmlpublic.jar" todir="${viewer.build.dir}"/>
+    <copy file="${xmlbeans.dir}/msginf_xmlbeans.jar" todir="${viewer.build.dir}"/>
+    <!-- Create the shell scripts -->
+    <echo file="${viewer.build.dir}/runviewer.bat" message="@echo off${line.separator}"/>
+    <echo file="${viewer.build.dir}/runviewer.bat" append="yes" message="java -classpath .;viewer.jar;concurrent-1.3.4.jar;commons-logging-1.0.3.jar;log4j-1.2.8.jar;geronimo-spec-j2ee-management-1.0-rc4.jar;geronimo-spec-jms-1.1-rc4.jar;jsr173_1.0_api.jar;resolver.jar;xbean.jar;xbean_xpath.jar;xmlpublic.jar;msginf_xmlbeans.jar nz.govt.nzqa.emi.viewer.MessageViewer"/>
+    <echo file="${viewer.build.dir}/runviewer.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${viewer.build.dir}/runviewer.sh" append="yes" message="java -classpath .:viewer.jar:concurrent-1.3.4.jar:commons-logging-1.0.3.jar:log4j-1.2.8.jar:geronimo-spec-j2ee-management-1.0-rc4.jar:geronimo-spec-jms-1.1-rc4.jar:jsr173_1.0_api.jar:resolver.jar:xbean.jar:xbean_xpath.jar:xmlpublic.jar:msginf_xmlbeans.jar nz.govt.nzqa.emi.viewer.MessageViewer"/>
+    <chmod file="${viewer.build.dir}/runviewer.sh" perm="u+x"/>
+    <!-- Zip the viewer files -->
+    <zip destfile="${build.dir}/viewer.zip" basedir="${viewer.build.dir}"/>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Test Target                                           * -->
+  <!-- ********************************************************* -->
+  <target name="test" depends="compile">
+    <mkdir dir="${test.build.dir}"/>
+    <!-- Create the test scripts -->
+    <echo file="${test.build.dir}/test.bat" message="@echo off${line.separator}"/>
+    <echo file="${test.build.dir}/test.bat" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir};../../${build.test.classes.dir};${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.adapter.TestQueueManager %1 %2 %3 %4 %5 %6 %7"/>
+    <echo file="${test.build.dir}/test.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${test.build.dir}/test.sh" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir}:../../${build.test.classes.dir}:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.adapter.TestQueueManager $1 $2 $3 $4 $5 $6 $7"/>
+    <chmod file="${test.build.dir}/test.sh" perm="u+x"/>
+    <echo file="${test.build.dir}/gui.bat" message="@echo off${line.separator}"/>
+    <echo file="${test.build.dir}/gui.bat" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir};../../${build.test.classes.dir};${windows.classpath.property} nz.govt.nzqa.emi.client.testapp.TestRunner"/>
+    <echo file="${test.build.dir}/gui.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${test.build.dir}/gui.sh" append="yes" message="java -Xmx512M -classpath ../../${build.classes.dir}:../../${build.test.classes.dir}:${unix.classpath.property} nz.govt.nzqa.emi.client.testapp.TestRunner"/>
+    <chmod file="${test.build.dir}/gui.sh" perm="u+x"/>
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * War Target                                            * -->
+  <!-- ********************************************************* -->
+  <target name="war" depends="compile">
+    <!-- Assemble the .war file. -->
+    <copy todir="${dist.dir}/war/WEB-INF/classes">
+      <fileset dir="${build.classes.dir}">
+        <include name="**"/>
+      </fileset>
+    </copy>
+    <mkdir dir="${dist.dir}/war/WEB-INF/lib"/>
+    <copy todir="${dist.dir}/war/WEB-INF/lib">
+      <fileset dir="${lib.dir}">
+        <include name="*.jar"/>
+        <exclude name="servlet-api.jar"/>
+      </fileset>
+    </copy>
+    <copy todir="${dist.dir}/war/WEB-INF/lib">
+      <fileset dir="${xmlbeans.dir}">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+    <mkdir dir="${dist.dir}/war/html"/>
+    <copy todir="${dist.dir}/war/html">
+      <fileset dir="${html.dir}">
+        <include name="**"/>
+      </fileset>
+    </copy>
+	<!-- Copy the graph classes -->
+    <copy file="barchart.class" todir="${dist.dir}/war"/>
+    <copy file="linegraph.class" todir="${dist.dir}/war"/>
+	<!-- Copy the Web XML -->
+    <copy file="${dd.dir}/web.xml" todir="${dist.dir}/war/WEB-INF"/>
+    <!-- Create the .war file. -->
+    <jar jarfile="${dist.dir}/msginf.war" basedir="${dist.dir}/war" compress="false"/>
+	<!-- Copy war files into WEB-INF for Tomcat -->
+    <delete dir="${tomcat.dir}"/>
+    <mkdir dir="${tomcat.dir}" />
+    <copy todir="${tomcat.dir}">
+      <fileset dir="${dist.dir}/war/WEB-INF">
+        <include name="**/**"/>
+      </fileset>
+    </copy>
+
+  </target>
+
+  <!-- ********************************************************* -->
+  <!-- * Listener and Receiver Targets                         * -->
+  <!-- ********************************************************* -->
+  <target name="env">
+    <mkdir dir="${build.env.dir}"/>
+  </target>
+
+  <target name="activemq_jndi" depends="compile,env">
+    <mkdir dir="${build.env.activemq.dir}"/>
+    <mkdir dir="${build.env.activemq.dir}/classes"/>
+    <copy todir="${build.env.activemq.dir}/classes">
+      <fileset dir="${build.classes.dir}"/>
+      <fileset dir="${build.test.classes.dir}"/>
+    </copy>
+  </target>
+
+  <target name="joram_jndi" depends="compile,env">
+    <mkdir dir="${build.env.joram.dir}"/>
+    <mkdir dir="${build.env.joram.dir}/classes"/>
+    <copy todir="${build.env.joram.dir}/classes">
+      <fileset dir="${build.classes.dir}"/>
+      <fileset dir="${build.test.classes.dir}"/>
+    </copy>
+  </target>
+
+  <target name="openjms_jndi" depends="compile,env">
+    <mkdir dir="${build.env.openjms.dir}"/>
+    <mkdir dir="${build.env.openjms.dir}/classes"/>
+    <copy todir="${build.env.openjms.dir}/classes">
+      <fileset dir="${build.classes.dir}"/>
+      <fileset dir="${build.test.classes.dir}"/>
+    </copy>
+  </target>
+
+  <target name="jboss_jndi" depends="compile,env">
+    <mkdir dir="${build.env.jboss.dir}"/>
+    <mkdir dir="${build.env.jboss.dir}/classes"/>
+    <copy todir="${build.env.jboss.dir}/classes">
+      <fileset dir="${build.classes.dir}"/>
+      <fileset dir="${build.test.classes.dir}"/>
+    </copy>
+  </target>
+
+  <target name="mom4j_jndi" depends="compile,env">
+    <mkdir dir="${build.env.mom4j.dir}"/>
+    <mkdir dir="${build.env.mom4j.dir}/classes"/>
+    <copy todir="${build.env.mom4j.dir}/classes">
+      <fileset dir="${build.classes.dir}"/>
+      <fileset dir="${build.test.classes.dir}"/>
+    </copy>
+  </target>
+
+  <target name="mqseries_jndi" depends="compile,env">
+    <mkdir dir="${build.env.mqseries.dir}"/>
+    <mkdir dir="${build.env.mqseries.dir}/classes"/>
+    <copy todir="${build.env.mqseries.dir}/classes">
+      <fileset dir="${build.classes.dir}"/>
+      <fileset dir="${build.test.classes.dir}"/>
+    </copy>
+  </target>
+
+  <target name="activemq_messagelistener_scripts" depends="activemq_jndi">
+    <!-- Create the run message listener shell scripts -->
+    <echo file="${build.env.activemq.dir}/activeMQListener.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.activemq.dir}/activeMQListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply activemq QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.activemq.dir}/activeMQListener.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.activemq.dir}/activeMQListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply activemq QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <chmod file="${build.env.activemq.dir}/activeMQListener.sh" perm="u+x"/>
+    <echo file="${build.env.activemq.dir}/activeMQReceiver.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.activemq.dir}/activeMQReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver activemq QueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.activemq.dir}/activeMQReceiver.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.activemq.dir}/activeMQReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver activemq QueueConnectionFactory TestQueue"/>
+    <chmod file="${build.env.activemq.dir}/activeMQReceiver.sh" perm="u+x"/>
+  </target>
+
+  <target name="joram_messagelistener_scripts" depends="joram_jndi">
+    <!-- Create the run message listener shell scripts -->
+    <echo file="${build.env.joram.dir}/joramListener.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.joram.dir}/joramListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply joram qcf RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.joram.dir}/joramListener.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.joram.dir}/joramListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply joram qcf RequestQueue ReplyQueue true"/>
+    <chmod file="${build.env.joram.dir}/joramListener.sh" perm="u+x"/>
+    <echo file="${build.env.joram.dir}/joramReceiver.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.joram.dir}/joramReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver joram qcf TestQueue"/>
+    <echo file="${build.env.joram.dir}/joramReceiver.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.joram.dir}/joramReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver joram qcf TestQueue"/>
+    <chmod file="${build.env.joram.dir}/joramReceiver.sh" perm="u+x"/>
+  </target>
+
+  <target name="openjms_messagelistener_scripts" depends="openjms_jndi">
+    <!-- Create the run message listener shell scripts -->
+    <echo file="${build.env.openjms.dir}/openjmsListener.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.openjms.dir}/openjmsListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply openjms TCPQueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.openjms.dir}/openjmsListener.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.openjms.dir}/openjmsListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply openjms TCPQueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <chmod file="${build.env.openjms.dir}/openjmsListener.sh" perm="u+x"/>
+    <echo file="${build.env.openjms.dir}/openjmsReceiver.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.openjms.dir}/openjmsReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver openjms TCPQueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.openjms.dir}/openjmsReceiver.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.openjms.dir}/openjmsReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver openjms TCPQueueConnectionFactory TestQueue"/>
+    <chmod file="${build.env.openjms.dir}/openjmsReceiver.sh" perm="u+x"/>
+  </target>
+
+  <target name="jboss_messagelistener_scripts" depends="jboss_jndi">
+    <!-- Create the run message listener shell scripts -->
+    <echo file="${build.env.jboss.dir}/jbossListener.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.jboss.dir}/jbossListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageRequestReply jboss UIL2ConnectionFactory queue/RequestQueue queue/ReplyQueue true"/>
+    <echo file="${build.env.jboss.dir}/jbossListener.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.jboss.dir}/jbossListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageRequestReply jboss UIL2ConnectionFactory queue/RequestQueue queue/ReplyQueue true"/>
+    <chmod file="${build.env.jboss.dir}/jbossListener.sh" perm="u+x"/>
+    <echo file="${build.env.jboss.dir}/jbossReceiver.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.jboss.dir}/jbossReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageReceiver jboss UIL2ConnectionFactory queue/SubmitQueue"/>
+    <echo file="${build.env.jboss.dir}/jbossReceiver.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.jboss.dir}/jbossReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} -Dorg.jboss.mq.il.uil2.useServerHost=true nz.govt.nzqa.emi.client.listener.MessageReceiver jboss UIL2ConnectionFactory queue/SubmitQueue"/>
+    <chmod file="${build.env.jboss.dir}/jbossReceiver.sh" perm="u+x"/>
+  </target>
+
+  <target name="mom4j_messagelistener_scripts" depends="mom4j_jndi">
+    <!-- Create the run message listener shell scripts -->
+    <echo file="${build.env.mom4j.dir}/mom4jListener.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.mom4j.dir}/mom4jListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mom4j QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.mom4j.dir}/mom4jListener.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.mom4j.dir}/mom4jListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mom4j QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <chmod file="${build.env.mom4j.dir}/mom4jListener.sh" perm="u+x"/>
+    <echo file="${build.env.mom4j.dir}/mom4jReceiver.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.mom4j.dir}/mom4jReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mom4j QueueConnectionFactory SubmitQueue"/>
+    <echo file="${build.env.mom4j.dir}/mom4jReceiver.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.mom4j.dir}/mom4jReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mom4j QueueConnectionFactory SubmitQueue"/>
+    <chmod file="${build.env.mom4j.dir}/mom4jReceiver.sh" perm="u+x"/>
+  </target>
+
+  <target name="mqseries_messagelistener_scripts" depends="mqseries_jndi">
+    <!-- Create the run message listener shell scripts -->
+    <echo file="${build.env.mqseries.dir}/mqseriesListener.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesListener.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mqseries QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesListener.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesListener.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageRequestReply mqseries QueueConnectionFactory RequestQueue ReplyQueue true"/>
+    <chmod file="${build.env.mqseries.dir}/mqseriesListener.sh" perm="u+x"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.bat" message="@echo off${line.separator}"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.bat" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .;./messagelistener.jar;${windows.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mqseries QueueConnectionFactory TestQueue"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.sh" message="#! /bin/sh${line.separator}"/>
+    <echo file="${build.env.mqseries.dir}/mqseriesReceiver.sh" append="yes" message="java -Xmx512M -Demi.xmlpropertiesfile=./classes/msginf.xml -classpath .:./messagelistener.jar:${unix.classpath.property} nz.govt.nzqa.emi.client.listener.MessageReceiver mqseries QueueConnectionFactory TestQueue"/>
+    <chmod file="${build.env.mqseries.dir}/mqseriesReceiver.sh" perm="u+x"/>
+  </target>
+
+  <target name="activemq_jar_messagelistener" depends="compile">
+    <jar destfile="${build.env.activemq.dir}/messagelistener.jar">
+      <fileset dir="${build.env.activemq.dir}/classes">
+        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="jndi.properties"/>
+        <include name="log4j.properties"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="joram_jar_messagelistener" depends="compile">
+    <jar destfile="${build.env.joram.dir}/messagelistener.jar">
+      <fileset dir="${build.env.joram.dir}/classes">
+        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="jndi.properties"/>
+        <include name="log4j.properties"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="openjms_jar_messagelistener" depends="compile">
+    <jar destfile="${build.env.openjms.dir}/messagelistener.jar">
+      <fileset dir="${build.env.openjms.dir}/classes">
+        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="jndi.properties"/>
+        <include name="log4j.properties"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="jboss_jar_messagelistener" depends="compile">
+    <jar destfile="${build.env.jboss.dir}/messagelistener.jar">
+      <fileset dir="${build.env.jboss.dir}/classes">
+        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="jndi.properties"/>
+        <include name="log4j.properties"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="mom4j_jar_messagelistener" depends="compile">
+    <jar destfile="${build.env.mom4j.dir}/messagelistener.jar">
+      <fileset dir="${build.env.mom4j.dir}/classes">
+        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="jndi.properties"/>
+        <include name="log4j.properties"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="mqseries_jar_messagelistener" depends="compile">
+    <jar destfile="${build.env.mqseries.dir}/messagelistener.jar">
+      <fileset dir="${build.env.mqseries.dir}/classes">
+        <include name="nz/govt/nzqa/emi/client/listener/Message*.class"/>
+        <include name="nz/govt/nzqa/emi/infrastructure/**"/>
+        <include name="jndi.properties"/>
+        <include name="log4j.properties"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="nz.govt.nzqa.emi.client.listener.MessageRequestReply"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="activemq_messagelistener" depends="activemq_messagelistener_scripts,activemq_jar_messagelistener">
+  </target>
+
+  <target name="joram_messagelistener" depends="joram_messagelistener_scripts,joram_jar_messagelistener">
+  </target>
+
+  <target name="openjms_messagelistener" depends="openjms_messagelistener_scripts,openjms_jar_messagelistener">
+  </target>
+
+  <target name="jboss_messagelistener" depends="jboss_messagelistener_scripts,jboss_jar_messagelistener">
+  </target>
+
+  <target name="mom4j_messagelistener" depends="mom4j_messagelistener_scripts,mom4j_jar_messagelistener">
+  </target>
+
+  <target name="mqseries_messagelistener" depends="mqseries_messagelistener_scripts,mqseries_jar_messagelistener">
+  </target>
+
+  <target name="all_messagelisteners" depends="activemq_messagelistener,joram_messagelistener,openjms_messagelistener,jboss_messagelistener,mom4j_messagelistener,mqseries_messagelistener">
+  </target>
+</project>
