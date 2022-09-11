@@ -12,7 +12,7 @@
     <servlet>
       <servlet-name>sender</servlet-name>
       <description>This servlet interfaces with the EMI.</description>
-      <servlet-class>nz.govt.nzqa.emi.client.servlet.SenderServlet</servlet-class>
+      <servlet-class>nz.co.pukeko.msginf.client.servlet.SenderServlet</servlet-class>
       <load-on-startup>0</load-on-startup>
     </servlet>
 
@@ -25,7 +25,7 @@
     <servlet>
       <servlet-name>admin</servlet-name>
       <description>This servlet administers the EMI.</description>
-      <servlet-class>nz.govt.nzqa.emi.client.servlet.AdministrationServlet</servlet-class>
+      <servlet-class>nz.co.pukeko.msginf.client.servlet.AdministrationServlet</servlet-class>
       <load-on-startup>0</load-on-startup>
     </servlet>
 
@@ -38,7 +38,7 @@
     <servlet>
       <servlet-name>spring</servlet-name>
       <description>This servlet interfaces with Spring.</description>
-      <servlet-class>nz.govt.nzqa.emi.client.servlet.SpringServlet</servlet-class>
+      <servlet-class>nz.co.pukeko.msginf.client.servlet.SpringServlet</servlet-class>
       <load-on-startup>0</load-on-startup>
     </servlet>
 

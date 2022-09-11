@@ -149,7 +149,7 @@ When the messaging infrastructure starts up it looks for an <span
 path by default or uses the following Java property set on the command
 line: <br>
 <br>
-<span style="font-family: monospace;">-Demi.xmlpropertiesfile=/somepath/mymessagingfile.xml</span><br>
+<span style="font-family: monospace;">-Dmsginf.xmlpropertiesfile=/somepath/mymessagingfile.xml</span><br>
 <br>
 This file will need to be edited to suit your environment.<br>
 <br>
@@ -769,9 +769,9 @@ the messaging infrastructure will wait for a reply before timing out.</td>
 javax.jms.TextMessage, javax.jms.ObjectMessage, or
 javax.jms.StreamMessage.</span><br>
 <br>
-** Can be one of the following: <span style="font-family: monospace;">nz.govt.nzqa.emi.client.connector.ConsumerMessageRequester
+** Can be one of the following: <span style="font-family: monospace;">nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester
 or
-nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester.</span>
+nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester.</span>
 The <span style="font-family: monospace;">ConsumerMessageRequester</span>
 uses a standard JMS MessageProducer/MessageConsumer to handle the
 request-reply. The <span style="font-family: monospace;">FutureResultsHandlerMessageRequester</span>
@@ -816,31 +816,31 @@ org.objectweb.joram.client.jms.MessageProducer.send(MessageProducer.java:306)</s
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at
-nz.govt.nzqa.emi.client.connector.BaseMessageRequester.doSend(BaseMessageRequester.java:61)</span><br
+nz.co.pukeko.msginf.client.connector.BaseMessageRequester.doSend(BaseMessageRequester.java:61)</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at
-nz.govt.nzqa.emi.client.connector.FutureResultsHandlerMessageRequester.request(FutureResultsHandlerMessageRequester.java:54)</span><br
+nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester.request(FutureResultsHandlerMessageRequester.java:54)</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at
-nz.govt.nzqa.emi.client.connector.MessageController.sendMessage(MessageController.java:236)</span><br
+nz.co.pukeko.msginf.client.connector.MessageController.sendMessage(MessageController.java:236)</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at
-nz.govt.nzqa.emi.client.adapter.QueueManager.putMessageOnQueue(QueueManager.java:197)</span><br
+nz.co.pukeko.msginf.client.adapter.QueueManager.putMessageOnQueue(QueueManager.java:197)</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at
-nz.govt.nzqa.emi.client.adapter.QueueManager.sendMessage(QueueManager.java:164)</span><br
+nz.co.pukeko.msginf.client.adapter.QueueManager.sendMessage(QueueManager.java:164)</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at
-nz.govt.nzqa.emi.client.adapter.QueueManager.sendMessage(QueueManager.java:108)</span><br
+nz.co.pukeko.msginf.client.adapter.QueueManager.sendMessage(QueueManager.java:108)</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at
-nz.govt.nzqa.emi.client.adapter.TestQueueManagerMessageHandler.run(TestQueueManagerMessageHandler.java:147)</span><br
+nz.co.pukeko.msginf.client.adapter.TestQueueManagerMessageHandler.run(TestQueueManagerMessageHandler.java:147)</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 at java.lang.Thread.run(Thread.java:595)</span><br>
@@ -865,7 +865,7 @@ It is up to the calling application to know what Object is going to be
 returned by the messaging infrastructure.<br>
 <br>
 Message header properties can be sent using the <span
- style="font-family: monospace;">nz.govt.nzqa.emi.infrastructure.data.HeaderProperties</span>
+ style="font-family: monospace;">nz.co.pukeko.msginf.infrastructure.data.HeaderProperties</span>
 class, which class extends <span style="font-family: monospace;">java.util.HashMap</span>.
 This class is used to store the message header properties and is passed
 to the messaging infrastructure using the <span
