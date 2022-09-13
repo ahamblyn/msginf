@@ -1,13 +1,14 @@
 package nz.co.pukeko.msginf.client.socket;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
 
 public class TestSocketServer implements Runnable {
-    private static Logger logger = Logger.getLogger(TestSocketServer.class);
+    private static Logger logger = LogManager.getLogger(TestSocketServer.class);
     private int port;
 
     public TestSocketServer(int port) {

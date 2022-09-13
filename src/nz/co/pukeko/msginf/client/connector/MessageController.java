@@ -39,7 +39,8 @@ import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The MessageController puts messages onto the queues defined in the XML properties file.
@@ -52,7 +53,7 @@ public class MessageController {
    /**
     * The log4j logger.
     */
-   private static Logger logger = Logger.getLogger(MessageController.class);
+   private static Logger logger = LogManager.getLogger(MessageController.class);
 
     /**
      * The JMS session.

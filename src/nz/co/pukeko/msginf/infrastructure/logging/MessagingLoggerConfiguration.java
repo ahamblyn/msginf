@@ -3,12 +3,14 @@ package nz.co.pukeko.msginf.infrastructure.logging;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
 
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
 
 /**
  * This class sets up the logging for the messaging infrastructure.
@@ -16,7 +18,7 @@ import org.apache.log4j.PropertyConfigurator;
  * @author Alisdair Hamblyn
  */
 
-public class MessagingLoggerConfiguration extends PropertyConfigurator {
+public class MessagingLoggerConfiguration {
 
     /**
      * The static instance of this class.
@@ -51,16 +53,19 @@ public class MessagingLoggerConfiguration extends PropertyConfigurator {
               }
     	  } catch (MessageException me) {
     		  me.printStackTrace();
+		  } catch (URISyntaxException me) {
+			  me.printStackTrace();
     	  }
        }
-       super.configure(logFileURL);
 	}
 	
-	private void loadDefault() {
+	private void loadDefault() throws URISyntaxException {
 		// use the default /log4j.properties in the msginf.jar file
         System.out.println("Using default log4j file /log4j.properties");
         logFileURL = MessagingLoggerConfiguration.class.getResource("/log4j.properties");
         System.out.println("log4j file URL: " + logFileURL);
+		LoggerContext context = (LoggerContext) LogManager.getContext(false);
+		context.setConfigLocation(logFileURL.toURI());
 	}
 	
 	private boolean loadFile() {

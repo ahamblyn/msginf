@@ -13,13 +13,13 @@ import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 
-import org.apache.log4j.Logger;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MessageTest extends TestCase {
-    protected static Logger logger = Logger.getLogger(MessageTest.class);
+    protected static Logger logger = LogManager.getLogger(MessageTest.class);
     protected QueueManager queueManager;
     protected QueueManager resetQueueManager;
 

@@ -16,8 +16,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import org.apache.xmlbeans.impl.jam.JComment;
-
 import nz.co.pukeko.msginf.configuration.ConfigurationApplication;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
 

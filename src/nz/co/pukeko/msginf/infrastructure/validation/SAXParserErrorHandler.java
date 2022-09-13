@@ -2,7 +2,8 @@ package nz.co.pukeko.msginf.infrastructure.validation;
 
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -18,7 +19,7 @@ public class SAXParserErrorHandler extends DefaultHandler {
     /**
      * The log4j logger.
      */
-   private static Logger logger = Logger.getLogger(SAXParserErrorHandler.class);
+   private static Logger logger = LogManager.getLogger(SAXParserErrorHandler.class);
 
     /**
      * The SAXParserErrorHandler constructor.

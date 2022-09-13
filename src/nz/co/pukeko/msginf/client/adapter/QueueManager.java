@@ -20,7 +20,8 @@ import nz.co.pukeko.msginf.infrastructure.messagebuilder.SOAPMessageBuilder;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.validation.XSDSchemaValidator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The QueueManager is used by client applications to send and receive messages.
@@ -49,7 +50,7 @@ public class QueueManager implements QueueManagerAgreement {
 	/**
 	 * The log4j logger.
 	 */
-	private static Logger logger = Logger.getLogger(QueueManager.class);
+	private static Logger logger = LogManager.getLogger(QueueManager.class);
 
 	/**
 	 * The Messaging System.

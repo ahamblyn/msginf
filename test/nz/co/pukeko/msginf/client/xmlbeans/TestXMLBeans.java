@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.ConfigurationDocument;
@@ -20,10 +22,9 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitDocument.Submit;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SystemDocument.System;
 
 import junit.framework.TestCase;
-import org.apache.xmlbeans.XmlObject;
 
 public class TestXMLBeans extends TestCase {
-	private static Logger logger = Logger.getLogger(TestXMLBeans.class);
+	private static Logger logger = LogManager.getLogger(TestXMLBeans.class);
 	private ConfigurationDocument configuration;
 	
 	public void setUp() {
@@ -31,10 +32,11 @@ public class TestXMLBeans extends TestCase {
 //		java.lang.System.setProperty("emi.system", "activemq");
 //		java.lang.System.setProperty("emi.system", "XXXXXXXX");
 		// set up the XML file
+		MessagingLoggerConfiguration.configure();
 		URL fileURL = this.getClass().getResource("/msginf.xml");
 		File file = new File(fileURL.getFile());
 		try {
-			configuration = (ConfigurationDocument) XmlObject.Factory.parse(file);
+			configuration = ConfigurationDocument.Factory.parse(file);
 			logger.debug("Log4JPropertiesFile: " + configuration.getConfiguration().getLog4JPropertiesFile());
 		} catch (XmlException xmle) {
 			xmle.printStackTrace();
@@ -48,26 +50,14 @@ public class TestXMLBeans extends TestCase {
 		if (activeMQ != null) {
 			printSystem(activeMQ);
 		}
-		System joram = findSystem("joram");
-		if (activeMQ != null) {
-			printSystem(joram);
-		}
-		System openjms = findSystem("openjms");
-		if (activeMQ != null) {
-			printSystem(openjms);
-		}
 		System jboss = findSystem("jboss");
-		if (activeMQ != null) {
+		if (jboss != null) {
 			printSystem(jboss);
 		}
 	}
 	
 	public void testXMLMessageInfrastructurePropertiesFileParser() throws Exception {
 		XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser("activemq");
-		printParser(parser);
-		parser = new XMLMessageInfrastructurePropertiesFileParser("joram");
-		printParser(parser);
-		parser = new XMLMessageInfrastructurePropertiesFileParser("openjms");
 		printParser(parser);
 		parser = new XMLMessageInfrastructurePropertiesFileParser("jboss");
 		printParser(parser);

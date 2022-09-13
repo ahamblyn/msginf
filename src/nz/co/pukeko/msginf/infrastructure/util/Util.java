@@ -21,12 +21,12 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.log4j.Logger;
-
 import nz.co.pukeko.msginf.infrastructure.exception.InfrastructureUtilityClassException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLPropertiesQueue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility class.
@@ -34,7 +34,7 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLPropertiesQueue;
  * @author Alisdair Hamblyn
  */
 public class Util {
-	private static Logger logger = Logger.getLogger(Util.class);
+	private static Logger logger = LogManager.getLogger(Util.class);
 
 	/**
 	 * Reads a file into a String.

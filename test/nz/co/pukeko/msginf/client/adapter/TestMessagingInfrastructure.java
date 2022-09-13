@@ -7,12 +7,12 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.log4j.Logger;
-
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Messaging Infrastructure JUnit test.
@@ -20,7 +20,7 @@ import junit.framework.TestCase;
  * @author Alisdair Hamblyn
  */
 public class TestMessagingInfrastructure extends TestCase {
-    private static Logger logger = Logger.getLogger(TestMessagingInfrastructure.class);
+    private static Logger logger = LogManager.getLogger(TestMessagingInfrastructure.class);
 	
 	public void setUp() {
 		MessagingLoggerConfiguration.configure();

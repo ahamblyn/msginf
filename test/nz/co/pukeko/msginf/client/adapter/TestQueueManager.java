@@ -7,8 +7,8 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.socket.ShutdownThread;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class to test the messaging infrastructure.
@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  * @author Alisdair Hamblyn
  */
 public class TestQueueManager {
-	private static Logger logger = Logger.getLogger(TestQueueManager.class);
+	private static Logger logger = LogManager.getLogger(TestQueueManager.class);
 	private String testName;
 	private String messagingSystem;
 	private String connectorName;

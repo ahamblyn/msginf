@@ -63,7 +63,7 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 			parseFile();
 		} else {
 			try {
-				configuration = (ConfigurationDocument) XmlObject.Factory.parse(baseXML);
+				configuration = ConfigurationDocument.Factory.parse(baseXML);
 			} catch (XmlException e) {
 				// throw an exception
 				throw new XMLPropertiesFileException(e);
@@ -78,7 +78,7 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	 */
 	public XMLMessageInfrastructurePropertiesFileParser(File file) throws XMLPropertiesFileException {
 		try {
-			configuration = (ConfigurationDocument) XmlObject.Factory.parse(file);
+			configuration = ConfigurationDocument.Factory.parse(file);
 		} catch (XmlException xmle) {
 			throw new XMLPropertiesFileException(xmle);
 		} catch (IOException ioe) {
@@ -118,7 +118,7 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 			java.lang.System.out.println("msginf file: " + file.getAbsolutePath());
 		}
 		try {
-			configuration = (ConfigurationDocument) XmlObject.Factory.parse(file);
+			configuration = ConfigurationDocument.Factory.parse(file);
 		} catch (XmlException xmle) {
 			throw new XMLPropertiesFileException(xmle);
 		} catch (IOException ioe) {

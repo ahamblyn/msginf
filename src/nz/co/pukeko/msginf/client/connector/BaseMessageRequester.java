@@ -14,14 +14,15 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class handles the requests to and the replies from the temporary reply queue. 
  * @author alisdairh
  */
 public abstract class BaseMessageRequester implements MessageRequester {
-	protected static Logger logger = Logger.getLogger(BaseMessageRequester.class);
+	protected static Logger logger = LogManager.getLogger(BaseMessageRequester.class);
 	protected QueueChannel queueChannel;
 	protected MessageProducer producer;
 	protected Queue requestQueue;
