@@ -23,11 +23,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import nz.co.pukeko.msginf.infrastructure.exception.SOAPMessageException;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -205,15 +204,14 @@ public class SOAPMessageBuilder {
 	}
 
     private String convertDOMToString(Document dom) throws SOAPMessageException {
-        OutputFormat    format  = new OutputFormat(dom);   //Serialize DOM
-        StringWriter  stringOut = new StringWriter();        //Writer will be a String
-        XMLSerializer    serial = new XMLSerializer(stringOut, format);
+        TransformerFactory tf = TransformerFactory.newInstance();
         try {
-            serial.asDOMSerializer();                            // As a DOM Serializer
-            serial.serialize( dom.getDocumentElement() );
-        } catch (IOException ioe) {
-			throw new SOAPMessageException(ioe);
+            Transformer trans = tf.newTransformer();
+            StringWriter sw = new StringWriter();
+            trans.transform(new DOMSource(dom), new StreamResult(sw));
+            return sw.toString();
+        } catch (TransformerException e) {
+            throw new RuntimeException(e);
         }
-        return stringOut.toString();
     }
 }

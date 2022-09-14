@@ -29,7 +29,7 @@ public class MessageControllerFactory {
 	private static MessageControllerFactory messageControllerFactory = null;
 
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
 	private static Logger logger = LogManager.getLogger(MessageControllerFactory.class);
 

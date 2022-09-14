@@ -7,11 +7,13 @@ import nz.co.pukeko.msginf.infrastructure.exception.InvalidXMLSchemaException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.XMLSchemaNotFoundException;
 
-import org.apache.xerces.parsers.DOMParser;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This class validates the XML schema against an XSD file. Each MessageController
@@ -23,9 +25,9 @@ import org.xml.sax.SAXNotSupportedException;
 public class XSDSchemaValidator {
 
    /**
-    * The DOM document parser.
+    * The DOM document builder.
     */
-   private DOMParser parser;
+   private DocumentBuilder documentBuilder;
 
    /**
     * An xml header used to turn the xml fragment into a proper xml document.
@@ -53,24 +55,24 @@ public class XSDSchemaValidator {
      */
     public XSDSchemaValidator(String xsdFile, boolean useNamespace) throws MessageException {
        try {
-          parser = new DOMParser();
-          parser.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", true);
-          parser.setFeature("http://xml.org/sax/features/validation", true);
-          parser.setFeature("http://xml.org/sax/features/namespaces", true);
-          parser.setFeature("http://apache.org/xml/features/validation/schema", true);
-          parser.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace", false);
+          DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+          dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+/*
+          dbf.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", true);
+          dbf.setFeature("http://xml.org/sax/features/validation", true);
+          dbf.setFeature("http://xml.org/sax/features/namespaces", true);
+          dbf.setFeature("http://apache.org/xml/features/validation/schema", true);
+          dbf.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace", false);
           if (useNamespace) {
-              parser.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation", xsdFile);
+             dbf.setNamespaceAware(true);
           } else {
-              parser.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", xsdFile);
+             dbf.setNamespaceAware(false);
           }
-          parser.setErrorHandler(new SAXParserErrorHandler());
-       }
-       catch (SAXNotSupportedException snse) {
-    	   throw new InvalidXMLSchemaException(snse);
-       }
-       catch (SAXNotRecognizedException snre) {
-    	   throw new InvalidXMLSchemaException(snre);
+*/
+          documentBuilder = dbf.newDocumentBuilder();
+          documentBuilder.setErrorHandler(new SAXParserErrorHandler());
+       } catch (ParserConfigurationException pce) {
+          throw new InvalidXMLSchemaException(pce);
        }
     }
 
@@ -93,7 +95,7 @@ public class XSDSchemaValidator {
       ByteArrayInputStream byteStream;
       byteStream = new ByteArrayInputStream(xml.getBytes());
       try {
-         parser.parse(new InputSource(byteStream));
+         documentBuilder.parse(new InputSource(byteStream));
       } catch (SAXException se) {
          throw new InvalidXMLSchemaException(se);
       } catch (IOException ioe) {

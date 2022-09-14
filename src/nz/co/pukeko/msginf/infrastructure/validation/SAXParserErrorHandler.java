@@ -17,7 +17,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class SAXParserErrorHandler extends DefaultHandler {
 
     /**
-     * The log4j logger.
+     * The log4j2 logger.
      */
    private static Logger logger = LogManager.getLogger(SAXParserErrorHandler.class);
 

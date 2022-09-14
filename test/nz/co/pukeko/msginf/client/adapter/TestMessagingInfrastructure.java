@@ -30,7 +30,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 ActiveMQ Submit binary messages.
 	 */
 	public void testBinaryActiveMQSubmit() throws MessageException, NamingException, JMSException {
-		logger.debug("Running testBinaryActiveMQSubmit...");
+		logger.info("Running testBinaryActiveMQSubmit...");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "activemq", "activemq_submit_binary" , 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -51,7 +51,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 ActiveMQ Consumer Request/Reply binary messages.
 	 */
 	public void testBinaryActiveMQConsumerRequestReply() throws MessageException {
-		logger.debug("Running testBinaryActiveMQConsumerRequestReply...");
+		logger.info("Running testBinaryActiveMQConsumerRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_binary_consumer", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -62,7 +62,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 ActiveMQ Future Request/Reply binary messages.
 	 */
 	public void testBinaryActiveMQFutureRequestReply() throws MessageException {
-		logger.debug("Running testBinaryActiveMQFutureRequestReply...");
+		logger.info("Running testBinaryActiveMQFutureRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_binary_future", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -73,7 +73,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 ActiveMQ Submit text messages.
 	 */
 	public void testTextActiveMQSubmit() throws MessageException, NamingException, JMSException {
-		logger.debug("Running testTextActiveMQSubmit...");
+		logger.info("Running testTextActiveMQSubmit...");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "activemq", "activemq_submit_text", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -94,7 +94,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 ActiveMQ Consumer Request/Reply text messages.
 	 */
 	public void testTextActiveMQConsumerRequestReply() throws MessageException {
-		logger.debug("Running testTextActiveMQConsumerRequestReply...");
+		logger.info("Running testTextActiveMQConsumerRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_text_consumer",  2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -105,7 +105,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 ActiveMQ Future Request/Reply text messages.
 	 */
 	public void testTextActiveMQFutureRequestReply() throws MessageException {
-		logger.debug("Running testTextActiveMQFutureRequestReply...");
+		logger.info("Running testTextActiveMQFutureRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_text_future", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -116,7 +116,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 JBoss Submit binary messages.
 	 */
 	public void testBinaryJBossSubmit() throws MessageException, NamingException, JMSException {
-		logger.debug("Running testBinaryJBossSubmit...");
+		logger.info("Running testBinaryJBossSubmit...");
 		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "jboss", "jboss_submit_binary", 2, 10, "data/test.xml");
 		testQueueManager.run();
@@ -138,7 +138,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 JBoss Consumer Request/Reply binary messages.
 	 */
 	public void testBinaryJBossConsumerRequestReply() throws MessageException {
-		logger.debug("Running testBinaryJBossConsumerRequestReply...");
+		logger.info("Running testBinaryJBossConsumerRequestReply...");
 		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_binary_consumer", 2, 10, "data/test.xml");
 		testQueueManager.run();
@@ -150,7 +150,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 JBoss Future Request/Reply binary messages.
 	 */
 	public void testBinaryJBossFutureRequestReply() throws MessageException {
-		logger.debug("Running testBinaryJBossFutureRequestReply...");
+		logger.info("Running testBinaryJBossFutureRequestReply...");
 		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_binary_future", 2, 10, "data/test.xml");
 		testQueueManager.run();
@@ -162,7 +162,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 JBoss Submit text messages.
 	 */
 	public void testTextJBossSubmit() throws MessageException, NamingException, JMSException {
-		logger.debug("Running testTextJBossSubmit...");
+		logger.info("Running testTextJBossSubmit...");
 		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "jboss", "jboss_submit_text", 2, 10, "data/test.xml");
 		testQueueManager.run();
@@ -184,7 +184,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 JBoss Consumer Request/Reply text messages.
 	 */
 	public void testTextJBossConsumerRequestReply() throws MessageException {
-		logger.debug("Running testTextJBossConsumerRequestReply...");
+		logger.info("Running testTextJBossConsumerRequestReply...");
 		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_text_consumer", 2, 10, "data/test.xml");
 		testQueueManager.run();
@@ -196,7 +196,7 @@ public class TestMessagingInfrastructure extends TestCase {
 	 * 20 JBoss Future Request/Reply text messages.
 	 */
 	public void testTextJBossFutureRequestReply() throws MessageException {
-		logger.debug("Running testTextJBossFutureRequestReply...");
+		logger.info("Running testTextJBossFutureRequestReply...");
 		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_text_future", 2, 10, "data/test.xml");
 		testQueueManager.run();

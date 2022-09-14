@@ -26,18 +26,18 @@ public class MessagingLoggerConfiguration {
 	private static MessagingLoggerConfiguration ml;
 
     /**
-     * The location of the log4j file in the XML properties file
+     * The location of the log4j2 file in the XML properties file
      */
    private static String logFileLocation;
    
    /**
-    * The URL of the log4j file.
+    * The URL of the log4j2 file.
     */
    private static URL logFileURL;
 
     /**
      * The MessagingLoggerConfiguration constructor. It sets the log4j
-     * PropertyConfigurator to use the log4j.properties file in the
+     * PropertyConfigurator to use the log4j2.properties file in the
      * XML properties file.
      */
 	public MessagingLoggerConfiguration() {
@@ -45,7 +45,7 @@ public class MessagingLoggerConfiguration {
     	  try {
               XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser();
               logFileLocation = parser.getLog4jPropertiesFile();
-              System.out.println("log4j file location: " + logFileLocation);
+              System.out.println("log4j2 file location: " + logFileLocation);
               // try to load as file
               if (!loadFile()) {
         		  // load the default file
@@ -60,10 +60,10 @@ public class MessagingLoggerConfiguration {
 	}
 	
 	private void loadDefault() throws URISyntaxException {
-		// use the default /log4j.properties in the msginf.jar file
-        System.out.println("Using default log4j file /log4j.properties");
-        logFileURL = MessagingLoggerConfiguration.class.getResource("/log4j.properties");
-        System.out.println("log4j file URL: " + logFileURL);
+		// use the default /log4j2.properties in the msginf.jar file
+        System.out.println("Using default log4j2 file /log4j2.properties");
+        logFileURL = MessagingLoggerConfiguration.class.getResource("/log4j2.properties");
+        System.out.println("log4j2 file URL: " + logFileURL);
 		LoggerContext context = (LoggerContext) LogManager.getContext(false);
 		context.setConfigLocation(logFileURL.toURI());
 	}
@@ -75,7 +75,7 @@ public class MessagingLoggerConfiguration {
             // test the file. if not found return false
             if (logFile.exists()) {
     			logFileURL  = logFile.toURL();
-                System.out.println("log4j file URL: " + logFileURL);
+                System.out.println("log4j2 file URL: " + logFileURL);
             	fileOK = true;
             }
 		} catch (MalformedURLException mue) {

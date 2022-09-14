@@ -49,7 +49,7 @@ public class SenderServlet extends HttpServlet {
 	private Hashtable<String,QueueManager> queueManagers;
 	
     /**
-	 * The log4j logger.
+	 * The log4j2 logger.
      */
 	private static Logger logger = LogManager.getLogger(SenderServlet.class);
 

@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 public class TestQueueManagerMessageHandler implements Runnable {
 	
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
 	private static Logger logger = LogManager.getLogger(TestQueueManagerMessageHandler.class);
 	

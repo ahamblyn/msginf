@@ -32,7 +32,7 @@ public class QueueChannelPoolFactory {
    private static QueueChannelPoolFactory qcpf = null;
 
     /**
-     * The log4j logger.
+     * The log4j2 logger.
      */
    private static Logger logger = LogManager.getLogger(QueueChannelPoolFactory.class);
 

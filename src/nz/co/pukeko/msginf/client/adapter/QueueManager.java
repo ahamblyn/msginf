@@ -48,7 +48,7 @@ public class QueueManager implements QueueManagerAgreement {
 	private Hashtable<String,MessageController> messageControllers = new Hashtable<String,MessageController>();
 
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
 	private static Logger logger = LogManager.getLogger(QueueManager.class);
 

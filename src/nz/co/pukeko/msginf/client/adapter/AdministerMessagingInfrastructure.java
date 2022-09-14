@@ -15,7 +15,7 @@ public class AdministerMessagingInfrastructure {
 	private static AdministerMessagingInfrastructure administerMessagingInfrastructure = null;
 
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
 	private static Logger logger = LogManager.getLogger(AdministerMessagingInfrastructure.class);
 
