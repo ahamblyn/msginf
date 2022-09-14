@@ -2,9 +2,7 @@
 <msginf:configuration msginf:log4jPropertiesFile="/log4j2.properties" xmlns:msginf="http://pukeko.co.nz/msginf/infrastructure/pref/xmlbeans">
   <msginf:system msginf:name="activemq" msginf:initialContextFactory="org.apache.activemq.jndi.ActiveMQInitialContextFactory" msginf:url="tcp://localhost:61616">
     <msginf:jarFiles>
-      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activemq-core-4.0.2.jar"/>
-      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activeio-core-3.0-beta4.jar"/>
-      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\optional\activemq-optional-4.0.2.jar"/>
+      <msginf:jarFile msginf:jarFileName="C:\alisdair\java\apache-activemq-5.17.2\activemq-all-5.17.2.jar"/>
     </msginf:jarFiles>
     <msginf:queues>
       <msginf:queue msginf:jndiName="TestQueue" msginf:physicalName="TEST.QUEUE"/>
@@ -39,7 +37,7 @@
       </msginf:request-reply>
     </msginf:connectors>
   </msginf:system>
-  <msginf:system msginf:name="jboss" msginf:initialContextFactory="org.jnp.interfaces.NamingContextFactory" msginf:url="jnp://localhost:1099" msginf:namingFactoryUrlPkgs="org.jnp.interfaces:org.jboss.naming">
+<!--  <msginf:system msginf:name="jboss" msginf:initialContextFactory="org.jnp.interfaces.NamingContextFactory" msginf:url="jnp://localhost:1099" msginf:namingFactoryUrlPkgs="org.jnp.interfaces:org.jboss.naming">
     <msginf:jarFiles>
       <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\client\jbossall-client.jar"/>
       <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\client\jboss-j2ee.jar"/>
@@ -72,5 +70,5 @@
         <msginf:request-reply-connection msginf:requestQueueName="queue/RequestQueue" msginf:replyQueueName="queue/ReplyQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:requestQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
       </msginf:request-reply>
     </msginf:connectors>
-  </msginf:system>
+  </msginf:system> -->
 </msginf:configuration>
