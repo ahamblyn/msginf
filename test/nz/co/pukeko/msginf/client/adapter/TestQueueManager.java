@@ -77,7 +77,7 @@ public class TestQueueManager {
 	}
 	
 	public static void usage() {
-		System.out.println("Usage: TestQueueManager <Test> <System> <Connector> <Threads> <Messages> <File>");
+		System.out.println("Usage: TestQueueManager <Test> <System> <Connector> <Threads> <Messages> <File> <Port>");
 		System.out.println("<Test>:			submit|echo|reply|receive");
 		System.out.println("<System>:		The name of the system to be used as defined in the xml properties file.");
 		System.out.println("<Connector>:	The name of the connector to be used as defined in the xml properties file.");

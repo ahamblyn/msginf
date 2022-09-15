@@ -26,7 +26,7 @@ public class ActiveMQSubmitTest extends MessageTest {
 	
 	private Context createActiveMQContext() throws NamingException {
 		Properties props = new Properties();
-		props.setProperty("java.naming.factory.initial", "org.activemq.jndi.ActiveMQInitialContextFactory");
+		props.setProperty("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 		props.setProperty("brokerURL", "tcp://localhost:61616");
 		props.setProperty("queue.TestQueue", "SUBMIT.QUEUE");
 		return new InitialContext(props);

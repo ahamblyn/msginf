@@ -5,7 +5,7 @@
 <beans>
 
   <!-- JMS ConnectionFactory to use -->
-  <bean id="jmsFactory" class="org.activemq.ActiveMQConnectionFactory">
+  <bean id="jmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
     <property name="brokerURL">
       <value>tcp://localhost:61616</value>
     </property>
