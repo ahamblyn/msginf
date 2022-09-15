@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.ConfigurationDocument;
@@ -20,10 +21,9 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitDocument.Submit;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SystemDocument.System;
 
 import junit.framework.TestCase;
-import org.apache.xmlbeans.XmlObject;
 
 public class TestXMLBeans extends TestCase {
-	private static Logger logger = Logger.getLogger(TestXMLBeans.class);
+	private static Logger logger = LogManager.getLogger(TestXMLBeans.class);
 	private ConfigurationDocument configuration;
 	
 	public void setUp() {
@@ -34,8 +34,8 @@ public class TestXMLBeans extends TestCase {
 		URL fileURL = this.getClass().getResource("/msginf.xml");
 		File file = new File(fileURL.getFile());
 		try {
-			configuration = (ConfigurationDocument) XmlObject.Factory.parse(file);
-			logger.debug("Log4JPropertiesFile: " + configuration.getConfiguration().getLog4JPropertiesFile());
+			configuration = ConfigurationDocument.Factory.parse(file);
+			logger.info("Log4JPropertiesFile: " + configuration.getConfiguration().getLog4JPropertiesFile());
 		} catch (XmlException xmle) {
 			xmle.printStackTrace();
 		} catch (IOException ioe) {
@@ -48,16 +48,8 @@ public class TestXMLBeans extends TestCase {
 		if (activeMQ != null) {
 			printSystem(activeMQ);
 		}
-		System joram = findSystem("joram");
-		if (activeMQ != null) {
-			printSystem(joram);
-		}
-		System openjms = findSystem("openjms");
-		if (activeMQ != null) {
-			printSystem(openjms);
-		}
 		System jboss = findSystem("jboss");
-		if (activeMQ != null) {
+		if (jboss != null) {
 			printSystem(jboss);
 		}
 	}
@@ -65,117 +57,113 @@ public class TestXMLBeans extends TestCase {
 	public void testXMLMessageInfrastructurePropertiesFileParser() throws Exception {
 		XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser("activemq");
 		printParser(parser);
-		parser = new XMLMessageInfrastructurePropertiesFileParser("joram");
-		printParser(parser);
-		parser = new XMLMessageInfrastructurePropertiesFileParser("openjms");
-		printParser(parser);
 		parser = new XMLMessageInfrastructurePropertiesFileParser("jboss");
 		printParser(parser);
 	}
 
 	private void printParser(XMLMessageInfrastructurePropertiesFileParser parser) {
-		logger.debug("---------------------------------------------");
-		logger.debug("Messaging System: " + parser.getCurrentMessagingSystem());
-		logger.debug("---------------------------------------------");
-		logger.debug("Log4JPropertiesFile: " + parser.getLog4jPropertiesFile());
-		logger.debug("SystemName: " + parser.getSystemName());
-		logger.debug("SystemInitialContextFactory: " + parser.getSystemInitialContextFactory());
-		logger.debug("SystemUrl: " + parser.getSystemUrl());
-		logger.debug("SystemHost: " + parser.getSystemHost());
-		logger.debug("SystemPort: " + parser.getSystemPort());
-		logger.debug("SystemNamingFactoryUrlPkgs: " + parser.getSystemNamingFactoryUrlPkgs());
-		logger.debug("Queues: " + parser.getQueues());
-		logger.debug("UseConnectionPooling: " + parser.getUseConnectionPooling());
-		logger.debug("MaxConnections: " + parser.getMaxConnections());
-		logger.debug("MinConnections: " + parser.getMinConnections());
+		logger.info("---------------------------------------------");
+		logger.info("Messaging System: " + parser.getCurrentMessagingSystem());
+		logger.info("---------------------------------------------");
+		logger.info("Log4JPropertiesFile: " + parser.getLog4jPropertiesFile());
+		logger.info("SystemName: " + parser.getSystemName());
+		logger.info("SystemInitialContextFactory: " + parser.getSystemInitialContextFactory());
+		logger.info("SystemUrl: " + parser.getSystemUrl());
+		logger.info("SystemHost: " + parser.getSystemHost());
+		logger.info("SystemPort: " + parser.getSystemPort());
+		logger.info("SystemNamingFactoryUrlPkgs: " + parser.getSystemNamingFactoryUrlPkgs());
+		logger.info("Queues: " + parser.getQueues());
+		logger.info("UseConnectionPooling: " + parser.getUseConnectionPooling());
+		logger.info("MaxConnections: " + parser.getMaxConnections());
+		logger.info("MinConnections: " + parser.getMinConnections());
 		List submitConnectorNames = parser.getSubmitConnectorNames();
 		for (int i = 0; i < submitConnectorNames.size(); i++) {
 			String connectorName = (String)submitConnectorNames.get(i);
-			logger.debug("ConnectorName: " + connectorName);
-			logger.debug("SubmitMimeType: " + parser.getSubmitMimeType(connectorName));
-			logger.debug("SubmitSchema: " + parser.getSubmitSchema(connectorName));
-			logger.debug("ValidateSubmit: " + parser.getValidateSubmit(connectorName));
-			logger.debug("SubmitPutValidationErrorOnDeadLetterQueue: " + parser.getSubmitPutValidationErrorOnDeadLetterQueue(connectorName));
-			logger.debug("SubmitCompressBinaryMessages: " + parser.getSubmitCompressBinaryMessages(connectorName));
-			logger.debug("SubmitSoapSourceName: " + parser.getSubmitSoapSourceName(connectorName));
-			logger.debug("SubmitSoapDestinationName: " + parser.getSubmitSoapDestinationName(connectorName));
-			logger.debug("SubmitUseSOAPEnvelope: " + parser.getSubmitUseSOAPEnvelope(connectorName));
-			logger.debug("SubmitConnectionSubmitQueueName: " + parser.getSubmitConnectionSubmitQueueName(connectorName));
-			logger.debug("SubmitConnectionDeadLetterQueueName: " + parser.getSubmitConnectionDeadLetterQueueName(connectorName));
-			logger.debug("SubmitConnectionSubmitQueueConnFactoryName: " + parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName));
-			logger.debug("SubmitConnectionMessageTimeToLive: " + parser.getSubmitConnectionMessageTimeToLive(connectorName));
-			logger.debug("SubmitConnectionReplyWaitTime: " + parser.getSubmitConnectionReplyWaitTime(connectorName));
+			logger.info("ConnectorName: " + connectorName);
+			logger.info("SubmitMimeType: " + parser.getSubmitMimeType(connectorName));
+			logger.info("SubmitSchema: " + parser.getSubmitSchema(connectorName));
+			logger.info("ValidateSubmit: " + parser.getValidateSubmit(connectorName));
+			logger.info("SubmitPutValidationErrorOnDeadLetterQueue: " + parser.getSubmitPutValidationErrorOnDeadLetterQueue(connectorName));
+			logger.info("SubmitCompressBinaryMessages: " + parser.getSubmitCompressBinaryMessages(connectorName));
+			logger.info("SubmitSoapSourceName: " + parser.getSubmitSoapSourceName(connectorName));
+			logger.info("SubmitSoapDestinationName: " + parser.getSubmitSoapDestinationName(connectorName));
+			logger.info("SubmitUseSOAPEnvelope: " + parser.getSubmitUseSOAPEnvelope(connectorName));
+			logger.info("SubmitConnectionSubmitQueueName: " + parser.getSubmitConnectionSubmitQueueName(connectorName));
+			logger.info("SubmitConnectionDeadLetterQueueName: " + parser.getSubmitConnectionDeadLetterQueueName(connectorName));
+			logger.info("SubmitConnectionSubmitQueueConnFactoryName: " + parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName));
+			logger.info("SubmitConnectionMessageTimeToLive: " + parser.getSubmitConnectionMessageTimeToLive(connectorName));
+			logger.info("SubmitConnectionReplyWaitTime: " + parser.getSubmitConnectionReplyWaitTime(connectorName));
 		}
 		List rrConnectorNames = parser.getRequestReplyConnectorNames();
 		for (int i = 0; i < rrConnectorNames.size(); i++) {
 			String connectorName = (String)rrConnectorNames.get(i);
-			logger.debug("ConnectorName: " + connectorName);
-			logger.debug("RequestReplyMimeType: " + parser.getRequestReplyMimeType(connectorName));
-			logger.debug("RequestSchema: " + parser.getRequestSchema(connectorName));
-			logger.debug("ReplySchema: " + parser.getReplySchema(connectorName));
-			logger.debug("ValidateRequest: " + parser.getValidateRequest(connectorName));
-			logger.debug("ValidateReply: " + parser.getValidateReply(connectorName));
-			logger.debug("RequestReplyPutValidationErrorOnDeadLetterQueue: " + parser.getRequestReplyPutValidationErrorOnDeadLetterQueue(connectorName));
-			logger.debug("RequestReplyCompressBinaryMessages: " + parser.getRequestReplyCompressBinaryMessages(connectorName));
-			logger.debug("RequestReplySoapSourceName: " + parser.getRequestReplySoapSourceName(connectorName));
-			logger.debug("RequestReplySoapDestinationName: " + parser.getRequestReplySoapDestinationName(connectorName));
-			logger.debug("RequestReplyUseSOAPEnvelope: " + parser.getRequestReplyUseSOAPEnvelope(connectorName));
-			logger.debug("RequestReplyConnectionRequestQueueName: " + parser.getRequestReplyConnectionRequestQueueName(connectorName));
-			logger.debug("RequestReplyConnectionDeadLetterQueueName: " + parser.getRequestReplyConnectionDeadLetterQueueName(connectorName));
-			logger.debug("RequestReplyConnectionRequestQueueConnFactoryName: " + parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName));
-			logger.debug("RequestReplyConnectionMessageTimeToLive: " + parser.getRequestReplyConnectionMessageTimeToLive(connectorName));
-			logger.debug("RequestReplyConnectionReplyWaitTime: " + parser.getRequestReplyConnectionReplyWaitTime(connectorName));
+			logger.info("ConnectorName: " + connectorName);
+			logger.info("RequestReplyMimeType: " + parser.getRequestReplyMimeType(connectorName));
+			logger.info("RequestSchema: " + parser.getRequestSchema(connectorName));
+			logger.info("ReplySchema: " + parser.getReplySchema(connectorName));
+			logger.info("ValidateRequest: " + parser.getValidateRequest(connectorName));
+			logger.info("ValidateReply: " + parser.getValidateReply(connectorName));
+			logger.info("RequestReplyPutValidationErrorOnDeadLetterQueue: " + parser.getRequestReplyPutValidationErrorOnDeadLetterQueue(connectorName));
+			logger.info("RequestReplyCompressBinaryMessages: " + parser.getRequestReplyCompressBinaryMessages(connectorName));
+			logger.info("RequestReplySoapSourceName: " + parser.getRequestReplySoapSourceName(connectorName));
+			logger.info("RequestReplySoapDestinationName: " + parser.getRequestReplySoapDestinationName(connectorName));
+			logger.info("RequestReplyUseSOAPEnvelope: " + parser.getRequestReplyUseSOAPEnvelope(connectorName));
+			logger.info("RequestReplyConnectionRequestQueueName: " + parser.getRequestReplyConnectionRequestQueueName(connectorName));
+			logger.info("RequestReplyConnectionDeadLetterQueueName: " + parser.getRequestReplyConnectionDeadLetterQueueName(connectorName));
+			logger.info("RequestReplyConnectionRequestQueueConnFactoryName: " + parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName));
+			logger.info("RequestReplyConnectionMessageTimeToLive: " + parser.getRequestReplyConnectionMessageTimeToLive(connectorName));
+			logger.info("RequestReplyConnectionReplyWaitTime: " + parser.getRequestReplyConnectionReplyWaitTime(connectorName));
 		}
 	}
 	
 	private void printSystem(System system) {
-		logger.debug("---------------------------------------------");
-		logger.debug("Name: " + system.getName());
-		logger.debug("---------------------------------------------");
-		logger.debug("InitialContextFactory: " + system.getInitialContextFactory());
-		logger.debug("URL: " + system.getUrl());
-		logger.debug("Host: " + system.getHost());
-		logger.debug("Port: " + system.getPort());
-		logger.debug("NamingFactoryUrlPkgs: " + system.getNamingFactoryUrlPkgs());
+		logger.info("---------------------------------------------");
+		logger.info("Name: " + system.getName());
+		logger.info("---------------------------------------------");
+		logger.info("InitialContextFactory: " + system.getInitialContextFactory());
+		logger.info("URL: " + system.getUrl());
+		logger.info("Host: " + system.getHost());
+		logger.info("Port: " + system.getPort());
+		logger.info("NamingFactoryUrlPkgs: " + system.getNamingFactoryUrlPkgs());
 		if (system.getQueues() != null) {
 			Queue[] queues = system.getQueues().getQueueArray();
 			if (queues != null) {
 				for (int i = 0; i < queues.length; i++) {
 					Queue queue = queues[i];
-					logger.debug("JndiName: " + queue.getJndiName());
-					logger.debug("PhysicalName: " + queue.getPhysicalName());
+					logger.info("JndiName: " + queue.getJndiName());
+					logger.info("PhysicalName: " + queue.getPhysicalName());
 				}
 			}
 		}
 		Connectors connectors = system.getConnectors();
 		if (connectors != null) {
-			logger.debug("UseConnectionPooling: " + connectors.getUseConnectionPooling());
-			logger.debug("MaxConnections: " + connectors.getMaxConnections());
-			logger.debug("MinConnections: " + connectors.getMinConnections());
+			logger.info("UseConnectionPooling: " + connectors.getUseConnectionPooling());
+			logger.info("MaxConnections: " + connectors.getMaxConnections());
+			logger.info("MinConnections: " + connectors.getMinConnections());
 			Submit[] submitConnectors = connectors.getSubmitArray();
 			if (submitConnectors != null) {
 				for (int i = 0; i < submitConnectors.length; i++) {
 					Submit submit = submitConnectors[i];
 					if (submit != null) {
-						logger.debug("ConnectorName: " + submit.getConnectorName());
-						logger.debug("MimeType: " + submit.getMimeType());
-						logger.debug("SubmitSchema: " + submit.getSubmitSchema());
-						logger.debug("ValidateSubmit: " + submit.getValidateSubmit());
-						logger.debug("PutValidationErrorOnDeadLetterQueue: " + submit.getPutValidationErrorOnDeadLetterQueue());
-						logger.debug("CompressBinaryMessages: " + submit.getCompressBinaryMessages());
+						logger.info("ConnectorName: " + submit.getConnectorName());
+						logger.info("MimeType: " + submit.getMimeType());
+						logger.info("SubmitSchema: " + submit.getSubmitSchema());
+						logger.info("ValidateSubmit: " + submit.getValidateSubmit());
+						logger.info("PutValidationErrorOnDeadLetterQueue: " + submit.getPutValidationErrorOnDeadLetterQueue());
+						logger.info("CompressBinaryMessages: " + submit.getCompressBinaryMessages());
 						Soap soap = submit.getSoap();
 						if (soap != null) {
-							logger.debug("SourceName: " + soap.getSourceName());
-							logger.debug("DestinationName: " + soap.getDestinationName());
-							logger.debug("UseSOAPEnvelope: " + soap.getUseSOAPEnvelope());
+							logger.info("SourceName: " + soap.getSourceName());
+							logger.info("DestinationName: " + soap.getDestinationName());
+							logger.info("UseSOAPEnvelope: " + soap.getUseSOAPEnvelope());
 						}
 						SubmitConnection conn = submit.getSubmitConnection();
 						if (conn != null) {
-							logger.debug("SubmitQueueName: " + conn.getSubmitQueueName());
-							logger.debug("DeadLetterQueueName: " + conn.getDeadLetterQueueName());
-							logger.debug("SubmitQueueConnFactoryName: " + conn.getSubmitQueueConnFactoryName());
-							logger.debug("MessageTimeToLive: " + conn.getMessageTimeToLive());
-							logger.debug("ReplyWaitTime: " + conn.getReplyWaitTime());
+							logger.info("SubmitQueueName: " + conn.getSubmitQueueName());
+							logger.info("DeadLetterQueueName: " + conn.getDeadLetterQueueName());
+							logger.info("SubmitQueueConnFactoryName: " + conn.getSubmitQueueConnFactoryName());
+							logger.info("MessageTimeToLive: " + conn.getMessageTimeToLive());
+							logger.info("ReplyWaitTime: " + conn.getReplyWaitTime());
 						}
 					}
 				}
@@ -185,27 +173,27 @@ public class TestXMLBeans extends TestCase {
 				for (int i = 0; i < rrConnectors.length; i++) {
 					RequestReply rr = rrConnectors[i];
 					if (rr != null) {
-						logger.debug("ConnectorName: " + rr.getConnectorName());
-						logger.debug("MimeType: " + rr.getMimeType());
-						logger.debug("RequestSchema: " + rr.getRequestSchema());
-						logger.debug("ReplySchema: " + rr.getReplySchema());
-						logger.debug("ValidateRequest: " + rr.getValidateRequest());
-						logger.debug("ValidateReply: " + rr.getValidateReply());
-						logger.debug("PutValidationErrorOnDeadLetterQueue: " + rr.getPutValidationErrorOnDeadLetterQueue());
-						logger.debug("CompressBinaryMessages: " + rr.getCompressBinaryMessages());
+						logger.info("ConnectorName: " + rr.getConnectorName());
+						logger.info("MimeType: " + rr.getMimeType());
+						logger.info("RequestSchema: " + rr.getRequestSchema());
+						logger.info("ReplySchema: " + rr.getReplySchema());
+						logger.info("ValidateRequest: " + rr.getValidateRequest());
+						logger.info("ValidateReply: " + rr.getValidateReply());
+						logger.info("PutValidationErrorOnDeadLetterQueue: " + rr.getPutValidationErrorOnDeadLetterQueue());
+						logger.info("CompressBinaryMessages: " + rr.getCompressBinaryMessages());
 						Soap soap = rr.getSoap();
 						if (soap != null) {
-							logger.debug("SourceName: " + soap.getSourceName());
-							logger.debug("DestinationName: " + soap.getDestinationName());
-							logger.debug("UseSOAPEnvelope: " + soap.getUseSOAPEnvelope());
+							logger.info("SourceName: " + soap.getSourceName());
+							logger.info("DestinationName: " + soap.getDestinationName());
+							logger.info("UseSOAPEnvelope: " + soap.getUseSOAPEnvelope());
 						}
 						RequestReplyConnection conn = rr.getRequestReplyConnection();
 						if (conn != null) {
-							logger.debug("RequestQueueName: " + conn.getRequestQueueName());
-							logger.debug("DeadLetterQueueName: " + conn.getDeadLetterQueueName());
-							logger.debug("RequestQueueConnFactoryName: " + conn.getRequestQueueConnFactoryName());
-							logger.debug("MessageTimeToLive: " + conn.getMessageTimeToLive());
-							logger.debug("ReplyWaitTime: " + conn.getReplyWaitTime());
+							logger.info("RequestQueueName: " + conn.getRequestQueueName());
+							logger.info("DeadLetterQueueName: " + conn.getDeadLetterQueueName());
+							logger.info("RequestQueueConnFactoryName: " + conn.getRequestQueueConnFactoryName());
+							logger.info("MessageTimeToLive: " + conn.getMessageTimeToLive());
+							logger.info("ReplyWaitTime: " + conn.getReplyWaitTime());
 						}
 					}
 				}

@@ -5,7 +5,8 @@ import nz.co.pukeko.msginf.client.connector.MessageControllerFactory;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AdministerMessagingInfrastructure {
 	/**
@@ -14,9 +15,9 @@ public class AdministerMessagingInfrastructure {
 	private static AdministerMessagingInfrastructure administerMessagingInfrastructure = null;
 
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
-	private static Logger logger = Logger.getLogger(AdministerMessagingInfrastructure.class);
+	private static Logger logger = LogManager.getLogger(AdministerMessagingInfrastructure.class);
 
 	/**
 	 * The AdministerMessagingInfrastructure constructor.

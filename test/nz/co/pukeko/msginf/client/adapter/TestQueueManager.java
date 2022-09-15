@@ -7,8 +7,8 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.socket.ShutdownThread;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class to test the messaging infrastructure.
@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  * @author Alisdair Hamblyn
  */
 public class TestQueueManager {
-	private static Logger logger = Logger.getLogger(TestQueueManager.class);
+	private static Logger logger = LogManager.getLogger(TestQueueManager.class);
 	private String testName;
 	private String messagingSystem;
 	private String connectorName;
@@ -77,7 +77,7 @@ public class TestQueueManager {
 	}
 	
 	public static void usage() {
-		System.out.println("Usage: TestQueueManager <Test> <System> <Connector> <Threads> <Messages> <File>");
+		System.out.println("Usage: TestQueueManager <Test> <System> <Connector> <Threads> <Messages> <File> <Port>");
 		System.out.println("<Test>:			submit|echo|reply|receive");
 		System.out.println("<System>:		The name of the system to be used as defined in the xml properties file.");
 		System.out.println("<Connector>:	The name of the connector to be used as defined in the xml properties file.");

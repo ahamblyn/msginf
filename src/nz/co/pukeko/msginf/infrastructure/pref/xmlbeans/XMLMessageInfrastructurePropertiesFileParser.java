@@ -18,10 +18,8 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SoapDocument.Soap;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitConnectionDocument.SubmitConnection;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitDocument.Submit;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SystemDocument.System;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.ConfigurationDocument;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * This class parses the XML properties file using XMLBeans.
@@ -63,7 +61,7 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 			parseFile();
 		} else {
 			try {
-				configuration = (ConfigurationDocument) XmlObject.Factory.parse(baseXML);
+				configuration = ConfigurationDocument.Factory.parse(baseXML);
 			} catch (XmlException e) {
 				// throw an exception
 				throw new XMLPropertiesFileException(e);
@@ -78,7 +76,7 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	 */
 	public XMLMessageInfrastructurePropertiesFileParser(File file) throws XMLPropertiesFileException {
 		try {
-			configuration = (ConfigurationDocument) XmlObject.Factory.parse(file);
+			configuration = ConfigurationDocument.Factory.parse(file);
 		} catch (XmlException xmle) {
 			throw new XMLPropertiesFileException(xmle);
 		} catch (IOException ioe) {
@@ -118,7 +116,7 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 			java.lang.System.out.println("msginf file: " + file.getAbsolutePath());
 		}
 		try {
-			configuration = (ConfigurationDocument) XmlObject.Factory.parse(file);
+			configuration = ConfigurationDocument.Factory.parse(file);
 		} catch (XmlException xmle) {
 			throw new XMLPropertiesFileException(xmle);
 		} catch (IOException ioe) {
@@ -361,8 +359,8 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	}
 
 	/**
-	 * Returns the location of the log4j properties file.
-	 * @return the location of the log4j properties file.
+	 * Returns the location of the log4j2 properties file.
+	 * @return the location of the log4j2 properties file.
 	 */
 	public String getLog4jPropertiesFile() {
 		if (configuration != null) {
@@ -372,8 +370,8 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	}
 	
 	/**
-	 * Sets the location of the log4j properties file.
-	 * @param log4jPropertiesFile the location of the log4j properties file.
+	 * Sets the location of the log4j2 properties file.
+	 * @param log4jPropertiesFile the location of the log4j2 properties file.
 	 */
 	public void setLog4jPropertiesFile(String log4jPropertiesFile) {
 		if (configuration != null && log4jPropertiesFile != null) {

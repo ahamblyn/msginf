@@ -10,7 +10,8 @@ import javax.jms.TemporaryQueue;
 
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class is a holder class containing a QueueSession and gets the
@@ -25,9 +26,9 @@ import org.apache.log4j.Logger;
 public class QueueChannel {
 	
     /**
-     * The log4j logger.
+     * The log4j2 logger.
      */
-	private static Logger logger = Logger.getLogger(QueueChannel.class);
+	private static Logger logger = LogManager.getLogger(QueueChannel.class);
 	
 	/**
 	 * A unique identifier for each queue channel

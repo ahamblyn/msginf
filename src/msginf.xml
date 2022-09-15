@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<msginf:configuration msginf:log4jPropertiesFile="/log4j.properties" xmlns:msginf="http://pukeko.co.nz/msginf/infrastructure/pref/xmlbeans">
+<msginf:configuration msginf:log4jPropertiesFile="/log4j2.properties" xmlns:msginf="http://pukeko.co.nz/msginf/infrastructure/pref/xmlbeans">
   <msginf:system msginf:name="activemq" msginf:initialContextFactory="org.apache.activemq.jndi.ActiveMQInitialContextFactory" msginf:url="tcp://localhost:61616">
     <msginf:jarFiles>
-      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activemq-core-4.0.2.jar"/>
-      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\activeio-core-3.0-beta4.jar"/>
-      <msginf:jarFile msginf:jarFileName="C:\java\incubator-activemq-4.0.2\lib\optional\activemq-optional-4.0.2.jar"/>
+      <msginf:jarFile msginf:jarFileName="C:\alisdair\java\apache-activemq-5.17.2\activemq-all-5.17.2.jar"/>
     </msginf:jarFiles>
     <msginf:queues>
       <msginf:queue msginf:jndiName="TestQueue" msginf:physicalName="TEST.QUEUE"/>
@@ -39,32 +37,7 @@
       </msginf:request-reply>
     </msginf:connectors>
   </msginf:system>
-<!--  <msginf:system msginf:name="joram" msginf:initialContextFactory="fr.dyade.aaa.jndi2.client.NamingContextFactory" msginf:host="localhost" msginf:port="16400">
-    <msginf:jarFiles>
-      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/joram-client.jar"/>
-      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/joram-shared.jar"/>
-      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/joram-4_2_0/ship/lib/ow_monolog.jar"/>
-    </msginf:jarFiles>
-    <msginf:connectors msginf:useConnectionPooling="true" msginf:minConnections="5" msginf:maxConnections="20">
-      <msginf:submit msginf:connectorName="joram_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:submit-connection msginf:submitQueueName="TestQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:submit>
-      <msginf:submit msginf:connectorName="joram_submit_binary" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:submit-connection msginf:submitQueueName="TestQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:submit>
-      <msginf:request-reply msginf:connectorName="joram_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:request-reply>
-      <msginf:request-reply msginf:connectorName="joram_rr_binary_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="qcf" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:request-reply>
-    </msginf:connectors>
-  </msginf:system> -->
-  <msginf:system msginf:name="jboss" msginf:initialContextFactory="org.jnp.interfaces.NamingContextFactory" msginf:url="jnp://localhost:1099" msginf:namingFactoryUrlPkgs="org.jnp.interfaces:org.jboss.naming">
+<!--  <msginf:system msginf:name="jboss" msginf:initialContextFactory="org.jnp.interfaces.NamingContextFactory" msginf:url="jnp://localhost:1099" msginf:namingFactoryUrlPkgs="org.jnp.interfaces:org.jboss.naming">
     <msginf:jarFiles>
       <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\client\jbossall-client.jar"/>
       <msginf:jarFile msginf:jarFileName="C:\java\jboss-4.0.4.GA\client\jboss-j2ee.jar"/>
@@ -95,64 +68,6 @@
       <msginf:request-reply msginf:connectorName="jboss_rr_binary_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
         <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
         <msginf:request-reply-connection msginf:requestQueueName="queue/RequestQueue" msginf:replyQueueName="queue/ReplyQueue" msginf:deadLetterQueueName="queue/DeadLetterQueue" msginf:requestQueueConnFactoryName="UIL2ConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:request-reply>
-    </msginf:connectors>
-  </msginf:system>
-<!--  <msginf:system msginf:name="mom4j" msginf:initialContextFactory="org.mom4j.jndi.InitialCtxFactory" msginf:url="xcp://localhost:8001">
-    <msginf:jarFiles>
-      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/mom4j/lib/mom4j-client.jar"/>
-      <msginf:jarFile msginf:jarFileName="/home/alisdairh/java/mom4j/lib/mom4j.jar"/>
-    </msginf:jarFiles>
-    <msginf:connectors msginf:useConnectionPooling="true" msginf:minConnections="5" msginf:maxConnections="20">
-      <msginf:submit msginf:connectorName="mom4j_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:submit-connection msginf:submitQueueName="SubmitQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:submit>
-      <msginf:submit msginf:connectorName="mom4j_submit_binary" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:submit-connection msginf:submitQueueName="SubmitQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:submitQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:submit>
-      <msginf:request-reply msginf:connectorName="mom4j_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:request-reply>
-      <msginf:request-reply msginf:connectorName="mom4j_rr_text_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:request-reply>
-      <msginf:request-reply msginf:connectorName="mom4j_rr_binary_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:request-reply>
-      <msginf:request-reply msginf:connectorName="mom4j_rr_binary_future" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:request-reply-connection msginf:requestQueueName="RequestQueue" msginf:replyQueueName="ReplyQueue" msginf:deadLetterQueueName="DeadLetterQueue" msginf:requestQueueConnFactoryName="QueueConnectionFactory" msginf:messageClassName="javax.jms.BytesMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:request-reply>
-    </msginf:connectors>
-  </msginf:system>
-  <msginf:system msginf:name="mqseries" msginf:initialContextFactory="com.sun.jndi.fscontext.RefFSContextFactory" msginf:url="file:/home/alisdairh/mqclient/jndi/">
-    <msginf:jarFiles>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/com.ibm.mqbind.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/com.ibm.mq.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/com.ibm.mqjms.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/connector.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/fscontext.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/jms.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/jndi.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/jta.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/ldap.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/postcard.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/providerutil.jar"/>
-      <msginf:jarFile msginf:jarFileName="/opt/mqm/java/lib/rmm.jar"/>
-    </msginf:jarFiles>
-    <msginf:connectors msginf:useConnectionPooling="false" msginf:minConnections="5" msginf:maxConnections="5">
-      <msginf:submit msginf:connectorName="bnz_submit_text" msginf:mimeType="text/xml" msginf:submitSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateSubmit="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Submit Message Source" msginf:destinationName="Submit Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:submit-connection msginf:submitQueueName="bnzSubmitQueue" msginf:deadLetterQueueName="bnzDLQueue" msginf:submitQueueConnFactoryName="bnzQCF" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
-      </msginf:submit>
-      <msginf:request-reply msginf:connectorName="bnz_rr_text_consumer" msginf:mimeType="text/xml" msginf:requestSchema="http://localhost/test http://localhost/schema/test.xsd" msginf:replySchema="http://localhost/test http://localhost/schema/test.xsd" msginf:validateRequest="false" msginf:validateReply="false" msginf:putValidationErrorOnDeadLetterQueue="true" msginf:compressBinaryMessages="true">
-        <msginf:soap msginf:sourceName="Request Reply Message Source" msginf:destinationName="Request Reply Message Destination" msginf:useSOAPEnvelope="false"/>
-        <msginf:request-reply-connection msginf:requestQueueName="bnzRequestQueue" msginf:replyQueueName="bnzReplyQueue" msginf:deadLetterQueueName="bnzDLQueue" msginf:requestQueueConnFactoryName="bnzQCF" msginf:messageClassName="javax.jms.TextMessage" msginf:requesterClassName="nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester" msginf:messageTimeToLive="0" msginf:replyWaitTime="20000"/>
       </msginf:request-reply>
     </msginf:connectors>
   </msginf:system> -->

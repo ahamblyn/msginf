@@ -1,14 +1,15 @@
 package nz.co.pukeko.msginf.client.socket;
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
 
 public class TestSocketClient extends TestCase {
-    private static Logger logger = Logger.getLogger(TestSocketClient.class);
+    private static Logger logger = LogManager.getLogger(TestSocketClient.class);
     private TestSocketServer socketServer;
 
     public void setUp() {

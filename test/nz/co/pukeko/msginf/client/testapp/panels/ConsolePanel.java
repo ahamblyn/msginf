@@ -17,14 +17,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import nz.co.pukeko.msginf.client.testapp.TestRunner;
 import nz.co.pukeko.msginf.client.testapp.data.Command;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ConsolePanel extends JPanel {
-	private static Logger logger = Logger.getLogger(ConsolePanel.class);
+	private static Logger logger = LogManager.getLogger(ConsolePanel.class);
 	private JPanel mainPanel = new JPanel();
 	private JPanel labelPanel = new JPanel();
 	private JLabel statusLabel = new JLabel(" ");

@@ -2,15 +2,13 @@ package nz.co.pukeko.msginf.client.adapter;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.Logger;
-
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.client.adapter.QueueManager;
-import nz.co.pukeko.msginf.client.adapter.AdministerMessagingInfrastructure;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TestMsgInfDirectly extends TestCase {
-	private static Logger logger = Logger.getLogger(TestMsgInfDirectly.class);
+	private static Logger logger = LogManager.getLogger(TestMsgInfDirectly.class);
 	private QueueManager queueManager;
 	
 	public void setUp() {

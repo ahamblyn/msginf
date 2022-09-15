@@ -7,9 +7,8 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-import nz.co.pukeko.msginf.client.adapter.QueueManager;
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A thread used to run tests.
@@ -19,9 +18,9 @@ import org.apache.log4j.Logger;
 public class TestQueueManagerMessageHandler implements Runnable {
 	
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
-	private static Logger logger = Logger.getLogger(TestQueueManagerMessageHandler.class);
+	private static Logger logger = LogManager.getLogger(TestQueueManagerMessageHandler.class);
 	
 	/**
 	 * The message count.

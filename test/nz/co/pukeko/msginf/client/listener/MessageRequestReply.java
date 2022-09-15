@@ -23,8 +23,8 @@ import javax.naming.NamingException;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author AlisdairH
@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public class MessageRequestReply implements MessageListener {
 	private QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
-	private static Logger logger = Logger.getLogger(MessageRequestReply.class);
+	private static Logger logger = LogManager.getLogger(MessageRequestReply.class);
 	private static String messagingSystem;
 	private static String queueConnectionFactoryName;
 	private static String requestQueueName;

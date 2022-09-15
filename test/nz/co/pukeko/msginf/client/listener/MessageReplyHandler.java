@@ -18,12 +18,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -50,7 +50,7 @@ public class MessageReplyHandler {
 		this.replyMessageProducer = replyMessageProducer;
 		this.useCorrelationID = useCorrelationID;
 		try {
-			docBuilder = DocumentBuilderFactoryImpl.newInstance().newDocumentBuilder();
+			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 		}
 	}

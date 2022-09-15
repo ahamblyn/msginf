@@ -16,18 +16,18 @@ import javax.swing.border.TitledBorder;
 import nz.co.pukeko.msginf.configuration.ConfigurationApplication;
 
 /**
- * Panel containing the log4j file details.
+ * Panel containing the log4j2 file details.
  * @author alisdairh
  */
 public class LogPanel extends JPanel {
-	private JLabel label = new JLabel("Log4J Properties File:");
+	private JLabel label = new JLabel("Log4J2 Properties File:");
 	private JTextField log4JPropertiesFile = new JTextField(20);
 	private JPanel leftPanel = new JPanel();
 	private Border border;
 	private TitledBorder titledBorder;
 	
 	/**
-	 * Constructs the log4j panel.
+	 * Constructs the log4j2 panel.
 	 */
 	public LogPanel() {
 		init();
@@ -44,20 +44,20 @@ public class LogPanel extends JPanel {
 	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 	    this.add(leftPanel, BorderLayout.WEST);
 	    border = BorderFactory.createEtchedBorder(Color.white,new Color(142, 142, 142));
-	    titledBorder = new TitledBorder(border, "Log4J File");
+	    titledBorder = new TitledBorder(border, "Log4J2 File");
 	    this.setBorder(titledBorder);
 	}
 	
 	/**
-	 * Returns the log4j properties file name.
-	 * @return the log4j properties file name.
+	 * Returns the log4j2 properties file name.
+	 * @return the log4j2 properties file name.
 	 */
 	public String getLog4JPropertiesFile() {
 		return log4JPropertiesFile.getText();
 	}
 	
 	/**
-	 * Sets the log4j properties file name.
+	 * Sets the log4j2 properties file name.
 	 * @param file
 	 */
 	public void setLog4JPropertiesFile(String file) {

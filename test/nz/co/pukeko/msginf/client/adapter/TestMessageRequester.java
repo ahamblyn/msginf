@@ -56,7 +56,7 @@ public class TestMessageRequester {
 
 	private void setupActiveMQFuture() throws JMSException, MessageRequesterException, NamingException {
 		Properties props = new Properties();
-		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.activemq.jndi.ActiveMQInitialContextFactory");
+		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 		props.setProperty("brokerURL", "reliable:tcp://localhost:61616");
 		Context ctx = new InitialContext(props);
 		QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory)ctx.lookup("QueueConnectionFactory");
@@ -72,7 +72,7 @@ public class TestMessageRequester {
 	
 	private void setupActiveMQConsumer() throws JMSException, MessageRequesterException, NamingException {
 		Properties props = new Properties();
-		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.activemq.jndi.ActiveMQInitialContextFactory");
+		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 		props.setProperty("brokerURL", "reliable:tcp://localhost:61616");
 		Context ctx = new InitialContext(props);
 		QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory)ctx.lookup("QueueConnectionFactory");

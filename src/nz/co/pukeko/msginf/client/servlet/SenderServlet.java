@@ -19,7 +19,8 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructure
 
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This servlet passes requests to the messaging infrastructure via the QueueManager.
@@ -48,9 +49,9 @@ public class SenderServlet extends HttpServlet {
 	private Hashtable<String,QueueManager> queueManagers;
 	
     /**
-	 * The log4j logger.
+	 * The log4j2 logger.
      */
-	private static Logger logger = Logger.getLogger(SenderServlet.class);
+	private static Logger logger = LogManager.getLogger(SenderServlet.class);
 
     /**
      * Initialises the servlet.

@@ -2,19 +2,17 @@ package nz.co.pukeko.msginf.client.connector;
 
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueControllerNotFoundException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLPropertiesQueue;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class is a factory class to produce the MessageController objects.
@@ -31,10 +29,9 @@ public class MessageControllerFactory {
 	private static MessageControllerFactory messageControllerFactory = null;
 
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
-	private static Logger logger = Logger
-			.getLogger(MessageControllerFactory.class);
+	private static Logger logger = LogManager.getLogger(MessageControllerFactory.class);
 
 	/**
 	 * The JMS contexts.

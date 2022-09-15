@@ -8,7 +8,8 @@ import nz.co.pukeko.msginf.infrastructure.exception.ByteArrayWrapperException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A wrapper class to store a byte array.
@@ -18,9 +19,9 @@ import org.apache.log4j.Logger;
 public class ByteArrayWrapper {
 	
 	/**
-	 * The log4j logger.
+	 * The log4j2 logger.
 	 */
-	private static Logger logger = Logger.getLogger(ByteArrayWrapper.class);
+	private static Logger logger = LogManager.getLogger(ByteArrayWrapper.class);
 
 	/**
 	 * The byte array.

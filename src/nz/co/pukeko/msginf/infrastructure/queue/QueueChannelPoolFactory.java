@@ -13,7 +13,8 @@ import nz.co.pukeko.msginf.infrastructure.exception.QueueChannelException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class if a factory class to control the queue channel pool class. A single
@@ -31,9 +32,9 @@ public class QueueChannelPoolFactory {
    private static QueueChannelPoolFactory qcpf = null;
 
     /**
-     * The log4j logger.
+     * The log4j2 logger.
      */
-   private static Logger logger = Logger.getLogger(QueueChannelPoolFactory.class);
+   private static Logger logger = LogManager.getLogger(QueueChannelPoolFactory.class);
 
     /**
      * A collection containing the queue channel pools.

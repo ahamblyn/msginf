@@ -11,7 +11,8 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueChannelException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class preallocates, recycles, and manages a pool of queue channels.
@@ -25,9 +26,9 @@ import org.apache.log4j.Logger;
 public class QueueChannelPool implements Runnable {
 
     /**
-     * The log4j logger.
+     * The log4j2 logger.
      */
-   private static Logger logger = Logger.getLogger(QueueChannelPool.class);
+   private static Logger logger = LogManager.getLogger(QueueChannelPool.class);
 
     /**
      * The maximum number of queue channels per queue manager. Limited to 100
