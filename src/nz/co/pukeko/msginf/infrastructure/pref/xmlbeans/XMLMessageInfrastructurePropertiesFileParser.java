@@ -19,6 +19,8 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitConnectionDocument
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitDocument.Submit;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SystemDocument.System;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -26,6 +28,11 @@ import org.apache.xmlbeans.XmlException;
  * @author alisdairh
  */
 public class XMLMessageInfrastructurePropertiesFileParser {
+	/**
+	 * The log4j2 logger.
+	 */
+	private static Logger logger = LogManager.getLogger(XMLMessageInfrastructurePropertiesFileParser.class);
+
 	/**
 	 * The base configuration element <emi:configuration>
 	 */
@@ -108,12 +115,12 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 			fileName = "/msginf.xml";
 			// set up the XML file
 			URL fileURL = this.getClass().getResource(fileName);
-			java.lang.System.out.println("msginf file URL: " + fileURL);
+			logger.info("msginf file URL: " + fileURL);
 			file = new File(fileURL.getFile());
 		} else {
 			// load the file directly
 			file = new File(fileName);
-			java.lang.System.out.println("msginf file: " + file.getAbsolutePath());
+			logger.info("msginf file: " + file.getAbsolutePath());
 		}
 		try {
 			configuration = ConfigurationDocument.Factory.parse(file);
