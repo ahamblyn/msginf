@@ -48,7 +48,6 @@
     <pathelement path="${lib.dir}/geronimo-spec-jms-1.1-rc4.jar" />
     <pathelement path="${lib.dir}/geronimo-spec-jta-1.0.1B-rc4.jar" />
     <pathelement path="${lib.dir}/jsr173_1.0_api.jar" />
-    <pathelement path="${lib.dir}/junit.jar" />
     <pathelement path="${lib.dir}/log4j-api-2.18.0.jar" />
     <pathelement path="${lib.dir}/log4j-core-2.18.0.jar" />
     <pathelement path="${xmlbeans.dir}/msginf_xmlbeans.jar" />
