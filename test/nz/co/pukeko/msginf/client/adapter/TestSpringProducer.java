@@ -1,11 +1,14 @@
 package nz.co.pukeko.msginf.client.adapter;
 
 import nz.co.pukeko.msginf.infrastructure.util.ClassPathHacker;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import nz.co.pukeko.msginf.client.adapter.spring.SpringProducer;
-import junit.framework.TestCase;
 
 import java.io.IOException;
 
@@ -14,17 +17,19 @@ import java.io.IOException;
  * 
  * @author Alisdair Hamblyn
  */
-public class TestSpringProducer extends TestCase {
-	
+public class TestSpringProducer {
+	private static Logger logger = LogManager.getLogger(TestSpringProducer.class);
+
 	/**
 	 * The Spring Producer. 
 	 */
-	private SpringProducer producer;
+	private static SpringProducer producer;
 	
 	/**
 	 * Create the Spring Producer.
 	 */
-	public void setUp() {
+	@BeforeAll
+	public static void setUp() {
 		try {
 			ClassPathHacker.addFile("C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar");
 		} catch (IOException e) {
@@ -37,10 +42,11 @@ public class TestSpringProducer extends TestCase {
 	/**
 	 * Run the test.
 	 */
-	public void testSendMessage() {
+	@Test
+	public void sendMessage() {
 		for (int i = 0; i < 10; i++) {
 			String message = "Message[" + (i + 1) + "] from TestSpringProducer";
-			System.out.println("Sending \"" + message + "\"");
+			logger.info("Sending \"" + message + "\"");
 			producer.sendMessage(message);
 		}
 	}

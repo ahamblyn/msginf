@@ -37,20 +37,4 @@
     </property>
   </bean>
 
-
-  <!-- a sample POJO consumer -->
-<!--  <bean id="consumer" class="org.codehaus.activemq.spring.SpringConsumer">
-    <property name="template">
-      <ref bean="myJmsTemplate"></ref>
-    </property>
-
-    <property name="destination">
-      <bean class="org.codehaus.activemq.message.ActiveMQQueue" autowire="constructor">
-        <constructor-arg>
-          <value>org.codehaus.activemq.spring.Test</value>
-        </constructor-arg>
-      </bean>
-    </property>
-  </bean> -->
-
 </beans>
