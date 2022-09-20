@@ -1,18 +1,28 @@
 package nz.co.pukeko.msginf.client.adapter;
 
-import junit.framework.TestCase;
-
+import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class TestMsgInfDirectly extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+public class TestMsgInfDirectly {
 	private static Logger logger = LogManager.getLogger(TestMsgInfDirectly.class);
-	private QueueManager queueManager;
-	
-	public void setUp() {
-		// log the times
+	private static QueueManager queueManager;
+	private static MessageRequestReply messageRequestReply;
+
+	@BeforeAll
+	public static void setUp() {
+		messageRequestReply = new MessageRequestReply("activemq",
+				"QueueConnectionFactory", "RequestQueue",
+				"ReplyQueue", "true");
+		messageRequestReply.run();
 		try {
 			queueManager = new QueueManager("activemq", true);
 		} catch (MessageException e) {
@@ -20,24 +30,34 @@ public class TestMsgInfDirectly extends TestCase {
 		}
 	}
 
-	public void tearDown() {
+	@AfterAll
+	public static void tearDown() {
+		// Sleep so messages finish processing before shutdown
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		messageRequestReply.shutdown();
 		queueManager.close();
 		AdministerMessagingInfrastructure.getInstance().shutdown();
 	}
 
-	public void testReply() throws MessageException {
+	@Test
+	public void reply() throws MessageException {
 		// send 10 messages
 		for (int i = 0; i < 10; i++) {
 			Object reply = queueManager.sendMessage("activemq_rr_text_consumer", "Message[" + (i + 1) + "]");
-			logger.info(reply);
+			assertNotNull(reply);
 		}
 		logger.info(QueueStatisticsCollector.getInstance().toString());
 	}
 	
-	public void testSubmit() throws MessageException {
+	@Test
+	public void submit() throws MessageException {
 		// submit so no response required - send 10 messages
 		for (int i = 0; i < 10; i++) {
-			queueManager.sendMessage("activemq_submit_text", "Message[" + (i + 1) + "]");
+			Object submitReply = queueManager.sendMessage("activemq_submit_text", "Message[" + (i + 1) + "]");
+			assertNull(submitReply);
 		}
 		logger.info(QueueStatisticsCollector.getInstance().toString());
 	}

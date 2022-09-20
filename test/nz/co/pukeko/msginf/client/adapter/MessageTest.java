@@ -5,8 +5,7 @@ import java.util.List;
 
 import javax.naming.Context;
 
-import nz.co.pukeko.msginf.client.adapter.QueueManager;
-import nz.co.pukeko.msginf.client.adapter.AdministerMessagingInfrastructure;
+import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
@@ -14,27 +13,41 @@ import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterAll;
 
-public class MessageTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MessageTest {
     protected static Logger logger = LogManager.getLogger(MessageTest.class);
-    protected QueueManager queueManager;
-    protected QueueManager resetQueueManager;
+    protected static QueueManager queueManager;
+    protected static QueueManager resetQueueManager;
+	protected static MessageRequestReply messageRequestReply;
 
-	public void setUp() {
+	public static void setUp() {
 		MessagingLoggerConfiguration.configure();
+		messageRequestReply = new MessageRequestReply("activemq",
+				"QueueConnectionFactory", "RequestQueue",
+				"ReplyQueue", "true");
+		messageRequestReply.run();
 	}
 
-	public void tearDown() {
+	@AfterAll
+	public static void tearDown() {
+		// Sleep so messages finish processing before shutdown
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		messageRequestReply.shutdown();
 		queueManager.close();
 		resetQueueManager.close();
 		QueueStatisticsCollector.getInstance().resetQueueStatistics();
 		AdministerMessagingInfrastructure.getInstance().shutdown();
 	}
 
-	protected void sendResetCountMessage(String connector) {
+	protected static void sendResetCountMessage(String connector) {
 		try {
 			HeaderProperties resetProperties = new HeaderProperties();
 			resetProperties.put("reset", Boolean.TRUE);

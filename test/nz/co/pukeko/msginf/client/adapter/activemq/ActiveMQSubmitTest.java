@@ -9,11 +9,14 @@ import javax.naming.NamingException;
 import nz.co.pukeko.msginf.client.adapter.QueueManager;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.client.adapter.MessageTest;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQSubmitTest extends MessageTest {
-	
-	public void setUp() {
-		super.setUp();
+
+	@BeforeAll
+	public static void setUp() {
+		MessageTest.setUp();
 		try {
 			// log the times
 			queueManager = new QueueManager("activemq", true);
@@ -31,8 +34,9 @@ public class ActiveMQSubmitTest extends MessageTest {
 		props.setProperty("queue.TestQueue", "SUBMIT.QUEUE");
 		return new InitialContext(props);
 	}
-	
-	public void testSubmitSmallFile() throws Exception {
+
+	@Test
+	public void submitSmallFile() throws Exception {
 		logger.info("Running submit small file test...");
 		runSubmitTest("activemq_submit_binary", "8520.pdf", 10);
 		// dequeue the messages and compare expected sizes

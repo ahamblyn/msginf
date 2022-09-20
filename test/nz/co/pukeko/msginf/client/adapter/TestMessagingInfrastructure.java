@@ -8,36 +8,56 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
-import junit.framework.TestCase;
 import nz.co.pukeko.msginf.infrastructure.util.ClassPathHacker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Messaging Infrastructure JUnit test.
  * 
  * @author Alisdair Hamblyn
  */
-public class TestMessagingInfrastructure extends TestCase {
+public class TestMessagingInfrastructure {
     private static Logger logger = LogManager.getLogger(TestMessagingInfrastructure.class);
-	
-	public void setUp() {
+	private static MessageRequestReply messageRequestReply;
+
+	@BeforeAll
+	public static void setUp() {
 		MessagingLoggerConfiguration.configure();
 		try {
 			ClassPathHacker.addFile("C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		messageRequestReply = new MessageRequestReply("activemq",
+				"QueueConnectionFactory", "RequestQueue",
+				"ReplyQueue", "true");
+		messageRequestReply.run();
 	}
-	
+
+	@AfterAll
+	public static void tearDown() {
+		// Sleep so messages finish processing before shutdown
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		messageRequestReply.shutdown();
+	}
+
 	/*
 	 * 20 ActiveMQ Submit binary messages.
 	 */
-	public void testBinaryActiveMQSubmit() throws MessageException, NamingException, JMSException {
-		logger.info("Running testBinaryActiveMQSubmit...");
+	@Test
+	public void binaryActiveMQSubmit() throws MessageException, NamingException, JMSException {
+		logger.info("Running binaryActiveMQSubmit...");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "activemq", "activemq_submit_binary" , 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -57,8 +77,9 @@ public class TestMessagingInfrastructure extends TestCase {
 	/*
 	 * 20 ActiveMQ Consumer Request/Reply binary messages.
 	 */
-	public void testBinaryActiveMQConsumerRequestReply() throws MessageException {
-		logger.info("Running testBinaryActiveMQConsumerRequestReply...");
+	@Test
+	public void binaryActiveMQConsumerRequestReply() throws MessageException {
+		logger.info("Running binaryActiveMQConsumerRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_binary_consumer", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -81,8 +102,9 @@ public class TestMessagingInfrastructure extends TestCase {
 	/*
 	 * 20 ActiveMQ Submit text messages.
 	 */
-	public void testTextActiveMQSubmit() throws MessageException, NamingException, JMSException {
-		logger.info("Running testTextActiveMQSubmit...");
+	@Test
+	public void textActiveMQSubmit() throws MessageException, NamingException, JMSException {
+		logger.info("Running textActiveMQSubmit...");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "activemq", "activemq_submit_text", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -102,8 +124,9 @@ public class TestMessagingInfrastructure extends TestCase {
 	/*
 	 * 20 ActiveMQ Consumer Request/Reply text messages.
 	 */
-	public void testTextActiveMQConsumerRequestReply() throws MessageException {
-		logger.info("Running testTextActiveMQConsumerRequestReply...");
+	@Test
+	public void textActiveMQConsumerRequestReply() throws MessageException {
+		logger.info("Running textActiveMQConsumerRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_text_consumer",  2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -123,107 +146,4 @@ public class TestMessagingInfrastructure extends TestCase {
 	}
 */
 
-	/*
-	 * 20 JBoss Submit binary messages.
-	 */
-/*
-	public void testBinaryJBossSubmit() throws MessageException, NamingException, JMSException {
-		logger.info("Running testBinaryJBossSubmit...");
-		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
-		TestQueueManager testQueueManager = new TestQueueManager("submit", "jboss", "jboss_submit_binary", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-		// retrieve the messages
-		Properties props = new Properties();
-		props.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-		props.setProperty("java.naming.factory.url.pkgs", "org.jnp.interfaces:org.jboss.naming");
-		props.setProperty("java.naming.provider.url", "jnp://localhost:1099");
-		Context jmsCtx = new InitialContext(props);
-		MessageReceiver mr = new MessageReceiver(jmsCtx, "UIL2ConnectionFactory", "queue/SubmitQueue");
-		mr.setup();
-		mr.readAndSaveMessages();
-		mr.close();
-	} 
-*/
-
-	/*
-	 * 20 JBoss Consumer Request/Reply binary messages.
-	 */
-/*
-	public void testBinaryJBossConsumerRequestReply() throws MessageException {
-		logger.info("Running testBinaryJBossConsumerRequestReply...");
-		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
-		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_binary_consumer", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-	}
-*/
-
-	/*
-	 * 20 JBoss Future Request/Reply binary messages.
-	 */
-/*
-	public void testBinaryJBossFutureRequestReply() throws MessageException {
-		logger.info("Running testBinaryJBossFutureRequestReply...");
-		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
-		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_binary_future", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-	}
-*/
-
-	/*
-	 * 20 JBoss Submit text messages.
-	 */
-/*
-	public void testTextJBossSubmit() throws MessageException, NamingException, JMSException {
-		logger.info("Running testTextJBossSubmit...");
-		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
-		TestQueueManager testQueueManager = new TestQueueManager("submit", "jboss", "jboss_submit_text", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-		// retrieve the messages
-		Properties props = new Properties();
-		props.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-		props.setProperty("java.naming.factory.url.pkgs", "org.jnp.interfaces:org.jboss.naming");
-		props.setProperty("java.naming.provider.url", "jnp://localhost:1099");
-		Context jmsCtx = new InitialContext(props);
-		MessageReceiver mr = new MessageReceiver(jmsCtx, "UIL2ConnectionFactory", "queue/SubmitQueue");
-		mr.setup();
-		mr.readAndSaveMessages();
-		mr.close();
-	} 
-*/
-
-	/*
-	 * 20 JBoss Consumer Request/Reply text messages.
-	 */
-/*
-	public void testTextJBossConsumerRequestReply() throws MessageException {
-		logger.info("Running testTextJBossConsumerRequestReply...");
-		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
-		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_text_consumer", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-	}
-*/
-
-	/*
-	 * 20 JBoss Future Request/Reply text messages.
-	 */
-/*
-	public void testTextJBossFutureRequestReply() throws MessageException {
-		logger.info("Running testTextJBossFutureRequestReply...");
-		System.setProperty("org.jboss.mq.il.uil2.useServerHost", "true");
-		TestQueueManager testQueueManager = new TestQueueManager("reply", "jboss", "jboss_rr_text_future", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-	}
-*/
 }

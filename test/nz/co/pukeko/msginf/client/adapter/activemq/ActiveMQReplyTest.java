@@ -3,11 +3,15 @@ package nz.co.pukeko.msginf.client.adapter.activemq;
 import nz.co.pukeko.msginf.client.adapter.QueueManager;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.client.adapter.MessageTest;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class ActiveMQReplyTest extends MessageTest {
-	
-	public void setUp() {
-		super.setUp();
+
+	@BeforeAll
+	public static void setUp() {
+		MessageTest.setUp();
 		try {
 			// log the times
 			queueManager = new QueueManager("activemq", true);
@@ -22,25 +26,31 @@ public class ActiveMQReplyTest extends MessageTest {
 	 * 1K tests
 	 */
 
-	public void testConsumerTextReply1K() throws Exception {
+	@Test
+	public void consumerTextReply1K() throws Exception {
 		logger.info("Running text consumer 1K reply test...");
 		runReplyTest("activemq_rr_text_consumer", "text", "1024", 10);
 		logger.info("Text consumer 1K reply test OK");
 	}
 
-	public void testConsumerBinaryReply1K() throws Exception {
+	@Test
+	public void consumerBinaryReply1K() throws Exception {
 		logger.info("Running binary consumer 1K reply test...");
 		runReplyTest("activemq_rr_text_consumer", "binary", "1024", 10);
 		logger.info("Binary consumer 1K reply test OK");
 	}
 
-	public void testFutureTextReply1K() throws Exception {
+	@Disabled
+	@Test
+	public void futureTextReply1K() throws Exception {
 		logger.info("Running text future 1K reply test...");
 		runReplyTest("activemq_rr_text_future", "text", "1024", 10);
 		logger.info("Text future 1K reply test OK");
 	}
 
-	public void testFutureBinaryReply1K() throws Exception {
+	@Disabled
+	@Test
+	public void futureBinaryReply1K() throws Exception {
 		logger.info("Running binary future 1K reply test...");
 		runReplyTest("activemq_rr_text_future", "binary", "1024", 10);
 		logger.info("Binary future 1K reply test OK");
@@ -49,26 +59,32 @@ public class ActiveMQReplyTest extends MessageTest {
 	/*
 	 * 10K tests
 	 */
-	
-	public void testConsumerTextReply10K() throws Exception {
+
+	@Test
+	public void consumerTextReply10K() throws Exception {
 		logger.info("Running text consumer 10K reply test...");
 		runReplyTest("activemq_rr_text_consumer", "text", "10240", 10);
 		logger.info("Text consumer 10K reply test OK");
 	}
 
-	public void testConsumerBinaryReply10K() throws Exception {
+	@Test
+	public void consumerBinaryReply10K() throws Exception {
 		logger.info("Running binary consumer 10K reply test...");
 		runReplyTest("activemq_rr_text_consumer", "binary", "10240", 10);
 		logger.info("Binary consumer 10K reply test OK");
 	}
 
-	public void testFutureTextReply10K() throws Exception {
+	@Disabled
+	@Test
+	public void futureTextReply10K() throws Exception {
 		logger.info("Running text future 10K reply test...");
 		runReplyTest("activemq_rr_text_future", "text", "10240", 10);
 		logger.info("Text future 10K reply test OK");
 	}
 
-	public void testFutureBinaryReply10K() throws Exception {
+	@Disabled
+	@Test
+	public void futureBinaryReply10K() throws Exception {
 		logger.info("Running binary future 10K reply test...");
 		runReplyTest("activemq_rr_text_future", "binary", "10240", 10);
 		logger.info("Binary future 10K reply test OK");
@@ -78,25 +94,31 @@ public class ActiveMQReplyTest extends MessageTest {
 	 * 100K tests
 	 */
 
-	public void testConsumerTextReply100K() throws Exception {
+	@Test
+	public void consumerTextReply100K() throws Exception {
 		logger.info("Running text consumer 100K reply test...");
 		runReplyTest("activemq_rr_text_consumer", "text", "102400", 10);
 		logger.info("Text consumer 100K reply test OK");
 	}
 
-	public void testConsumerBinaryReply100K() throws Exception {
+	@Test
+	public void consumerBinaryReply100K() throws Exception {
 		logger.info("Running binary consumer 100K reply test...");
 		runReplyTest("activemq_rr_text_consumer", "binary", "102400", 10);
 		logger.info("Binary consumer 100K reply test OK");
 	}
 
-	public void testFutureTextReply100K() throws Exception {
+	@Disabled
+	@Test
+	public void futureTextReply100K() throws Exception {
 		logger.info("Running text future 1020K reply test...");
 		runReplyTest("activemq_rr_text_future", "text", "102400", 10);
 		logger.info("Text future 100K reply test OK");
 	}
 
-	public void testFutureBinaryReply100K() throws Exception {
+	@Disabled
+	@Test
+	public void futureBinaryReply100K() throws Exception {
 		logger.info("Running binary future 100K reply test...");
 		runReplyTest("activemq_rr_text_future", "binary", "102400", 10);
 		logger.info("Binary future 100K reply test OK");
@@ -106,25 +128,31 @@ public class ActiveMQReplyTest extends MessageTest {
 	 * 1M tests
 	 */
 
-	public void testConsumerTextReply1M() throws Exception {
+	@Test
+	public void consumerTextReply1M() throws Exception {
 		logger.info("Running text consumer 1M reply test...");
 		runReplyTest("activemq_rr_text_consumer", "text", "1048576", 10);
 		logger.info("Text consumer 1M reply test OK");
 	}
 
-	public void testConsumerBinaryReply1M() throws Exception {
+	@Test
+	public void consumerBinaryReply1M() throws Exception {
 		logger.info("Running binary consumer 1M reply test...");
 		runReplyTest("activemq_rr_text_consumer", "binary", "1048576", 10);
 		logger.info("Binary consumer 1M reply test OK");
 	}
 
-	public void testFutureTextReply1M() throws Exception {
+	@Disabled
+	@Test
+	public void futureTextReply1M() throws Exception {
 		logger.info("Running text future 1M reply test...");
 		runReplyTest("activemq_rr_text_future", "text", "1048576", 10);
 		logger.info("Text future 1M reply test OK");
 	}
 
-	public void testFutureBinaryReply1M() throws Exception {
+	@Disabled
+	@Test
+	public void futureBinaryReply1M() throws Exception {
 		logger.info("Running binary future 1M reply test...");
 		runReplyTest("activemq_rr_text_future", "binary", "1048576", 10);
 		logger.info("Binary future 1M reply test OK");

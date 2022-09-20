@@ -35,11 +35,6 @@ import org.apache.logging.log4j.Logger;
 public class MessageRequestReply implements MessageListener {
 	private QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 	private static Logger logger = LogManager.getLogger(MessageRequestReply.class);
-	private static String messagingSystem;
-	private static String queueConnectionFactoryName;
-	private static String requestQueueName;
-	private static String replyQueueName;
-	private static String useCorrelationID;
     private Context context;
 	private QueueConnectionFactory queueConnectionFactory;
 	private Queue requestQueue;
@@ -52,7 +47,8 @@ public class MessageRequestReply implements MessageListener {
 	private boolean bUseCorrelationID = true;
 	private static long messageCount = 0;
 	
-	public MessageRequestReply() {
+	public MessageRequestReply(String messagingSystem, String queueConnectionFactoryName, String requestQueueName,
+							   String replyQueueName, String useCorrelationID) {
 		try {
 			// load the runtime jar files
 			Util.loadRuntimeJarFiles();
@@ -89,12 +85,13 @@ public class MessageRequestReply implements MessageListener {
 			System.out.println("Usage: java nz.co.pukeko.msginf.client.listener.MessageRequestReply <messaging system> <queue connection factory name> <request queue name> <reply queue name> <Use Correlation ID>");
 			System.exit(1);
 		}
-		messagingSystem = args[0];
-		queueConnectionFactoryName = args[1];
-		requestQueueName = args[2];
-		replyQueueName = args[3];
-		useCorrelationID = args[4];
-		MessageRequestReply mrr = new MessageRequestReply();
+		String messagingSystem = args[0];
+		String queueConnectionFactoryName = args[1];
+		String requestQueueName = args[2];
+		String replyQueueName = args[3];
+		String useCorrelationID = args[4];
+		MessageRequestReply mrr = new MessageRequestReply(messagingSystem, queueConnectionFactoryName, requestQueueName,
+				replyQueueName, useCorrelationID);
         mrr.run();
 	}
 
@@ -104,11 +101,6 @@ public class MessageRequestReply implements MessageListener {
         	session = queueConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
             consumer = session.createConsumer(requestQueue);
             replyMessageProducer = session.createProducer(replyQueue);
-            logger.info("Messaging System: " + messagingSystem);
-            logger.info("Queue Connection Factory: " + queueConnectionFactoryName);
-            logger.info("Request Message Queue: " + requestQueueName);
-            logger.info("Reply Message Queue: " + replyQueueName);
-            logger.info("Use Correlation ID: " + bUseCorrelationID);
             consumer.setMessageListener(this);
             queueConnection.start();
      		mrh = new MessageReplyHandler(session, replyMessageProducer, bUseCorrelationID);
@@ -116,6 +108,14 @@ public class MessageRequestReply implements MessageListener {
             logger.error(jmse.getMessage(), jmse);
         }
     }
+
+	public void shutdown() {
+		try {
+			queueConnection.stop();
+		} catch (JMSException jmse) {
+			logger.error(jmse.getMessage(), jmse);
+		}
+	}
 
     public void onMessage(Message message) {
         try {

@@ -1,22 +1,25 @@
 package nz.co.pukeko.msginf.client.socket;
 
-import junit.framework.TestCase;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.io.IOException;
 
-public class TestSocketClient extends TestCase {
-    private static Logger logger = LogManager.getLogger(TestSocketClient.class);
-    private TestSocketServer socketServer;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-    public void setUp() {
+public class TestSocketClient {
+    private static TestSocketServer socketServer;
+
+    @BeforeAll
+    public static void setUp() {
         socketServer = new TestSocketServer(9955);
     }
 
-    public void testSocketServer() {
+    @Test
+    public void socketServer() {
         Thread thread = new Thread(socketServer);
         thread.start();
         // sleep for a few seconds
@@ -29,11 +32,11 @@ public class TestSocketClient extends TestCase {
         Socket clientSocket = null;
         try {
             clientSocket = new Socket("localhost", 9955);
-            logger.info("Connected to server localhost:9955");
+            assertNotNull(clientSocket);
         } catch (UnknownHostException e) {
-            logger.error("Couldn't find localhost", e);
+            fail("Couldn't find localhost", e);
         } catch (IOException e) {
-            logger.error("IO exception", e);
+            fail("IO exception", e);
         }
     }
 }
