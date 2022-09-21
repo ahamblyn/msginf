@@ -14,17 +14,13 @@ package nz.co.pukeko.msginf.client.adapter;
  * @param validateError          Whether to put any validation errors onto the dead letter queue or not.
  * @param compressBinaryMessages Whether to compress binary messages or not.
  * @param requestReply           Whether the configuration is for request-reply or not.
- * @param sourceName             The source application name.
- * @param destinationName        The destination application name.
- * @param useSOAPEnvelope        Whether to use a SOAP envelope around the message or not.
  * @author Alisdair Hamblyn
  */
 
 public record QueueManagerConfigurationProperties(String mimetype, String submitSchema, String requestSchema,
                                                   String replySchema, boolean validateSubmit, boolean validateRequest,
                                                   boolean validateReply, boolean validateError,
-                                                  boolean compressBinaryMessages, boolean requestReply,
-                                                  String sourceName, String destinationName, boolean useSOAPEnvelope) {
+                                                  boolean compressBinaryMessages, boolean requestReply) {
 
     /**
      * Constructs a QueueManagerConfigurationProperties object.
@@ -155,36 +151,6 @@ public record QueueManagerConfigurationProperties(String mimetype, String submit
     }
 
     /**
-     * The SOAP destination name.
-     *
-     * @return the SOAP destination name.
-     */
-    @Override
-    public String destinationName() {
-        return destinationName;
-    }
-
-    /**
-     * The SOAP source name.
-     *
-     * @return the SOAP source name.
-     */
-    @Override
-    public String sourceName() {
-        return sourceName;
-    }
-
-    /**
-     * Gets whether to use a SOAP envelope around the message or not.
-     *
-     * @return whether to use a SOAP envelope around the message or not.
-     */
-    @Override
-    public boolean useSOAPEnvelope() {
-        return useSOAPEnvelope;
-    }
-
-    /**
      * Gets this object as a String.
      *
      * @return this object as a String.
@@ -201,9 +167,6 @@ public record QueueManagerConfigurationProperties(String mimetype, String submit
         sb.append("\nValidate Error: ").append(validateError);
         sb.append("\nCompress Binary Messages: ").append(compressBinaryMessages);
         sb.append("\nRequest-Reply: ").append(requestReply);
-        sb.append("\nSource Name: ").append(sourceName);
-        sb.append("\nDestination Name: ").append(destinationName);
-        sb.append("\nUse SOAP Envelope: ").append(useSOAPEnvelope);
         return sb.toString();
     }
 }

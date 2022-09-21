@@ -338,10 +338,7 @@ public class QueueManager implements QueueManagerAgreement {
 			boolean validateReply = false;
 			boolean putValidationErrorOnDeadLetterQueue = parser.getSubmitPutValidationErrorOnDeadLetterQueue(connectorName);
 			boolean compressBinaryMessages = parser.getSubmitCompressBinaryMessages(connectorName);
-			String sourceName = parser.getSubmitSoapSourceName(connectorName);
-			String destinationName = parser.getSubmitSoapDestinationName(connectorName);
-			boolean useSOAPEnvelope = parser.getSubmitUseSOAPEnvelope(connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(mimeType, submitSchema, requestSchema, replySchema, validateSubmit, validateRequest, validateReply, putValidationErrorOnDeadLetterQueue, compressBinaryMessages, false, sourceName, destinationName, useSOAPEnvelope);
+			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(mimeType, submitSchema, requestSchema, replySchema, validateSubmit, validateRequest, validateReply, putValidationErrorOnDeadLetterQueue, compressBinaryMessages, false);
 			queueManagerConfigurationProperties.put(connectorName, qmbcp);
 		}
         // Request Reply connectors
@@ -356,10 +353,7 @@ public class QueueManager implements QueueManagerAgreement {
 			boolean validateReply = parser.getValidateReply(connectorName);
 			boolean putValidationErrorOnDeadLetterQueue = parser.getRequestReplyPutValidationErrorOnDeadLetterQueue(connectorName);
 			boolean compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(connectorName);
-			String sourceName = parser.getRequestReplySoapSourceName(connectorName);
-			String destinationName = parser.getRequestReplySoapDestinationName(connectorName);
-			boolean useSOAPEnvelope = parser.getRequestReplyUseSOAPEnvelope(connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(mimeType, submitSchema, requestSchema, replySchema, validateSubmit, validateRequest, validateReply, putValidationErrorOnDeadLetterQueue, compressBinaryMessages, true, sourceName, destinationName, useSOAPEnvelope);
+			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(mimeType, submitSchema, requestSchema, replySchema, validateSubmit, validateRequest, validateReply, putValidationErrorOnDeadLetterQueue, compressBinaryMessages, true);
 			queueManagerConfigurationProperties.put(connectorName, qmbcp);
 		}
 	}

@@ -15,7 +15,6 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.JarFileDocument.JarFile;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.QueueDocument.Queue;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.RequestReplyConnectionDocument.RequestReplyConnection;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.RequestReplyDocument.RequestReply;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SoapDocument.Soap;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitConnectionDocument.SubmitConnection;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitDocument.Submit;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SystemDocument.System;
@@ -260,23 +259,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 		return null;
 	}
 	
-	private Soap findSubmitSoap(String connectorName) {
-		Submit submit = findSubmit(connectorName);
-		if (submit != null) {
-			return submit.getSoap();
-		}
-		return null;
-	}
-	
-	private Soap findSubmitSoap(String messagingSystemName, String connectorName) {
-		Submit submit = findSubmit(messagingSystemName, connectorName);
-		Soap soap = submit.getSoap();
-		if (soap == null) {
-			soap = submit.addNewSoap();
-		}
-		return soap;
-	}
-	
 	private SubmitConnection findSubmitConnection(String connectorName) {
 		Submit submit = findSubmit(connectorName);
 		if (submit != null) {
@@ -323,23 +305,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 			}
 		}
 		return null;
-	}
-
-	private Soap findRequestReplySoap(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getSoap();
-		}
-		return null;
-	}
-
-	private Soap findRequestReplySoap(String messagingSystemName, String connectorName) {
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		Soap soap = rr.getSoap();
-		if (soap == null) {
-			soap = rr.addNewSoap();
-		}
-		return soap;
 	}
 
 	private RequestReplyConnection findRequestReplyConnection(String connectorName) {
@@ -901,81 +866,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	}
 	
 	/**
-	 * Returns the SOAP source name for the submit connector.
-	 * @return the SOAP source name for the submit connector.
-	 */
-	public String getSubmitSoapSourceName(String connectorName) {
-		Soap soap = findSubmitSoap(connectorName);
-		if (soap != null) {
-			return soap.getSourceName();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the SOAP source name for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param submitSourceName submit source name
-	 */
-	public void setSubmitSoapSourceName(String messagingSystemName, String connectorName, String submitSourceName) {
-		Soap soap = findSubmitSoap(messagingSystemName, connectorName);
-		if (soap != null && submitSourceName != null) {
-			soap.setSourceName(submitSourceName);
-		}
-	}
-
-	/**
-	 * Returns the SOAP destination name for the submit connector.
-	 * @return the SOAP destination name for the submit connector.
-	 */
-	public String getSubmitSoapDestinationName(String connectorName) {
-		Soap soap = findSubmitSoap(connectorName);
-		if (soap != null) {
-			return soap.getDestinationName();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the SOAP destination name for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param submitDestinationName submit destination name
-	 */
-	public void setSubmitSoapDestinationName(String messagingSystemName, String connectorName, String submitDestinationName) {
-		Soap soap = findSubmitSoap(messagingSystemName, connectorName);
-		if (soap != null && submitDestinationName != null) {
-			soap.setDestinationName(submitDestinationName);
-		}
-	}
-
-	/**
-	 * Returns whether to use a SOAP envelope for the submit connector.
-	 * @return whether to use a SOAP envelope for the submit connector.
-	 */
-	public boolean getSubmitUseSOAPEnvelope(String connectorName) {
-		Soap soap = findSubmitSoap(connectorName);
-		if (soap != null) {
-			return soap.getUseSOAPEnvelope();
-		}
-		return false;
-	}
-	
-	/**
-	 * Sets whether to use a SOAP envelope for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param useSOAPEnvelope use a SOAP envelope
-	 */
-	public void setSubmitUseSOAPEnvelope(String messagingSystemName, String connectorName, boolean useSOAPEnvelope) {
-		Soap soap = findSubmitSoap(messagingSystemName, connectorName);
-		if (soap != null) {
-			soap.setUseSOAPEnvelope(useSOAPEnvelope);
-		}
-	}
-	
-	/**
 	 * Returns the submit connection submit queue name for the submit connector.
 	 * @return the submit connection submit queue name for the submit connector.
 	 */
@@ -1300,81 +1190,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	public void setRequestReplyCompressBinaryMessages(String messagingSystemName, String connectorName, boolean compressBinaryMessages) {
 		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
 		rr.setCompressBinaryMessages(compressBinaryMessages);
-	}
-	
-	/**
-	 * Returns the SOAP source name for the request-reply connector.
-	 * @return the SOAP source name for the request-reply connector.
-	 */
-	public String getRequestReplySoapSourceName(String connectorName) {
-		Soap soap = findRequestReplySoap(connectorName);
-		if (soap != null) {
-			return soap.getSourceName();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the SOAP source name for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param sourceName the source name
-	 */
-	public void setRequestReplySoapSourceName(String messagingSystemName, String connectorName, String sourceName) {
-		Soap soap = findRequestReplySoap(messagingSystemName, connectorName);
-		if (soap != null && sourceName != null) {
-			soap.setSourceName(sourceName);
-		}
-	}
-
-	/**
-	 * Returns the SOAP destination name for the request-reply connector.
-	 * @return the SOAP destination name for the request-reply connector.
-	 */
-	public String getRequestReplySoapDestinationName(String connectorName) {
-		Soap soap = findRequestReplySoap(connectorName);
-		if (soap != null) {
-			return soap.getDestinationName();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the SOAP destination name for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param destinationName the destination name
-	 */
-	public void setRequestReplySoapDestinationName(String messagingSystemName, String connectorName, String destinationName) {
-		Soap soap = findRequestReplySoap(messagingSystemName, connectorName);
-		if (soap != null && destinationName != null) {
-			soap.setDestinationName(destinationName);
-		}
-	}
-	
-	/**
-	 * Returns whether to use a SOAP envelope for the request-reply connector.
-	 * @return whether to use a SOAP envelope for the request-reply connector.
-	 */
-	public boolean getRequestReplyUseSOAPEnvelope(String connectorName) {
-		Soap soap = findRequestReplySoap(connectorName);
-		if (soap != null) {
-			return soap.getUseSOAPEnvelope();
-		}
-		return false;
-	}
-
-	/**
-	 * Sets whether to use a SOAP envelope for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param useSOAPEnvelope use a SOAP envelope
-	 */
-	public void setRequestReplyUseSOAPEnvelope(String messagingSystemName, String connectorName, boolean useSOAPEnvelope) {
-		Soap soap = findRequestReplySoap(messagingSystemName, connectorName);
-		if (soap != null) {
-			soap.setUseSOAPEnvelope(useSOAPEnvelope);
-		}
 	}
 	
 	/**

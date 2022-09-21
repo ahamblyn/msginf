@@ -14,7 +14,6 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructure
 public class SubmitPanel extends JPanel {
 	private final String connectorName;
 	private final SubmitConnectorPanel connectorPanel = new SubmitConnectorPanel();
-	private final SOAPPanel soapPanel = new SOAPPanel("Submit SOAP", false);
 	private final SubmitConnectionPanel connectionPanel = new SubmitConnectionPanel();
 	
 	/**
@@ -29,8 +28,7 @@ public class SubmitPanel extends JPanel {
 	private void init() {
 		this.setBackground(ConfigurationApplication.BG_COLOR);
 		this.setLayout(new BorderLayout());
-		this.add(connectorPanel, BorderLayout.WEST);
-		this.add(soapPanel, BorderLayout.EAST);
+		this.add(connectorPanel, BorderLayout.NORTH);
 		this.add(connectionPanel, BorderLayout.SOUTH);
 	}
 	
@@ -41,8 +39,6 @@ public class SubmitPanel extends JPanel {
 	public void loadData(XMLMessageInfrastructurePropertiesFileParser parser) {
 		// submit connector panel
 		connectorPanel.loadData(connectorName, parser);
-		// SOAP panel
-		soapPanel.loadData(connectorName, parser);
 		// connection panel
 		connectionPanel.loadData(connectorName, parser);
 	}
@@ -56,8 +52,6 @@ public class SubmitPanel extends JPanel {
 	public void retrieveData(String messagingSystemName, String connectorName, XMLMessageInfrastructurePropertiesFileParser parser) {
 		// submit connector panel
 		connectorPanel.retrieveData(messagingSystemName, connectorName, parser);
-		// SOAP panel
-		soapPanel.retrieveData(messagingSystemName, connectorName, parser);
 		// connection panel
 		connectionPanel.retrieveData(messagingSystemName, connectorName, parser);
 	}

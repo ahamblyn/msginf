@@ -20,9 +20,6 @@ public class TestXMLBeans {
 		activemqSubmitTextExpectedData.validateSubmit = false;
 		activemqSubmitTextExpectedData.putValidationErrorOnDeadLetterQueue = true;
 		activemqSubmitTextExpectedData.compressBinaryMessages = true;
-		activemqSubmitTextExpectedData.soapSourceName = "Submit Message Source";
-		activemqSubmitTextExpectedData.soapDestinationName = "Submit Message Destination";
-		activemqSubmitTextExpectedData.useSOAPEnvelope = false;
 		activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
 		activemqSubmitTextExpectedData.deadLetterQueueName = "DeadLetterQueue";
 		activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
@@ -39,9 +36,6 @@ public class TestXMLBeans {
 		activemqRequestReplyTextExpectedData.validateReply = false;
 		activemqRequestReplyTextExpectedData.putValidationErrorOnDeadLetterQueue = true;
 		activemqRequestReplyTextExpectedData.compressBinaryMessages = true;
-		activemqRequestReplyTextExpectedData.soapSourceName = "Request Reply Message Source";
-		activemqRequestReplyTextExpectedData.soapDestinationName = "Request Reply Message Destination";
-		activemqRequestReplyTextExpectedData.useSOAPEnvelope = false;
 		activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
 		activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
 		activemqRequestReplyTextExpectedData.deadLetterQueueName = "DeadLetterQueue";
@@ -117,9 +111,6 @@ public class TestXMLBeans {
 		assertEquals(expectedData.validateSubmit, parser.getValidateSubmit(connectorName));
 		assertEquals(expectedData.putValidationErrorOnDeadLetterQueue, parser.getSubmitPutValidationErrorOnDeadLetterQueue(connectorName));
 		assertEquals(expectedData.compressBinaryMessages, parser.getSubmitCompressBinaryMessages(connectorName));
-		assertEquals(expectedData.soapSourceName, parser.getSubmitSoapSourceName(connectorName));
-		assertEquals(expectedData.soapDestinationName, parser.getSubmitSoapDestinationName(connectorName));
-		assertEquals(expectedData.useSOAPEnvelope, parser.getSubmitUseSOAPEnvelope(connectorName));
 		assertEquals(expectedData.submitQueueName, parser.getSubmitConnectionSubmitQueueName(connectorName));
 		assertEquals(expectedData.deadLetterQueueName, parser.getSubmitConnectionDeadLetterQueueName(connectorName));
 		assertEquals(expectedData.queueConnFactoryName, parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName));
@@ -137,9 +128,6 @@ public class TestXMLBeans {
 		assertEquals(expectedData.validateReply, parser.getValidateReply(connectorName));
 		assertEquals(expectedData.putValidationErrorOnDeadLetterQueue, parser.getRequestReplyPutValidationErrorOnDeadLetterQueue(connectorName));
 		assertEquals(expectedData.compressBinaryMessages, parser.getRequestReplyCompressBinaryMessages(connectorName));
-		assertEquals(expectedData.soapSourceName, parser.getRequestReplySoapSourceName(connectorName));
-		assertEquals(expectedData.soapDestinationName, parser.getRequestReplySoapDestinationName(connectorName));
-		assertEquals(expectedData.useSOAPEnvelope, parser.getRequestReplyUseSOAPEnvelope(connectorName));
 		assertEquals(expectedData.requestQueueName, parser.getRequestReplyConnectionRequestQueueName(connectorName));
 		assertEquals(expectedData.replyQueueName, parser.getRequestReplyConnectionReplyQueueName(connectorName));
 		assertEquals(expectedData.deadLetterQueueName, parser.getRequestReplyConnectionDeadLetterQueueName(connectorName));
@@ -160,9 +148,6 @@ public class TestXMLBeans {
 		public boolean validateReply;
 		public boolean putValidationErrorOnDeadLetterQueue;
 		public boolean compressBinaryMessages;
-		public String soapSourceName;
-		public String soapDestinationName;
-		public boolean useSOAPEnvelope;
 		public String submitQueueName;
 		public String requestQueueName;
 		public String replyQueueName;

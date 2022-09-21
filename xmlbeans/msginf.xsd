@@ -28,9 +28,6 @@
   <xs:attribute name="validateReply" type="xs:boolean"/>
   <xs:attribute name="putValidationErrorOnDeadLetterQueue" type="xs:boolean"/>
   <xs:attribute name="compressBinaryMessages" type="xs:boolean"/>
-  <xs:attribute name="sourceName" type="xs:string"/>
-  <xs:attribute name="destinationName" type="xs:string"/>
-  <xs:attribute name="useSOAPEnvelope" type="xs:boolean"/>
   <xs:attribute name="submitQueueName" type="xs:string"/>
   <xs:attribute name="requestQueueName" type="xs:string"/>
   <xs:attribute name="replyQueueName" type="xs:string"/>
@@ -73,14 +70,6 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="soap">
-    <xs:complexType>
-      <xs:attribute ref="msginf:sourceName" use="required"/>
-      <xs:attribute ref="msginf:destinationName" use="required"/>
-      <xs:attribute ref="msginf:useSOAPEnvelope" use="required"/>
-    </xs:complexType>
-  </xs:element>
-
   <xs:element name="submit-connection">
     <xs:complexType>
       <xs:attribute ref="msginf:submitQueueName" use="required"/>
@@ -108,7 +97,6 @@
   <xs:element name="submit">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="msginf:soap" minOccurs="1" maxOccurs="1"/>
         <xs:element ref="msginf:submit-connection" minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute ref="msginf:connectorName" use="required"/>
@@ -123,7 +111,6 @@
   <xs:element name="request-reply">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="msginf:soap" minOccurs="1" maxOccurs="1"/>
         <xs:element ref="msginf:request-reply-connection" minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute ref="msginf:connectorName" use="required"/>
