@@ -17,7 +17,6 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
 import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
-import nz.co.pukeko.msginf.infrastructure.validation.XSDSchemaValidator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -116,65 +115,7 @@ public class QueueManager implements QueueManagerAgreement {
 	public synchronized Object sendMessage(String connector, String message, HeaderProperties<String,Object> headerProperties) throws MessageException {
 		Object result;
 		MessageController mc = getMessageConnector(connector);
-		// look up the schema and validation
-		QueueManagerConfigurationProperties qmbcp = queueManagerConfigurationProperties.get(connector);
-		boolean validateRequest;
-		String schema;
-		boolean validateReply = false;
-		String replySchema = "";
-		// test for submit or request/reply scenario
-		if (qmbcp.requestReply()) {
-			// A request/reply scenario
-			validateRequest = qmbcp.validateRequest();
-			schema = qmbcp.requestSchema();
-			replySchema = qmbcp.replySchema();
-			validateReply = qmbcp.validateReply();
-		} else {
-			validateRequest = qmbcp.validateSubmit();
-			schema = qmbcp.submitSchema();
-		}
-		// if mimetype is not an XML based one, throw an exception
-		String mimetype = qmbcp.mimetype();
-		if (!checkMimeType(mimetype)) {
-			throw new ConfigurationException("The adapter is not configured to handle non-XML messages.");
-		}
-		// validate the submit/request message
-		if (validateRequest) {
-			logger.debug("Validating client-side request...");
-			XSDSchemaValidator xsdSchemaValidator = new XSDSchemaValidator(schema, true);
-			// validate the xml against the schema
-			try {
-				xsdSchemaValidator.validateXML(message);
-				// validation passed
-				result = putMessageOnQueue(connector, message, headerProperties, mc);
-			} catch (MessageException me) {
-				// validation failed
-				if (qmbcp.validateError()) {
-					// put onto dead letter queue
-					mc.submitMessageToDeadLetterQueue(message);
-				}
-				throw me;
-			}
-		} else {
-			result = putMessageOnQueue(connector, message, headerProperties, mc);
-		}
-		// if replySchema <> "" and validateReply is true, then validate reply
-		if (result instanceof String && validateReply) {
-			logger.debug("Validating client-side reply...");
-			XSDSchemaValidator xsdSchemaValidator = new XSDSchemaValidator(replySchema, true);
-			// validate the xml against the schema
-			try {
-				xsdSchemaValidator.validateXML(result.toString());
-				return result;
-			} catch (MessageException me) {
-				// validation failed
-				if (qmbcp.validateError()) {
-					// put onto dead letter queue
-					mc.submitMessageToDeadLetterQueue(result.toString());
-				}
-				throw me;
-			}
-		}
+		result = putMessageOnQueue(connector, message, headerProperties, mc);
 		return result;
 	}
 
@@ -329,31 +270,15 @@ public class QueueManager implements QueueManagerAgreement {
         // Submit Connectors
     	List<String> submitConnectorNames = parser.getSubmitConnectorNames();
 		for (String connectorName : submitConnectorNames) {
-			String mimeType = parser.getSubmitMimeType(connectorName);
-			String submitSchema = parser.getSubmitSchema(connectorName);
-			String requestSchema = "";
-			String replySchema = "";
-			boolean validateSubmit = parser.getValidateSubmit(connectorName);
-			boolean validateRequest = false;
-			boolean validateReply = false;
-			boolean putValidationErrorOnDeadLetterQueue = parser.getSubmitPutValidationErrorOnDeadLetterQueue(connectorName);
 			boolean compressBinaryMessages = parser.getSubmitCompressBinaryMessages(connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(mimeType, submitSchema, requestSchema, replySchema, validateSubmit, validateRequest, validateReply, putValidationErrorOnDeadLetterQueue, compressBinaryMessages, false);
+			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, false);
 			queueManagerConfigurationProperties.put(connectorName, qmbcp);
 		}
         // Request Reply connectors
     	List<String> rrConnectorNames = parser.getRequestReplyConnectorNames();
 		for (String connectorName : rrConnectorNames) {
-			String mimeType = parser.getRequestReplyMimeType(connectorName);
-			String submitSchema = "";
-			String requestSchema = parser.getRequestSchema(connectorName);
-			String replySchema = parser.getReplySchema(connectorName);
-			boolean validateSubmit = false;
-			boolean validateRequest = parser.getValidateRequest(connectorName);
-			boolean validateReply = parser.getValidateReply(connectorName);
-			boolean putValidationErrorOnDeadLetterQueue = parser.getRequestReplyPutValidationErrorOnDeadLetterQueue(connectorName);
 			boolean compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(mimeType, submitSchema, requestSchema, replySchema, validateSubmit, validateRequest, validateReply, putValidationErrorOnDeadLetterQueue, compressBinaryMessages, true);
+			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, true);
 			queueManagerConfigurationProperties.put(connectorName, qmbcp);
 		}
 	}

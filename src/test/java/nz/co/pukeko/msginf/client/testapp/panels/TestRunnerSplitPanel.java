@@ -63,7 +63,7 @@ public class TestRunnerSplitPanel extends JPanel {
 		for (int i = 0; i < connectorTabbedPane.getTabCount(); i++) {
 			String title = connectorTabbedPane.getTitleAt(i);
 			if (title.equals(tabName)) {
-				return new Integer(i);
+				return i;
 			}
 		}
 		return null;

@@ -15,10 +15,6 @@ public class TestXMLBeans {
 	static {
 		expectedConnectorDataMap = new HashMap<>();
 		ExpectedConnectorData activemqSubmitTextExpectedData = new ExpectedConnectorData();
-		activemqSubmitTextExpectedData.mimeType = "text/xml";
-		activemqSubmitTextExpectedData.submitSchema = "http://localhost/test http://localhost/schema/test.xsd";
-		activemqSubmitTextExpectedData.validateSubmit = false;
-		activemqSubmitTextExpectedData.putValidationErrorOnDeadLetterQueue = true;
 		activemqSubmitTextExpectedData.compressBinaryMessages = true;
 		activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
 		activemqSubmitTextExpectedData.deadLetterQueueName = "DeadLetterQueue";
@@ -29,12 +25,6 @@ public class TestXMLBeans {
 		expectedConnectorDataMap.put("activemq_submit_text", activemqSubmitTextExpectedData);
 
 		ExpectedConnectorData activemqRequestReplyTextExpectedData = new ExpectedConnectorData();
-		activemqRequestReplyTextExpectedData.mimeType = "text/xml";
-		activemqRequestReplyTextExpectedData.requestSchema = "http://localhost/test http://localhost/schema/test.xsd";
-		activemqRequestReplyTextExpectedData.replySchema = "http://localhost/test http://localhost/schema/test.xsd";
-		activemqRequestReplyTextExpectedData.validateRequest = false;
-		activemqRequestReplyTextExpectedData.validateReply = false;
-		activemqRequestReplyTextExpectedData.putValidationErrorOnDeadLetterQueue = true;
 		activemqRequestReplyTextExpectedData.compressBinaryMessages = true;
 		activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
 		activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
@@ -106,10 +96,6 @@ public class TestXMLBeans {
 
 	private void assertSubmitConnector(XMLMessageInfrastructurePropertiesFileParser parser, String connectorName) {
 		ExpectedConnectorData expectedData = expectedConnectorDataMap.get(connectorName);
-		assertEquals(expectedData.mimeType, parser.getSubmitMimeType(connectorName));
-		assertEquals(expectedData.submitSchema, parser.getSubmitSchema(connectorName));
-		assertEquals(expectedData.validateSubmit, parser.getValidateSubmit(connectorName));
-		assertEquals(expectedData.putValidationErrorOnDeadLetterQueue, parser.getSubmitPutValidationErrorOnDeadLetterQueue(connectorName));
 		assertEquals(expectedData.compressBinaryMessages, parser.getSubmitCompressBinaryMessages(connectorName));
 		assertEquals(expectedData.submitQueueName, parser.getSubmitConnectionSubmitQueueName(connectorName));
 		assertEquals(expectedData.deadLetterQueueName, parser.getSubmitConnectionDeadLetterQueueName(connectorName));
@@ -121,12 +107,6 @@ public class TestXMLBeans {
 
 	private void assertRequestReplyConnector(XMLMessageInfrastructurePropertiesFileParser parser, String connectorName) {
 		ExpectedConnectorData expectedData = expectedConnectorDataMap.get(connectorName);
-		assertEquals(expectedData.mimeType, parser.getRequestReplyMimeType(connectorName));
-		assertEquals(expectedData.requestSchema, parser.getRequestSchema(connectorName));
-		assertEquals(expectedData.replySchema, parser.getReplySchema(connectorName));
-		assertEquals(expectedData.validateRequest, parser.getValidateRequest(connectorName));
-		assertEquals(expectedData.validateReply, parser.getValidateReply(connectorName));
-		assertEquals(expectedData.putValidationErrorOnDeadLetterQueue, parser.getRequestReplyPutValidationErrorOnDeadLetterQueue(connectorName));
 		assertEquals(expectedData.compressBinaryMessages, parser.getRequestReplyCompressBinaryMessages(connectorName));
 		assertEquals(expectedData.requestQueueName, parser.getRequestReplyConnectionRequestQueueName(connectorName));
 		assertEquals(expectedData.replyQueueName, parser.getRequestReplyConnectionReplyQueueName(connectorName));

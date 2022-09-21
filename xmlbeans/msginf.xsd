@@ -19,14 +19,6 @@
   <xs:attribute name="minConnections" type="xs:integer"/>
   <xs:attribute name="maxConnections" type="xs:integer"/>
   <xs:attribute name="connectorName" type="xs:string"/>
-  <xs:attribute name="mimeType" type="xs:string"/>
-  <xs:attribute name="submitSchema" type="xs:string"/>
-  <xs:attribute name="requestSchema" type="xs:string"/>
-  <xs:attribute name="replySchema" type="xs:string"/>
-  <xs:attribute name="validateSubmit" type="xs:boolean"/>
-  <xs:attribute name="validateRequest" type="xs:boolean"/>
-  <xs:attribute name="validateReply" type="xs:boolean"/>
-  <xs:attribute name="putValidationErrorOnDeadLetterQueue" type="xs:boolean"/>
   <xs:attribute name="compressBinaryMessages" type="xs:boolean"/>
   <xs:attribute name="submitQueueName" type="xs:string"/>
   <xs:attribute name="requestQueueName" type="xs:string"/>
@@ -100,10 +92,6 @@
         <xs:element ref="msginf:submit-connection" minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute ref="msginf:connectorName" use="required"/>
-      <xs:attribute ref="msginf:mimeType" use="required"/>
-      <xs:attribute ref="msginf:submitSchema" use="required"/>
-      <xs:attribute ref="msginf:validateSubmit" use="required"/>
-      <xs:attribute ref="msginf:putValidationErrorOnDeadLetterQueue" use="required"/>
       <xs:attribute ref="msginf:compressBinaryMessages" use="required"/>
     </xs:complexType>
   </xs:element>
@@ -114,12 +102,6 @@
         <xs:element ref="msginf:request-reply-connection" minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
       <xs:attribute ref="msginf:connectorName" use="required"/>
-      <xs:attribute ref="msginf:mimeType" use="required"/>
-      <xs:attribute ref="msginf:requestSchema" use="required"/>
-      <xs:attribute ref="msginf:replySchema" use="required"/>
-      <xs:attribute ref="msginf:validateRequest" use="required"/>
-      <xs:attribute ref="msginf:validateReply" use="required"/>
-      <xs:attribute ref="msginf:putValidationErrorOnDeadLetterQueue" use="required"/>
       <xs:attribute ref="msginf:compressBinaryMessages" use="required"/>
     </xs:complexType>
   </xs:element>
