@@ -24,16 +24,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ConsolePanel extends JPanel {
-	private static Logger logger = LogManager.getLogger(ConsolePanel.class);
-	private JPanel mainPanel = new JPanel();
-	private JPanel labelPanel = new JPanel();
-	private JLabel statusLabel = new JLabel(" ");
-	private JTextArea console = new JTextArea(20, 150);
-	private JScrollPane scrollPane = new JScrollPane(console);
-	private Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-	private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
-	private TestRunner parent;
-	private JFrame frame;
+	private static final Logger logger = LogManager.getLogger(ConsolePanel.class);
+	private final JPanel mainPanel = new JPanel();
+	private final JPanel labelPanel = new JPanel();
+	private final JLabel statusLabel = new JLabel(" ");
+	private final JTextArea console = new JTextArea(20, 150);
+	private final JScrollPane scrollPane = new JScrollPane(console);
+	private final Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+	private final Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
+	private final TestRunner parent;
+	private final JFrame frame;
 	
 	public ConsolePanel(TestRunner parent, JFrame frame) {
 		this.parent = parent;
@@ -77,7 +77,7 @@ public class ConsolePanel extends JPanel {
 	}
 	
 	class ConsoleThread implements Runnable {
-		private Command command;
+		private final Command command;
 
 		public ConsoleThread(Command command) {
 			this.command = command;
@@ -87,23 +87,20 @@ public class ConsolePanel extends JPanel {
 			parent.disableRunButton();
             parent.enableStopButton();
 			frame.setCursor(waitCursor);
-			String commandString = command.createCommand();
+			String[] commands = command.createCommand();
+			String commandString = String.join(" ", commands);
 			logger.info("Running command: " + commandString);
 			console.setText("");
 			statusLabel.setText(commandString);
-			// run the command and stream the reponse to the text area
+			// run the command and stream the response to the text area
 			Runtime rt = Runtime.getRuntime();
 			try {
 				String thisLine;
-				Process process = rt.exec(commandString);
+				Process process = rt.exec(commands);
 				BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				while ((thisLine = br.readLine()) != null) {
 					final String line = thisLine + "\n";
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							console.append(line);
-						}
-					});
+					SwingUtilities.invokeLater(() -> console.append(line));
 				}
 				br.close();
 				process.destroy();

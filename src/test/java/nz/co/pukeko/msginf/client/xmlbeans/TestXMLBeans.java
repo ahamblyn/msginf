@@ -10,21 +10,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestXMLBeans {
-	private static Map<String, ExpectedConnectorData> expectedConnectorDataMap;
+	private static final Map<String, ExpectedConnectorData> expectedConnectorDataMap;
 
 	static {
 		expectedConnectorDataMap = new HashMap<>();
 		ExpectedConnectorData activemqSubmitTextExpectedData = new ExpectedConnectorData();
-		activemqSubmitTextExpectedData.mimeType = "text/xml";
-		activemqSubmitTextExpectedData.submitSchema = "http://localhost/test http://localhost/schema/test.xsd";
-		activemqSubmitTextExpectedData.validateSubmit = false;
-		activemqSubmitTextExpectedData.putValidationErrorOnDeadLetterQueue = true;
 		activemqSubmitTextExpectedData.compressBinaryMessages = true;
-		activemqSubmitTextExpectedData.soapSourceName = "Submit Message Source";
-		activemqSubmitTextExpectedData.soapDestinationName = "Submit Message Destination";
-		activemqSubmitTextExpectedData.useSOAPEnvelope = false;
 		activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
-		activemqSubmitTextExpectedData.deadLetterQueueName = "DeadLetterQueue";
 		activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
 		activemqSubmitTextExpectedData.messageClassName = "javax.jms.TextMessage";
 		activemqSubmitTextExpectedData.messageTimeToLive = 0;
@@ -32,19 +24,9 @@ public class TestXMLBeans {
 		expectedConnectorDataMap.put("activemq_submit_text", activemqSubmitTextExpectedData);
 
 		ExpectedConnectorData activemqRequestReplyTextExpectedData = new ExpectedConnectorData();
-		activemqRequestReplyTextExpectedData.mimeType = "text/xml";
-		activemqRequestReplyTextExpectedData.requestSchema = "http://localhost/test http://localhost/schema/test.xsd";
-		activemqRequestReplyTextExpectedData.replySchema = "http://localhost/test http://localhost/schema/test.xsd";
-		activemqRequestReplyTextExpectedData.validateRequest = false;
-		activemqRequestReplyTextExpectedData.validateReply = false;
-		activemqRequestReplyTextExpectedData.putValidationErrorOnDeadLetterQueue = true;
 		activemqRequestReplyTextExpectedData.compressBinaryMessages = true;
-		activemqRequestReplyTextExpectedData.soapSourceName = "Request Reply Message Source";
-		activemqRequestReplyTextExpectedData.soapDestinationName = "Request Reply Message Destination";
-		activemqRequestReplyTextExpectedData.useSOAPEnvelope = false;
 		activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
 		activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
-		activemqRequestReplyTextExpectedData.deadLetterQueueName = "DeadLetterQueue";
 		activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
 		activemqRequestReplyTextExpectedData.messageClassName = "javax.jms.TextMessage";
 		activemqRequestReplyTextExpectedData.requesterClassName = "nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester";
@@ -88,12 +70,10 @@ public class TestXMLBeans {
 		assertTrue(validateQueueJNDIName(parser, "TestQueue"));
 		assertTrue(validateQueueJNDIName(parser, "RequestQueue"));
 		assertTrue(validateQueueJNDIName(parser, "ReplyQueue"));
-		assertTrue(validateQueueJNDIName(parser, "DeadLetterQueue"));
 		assertFalse(validateQueueJNDIName(parser, "XXXXXXXX"));
 		assertTrue(validateQueuePhysicalName(parser, "TEST.QUEUE"));
 		assertTrue(validateQueuePhysicalName(parser, "REQUEST.QUEUE"));
 		assertTrue(validateQueuePhysicalName(parser, "REPLY.QUEUE"));
-		assertTrue(validateQueuePhysicalName(parser, "DL.QUEUE"));
 		assertFalse(validateQueuePhysicalName(parser, "XXXXXXXX"));
 		assertTrue(parser.getUseConnectionPooling());
 		assertEquals(20, parser.getMaxConnections());
@@ -112,16 +92,8 @@ public class TestXMLBeans {
 
 	private void assertSubmitConnector(XMLMessageInfrastructurePropertiesFileParser parser, String connectorName) {
 		ExpectedConnectorData expectedData = expectedConnectorDataMap.get(connectorName);
-		assertEquals(expectedData.mimeType, parser.getSubmitMimeType(connectorName));
-		assertEquals(expectedData.submitSchema, parser.getSubmitSchema(connectorName));
-		assertEquals(expectedData.validateSubmit, parser.getValidateSubmit(connectorName));
-		assertEquals(expectedData.putValidationErrorOnDeadLetterQueue, parser.getSubmitPutValidationErrorOnDeadLetterQueue(connectorName));
 		assertEquals(expectedData.compressBinaryMessages, parser.getSubmitCompressBinaryMessages(connectorName));
-		assertEquals(expectedData.soapSourceName, parser.getSubmitSoapSourceName(connectorName));
-		assertEquals(expectedData.soapDestinationName, parser.getSubmitSoapDestinationName(connectorName));
-		assertEquals(expectedData.useSOAPEnvelope, parser.getSubmitUseSOAPEnvelope(connectorName));
 		assertEquals(expectedData.submitQueueName, parser.getSubmitConnectionSubmitQueueName(connectorName));
-		assertEquals(expectedData.deadLetterQueueName, parser.getSubmitConnectionDeadLetterQueueName(connectorName));
 		assertEquals(expectedData.queueConnFactoryName, parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName));
 		assertEquals(expectedData.messageClassName, parser.getSubmitConnectionMessageClassName(connectorName));
 		assertEquals(expectedData.messageTimeToLive, parser.getSubmitConnectionMessageTimeToLive(connectorName));
@@ -130,19 +102,9 @@ public class TestXMLBeans {
 
 	private void assertRequestReplyConnector(XMLMessageInfrastructurePropertiesFileParser parser, String connectorName) {
 		ExpectedConnectorData expectedData = expectedConnectorDataMap.get(connectorName);
-		assertEquals(expectedData.mimeType, parser.getRequestReplyMimeType(connectorName));
-		assertEquals(expectedData.requestSchema, parser.getRequestSchema(connectorName));
-		assertEquals(expectedData.replySchema, parser.getReplySchema(connectorName));
-		assertEquals(expectedData.validateRequest, parser.getValidateRequest(connectorName));
-		assertEquals(expectedData.validateReply, parser.getValidateReply(connectorName));
-		assertEquals(expectedData.putValidationErrorOnDeadLetterQueue, parser.getRequestReplyPutValidationErrorOnDeadLetterQueue(connectorName));
 		assertEquals(expectedData.compressBinaryMessages, parser.getRequestReplyCompressBinaryMessages(connectorName));
-		assertEquals(expectedData.soapSourceName, parser.getRequestReplySoapSourceName(connectorName));
-		assertEquals(expectedData.soapDestinationName, parser.getRequestReplySoapDestinationName(connectorName));
-		assertEquals(expectedData.useSOAPEnvelope, parser.getRequestReplyUseSOAPEnvelope(connectorName));
 		assertEquals(expectedData.requestQueueName, parser.getRequestReplyConnectionRequestQueueName(connectorName));
 		assertEquals(expectedData.replyQueueName, parser.getRequestReplyConnectionReplyQueueName(connectorName));
-		assertEquals(expectedData.deadLetterQueueName, parser.getRequestReplyConnectionDeadLetterQueueName(connectorName));
 		assertEquals(expectedData.queueConnFactoryName, parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName));
 		assertEquals(expectedData.messageClassName, parser.getRequestReplyConnectionMessageClassName(connectorName));
 		assertEquals(expectedData.requesterClassName, parser.getRequestReplyConnectionRequesterClassName(connectorName));
@@ -151,22 +113,10 @@ public class TestXMLBeans {
 	}
 
 	private static class ExpectedConnectorData {
-		public String mimeType;
-		public String submitSchema;
-		public String requestSchema;
-		public String replySchema;
-		public boolean validateSubmit;
-		public boolean validateRequest;
-		public boolean validateReply;
-		public boolean putValidationErrorOnDeadLetterQueue;
 		public boolean compressBinaryMessages;
-		public String soapSourceName;
-		public String soapDestinationName;
-		public boolean useSOAPEnvelope;
 		public String submitQueueName;
 		public String requestQueueName;
 		public String replyQueueName;
-		public String deadLetterQueueName;
 		public String queueConnFactoryName;
 		public String messageClassName;
 		public String requesterClassName;

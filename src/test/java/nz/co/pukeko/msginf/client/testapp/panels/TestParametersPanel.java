@@ -7,6 +7,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -29,26 +30,26 @@ import nz.co.pukeko.msginf.client.testapp.data.Command;
 import nz.co.pukeko.msginf.client.testapp.TestRunner;
 
 public class TestParametersPanel extends JPanel {
-	private JLabel testsLabel = new JLabel("Test:");
-	private JComboBox tests = new JComboBox(new String[]{"submit", "echo", "reply", "receive"});
-	private JLabel messagingSystemNameLabel = new JLabel("Messaging System:");
-	private JLabel messagingSystemName = new JLabel("");
-	private JLabel connectorNameLabel = new JLabel("Connector:");
-	private JLabel connectorName = new JLabel("");
-	private JLabel numberOfThreadsLabel = new JLabel("Number of Threads:");
-	private JTextField numberOfThreads = new JTextField(20);
-	private JLabel numberOfMessagesPerThreadLabel = new JLabel("Number of Messages Per Thread:");
-	private JTextField numberOfMessagesPerThread = new JTextField(20);
-	private JLabel fileNameLabel = new JLabel("File:");
-	private JTextField fileName = new JTextField(20);
-    private JLabel portLabel = new JLabel("Port:");
-    private JTextField port = new JTextField(20);
-	private JButton browseButton = new JButton("Browse...");
-	private JButton runButton = new JButton("Run");
-    private JButton stopButton = new JButton("Stop!");
-	private Connector connector;
-    private TestRunnerSplitPanel parent;
-	private JFileChooser fc = new JFileChooser();
+	private final JLabel testsLabel = new JLabel("Test:");
+	private final JComboBox<String> tests = new JComboBox<>(new String[]{"submit", "echo", "reply", "receive"});
+	private final JLabel messagingSystemNameLabel = new JLabel("Messaging System:");
+	private final JLabel messagingSystemName = new JLabel("");
+	private final JLabel connectorNameLabel = new JLabel("Connector:");
+	private final JLabel connectorName = new JLabel("");
+	private final JLabel numberOfThreadsLabel = new JLabel("Number of Threads:");
+	private final JTextField numberOfThreads = new JTextField(20);
+	private final JLabel numberOfMessagesPerThreadLabel = new JLabel("Number of Messages Per Thread:");
+	private final JTextField numberOfMessagesPerThread = new JTextField(20);
+	private final JLabel fileNameLabel = new JLabel("File:");
+	private final JTextField fileName = new JTextField(20);
+    private final JLabel portLabel = new JLabel("Port:");
+    private final JTextField port = new JTextField(20);
+	private final JButton browseButton = new JButton("Browse...");
+	private final JButton runButton = new JButton("Run");
+    private final JButton stopButton = new JButton("Stop!");
+	private final Connector connector;
+    private final TestRunnerSplitPanel parent;
+	private final JFileChooser fc = new JFileChooser();
     private Command command;
 
     public TestParametersPanel(TestRunnerSplitPanel parent, Connector connector) {
@@ -145,7 +146,7 @@ public class TestParametersPanel extends JPanel {
 	
 	private void runButton_actionPerformed() {
 		String selectedTest = (String)tests.getSelectedItem();
-		if (selectedTest.equals("receive")) {
+		if (Objects.requireNonNull(selectedTest).equals("receive")) {
             command = new Command(selectedTest, connector, 0, 0, "XXXXX", 0);
             parent.runCommand(command);
 		} else {
@@ -167,7 +168,7 @@ public class TestParametersPanel extends JPanel {
 
 	private void tests_actionPerformed() {
 		String selectedItem = (String)tests.getSelectedItem();
-		if (selectedItem.equals("receive")) {
+		if (Objects.requireNonNull(selectedItem).equals("receive")) {
 			// disable fields
 			numberOfThreads.setEnabled(false);
 			numberOfMessagesPerThread.setEnabled(false);
@@ -228,7 +229,7 @@ public class TestParametersPanel extends JPanel {
 		}
 	}
 
-	class TestParametersPanel_DocumentFilter extends DocumentFilter {
+	static class TestParametersPanel_DocumentFilter extends DocumentFilter {
 		
 		public void insertString(DocumentFilter.FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
 		}

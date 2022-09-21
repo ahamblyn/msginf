@@ -29,7 +29,7 @@ public class TestSocketClient {
             // whatever...
         }
         // connect to the server socket
-        Socket clientSocket = null;
+        Socket clientSocket;
         try {
             clientSocket = new Socket("localhost", 9955);
             assertNotNull(clientSocket);

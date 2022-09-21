@@ -65,11 +65,6 @@ public class MessageController {
    private MessageProducer requestReplyMessageProducer;
 
    /**
-    * The dead letter JMS message producer.
-    */
-   private MessageProducer deadLetterMessageProducer;
-
-   /**
     * The application JMS queue.
     */
    private final Queue queue;
@@ -78,16 +73,6 @@ public class MessageController {
     * The application JMS reply queue.
     */
    private Queue replyQueue;
-
-   /**
-    * The dead letter JMS queue.
-    */
-   private final Queue deadLetterQueue;
-
-   /**
-    * The dead letter JMS message.
-    */
-   private TextMessage deadLetterMessage;
 
    /**
     * The connector name.
@@ -103,11 +88,6 @@ public class MessageController {
     * The application queue name.
     */
    private final String queueName;
-
-   /**
-    * The dead letter queue name.
-    */
-   private final String deadLetterQueueName;
 
    /**
     * The JMS message requester.
@@ -169,7 +149,6 @@ public class MessageController {
      * @param messagingSystem the messaging system in the XML properties file to use.
      * @param connector the name of the connector as defined in the XML properties file.
      * @param queueName the JNDI queue name.
-     * @param deadLetterQueueName the JNDI dead letter queue name.
      * @param queueConnFactoryName the JNDI queue connection factory name.
      * @param jmsCtx the JMS context.
      * @param replyExpected whether a reply is expected or not. True for synchronous (request/reply) messages.
@@ -180,11 +159,10 @@ public class MessageController {
      * @param logStatistics whether to log the timing statistics or not.
      * @throws MessageException Message exception
      */
-	public MessageController(String messagingSystem, String connector, String queueName, String replyQueueName, String deadLetterQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
+	public MessageController(String messagingSystem, String connector, String queueName, String replyQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
       MessagingLoggerConfiguration.configure();
       this.connector = connector;
       this.queueName = queueName;
-      this.deadLetterQueueName = deadLetterQueueName;
       this.queueConnFactoryName = queueConnFactoryName;
       this.replyExpected = replyExpected;
       this.messageClassName = messageClassName;
@@ -197,13 +175,11 @@ public class MessageController {
          if (replyQueueName != null) {
              replyQueue = (Queue)jmsCtx.lookup(replyQueueName);
          }
-         deadLetterQueue = (Queue)jmsCtx.lookup(this.deadLetterQueueName);
           if (qcpf == null) {
               qcpf = QueueChannelPoolFactory.getInstance();
           }
           qcp = qcpf.getQueueChannelPool(jmsCtx, messagingSystem, this.queueConnFactoryName);
       	  setupQueueObjects();
-          setupDeadLetterQueue();
       } catch (JMSException | NamingException e) {
           throw new MessageControllerException(e);
       }
@@ -322,20 +298,6 @@ public class MessageController {
 		}
 	}
 
-	/**
-   * Submits the message to the dead letter queue.
-   * @param xmlMessage the xml message
-   * @throws MessageException if the message cannot be sent.
-   */
-  public void submitMessageToDeadLetterQueue(String xmlMessage) throws MessageException {
-     try {
-        deadLetterMessage.setText(xmlMessage);
-        deadLetterMessageProducer.send(deadLetterMessage);
-     } catch (JMSException e) {
-        throw new QueueUnavailableException(e);
-     }
-  }
-
     private BytesMessage createBytesMessage() throws JMSException {
         return session.createBytesMessage();
     }
@@ -442,24 +404,12 @@ public class MessageController {
 		}
 	}
 	
-    private void setupDeadLetterQueue() throws JMSException {
-        logger.debug("Setting up: " + this);
-        if(queueChannel != null){
-            qcp.free(queueChannel);
-        }
-        queueChannel = qcp.getQueueChannel();
-        session = queueChannel.getSession();
-         // dead letter queue
-        deadLetterMessageProducer = queueChannel.createMessageProducer(this.deadLetterQueue);
-        deadLetterMessage = session.createTextMessage();
-    }
-
     /**
      * Gets this object as a String.
      * @return this object as a String.
      */
     public String toString(){
-        return "QueueName = "+ this.queueName + "...QueueConnectionFactoryName = "+ this.queueConnFactoryName + "...DeadLetterQueueName = "+ this.deadLetterQueueName;
+        return "QueueName = "+ this.queueName + "...QueueConnectionFactoryName = "+ this.queueConnFactoryName;
     }
     
     /**
@@ -476,9 +426,6 @@ public class MessageController {
         	}
         	if (requestReplyMessageProducer != null) {
         		requestReplyMessageProducer.close();
-        	}
-        	if (deadLetterMessageProducer != null) {
-        		deadLetterMessageProducer.close();
         	}
         } catch (JMSException | MessageRequesterException e) {
         	logger.error(e.getMessage(), e);

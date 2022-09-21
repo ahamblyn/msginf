@@ -7,7 +7,6 @@
 package nz.co.pukeko.msginf.client.listener;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,15 +34,11 @@ import nz.co.pukeko.msginf.infrastructure.util.Util;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class MessageReceiver {
-	private static MessageReceiver test;
 	private String queueConnectionFactoryName;
 	private String queueName;
     private Context jndiContext = null;
-	private QueueConnectionFactory queueConnectionFactory;
-	private Queue queue;
 	private QueueConnection queueConnection;
 	private MessageConsumer messageConsumer;
-	private Session session;
 
 	public MessageReceiver(Context jndiContext, String queueConnectionFactoryName, String queueName) {
 		// load the runtime jar files
@@ -85,25 +80,22 @@ public class MessageReceiver {
 			System.out.println("Usage: java nz.co.pukeko.msginf.client.listener.MessageReceiver <messaging system> <queue connection factory name> <queue-name>");
 			System.exit(1);
 		}
-        test = new MessageReceiver(args[0], args[1], args[2]);
+		MessageReceiver test = new MessageReceiver(args[0], args[1], args[2]);
         try {
             test.setup();
 			test.readAndSaveMessages();
 	        test.close();
-		} catch (NamingException ne) {
-			ne.printStackTrace();
-			System.exit(1);
-		} catch (JMSException jmse) {
-			jmse.printStackTrace();
+		} catch (NamingException | JMSException e) {
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
 	public void setup() throws NamingException, JMSException {
-        queueConnectionFactory = (QueueConnectionFactory)jndiContext.lookup(queueConnectionFactoryName);
-        queue = (Queue) jndiContext.lookup(queueName);
+		QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup(queueConnectionFactoryName);
+		Queue queue = (Queue) jndiContext.lookup(queueName);
         queueConnection = queueConnectionFactory.createQueueConnection();
-        session = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Session session = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         messageConsumer = session.createConsumer(queue);
         queueConnection.start();
 	}
@@ -114,25 +106,21 @@ public class MessageReceiver {
 	}
 	
 	public List<Integer> readMessagesSizes() throws JMSException {
-		List<Integer> messageSizes = new ArrayList<Integer>();
+		List<Integer> messageSizes = new ArrayList<>();
 		while (true) {
 			Message m = messageConsumer.receive(10000);
 			if (m == null) {
 				break;
 			}
-			if (m instanceof TextMessage) {
-                TextMessage message = (TextMessage)m;
-                int size = message.getText().length();
+			if (m instanceof TextMessage message) {
+				int size = message.getText().length();
                 messageSizes.add(size);
 			}
-			if (m instanceof BytesMessage) {
-				BytesMessage message = (BytesMessage)m;
-                // read the binary message
+			if (m instanceof BytesMessage message) {
+				// read the binary message
             	// inflate the gzip data
             	byte[] decompressedData = Util.decompressBytesMessage(message);
-            	if (decompressedData != null) {
-                    messageSizes.add(decompressedData.length);
-            	}
+				messageSizes.add(decompressedData.length);
 			}
 		}
 		return messageSizes;
@@ -149,13 +137,11 @@ public class MessageReceiver {
 				break;
 			}
 			messageCount++;
-			if (m instanceof TextMessage) {
-                TextMessage message = (TextMessage)m;
-                System.out.println("Text Message: " + message.getText());
+			if (m instanceof TextMessage message) {
+				System.out.println("Text Message: " + message.getText());
 			}
-			if (m instanceof BytesMessage) {
-				BytesMessage message = (BytesMessage)m;
-                // read the binary message
+			if (m instanceof BytesMessage message) {
+				// read the binary message
             	// inflate the gzip data
             	byte[] decompressedData = Util.decompressBytesMessage(message);
             	System.out.println("Binary Message: " + decompressedData.length + " bytes");
@@ -164,12 +150,10 @@ public class MessageReceiver {
                     FileOutputStream fos = new FileOutputStream(file);
                     fos.write(decompressedData);
                     fos.close();
-                } catch (FileNotFoundException fnfe) {
-                	fnfe.printStackTrace();
-                } catch (IOException ioe) {
-                	ioe.printStackTrace();
+                } catch (IOException e) {
+                	e.printStackTrace();
                 }
-                binaryMessageCount++;
+				binaryMessageCount++;
 			}
 		}
 	}

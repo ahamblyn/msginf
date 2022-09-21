@@ -38,12 +38,12 @@ import org.xml.sax.SAXException;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class MessageReplyHandler {
-	private Session session;
-	private MessageProducer replyMessageProducer;
+	private final Session session;
+	private final MessageProducer replyMessageProducer;
 	private DocumentBuilder docBuilder;
-	private QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
-	private Hashtable<Integer,String> randomStrings = new Hashtable<Integer,String>();
-	private boolean useCorrelationID;
+	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
+	private final Hashtable<Integer,String> randomStrings = new Hashtable<>();
+	private final boolean useCorrelationID;
 	
 	public MessageReplyHandler(Session session, MessageProducer replyMessageProducer, boolean useCorrelationID) {
 		this.session = session;
@@ -58,14 +58,14 @@ public class MessageReplyHandler {
 	private Message createReplyMessage(ReplyData replyData) throws JMSException {
     	String collectionName = "MessageReplyHandler_3_createReplyMessage";
 		long time = System.currentTimeMillis();
-		Message replyMessage = null;
+		Message replyMessage;
     	if (replyData == null) {
     		// return a generic text message
             replyMessage = session.createTextMessage();
             ((TextMessage)replyMessage).setText("TextMessage processed at: " + new Date());
-    	} else if (replyData.isTextReply()) {
+    	} else if (replyData.textReply()) {
     		// get the random String
-    		Integer replySize = replyData.getReplySize();
+    		Integer replySize = replyData.replySize();
     		String reply = randomStrings.get(replySize);
     		if (reply == null) {
     			reply = RandomStringUtils.randomAlphanumeric(replySize);
@@ -75,7 +75,7 @@ public class MessageReplyHandler {
             ((TextMessage)replyMessage).setText(reply);
     	} else {
     		// get the random String
-    		Integer replySize = replyData.getReplySize();
+    		Integer replySize = replyData.replySize();
     		String reply = randomStrings.get(replySize);
     		if (reply == null) {
     			reply = RandomStringUtils.randomAlphanumeric(replySize);
@@ -97,8 +97,8 @@ public class MessageReplyHandler {
 	private ReplyData parseTextMessage(TextMessage message) throws JMSException {
     	String collectionName = "MessageReplyHandler_2_parseTextMessage";
 		long time = System.currentTimeMillis();
-		boolean text = true;
-		int size = 0;
+		boolean text;
+		int size;
 		String messageString = message.getText(); 
 		try {
 			// create the DOM Document
@@ -106,44 +106,33 @@ public class MessageReplyHandler {
 			Element root = doc.getDocumentElement();
 			String replyType = findElementData(root, "ReplyType");
 			String replySize = findElementData(root, "ReplySize");
-//			String replyType = findRecursively(root, "ReplyType").getNodeValue();
-//			String replySize = findRecursively(root, "ReplySize").getNodeValue();
 			if (replyType != null && replySize != null) {
-				if (replyType.equals("text")) {
-					text = true;
-				} else {
-					text = false;
-				}
+				text = replyType.equals("text");
 				size = Integer.parseInt(replySize);
 				doCollector(collectionName, time);
 				return new ReplyData(text, size);
 			}
-		} catch (SAXException e) {
-		} catch (IOException e) {
+		} catch (SAXException | IOException e) {
 		}
 		return null;
 	}
 	
 	/**
 	 * A real hack.
-	 * @param root
-	 * @param elementName
+	 * @param root element
+	 * @param elementName element name
 	 * @return the element data
 	 */
 	private String findElementData(Element root, String elementName) {
 		NodeList list = root.getElementsByTagName(elementName);
-		if (list != null) {
-			for (int i = 0; i < list.getLength(); i++) {
-				Node node = list.item(i);
-				NodeList nl = node.getChildNodes();
-				for (int j = 0; j < nl.getLength(); j++) {
-					return nl.item(j).getNodeValue();
-				}
+		for (int i = 0; i < list.getLength(); i++) {
+			Node node = list.item(i);
+			NodeList nl = node.getChildNodes();
+			for (int j = 0; j < nl.getLength(); j++) {
+				return nl.item(j).getNodeValue();
 			}
-			return null;
-		} else {
-			return null;
 		}
+		return null;
 	}
 	
 	private Node findRecursively(Node node, String name) {
@@ -152,10 +141,8 @@ public class MessageReplyHandler {
 				return node;
 			} else {
 				NodeList children = node.getChildNodes();
-				if (children != null) {
-					for (int i = 0; i < children.getLength(); i++) {
-						return findRecursively(children.item(i), name);
-					}
+				for (int i = 0; i < children.getLength(); i++) {
+					return findRecursively(children.item(i), name);
 				}
 			}
 		}
@@ -173,8 +160,8 @@ public class MessageReplyHandler {
             submit(message, replyMessage);
     	}
     	if (message instanceof BytesMessage) {
-        	Message replyMessage = session.createTextMessage();
-            ((TextMessage)replyMessage).setText("BytesMessage processed at: " + new Date());
+        	TextMessage replyMessage = session.createTextMessage();
+            replyMessage.setText("BytesMessage processed at: " + new Date());
             submit(message, replyMessage);
     	}
 		doCollector(collectionName, time);
@@ -200,8 +187,8 @@ public class MessageReplyHandler {
     }
 
     public void submitResetMessageToReplyQueue(Message message) throws JMSException {
-    	Message replyMessage = session.createTextMessage();
-        ((TextMessage)replyMessage).setText("Message Listener reset");
+    	TextMessage replyMessage = session.createTextMessage();
+        replyMessage.setText("Message Listener reset");
         submit(message, replyMessage);
     }
 
@@ -215,26 +202,11 @@ public class MessageReplyHandler {
         }
         replyMessageProducer.send(replyMessage);
 	}
-    
-    class ReplyData {
-    	private boolean textReply;
-    	private int replySize;
-    	
-    	public ReplyData(boolean textReply, int replySize) {
-    		this.textReply = textReply;
-    		this.replySize = replySize;
-    	}
-    	
-    	public boolean isTextReply() {
-    		return this.textReply;
-    	}
-    	
-    	public int getReplySize() {
-    		return this.replySize;
-    	}
-    	
-    	public String toString() {
-    		return "Text Reply = " + this.textReply + ":" + this.replySize;
-    	}
-    }
+
+	record ReplyData(boolean textReply, int replySize) {
+
+		public String toString() {
+			return "Text Reply = " + this.textReply + ":" + this.replySize;
+		}
+	}
 }

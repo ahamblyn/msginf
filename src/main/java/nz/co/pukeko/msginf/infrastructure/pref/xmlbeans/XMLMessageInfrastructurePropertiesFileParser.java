@@ -15,7 +15,6 @@ import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.JarFileDocument.JarFile;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.QueueDocument.Queue;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.RequestReplyConnectionDocument.RequestReplyConnection;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.RequestReplyDocument.RequestReply;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SoapDocument.Soap;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitConnectionDocument.SubmitConnection;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SubmitDocument.Submit;
 import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.SystemDocument.System;
@@ -260,23 +259,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 		return null;
 	}
 	
-	private Soap findSubmitSoap(String connectorName) {
-		Submit submit = findSubmit(connectorName);
-		if (submit != null) {
-			return submit.getSoap();
-		}
-		return null;
-	}
-	
-	private Soap findSubmitSoap(String messagingSystemName, String connectorName) {
-		Submit submit = findSubmit(messagingSystemName, connectorName);
-		Soap soap = submit.getSoap();
-		if (soap == null) {
-			soap = submit.addNewSoap();
-		}
-		return soap;
-	}
-	
 	private SubmitConnection findSubmitConnection(String connectorName) {
 		Submit submit = findSubmit(connectorName);
 		if (submit != null) {
@@ -323,23 +305,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 			}
 		}
 		return null;
-	}
-
-	private Soap findRequestReplySoap(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getSoap();
-		}
-		return null;
-	}
-
-	private Soap findRequestReplySoap(String messagingSystemName, String connectorName) {
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		Soap soap = rr.getSoap();
-		if (soap == null) {
-			soap = rr.addNewSoap();
-		}
-		return soap;
 	}
 
 	private RequestReplyConnection findRequestReplyConnection(String connectorName) {
@@ -782,102 +747,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	}
 
 	/**
-	 * Returns the mime type for the submit connector.
-	 * @return the mime type for the submit connector.
-	 */
-	public String getSubmitMimeType(String connectorName) {
-		Submit submit = findSubmit(connectorName);
-		if (submit != null) {
-			return submit.getMimeType();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the mime type for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param mimeType the mime type
-	 */
-	public void setSubmitMimeType(String messagingSystemName, String connectorName, String mimeType) {
-		Submit submit = findSubmit(messagingSystemName, connectorName);
-		if (mimeType != null) {
-			submit.setMimeType(mimeType);
-		}
-	}
-
-	/**
-	 * Returns the submit schema for the submit connector.
-	 * @return the submit schema for the submit connector.
-	 */
-	public String getSubmitSchema(String connectorName) {
-		Submit submit = findSubmit(connectorName);
-		if (submit != null) {
-			return submit.getSubmitSchema();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the submit schema for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param submitSchema submit schema
-	 */
-	public void setSubmitSchema(String messagingSystemName, String connectorName, String submitSchema) {
-		Submit submit = findSubmit(messagingSystemName, connectorName);
-		if (submitSchema != null) {
-			submit.setSubmitSchema(submitSchema);
-		}
-	}
-
-	/**
-	 * Returns whether to validate messages using the submit schema for the submit connector.
-	 * @return whether to validate messages using the submit schema for the submit connector.
-	 */
-	public boolean getValidateSubmit(String connectorName) {
-		Submit submit = findSubmit(connectorName);
-		if (submit != null) {
-			return submit.getValidateSubmit();
-		}
-		return false;
-	}
-	
-	/**
-	 * Sets whether to validate messages using the submit schema for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param validateSubmit validate the submit
-	 */
-	public void setValidateSubmit(String messagingSystemName, String connectorName, boolean validateSubmit) {
-		Submit submit = findSubmit(messagingSystemName, connectorName);
-		submit.setValidateSubmit(validateSubmit);
-	}
-
-	/**
-	 * Returns whether to put validation errors onto the dead letter queue for the submit connector.
-	 * @return whether to put validation errors onto the dead letter queue for the submit connector.
-	 */
-	public boolean getSubmitPutValidationErrorOnDeadLetterQueue(String connectorName) {
-		Submit submit = findSubmit(connectorName);
-		if (submit != null) {
-			return submit.getPutValidationErrorOnDeadLetterQueue();
-		}
-		return false;
-	}
-	
-	/**
-	 * Sets whether to put validation errors onto the dead letter queue for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param putErrorOnDLQueue put errors on the dead letter queue
-	 */
-	public void setSubmitPutValidationErrorOnDeadLetterQueue(String messagingSystemName, String connectorName, boolean putErrorOnDLQueue) {
-		Submit submit = findSubmit(messagingSystemName, connectorName);
-		submit.setPutValidationErrorOnDeadLetterQueue(putErrorOnDLQueue);
-	}
-
-	/**
 	 * Returns whether to compress binary messages for the submit connector.
 	 * @return whether to compress binary messages for the submit connector.
 	 */
@@ -898,81 +767,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	public void setSubmitCompressBinaryMessages(String messagingSystemName, String connectorName, boolean compressBinaryMessages) {
 		Submit submit = findSubmit(messagingSystemName, connectorName);
 		submit.setCompressBinaryMessages(compressBinaryMessages);
-	}
-	
-	/**
-	 * Returns the SOAP source name for the submit connector.
-	 * @return the SOAP source name for the submit connector.
-	 */
-	public String getSubmitSoapSourceName(String connectorName) {
-		Soap soap = findSubmitSoap(connectorName);
-		if (soap != null) {
-			return soap.getSourceName();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the SOAP source name for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param submitSourceName submit source name
-	 */
-	public void setSubmitSoapSourceName(String messagingSystemName, String connectorName, String submitSourceName) {
-		Soap soap = findSubmitSoap(messagingSystemName, connectorName);
-		if (soap != null && submitSourceName != null) {
-			soap.setSourceName(submitSourceName);
-		}
-	}
-
-	/**
-	 * Returns the SOAP destination name for the submit connector.
-	 * @return the SOAP destination name for the submit connector.
-	 */
-	public String getSubmitSoapDestinationName(String connectorName) {
-		Soap soap = findSubmitSoap(connectorName);
-		if (soap != null) {
-			return soap.getDestinationName();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the SOAP destination name for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param submitDestinationName submit destination name
-	 */
-	public void setSubmitSoapDestinationName(String messagingSystemName, String connectorName, String submitDestinationName) {
-		Soap soap = findSubmitSoap(messagingSystemName, connectorName);
-		if (soap != null && submitDestinationName != null) {
-			soap.setDestinationName(submitDestinationName);
-		}
-	}
-
-	/**
-	 * Returns whether to use a SOAP envelope for the submit connector.
-	 * @return whether to use a SOAP envelope for the submit connector.
-	 */
-	public boolean getSubmitUseSOAPEnvelope(String connectorName) {
-		Soap soap = findSubmitSoap(connectorName);
-		if (soap != null) {
-			return soap.getUseSOAPEnvelope();
-		}
-		return false;
-	}
-	
-	/**
-	 * Sets whether to use a SOAP envelope for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param useSOAPEnvelope use a SOAP envelope
-	 */
-	public void setSubmitUseSOAPEnvelope(String messagingSystemName, String connectorName, boolean useSOAPEnvelope) {
-		Soap soap = findSubmitSoap(messagingSystemName, connectorName);
-		if (soap != null) {
-			soap.setUseSOAPEnvelope(useSOAPEnvelope);
-		}
 	}
 	
 	/**
@@ -997,31 +791,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 		SubmitConnection connection = findSubmitConnection(messagingSystemName, connectorName);
 		if (connection != null && submitQueueName != null) {
 			connection.setSubmitQueueName(submitQueueName);
-		}
-	}
-
-	/**
-	 * Returns the submit connection dead letter queue name for the submit connector.
-	 * @return the submit connection dead letter queue name for the submit connector.
-	 */
-	public String getSubmitConnectionDeadLetterQueueName(String connectorName) {
-		SubmitConnection connection = findSubmitConnection(connectorName);
-		if (connection != null) {
-			return connection.getDeadLetterQueueName();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the submit connection dead letter queue name for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param deadLetterQueueName dead letter queue name
-	 */
-	public void setSubmitConnectionDeadLetterQueueName(String messagingSystemName, String connectorName, String deadLetterQueueName) {
-		SubmitConnection connection = findSubmitConnection(messagingSystemName, connectorName);
-		if (connection != null && deadLetterQueueName != null) {
-			connection.setDeadLetterQueueName(deadLetterQueueName);
 		}
 	}
 
@@ -1136,150 +905,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	}
 
 	/**
-	 * Returns the mime type for the request-reply connector.
-	 * @return the mime type for the request-reply connector.
-	 */
-	public String getRequestReplyMimeType(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getMimeType();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the mime type for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param mimeType the mime type
-	 */
-	public void setRequestReplyMimeType(String messagingSystemName, String connectorName, String mimeType) {
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		if (mimeType != null) {
-			rr.setMimeType(mimeType);
-		}
-	}
-
-	/**
-	 * Returns the request schema for the request-reply connector.
-	 * @return the request schema for the request-reply connector.
-	 */
-	public String getRequestSchema(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getRequestSchema();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the request schema for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param requestSchema request schema
-	 */
-	public void setRequestSchema(String messagingSystemName, String connectorName, String requestSchema) {
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		if (requestSchema != null) {
-			rr.setRequestSchema(requestSchema);
-		}
-	}
-	
-	/**
-	 * Returns the reply schema for the request-reply connector.
-	 * @return the reply schema for the request-reply connector.
-	 */
-	public String getReplySchema(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getReplySchema();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the reply schema for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param replySchema reply schema
-	 */
-	public void setReplySchema(String messagingSystemName, String connectorName, String replySchema) {
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		if (replySchema != null) {
-			rr.setReplySchema(replySchema);
-		}
-	}
-	
-	/**
-	 * Returns whether to validate messages using the request schema for the request-reply connector.
-	 * @return whether to validate messages using the request schema for the request-reply connector.
-	 */
-	public boolean getValidateRequest(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getValidateRequest();
-		}
-		return false;
-	}
-
-	/**
-	 * Sets whether to validate messages using the request schema for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param validateRequest validate the request
-	 */
-	public void setValidateRequest(String messagingSystemName, String connectorName, boolean validateRequest) {
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		rr.setValidateRequest(validateRequest);
-	}
-	
-	/**
-	 * Returns whether to validate messages using the reply schema for the request-reply connector.
-	 * @return whether to validate messages using the reply schema for the request-reply connector.
-	 */
-	public boolean getValidateReply(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getValidateReply();
-		}
-		return false;
-	}
-
-	/**
-	 * Sets whether to validate messages using the reply schema for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param validateReply validate the reply
-	 */
-	public void setValidateReply(String messagingSystemName, String connectorName, boolean validateReply) {		
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		rr.setValidateReply(validateReply);
-	}
-	
-	/**
-	 * Returns whether to put validation errors onto the dead letter queue for the request-reply connector.
-	 * @return whether to put validation errors onto the dead letter queue for the request-reply connector.
-	 */
-	public boolean getRequestReplyPutValidationErrorOnDeadLetterQueue(String connectorName) {
-		RequestReply rr = findRequestReply(connectorName);
-		if (rr != null) {
-			return rr.getPutValidationErrorOnDeadLetterQueue();
-		}
-		return false;
-	}
-
-	/**
-	 * Sets whether to put validation errors onto the dead letter queue for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param putErrorOnDLQueue put errors on the dead letter queue
-	 */
-	public void setRequestReplyPutValidationErrorOnDeadLetterQueue(String messagingSystemName, String connectorName, boolean putErrorOnDLQueue) {
-		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
-		rr.setPutValidationErrorOnDeadLetterQueue(putErrorOnDLQueue);
-	}
-	
-	/**
 	 * Returns whether to compress binary messages for the request-reply connector.
 	 * @return whether to compress binary messages for the request-reply connector.
 	 */
@@ -1300,81 +925,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	public void setRequestReplyCompressBinaryMessages(String messagingSystemName, String connectorName, boolean compressBinaryMessages) {
 		RequestReply rr = findRequestReply(messagingSystemName, connectorName);
 		rr.setCompressBinaryMessages(compressBinaryMessages);
-	}
-	
-	/**
-	 * Returns the SOAP source name for the request-reply connector.
-	 * @return the SOAP source name for the request-reply connector.
-	 */
-	public String getRequestReplySoapSourceName(String connectorName) {
-		Soap soap = findRequestReplySoap(connectorName);
-		if (soap != null) {
-			return soap.getSourceName();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the SOAP source name for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param sourceName the source name
-	 */
-	public void setRequestReplySoapSourceName(String messagingSystemName, String connectorName, String sourceName) {
-		Soap soap = findRequestReplySoap(messagingSystemName, connectorName);
-		if (soap != null && sourceName != null) {
-			soap.setSourceName(sourceName);
-		}
-	}
-
-	/**
-	 * Returns the SOAP destination name for the request-reply connector.
-	 * @return the SOAP destination name for the request-reply connector.
-	 */
-	public String getRequestReplySoapDestinationName(String connectorName) {
-		Soap soap = findRequestReplySoap(connectorName);
-		if (soap != null) {
-			return soap.getDestinationName();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the SOAP destination name for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param destinationName the destination name
-	 */
-	public void setRequestReplySoapDestinationName(String messagingSystemName, String connectorName, String destinationName) {
-		Soap soap = findRequestReplySoap(messagingSystemName, connectorName);
-		if (soap != null && destinationName != null) {
-			soap.setDestinationName(destinationName);
-		}
-	}
-	
-	/**
-	 * Returns whether to use a SOAP envelope for the request-reply connector.
-	 * @return whether to use a SOAP envelope for the request-reply connector.
-	 */
-	public boolean getRequestReplyUseSOAPEnvelope(String connectorName) {
-		Soap soap = findRequestReplySoap(connectorName);
-		if (soap != null) {
-			return soap.getUseSOAPEnvelope();
-		}
-		return false;
-	}
-
-	/**
-	 * Sets whether to use a SOAP envelope for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param useSOAPEnvelope use a SOAP envelope
-	 */
-	public void setRequestReplyUseSOAPEnvelope(String messagingSystemName, String connectorName, boolean useSOAPEnvelope) {
-		Soap soap = findRequestReplySoap(messagingSystemName, connectorName);
-		if (soap != null) {
-			soap.setUseSOAPEnvelope(useSOAPEnvelope);
-		}
 	}
 	
 	/**
@@ -1424,31 +974,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 		RequestReplyConnection connection = findRequestReplyConnection(messagingSystemName, connectorName);
 		if (connection != null && replyQueueName != null) {
 			connection.setReplyQueueName(replyQueueName);
-		}
-	}
-
-	/**
-	 * Returns the request-reply connection dead letter queue name for the request-reply connector.
-	 * @return the request-reply connection dead letter queue name for the request-reply connector.
-	 */
-	public String getRequestReplyConnectionDeadLetterQueueName(String connectorName) {
-		RequestReplyConnection connection = findRequestReplyConnection(connectorName);
-		if (connection != null) {
-			return connection.getDeadLetterQueueName();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the request-reply connection dead letter queue name for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param deadLetterQueueName dead letter queue name
-	 */
-	public void setRequestReplyConnectionDeadLetterQueueName(String messagingSystemName, String connectorName, String deadLetterQueueName) {
-		RequestReplyConnection connection = findRequestReplyConnection(messagingSystemName, connectorName);
-		if (connection != null && deadLetterQueueName != null) {
-			connection.setDeadLetterQueueName(deadLetterQueueName);
 		}
 	}
 

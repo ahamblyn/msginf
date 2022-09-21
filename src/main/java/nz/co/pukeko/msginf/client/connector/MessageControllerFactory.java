@@ -92,24 +92,22 @@ public class MessageControllerFactory {
 		// check if the connector required is a submit one
 		if (parser.doesSubmitExist(connectorName)) {
 			String submitQueueName = parser.getSubmitConnectionSubmitQueueName(connectorName);
-			String deadLetterQueueName = parser.getSubmitConnectionDeadLetterQueueName(connectorName);
 			String submitQueueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName);
 			String messageClassName = parser.getSubmitConnectionMessageClassName(connectorName);
 			int messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(connectorName);
 			int replyWaitTime = parser.getSubmitConnectionReplyWaitTime(connectorName);
-			mc = new MessageController(messagingSystem, connectorName, submitQueueName, null, deadLetterQueueName, submitQueueConnFactoryName, jmsCtx, false, messageClassName, null, messageTimeToLive, replyWaitTime, logStatistics);
+			mc = new MessageController(messagingSystem, connectorName, submitQueueName, null, submitQueueConnFactoryName, jmsCtx, false, messageClassName, null, messageTimeToLive, replyWaitTime, logStatistics);
 		}
 		// check if the connector required is a request reply one
 		if (parser.doesRequestReplyExist(connectorName)) {
 			String requestQueueName = parser.getRequestReplyConnectionRequestQueueName(connectorName);
 			String replyQueueName = parser.getRequestReplyConnectionReplyQueueName(connectorName);
-			String deadLetterQueueName = parser.getRequestReplyConnectionDeadLetterQueueName(connectorName);
 			String requestQueueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName);
 			String messageClassName = parser.getRequestReplyConnectionMessageClassName(connectorName);
 			String requesterClassName = parser.getRequestReplyConnectionRequesterClassName(connectorName);
 			int messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(connectorName);
 			int replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(connectorName);
-			mc = new MessageController(messagingSystem, connectorName, requestQueueName, replyQueueName, deadLetterQueueName, requestQueueConnFactoryName, jmsCtx, true, messageClassName, requesterClassName, messageTimeToLive, replyWaitTime, logStatistics);
+			mc = new MessageController(messagingSystem, connectorName, requestQueueName, replyQueueName, requestQueueConnFactoryName, jmsCtx, true, messageClassName, requesterClassName, messageTimeToLive, replyWaitTime, logStatistics);
 		}
 		return mc;
 	}

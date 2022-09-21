@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
  * @author Alisdair Hamblyn
  */
 public class TestMessagingInfrastructure {
-    private static Logger logger = LogManager.getLogger(TestMessagingInfrastructure.class);
+    private static final Logger logger = LogManager.getLogger(TestMessagingInfrastructure.class);
 	private static MessageRequestReply messageRequestReply;
 
 	@BeforeAll
@@ -89,15 +90,15 @@ public class TestMessagingInfrastructure {
 	/*
 	 * 20 ActiveMQ Future Request/Reply binary messages.
 	 */
-/*
-	public void testBinaryActiveMQFutureRequestReply() throws MessageException {
-		logger.info("Running testBinaryActiveMQFutureRequestReply...");
+	@Test
+	@Disabled
+	public void binaryActiveMQFutureRequestReply() throws MessageException {
+		logger.info("Running binaryActiveMQFutureRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_binary_future", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
 		testQueueManager.close();
 	}
-*/
 
 	/*
 	 * 20 ActiveMQ Submit text messages.
@@ -136,14 +137,13 @@ public class TestMessagingInfrastructure {
 	/*
 	 * 20 ActiveMQ Future Request/Reply text messages.
 	 */
-/*
-	public void testTextActiveMQFutureRequestReply() throws MessageException {
-		logger.info("Running testTextActiveMQFutureRequestReply...");
+	@Test
+	@Disabled
+	public void textActiveMQFutureRequestReply() throws MessageException {
+		logger.info("Running textActiveMQFutureRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_text_future", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
 		testQueueManager.close();
 	}
-*/
-
 }

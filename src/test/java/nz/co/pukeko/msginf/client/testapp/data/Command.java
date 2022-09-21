@@ -1,12 +1,15 @@
 package nz.co.pukeko.msginf.client.testapp.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Command {
-	private String test;
-	private Connector connector;
-	private int numberOfThreads;
-	private int numberOfMessagesPerThread;
-	private String fileName;
-    private int port;
+	private final String test;
+	private final Connector connector;
+	private final int numberOfThreads;
+	private final int numberOfMessagesPerThread;
+	private final String fileName;
+    private final int port;
 
     public Command(String test, Connector connector, int numberOfThreads, int numberOfMessagesPerThread, String fileName, int port) {
 		this.test = test;
@@ -21,29 +24,25 @@ public class Command {
         return this.port;
     }
 	
-    public String createCommand() {
-		StringBuffer command = new StringBuffer();
+    public String[] createCommand() {
+		List<String> commands = new ArrayList<>();
 		if (isWindows()) {
-			command.append("test.bat ");
+			commands.add("test.bat");
 		} else {
-			command.append("./test.sh ");
+			commands.add("./test.sh");
 		}
-		command.append(test + " ");
-		command.append(connector.getMessagingSystemName() + " ");
-		command.append(connector.getConnectorName() + " ");
-		command.append(numberOfThreads + " ");
-		command.append(numberOfMessagesPerThread + " ");
-		command.append(fileName + " ");
-        command.append(port);
-		return command.toString();
+		commands.add(test);
+		commands.add(connector.getMessagingSystemName());
+		commands.add(connector.getConnectorName());
+		commands.add(String.valueOf(numberOfThreads));
+		commands.add(String.valueOf(numberOfMessagesPerThread));
+		commands.add(fileName);
+		commands.add(String.valueOf(port));
+		return commands.toArray(String[]::new);
 	}
 	
 	private boolean isWindows() {
 		String os = System.getProperty("os.name");
-		if (os.toUpperCase().startsWith("WINDOWS")) {
-			return true;
-		} else {
-			return false;
-		}
+		return os.toUpperCase().startsWith("WINDOWS");
 	}
 }
