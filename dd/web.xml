@@ -34,17 +34,4 @@
       <url-pattern>/admin</url-pattern>
     </servlet-mapping>
 
-    <!-- the Spring servlet -->
-    <servlet>
-      <servlet-name>spring</servlet-name>
-      <description>This servlet interfaces with Spring.</description>
-      <servlet-class>nz.co.pukeko.msginf.client.servlet.SpringServlet</servlet-class>
-      <load-on-startup>0</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-      <servlet-name>spring</servlet-name>
-      <url-pattern>/spring</url-pattern>
-    </servlet-mapping>
-
 </web-app>
