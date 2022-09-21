@@ -261,10 +261,6 @@ public class QueueManager implements QueueManagerAgreement {
 		return mc;
 	}
 
-	private boolean checkMimeType(String mimetype) {
-		return mimetype.endsWith("xml");
-	}
-
 	private void loadConfig() throws MessageException {
 		XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser(messagingSystem);
         // Submit Connectors

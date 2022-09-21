@@ -13,12 +13,10 @@ import nz.co.pukeko.msginf.client.testapp.data.Connector;
 import nz.co.pukeko.msginf.client.testapp.data.Command;
 
 public class TestRunnerSplitPanel extends JPanel {
-	private JSplitPane splitPane;
 	private MessagingSystemsTreePanel treePanel;
-	private JTabbedPane connectorTabbedPane = new JTabbedPane();
-	private JScrollPane treeScrollPane;
-	private HashMap<String,TestParametersPanel> parameterPanels = new HashMap<String,TestParametersPanel>();
-	private TestRunner parent;
+	private final JTabbedPane connectorTabbedPane = new JTabbedPane();
+	private final HashMap<String,TestParametersPanel> parameterPanels = new HashMap<>();
+	private final TestRunner parent;
 	
 	public TestRunnerSplitPanel(TestRunner parent) {
 		this.parent = parent;
@@ -27,9 +25,9 @@ public class TestRunnerSplitPanel extends JPanel {
 
 	private void init() {
 		treePanel = new MessagingSystemsTreePanel(this);
-		treeScrollPane = new JScrollPane(treePanel);
+		JScrollPane treeScrollPane = new JScrollPane(treePanel);
 		connectorTabbedPane.setBackground(TestRunner.BG_COLOR);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, connectorTabbedPane);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, connectorTabbedPane);
 		this.setBackground(TestRunner.BG_COLOR);
 		this.setLayout(new BorderLayout());
 		this.add(splitPane, BorderLayout.CENTER);
@@ -42,7 +40,7 @@ public class TestRunnerSplitPanel extends JPanel {
 			// find tab index and remove old tab
 			Integer tabIndex = findTabIndex(tabName);
 			if (tabIndex != null) {
-				connectorTabbedPane.remove(tabIndex.intValue());
+				connectorTabbedPane.remove(tabIndex);
 			}
 		}
 		connectorTabbedPane.addTab(tabName, parametersPanel);

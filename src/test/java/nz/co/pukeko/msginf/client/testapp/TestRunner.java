@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.List;
@@ -30,14 +31,14 @@ import nz.co.pukeko.msginf.client.testapp.data.Command;
 
 public class TestRunner {
 	public static Color BG_COLOR = new Color(255, 255, 204);
-	private JFrame frame = new JFrame();
-	private JMenuBar menuBar = new JMenuBar();
-	private JMenu fileMenu = new JMenu("File");
-	private JMenu helpMenu = new JMenu("Help");
-	private JMenuItem open = new JMenuItem("Open...");
-	private JMenuItem exit = new JMenuItem("Exit");
-	private JMenuItem about = new JMenuItem("About...");
-	private JFileChooser fc = new JFileChooser();
+	private final JFrame frame = new JFrame();
+	private final JMenuBar menuBar = new JMenuBar();
+	private final JMenu fileMenu = new JMenu("File");
+	private final JMenu helpMenu = new JMenu("Help");
+	private final JMenuItem open = new JMenuItem("Open...");
+	private final JMenuItem exit = new JMenuItem("Exit");
+	private final JMenuItem about = new JMenuItem("About...");
+	private final JFileChooser fc = new JFileChooser();
 	private TestRunnerSplitPanel splitPanel;
 	private ConsolePanel consolePanel;
 	
@@ -68,9 +69,9 @@ public class TestRunner {
 	}
 
 	private void setUpMenuBar() {
-		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-		exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-		about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.CTRL_MASK));
+		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+		exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
+		about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		helpMenu.setMnemonic(KeyEvent.VK_H);
 		open.setMnemonic(KeyEvent.VK_O);
@@ -93,20 +94,19 @@ public class TestRunner {
 			splitPanel.clearTree();
 			XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser(file);
 			// find the messaging systems
-			List availableMessagingSystems = parser.getAvailableMessagingSystems();
-			for (int i = 0; i < availableMessagingSystems.size(); i++) {
-				String messagingSystemName = (String)availableMessagingSystems.get(i);
+			List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
+			for (String messagingSystemName : availableMessagingSystems) {
 				// add the messaging system names to the tree
 				splitPanel.addMessagingSystem(messagingSystemName);
 				// get the connectors
 				parser.setMessagingSystem(messagingSystemName);
-				List submitConnectors = parser.getSubmitConnectorNames();
-				for (int x = 0; x < submitConnectors.size(); x++) {
-					splitPanel.addConnector(new Connector(messagingSystemName, (String)submitConnectors.get(x)));
+				List<String> submitConnectors = parser.getSubmitConnectorNames();
+				for (String submitConnector : submitConnectors) {
+					splitPanel.addConnector(new Connector(messagingSystemName, submitConnector));
 				}
-				List requestReplyConnectors = parser.getRequestReplyConnectorNames();
-				for (int x = 0; x < requestReplyConnectors.size(); x++) {
-					splitPanel.addConnector(new Connector(messagingSystemName, (String)requestReplyConnectors.get(x)));
+				List<String> requestReplyConnectors = parser.getRequestReplyConnectorNames();
+				for (String requestReplyConnector : requestReplyConnectors) {
+					splitPanel.addConnector(new Connector(messagingSystemName, requestReplyConnector));
 				}
 			}
 			splitPanel.expandTree();
@@ -178,9 +178,8 @@ public class TestRunner {
     	  }
 
     	  public void actionPerformed(ActionEvent e) {
-      		  if (e.getSource() instanceof JMenuItem) {
-				JMenuItem selectedMenuItem = (JMenuItem) e.getSource();
-				if (selectedMenuItem.equals(open)) {
+      		  if (e.getSource() instanceof JMenuItem selectedMenuItem) {
+				  if (selectedMenuItem.equals(open)) {
 					openMenuItem_actionPerformed();
 				}
 				if (selectedMenuItem.equals(exit)) {

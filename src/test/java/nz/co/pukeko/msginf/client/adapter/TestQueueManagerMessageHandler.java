@@ -20,7 +20,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	/**
 	 * The log4j2 logger.
 	 */
-	private static Logger logger = LogManager.getLogger(TestQueueManagerMessageHandler.class);
+	private static final Logger logger = LogManager.getLogger(TestQueueManagerMessageHandler.class);
 	
 	/**
 	 * The message count.
@@ -30,12 +30,12 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	/**
 	 * The QueueManager used to send the messages.
 	 */
-	private QueueManager queueManager;
+	private final QueueManager queueManager;
 
 	/**
 	 * The connector name.
 	 */
-	private String connector;
+	private final String connector;
 	
 	/**
 	 * The number of messages to send in this thread.
@@ -56,7 +56,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 * Constructs a TestQueueManagerMessageHandler object.
 	 * @param messagingSystem the messaging system.
 	 * @param connector the connector name.
-	 * @throws MessageException
+	 * @throws MessageException Message exception
 	 */
 	public TestQueueManagerMessageHandler(String messagingSystem, String connector, boolean logStatistics) throws MessageException {
 		MessagingLoggerConfiguration.configure();
@@ -70,7 +70,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 * @param connector the connector name.
 	 * @param numberOfIterations the number of messages to send in this thread.
 	 * @param dataFileName the data file name.
-	 * @throws MessageException
+	 * @throws MessageException Message exception
 	 */
 	public TestQueueManagerMessageHandler(String messagingSystem, String connector, int numberOfIterations, String dataFileName, boolean logStatistics) throws MessageException {
 		this(messagingSystem, connector, numberOfIterations, dataFileName, logStatistics, null);
@@ -83,7 +83,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 * @param numberOfIterations the number of messages to send in this thread.
 	 * @param dataFileName the data file name.
 	 * @param testName the name of the test to run.
-	 * @throws MessageException
+	 * @throws MessageException Message exception
 	 */
 	public TestQueueManagerMessageHandler(String messagingSystem, String connector, int numberOfIterations, String dataFileName, boolean logStatistics, String testName) throws MessageException {
 		MessagingLoggerConfiguration.configure();
@@ -100,7 +100,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 */
 	public void sendResetCountMessage() {
 		try {
-			HeaderProperties resetProperties = new HeaderProperties();
+			HeaderProperties<String,Object> resetProperties = new HeaderProperties<>();
 			resetProperties.put("reset", Boolean.TRUE);
 			// don't expect a reply and don't care what the message is either.
 			queueManager.sendMessage(connector, "XXXXXXXXXX", resetProperties);
@@ -119,10 +119,10 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 */
 	public void run() {
 		// if the file name ends in .dat or .zip then it is binary, else text.
-		if (dataFileName.indexOf(".dat") != -1 || dataFileName.indexOf(".zip") != -1 || dataFileName.indexOf(".pdf") != -1) {
+		if (dataFileName.contains(".dat") || dataFileName.contains(".zip") || dataFileName.contains(".pdf")) {
 			// read binary file
-			byte[] binaryData = null;
-			ByteArrayOutputStream bos = null;
+			byte[] binaryData;
+			ByteArrayOutputStream bos;
 	        BigFileReader bfr = new BigFileReader();
 			try {
 		        binaryData = bfr.read2array(dataFileName);
@@ -141,7 +141,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 				}
 			}
 		} else {
-			String temp = null;
+			String temp;
 			try {
 				temp = Util.readFile(dataFileName);
 			} catch (MessageException me) {
@@ -160,8 +160,8 @@ public class TestQueueManagerMessageHandler implements Runnable {
 		queueManager.close();
 	}
 
-	private HeaderProperties createTestNameHeaderProperties(String testName) {
-		HeaderProperties headerProperties = new HeaderProperties();
+	private HeaderProperties<String,Object> createTestNameHeaderProperties(String testName) {
+		HeaderProperties<String,Object> headerProperties = new HeaderProperties<>();
 		headerProperties.put("testname", testName);
 		return headerProperties;
 	}
@@ -170,8 +170,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 		logger.info("Message number: " + getNextMessageCount());
 		if (reply != null) {
 			if (testName.equals("reply")) {
-				if (reply instanceof String) {
-					String response = (String)reply;
+				if (reply instanceof String response) {
 					if (response.startsWith("TextMessage") || response.startsWith("BytesMessage")) {
 						logger.info(response);
 					} else {

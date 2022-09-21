@@ -17,13 +17,13 @@ import javax.swing.JPanel;
  * @author alisdairh
  */
 public class AboutDialog extends JDialog {
-	private JPanel mainPanel = new JPanel();
-	private JPanel buttonPanel = new JPanel();
-	private JButton ok = new JButton("OK");
+	private final JPanel mainPanel = new JPanel();
+	private final JPanel buttonPanel = new JPanel();
+	private final JButton ok = new JButton("OK");
 
 	/**
-	 * Constructs the about dialog box.
-	 * @param frame
+	 * Constructs the About dialog box.
+	 * @param frame the JFrame
 	 */
 	public AboutDialog(JFrame frame) {
 		super(frame, true);
@@ -50,7 +50,7 @@ public class AboutDialog extends JDialog {
         this.setVisible(false);
 	}
 
-	class AboutDialog_ok_actionAdapter implements java.awt.event.ActionListener {
+	static class AboutDialog_ok_actionAdapter implements java.awt.event.ActionListener {
 		AboutDialog adaptee;
 
 		AboutDialog_ok_actionAdapter(AboutDialog adaptee) {

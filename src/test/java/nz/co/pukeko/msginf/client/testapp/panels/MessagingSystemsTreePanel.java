@@ -8,6 +8,7 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
 import nz.co.pukeko.msginf.client.testapp.TestRunner;
@@ -16,7 +17,7 @@ import nz.co.pukeko.msginf.client.testapp.data.Connector;
 public class MessagingSystemsTreePanel extends JPanel {
 	private JTree tree;
 	private DefaultMutableTreeNode baseNode;
-	private TestRunnerSplitPanel parent;
+	private final TestRunnerSplitPanel parent;
 	
 	public MessagingSystemsTreePanel(TestRunnerSplitPanel parent) {
 		this.parent = parent;
@@ -62,10 +63,10 @@ public class MessagingSystemsTreePanel extends JPanel {
 
 	public void addConnector(Connector connector) {
 		// find the messaging system node
-		Enumeration baseNodeChildren = baseNode.children();
+		Enumeration<TreeNode> baseNodeChildren = baseNode.children();
 		while (baseNodeChildren.hasMoreElements()) {
 			DefaultMutableTreeNode messagingSystemNode = (DefaultMutableTreeNode)baseNodeChildren.nextElement();
-			if (((String)messagingSystemNode.getUserObject()).equals(connector.getMessagingSystemName())) {
+			if (messagingSystemNode.getUserObject().equals(connector.getMessagingSystemName())) {
 				messagingSystemNode.add(new DefaultMutableTreeNode(connector));
 			}
 		}
@@ -73,8 +74,7 @@ public class MessagingSystemsTreePanel extends JPanel {
 
 	private void handleTreeSelection(DefaultMutableTreeNode selectedNode) {
 		Object selectedObject = selectedNode.getUserObject();
-		if (selectedObject instanceof Connector) {
-			Connector connector = (Connector)selectedObject;
+		if (selectedObject instanceof Connector connector) {
 			// display in tab
 			parent.displayConnectorInTab(connector);
 		}

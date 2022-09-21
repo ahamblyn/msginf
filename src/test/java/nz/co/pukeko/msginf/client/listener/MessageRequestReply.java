@@ -33,16 +33,12 @@ import org.apache.logging.log4j.Logger;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class MessageRequestReply implements MessageListener {
-	private QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
-	private static Logger logger = LogManager.getLogger(MessageRequestReply.class);
-    private Context context;
+	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
+	private static final Logger logger = LogManager.getLogger(MessageRequestReply.class);
 	private QueueConnectionFactory queueConnectionFactory;
 	private Queue requestQueue;
 	private Queue replyQueue;
 	private QueueConnection queueConnection;
-	private MessageConsumer consumer;
-	private Session session;
-	private MessageProducer replyMessageProducer;
 	private MessageReplyHandler mrh;
 	private boolean bUseCorrelationID = true;
 	private static long messageCount = 0;
@@ -52,18 +48,15 @@ public class MessageRequestReply implements MessageListener {
 		try {
 			// load the runtime jar files
 			Util.loadRuntimeJarFiles();
-			context = Util.createContext(messagingSystem);
-         	queueConnectionFactory = (QueueConnectionFactory)context.lookup(queueConnectionFactoryName);
+			Context context = Util.createContext(messagingSystem);
+         	queueConnectionFactory = (QueueConnectionFactory) context.lookup(queueConnectionFactoryName);
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
          	if (!useCorrelationID.equals("true")) {
          		bUseCorrelationID = false;
          	}
-		} catch (MessageException me) {
-			me.printStackTrace();
-			System.exit(1);
-		} catch (NamingException ne) {
-			ne.printStackTrace();
+		} catch (MessageException | NamingException e) {
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -98,9 +91,9 @@ public class MessageRequestReply implements MessageListener {
     public void run() {
         try {
         	queueConnection = queueConnectionFactory.createQueueConnection();
-        	session = queueConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
-            consumer = session.createConsumer(requestQueue);
-            replyMessageProducer = session.createProducer(replyQueue);
+			Session session = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			MessageConsumer consumer = session.createConsumer(requestQueue);
+			MessageProducer replyMessageProducer = session.createProducer(replyQueue);
             consumer.setMessageListener(this);
             queueConnection.start();
      		mrh = new MessageReplyHandler(session, replyMessageProducer, bUseCorrelationID);
@@ -122,15 +115,13 @@ public class MessageRequestReply implements MessageListener {
         	boolean bReset = false;
         	String testName = (String)message.getObjectProperty("testname");
         	// Reset could be either a Boolean or a String
-        	if (message.getObjectProperty("reset") instanceof Boolean) {
-            	Boolean reset = (Boolean)message.getObjectProperty("reset");
-            	if (reset != null && reset.booleanValue()) {
+        	if (message.getObjectProperty("reset") instanceof Boolean reset) {
+				if (reset) {
             		bReset = true;
             	}
         	}
-        	if (message.getObjectProperty("reset") instanceof String) {
-        		String reset = (String)message.getObjectProperty("reset");
-            	if (reset.equals("true")) {
+        	if (message.getObjectProperty("reset") instanceof String reset) {
+				if (reset.equals("true")) {
             		bReset = true;
             	}
         	}

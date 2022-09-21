@@ -8,9 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class TestMessageReceiver {
-	private static Logger logger = LogManager.getLogger(TestMessageReceiver.class);
-	private String connectorName;
-	private QueueManager queueManager;
+	private static final Logger logger = LogManager.getLogger(TestMessageReceiver.class);
+	private final String connectorName;
+	private final QueueManager queueManager;
 	
 	public TestMessageReceiver(String messagingSystem, String connectorName) throws MessageException {
 		MessagingLoggerConfiguration.configure();
@@ -18,7 +18,7 @@ public class TestMessageReceiver {
 		queueManager = new QueueManager(messagingSystem, true);
 	}
 	
-	public List receiveMessages(long timeout) {
+	public List<String> receiveMessages(long timeout) {
 		try {
 			return queueManager.receiveMessages(connectorName, timeout);
 		} catch (MessageException me) {

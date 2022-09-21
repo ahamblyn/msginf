@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestMsgInfDirectly {
-	private static Logger logger = LogManager.getLogger(TestMsgInfDirectly.class);
+	private static final Logger logger = LogManager.getLogger(TestMsgInfDirectly.class);
 	private static QueueManager queueManager;
 	private static MessageRequestReply messageRequestReply;
 

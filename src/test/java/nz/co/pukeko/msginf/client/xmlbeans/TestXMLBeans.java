@@ -10,14 +10,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestXMLBeans {
-	private static Map<String, ExpectedConnectorData> expectedConnectorDataMap;
+	private static final Map<String, ExpectedConnectorData> expectedConnectorDataMap;
 
 	static {
 		expectedConnectorDataMap = new HashMap<>();
 		ExpectedConnectorData activemqSubmitTextExpectedData = new ExpectedConnectorData();
 		activemqSubmitTextExpectedData.compressBinaryMessages = true;
 		activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
-		activemqSubmitTextExpectedData.deadLetterQueueName = "DeadLetterQueue";
 		activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
 		activemqSubmitTextExpectedData.messageClassName = "javax.jms.TextMessage";
 		activemqSubmitTextExpectedData.messageTimeToLive = 0;
@@ -28,7 +27,6 @@ public class TestXMLBeans {
 		activemqRequestReplyTextExpectedData.compressBinaryMessages = true;
 		activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
 		activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
-		activemqRequestReplyTextExpectedData.deadLetterQueueName = "DeadLetterQueue";
 		activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
 		activemqRequestReplyTextExpectedData.messageClassName = "javax.jms.TextMessage";
 		activemqRequestReplyTextExpectedData.requesterClassName = "nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester";
@@ -72,12 +70,10 @@ public class TestXMLBeans {
 		assertTrue(validateQueueJNDIName(parser, "TestQueue"));
 		assertTrue(validateQueueJNDIName(parser, "RequestQueue"));
 		assertTrue(validateQueueJNDIName(parser, "ReplyQueue"));
-		assertTrue(validateQueueJNDIName(parser, "DeadLetterQueue"));
 		assertFalse(validateQueueJNDIName(parser, "XXXXXXXX"));
 		assertTrue(validateQueuePhysicalName(parser, "TEST.QUEUE"));
 		assertTrue(validateQueuePhysicalName(parser, "REQUEST.QUEUE"));
 		assertTrue(validateQueuePhysicalName(parser, "REPLY.QUEUE"));
-		assertTrue(validateQueuePhysicalName(parser, "DL.QUEUE"));
 		assertFalse(validateQueuePhysicalName(parser, "XXXXXXXX"));
 		assertTrue(parser.getUseConnectionPooling());
 		assertEquals(20, parser.getMaxConnections());
@@ -98,7 +94,6 @@ public class TestXMLBeans {
 		ExpectedConnectorData expectedData = expectedConnectorDataMap.get(connectorName);
 		assertEquals(expectedData.compressBinaryMessages, parser.getSubmitCompressBinaryMessages(connectorName));
 		assertEquals(expectedData.submitQueueName, parser.getSubmitConnectionSubmitQueueName(connectorName));
-		assertEquals(expectedData.deadLetterQueueName, parser.getSubmitConnectionDeadLetterQueueName(connectorName));
 		assertEquals(expectedData.queueConnFactoryName, parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName));
 		assertEquals(expectedData.messageClassName, parser.getSubmitConnectionMessageClassName(connectorName));
 		assertEquals(expectedData.messageTimeToLive, parser.getSubmitConnectionMessageTimeToLive(connectorName));
@@ -110,7 +105,6 @@ public class TestXMLBeans {
 		assertEquals(expectedData.compressBinaryMessages, parser.getRequestReplyCompressBinaryMessages(connectorName));
 		assertEquals(expectedData.requestQueueName, parser.getRequestReplyConnectionRequestQueueName(connectorName));
 		assertEquals(expectedData.replyQueueName, parser.getRequestReplyConnectionReplyQueueName(connectorName));
-		assertEquals(expectedData.deadLetterQueueName, parser.getRequestReplyConnectionDeadLetterQueueName(connectorName));
 		assertEquals(expectedData.queueConnFactoryName, parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName));
 		assertEquals(expectedData.messageClassName, parser.getRequestReplyConnectionMessageClassName(connectorName));
 		assertEquals(expectedData.requesterClassName, parser.getRequestReplyConnectionRequesterClassName(connectorName));
@@ -119,19 +113,10 @@ public class TestXMLBeans {
 	}
 
 	private static class ExpectedConnectorData {
-		public String mimeType;
-		public String submitSchema;
-		public String requestSchema;
-		public String replySchema;
-		public boolean validateSubmit;
-		public boolean validateRequest;
-		public boolean validateReply;
-		public boolean putValidationErrorOnDeadLetterQueue;
 		public boolean compressBinaryMessages;
 		public String submitQueueName;
 		public String requestQueueName;
 		public String replyQueueName;
-		public String deadLetterQueueName;
 		public String queueConnFactoryName;
 		public String messageClassName;
 		public String requesterClassName;

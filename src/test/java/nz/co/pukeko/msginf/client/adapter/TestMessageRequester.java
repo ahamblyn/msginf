@@ -24,15 +24,14 @@ import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
 
 public class TestMessageRequester {
-	private static TestMessageRequester test;
 	private static long messageCount = 0;
-	private int numberOfThreads;
-	private int numberOfIterations;
-	private String dataFileName;
+	private final int numberOfThreads;
+	private final int numberOfIterations;
+	private final String dataFileName;
 	private QueueConnection queueConnection;
 	private Session session;
 	private MessageRequester requester;
-	private QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
+	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 	
 	public TestMessageRequester() {
 		this.numberOfThreads = 1;
@@ -40,13 +39,8 @@ public class TestMessageRequester {
 		this.dataFileName = "test.xml";
 		try {
 			setupActiveMQFuture();
-//			setupJBossFuture();
-		} catch (JMSException jmse) {
-			jmse.printStackTrace();
-		} catch (MessageRequesterException mre) {
-			mre.printStackTrace();
-		} catch (NamingException ne) {
-			ne.printStackTrace();
+		} catch (JMSException | NamingException | MessageRequesterException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -70,7 +64,7 @@ public class TestMessageRequester {
 		requester = new FutureResultsHandlerMessageRequester(qc, producer, requestQueue, replyQueue, 20000);
 	}
 	
-	private void setupActiveMQConsumer() throws JMSException, MessageRequesterException, NamingException {
+	private void setupActiveMQConsumer() throws JMSException, NamingException {
 		Properties props = new Properties();
 		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 		props.setProperty("brokerURL", "reliable:tcp://localhost:61616");
@@ -86,33 +80,14 @@ public class TestMessageRequester {
 		requester = new ConsumerMessageRequester(qc, producer, requestQueue, replyQueue, 20000);
 	}
 
-	private void setupJBossFuture() throws JMSException, MessageRequesterException, NamingException {
-		Properties props = new Properties();
-		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
-		props.setProperty(Context.PROVIDER_URL, "jnp://localhost:1099");
-		props.setProperty(Context.URL_PKG_PREFIXES, "org.jnp.interfaces:org.jboss.naming");
-		Context ctx = new InitialContext(props);
-		QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory)ctx.lookup("UIL2ConnectionFactory");
-    	queueConnection = queueConnectionFactory.createQueueConnection();
-        queueConnection.start();
-    	session = queueConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
-		Queue requestQueue = (Queue)ctx.lookup("queue/RequestQueue");
-		Queue replyQueue = (Queue)ctx.lookup("queue/ReplyQueue");
-		QueueChannel qc = new QueueChannel(queueConnection, session);
-		MessageProducer producer = session.createProducer(null);
-		requester = new FutureResultsHandlerMessageRequester(qc, producer, requestQueue, replyQueue, 20000);
-	}
-
 	public static void main(String[] args) {
-		test = new TestMessageRequester();
+		TestMessageRequester test = new TestMessageRequester();
 		try {
 			test.run();
 			test.stats();
 			test.close();
-		} catch (JMSException jmse) {
-			jmse.printStackTrace();
-		} catch (MessageRequesterException mre) {
-			mre.printStackTrace();
+		} catch (JMSException | MessageRequesterException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -148,8 +123,8 @@ public class TestMessageRequester {
 	class TestMessageRequesterThread implements Runnable {
 		private int numberOfIterations;
 		private String dataFileName;
-		private Session session;
-		private MessageRequester requester;
+		private final Session session;
+		private final MessageRequester requester;
 		
 		public TestMessageRequesterThread(Session session, MessageRequester requester) {
 			this.session = session;
@@ -171,15 +146,13 @@ public class TestMessageRequester {
 				if (responseMessage instanceof TextMessage) {
 					System.out.println("Listener reset");
 				}
-			} catch (JMSException jmse) {
-				jmse.printStackTrace();
-			} catch (MessageRequesterException mre) {
-				mre.printStackTrace();
+			} catch (JMSException | MessageRequesterException e) {
+				e.printStackTrace();
 			}
 		}
 
 		public void run() {
-			String temp = null;
+			String temp;
 			try {
 				temp = Util.readFile("data/" + dataFileName);
 			} catch (MessageException me) {
@@ -193,10 +166,8 @@ public class TestMessageRequester {
 					if (reply != null) {
 						System.out.println(reply);
 					}
-				} catch (JMSException jmse) {
-					jmse.printStackTrace();
-				} catch (MessageRequesterException mre) {
-					mre.printStackTrace();
+				} catch (JMSException | MessageRequesterException e) {
+					e.printStackTrace();
 				}
 			}
 		}

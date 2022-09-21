@@ -16,19 +16,19 @@ import org.apache.logging.log4j.Logger;
  * @author Alisdair Hamblyn
  */
 public class TestQueueManager {
-	private static Logger logger = LogManager.getLogger(TestQueueManager.class);
-	private String testName;
-	private String messagingSystem;
-	private String connectorName;
-	private int numberOfThreads;
-	private int numberOfIterations;
-	private String dataFileName;
+	private static final Logger logger = LogManager.getLogger(TestQueueManager.class);
+	private final String testName;
+	private final String messagingSystem;
+	private final String connectorName;
+	private final int numberOfThreads;
+	private final int numberOfIterations;
+	private final String dataFileName;
 
 	/**
 	 * Constructs the TestQueueManager.
 	 * @param testName the test type: submit, echo, or reply.
 	 * @param numberOfThreads the number of threads.
-	 * @param numberOfIterations the numberof messages to send per thread.
+	 * @param numberOfIterations the number of messages to send per thread.
 	 * @param dataFileName the data file name.
 	 */
 	public TestQueueManager(String testName, String messagingSystem, String connectorName, int numberOfThreads, int numberOfIterations, String dataFileName) {
@@ -123,12 +123,12 @@ public class TestQueueManager {
 			threads[i].start();
 		}
 		// Join them to the main thread.
-		for (int i = 0; i < threads.length; i++) {
+		for (Thread thread : threads) {
 			try {
-				threads[i].join();
+				thread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}  
+			}
 		}
 		// reset the message count once the threads have finished
 		TestQueueManagerMessageHandler messageHandler = new TestQueueManagerMessageHandler(messagingSystem, connectorName, false);
@@ -143,21 +143,21 @@ public class TestQueueManager {
 			threads[i].start();
 		}
 		// Join them to the main thread.
-		for (int i = 0; i < threads.length; i++) {
+		for (Thread thread : threads) {
 			try {
-				threads[i].join();
+				thread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}  
+			}
 		}
 	}
 
 	private void receive() throws MessageException {
 		TestMessageReceiver mr = new TestMessageReceiver(messagingSystem, connectorName);
-		List messages = mr.receiveMessages(10000);
+		List<String> messages = mr.receiveMessages(10000);
 		if (messages != null) {
 			for (int i = 0; i < messages.size(); i++) {
-				String message = (String)messages.get(i);
+				String message = messages.get(i);
 				logger.info("Message[" + i + "]: " + message);
 			}
 		} else {
@@ -167,18 +167,16 @@ public class TestQueueManager {
 
 	/**
 	 * Runs the test.
-	 * @throws MessageException
+	 * @throws MessageException Message exception
 	 */
 	public void run() throws MessageException {
-		if (testName.equals("submit")) {
-			submit();
-		} else if (testName.equals("echo")) {
-			requestReply("echo");
-		} else if (testName.equals("reply")) {
-			requestReply("reply");
-		} else if (testName.equals("receive")) {
-			receive();
-		} else {
+		switch (testName) {
+			case "submit" -> submit();
+			case "echo" -> requestReply("echo");
+			case "reply" -> requestReply("reply");
+			case "receive" -> receive();
+			default -> {
+			}
 		}
 	}
 }

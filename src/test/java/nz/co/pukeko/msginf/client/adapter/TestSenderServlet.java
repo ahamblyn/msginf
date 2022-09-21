@@ -24,7 +24,7 @@ public class TestSenderServlet {
 	/**
 	 * The sender servlet URL.
 	 */
-	private String url = "http://localhost:8080/msginf/sender";
+	private final String url = "http://localhost:8080/msginf/sender";
 	
 	/**
 	 * Constructs a TestSenderServlet.
@@ -33,7 +33,7 @@ public class TestSenderServlet {
 	}
 
 	private String createMessage() {
-		String message = "<?xml version=\"1.0\"?>" +
+		return "<?xml version=\"1.0\"?>" +
 				         "<Data xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://localhost/test\">" +
 					     "  <MessageID>12345</MessageID>" +
 					     "  <Claim>" +
@@ -41,7 +41,6 @@ public class TestSenderServlet {
 						 "    <Name>Bart Simpson</Name>" +
 					     "  </Claim>" +
 				         "</Data>";
-		return message;
 	}
 
 	/**
@@ -116,7 +115,7 @@ public class TestSenderServlet {
 		test.postResetCountMessage();
 	}
 
-	private class TestHttpClientResponseHandler<String> implements HttpClientResponseHandler<String> {
+	private static class TestHttpClientResponseHandler<String> implements HttpClientResponseHandler<String> {
 
 		@Override
 		public String handleResponse(ClassicHttpResponse response) throws IOException {

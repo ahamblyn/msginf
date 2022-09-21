@@ -23,7 +23,6 @@
   <xs:attribute name="submitQueueName" type="xs:string"/>
   <xs:attribute name="requestQueueName" type="xs:string"/>
   <xs:attribute name="replyQueueName" type="xs:string"/>
-  <xs:attribute name="deadLetterQueueName" type="xs:string"/>
   <xs:attribute name="submitQueueConnFactoryName" type="xs:string"/>
   <xs:attribute name="requestQueueConnFactoryName" type="xs:string"/>
   <xs:attribute name="messageClassName" type="xs:string"/>
@@ -65,7 +64,6 @@
   <xs:element name="submit-connection">
     <xs:complexType>
       <xs:attribute ref="msginf:submitQueueName" use="required"/>
-      <xs:attribute ref="msginf:deadLetterQueueName" use="required"/>
       <xs:attribute ref="msginf:submitQueueConnFactoryName" use="required"/>
       <xs:attribute ref="msginf:messageClassName" use="required"/>
       <xs:attribute ref="msginf:messageTimeToLive" use="required"/>
@@ -77,7 +75,6 @@
     <xs:complexType>
       <xs:attribute ref="msginf:requestQueueName" use="required"/>
       <xs:attribute ref="msginf:replyQueueName" use="required"/>
-      <xs:attribute ref="msginf:deadLetterQueueName" use="required"/>
       <xs:attribute ref="msginf:requestQueueConnFactoryName" use="required"/>
       <xs:attribute ref="msginf:messageClassName" use="required"/>
       <xs:attribute ref="msginf:requesterClassName" use="required"/>

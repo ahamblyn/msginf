@@ -8,15 +8,15 @@ import java.net.Socket;
 import java.io.IOException;
 
 public class TestSocketServer implements Runnable {
-    private static Logger logger = LogManager.getLogger(TestSocketServer.class);
-    private int port;
+    private static final Logger logger = LogManager.getLogger(TestSocketServer.class);
+    private final int port;
 
     public TestSocketServer(int port) {
         this.port = port;
     }
 
     public void run() {
-        ServerSocket serverSocket = null;
+        ServerSocket serverSocket;
         try {
             serverSocket = new ServerSocket(port);
             logger.info("Listening to port: " + port);
@@ -24,7 +24,7 @@ public class TestSocketServer implements Runnable {
             logger.error("Could not listen to port: " + port, e);
             return;
         }
-        Socket clientSocket = null;
+        Socket clientSocket;
         try {
             logger.info("Waiting  for connections on port: " + port);
             clientSocket = serverSocket.accept();

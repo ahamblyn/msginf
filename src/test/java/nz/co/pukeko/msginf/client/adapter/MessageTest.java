@@ -49,7 +49,7 @@ public class MessageTest {
 
 	protected static void sendResetCountMessage(String connector) {
 		try {
-			HeaderProperties resetProperties = new HeaderProperties();
+			HeaderProperties<String,Object> resetProperties = new HeaderProperties<>();
 			resetProperties.put("reset", Boolean.TRUE);
 			// don't expect a reply and don't care what the message is either.
 			resetQueueManager.sendMessage(connector, "XXXXXXXXXX", resetProperties);
@@ -58,26 +58,25 @@ public class MessageTest {
 		}
 	}
 
-	protected HeaderProperties createTestNameHeaderProperties(String testName) {
-		HeaderProperties headerProperties = new HeaderProperties();
+	protected HeaderProperties<String,Object> createTestNameHeaderProperties(String testName) {
+		HeaderProperties<String,Object> headerProperties = new HeaderProperties<>();
 		headerProperties.put("testname", testName);
 		return headerProperties;
 	}
 
 	protected String createRequestXML(String type, String size) {
-		String xml = "<?xml version=\"1.0\"?>" + 
+		return "<?xml version=\"1.0\"?>" +
 					 "<DataRequest>" +
 					 "  <ReplyType>" + type + "</ReplyType>" +
 					 "  <ReplySize>" + size + "</ReplySize>" +
 					 "</DataRequest>";
-		return xml;
 	}
 	
 	protected ByteArrayOutputStream readStreamFromFile(String fileName) {
 		// Try the "data" directory first - will work from Eclipse as the data directory 
 		// is relative to the Eclipse working directory.
 		// read binary file
-		ByteArrayOutputStream bos = null;
+		ByteArrayOutputStream bos;
 		try {
 			bos = new ByteArrayOutputStream();
 			bos.write(readBinaryFile("data/" + fileName));
@@ -95,7 +94,7 @@ public class MessageTest {
 	}
 	
 	protected byte[] readBinaryFile(String fileName) throws Exception {
-		byte[] binaryData = null;
+		byte[] binaryData;
         BigFileReader bfr = new BigFileReader();
         binaryData = bfr.read2array(fileName);
         return binaryData;
@@ -110,7 +109,7 @@ public class MessageTest {
 		if (messageSizes != null) {
             for (Integer messageSize : messageSizes) {
                 if (messageSize != expectedMessageSize) {
-                    throw new AssertionFailedError("The message retrieved is not of the expected size: " + expectedMessageSize + ". A message of " + messageSize.intValue() + " was retrieved.");
+                    throw new AssertionFailedError("The message retrieved is not of the expected size: " + expectedMessageSize + ". A message of " + messageSize + " was retrieved.");
                 }
             }
         }
@@ -158,7 +157,7 @@ public class MessageTest {
 		for (int i = 0; i < numberOfMessages; i++) {
 			String message = "Message[" + (i + 1) + "]";
 			Object reply = queueManager.sendMessage(connector, message, createTestNameHeaderProperties("echo"));
-			assertEquals(message, (String)reply);
+			assertEquals(message, reply);
 			logger.info(reply);
 		}
 		sendResetCountMessage(connector);

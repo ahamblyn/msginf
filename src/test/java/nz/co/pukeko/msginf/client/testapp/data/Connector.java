@@ -1,8 +1,8 @@
 package nz.co.pukeko.msginf.client.testapp.data;
 
 public class Connector {
-	private String messagingSystemName;
-	private String connectorName;
+	private final String messagingSystemName;
+	private final String connectorName;
 	
 	public Connector(String messagingSystemName, String connectorName) {
 		this.messagingSystemName = messagingSystemName;

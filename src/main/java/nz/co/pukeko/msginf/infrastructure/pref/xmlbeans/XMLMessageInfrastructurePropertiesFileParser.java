@@ -795,31 +795,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 	}
 
 	/**
-	 * Returns the submit connection dead letter queue name for the submit connector.
-	 * @return the submit connection dead letter queue name for the submit connector.
-	 */
-	public String getSubmitConnectionDeadLetterQueueName(String connectorName) {
-		SubmitConnection connection = findSubmitConnection(connectorName);
-		if (connection != null) {
-			return connection.getDeadLetterQueueName();
-		}
-		return "";
-	}
-	
-	/**
-	 * Sets the submit connection dead letter queue name for the submit connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param deadLetterQueueName dead letter queue name
-	 */
-	public void setSubmitConnectionDeadLetterQueueName(String messagingSystemName, String connectorName, String deadLetterQueueName) {
-		SubmitConnection connection = findSubmitConnection(messagingSystemName, connectorName);
-		if (connection != null && deadLetterQueueName != null) {
-			connection.setDeadLetterQueueName(deadLetterQueueName);
-		}
-	}
-
-	/**
 	 * Returns the submit connection submit queue connection factory name for the submit connector.
 	 * @return the submit connection submit queue connection factory name for the submit connector.
 	 */
@@ -999,31 +974,6 @@ public class XMLMessageInfrastructurePropertiesFileParser {
 		RequestReplyConnection connection = findRequestReplyConnection(messagingSystemName, connectorName);
 		if (connection != null && replyQueueName != null) {
 			connection.setReplyQueueName(replyQueueName);
-		}
-	}
-
-	/**
-	 * Returns the request-reply connection dead letter queue name for the request-reply connector.
-	 * @return the request-reply connection dead letter queue name for the request-reply connector.
-	 */
-	public String getRequestReplyConnectionDeadLetterQueueName(String connectorName) {
-		RequestReplyConnection connection = findRequestReplyConnection(connectorName);
-		if (connection != null) {
-			return connection.getDeadLetterQueueName();
-		}
-		return "";
-	}
-
-	/**
-	 * Sets the request-reply connection dead letter queue name for the request-reply connector.
-	 * @param messagingSystemName the messaging system name
-	 * @param connectorName Connector name
-	 * @param deadLetterQueueName dead letter queue name
-	 */
-	public void setRequestReplyConnectionDeadLetterQueueName(String messagingSystemName, String connectorName, String deadLetterQueueName) {
-		RequestReplyConnection connection = findRequestReplyConnection(messagingSystemName, connectorName);
-		if (connection != null && deadLetterQueueName != null) {
-			connection.setDeadLetterQueueName(deadLetterQueueName);
 		}
 	}
 

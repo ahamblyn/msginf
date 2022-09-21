@@ -26,8 +26,6 @@ public class RequestReplyConnectionPanel extends JPanel {
 	private final JTextField requestQueueName = new JTextField(20);
 	private final JLabel replyQueueNameLabel = new JLabel("Reply Queue Name:");
 	private final JTextField replyQueueName = new JTextField(20);
-	private final JLabel dlQueueNameLabel = new JLabel("Dead Letter Queue Name:");
-	private final JTextField dlQueueName = new JTextField(20);
 	private final JLabel queueConnectionFactoryLabel = new JLabel("Queue Connection Factory:");
 	private final JTextField queueConnectionFactory = new JTextField(20);
 	private final String[] validRequesterClassNames = new String[]{"nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester", "nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester"};
@@ -59,17 +57,13 @@ public class RequestReplyConnectionPanel extends JPanel {
 	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		leftPanel.add(replyQueueName, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
 	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		leftPanel.add(dlQueueNameLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+		leftPanel.add(queueConnectionFactoryLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
 	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		leftPanel.add(dlQueueName, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+		leftPanel.add(queueConnectionFactory, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
 	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		leftPanel.add(queueConnectionFactoryLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+		bottomPanel.add(requesterClassNameLabel, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
 	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		leftPanel.add(queueConnectionFactory, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		bottomPanel.add(requesterClassNameLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		bottomPanel.add(requesterClassName, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+		bottomPanel.add(requesterClassName, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
 	            , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Border border = BorderFactory.createEtchedBorder(Color.white,new Color(142, 142, 142));
 	    TitledBorder titledBorder = new TitledBorder(border, "Request/Reply Connection");
@@ -87,7 +81,6 @@ public class RequestReplyConnectionPanel extends JPanel {
 	public void loadData(String connectorName, XMLMessageInfrastructurePropertiesFileParser parser) {
 		requestQueueName.setText(parser.getRequestReplyConnectionRequestQueueName(connectorName));
 		replyQueueName.setText(parser.getRequestReplyConnectionReplyQueueName(connectorName));
-		dlQueueName.setText(parser.getRequestReplyConnectionDeadLetterQueueName(connectorName));
 		queueConnectionFactory.setText(parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName));
 		requesterClassName.setSelectedItem(parser.getRequestReplyConnectionRequesterClassName(connectorName));
 		rightPanel.setMessageClassName(parser.getRequestReplyConnectionMessageClassName(connectorName));
@@ -104,7 +97,6 @@ public class RequestReplyConnectionPanel extends JPanel {
 	public void retrieveData(String messagingSystemName, String connectorName, XMLMessageInfrastructurePropertiesFileParser parser) {
 		parser.setRequestReplyConnectionRequestQueueName(messagingSystemName, connectorName, requestQueueName.getText());
 		parser.setRequestReplyConnectionReplyQueueName(messagingSystemName, connectorName, replyQueueName.getText());
-		parser.setRequestReplyConnectionDeadLetterQueueName(messagingSystemName, connectorName, dlQueueName.getText());
 		parser.setRequestReplyConnectionRequestQueueConnFactoryName(messagingSystemName, connectorName, queueConnectionFactory.getText());
 		parser.setRequestReplyConnectionRequesterClassName(messagingSystemName, connectorName, (String)requesterClassName.getSelectedItem());
 		parser.setRequestReplyConnectionMessageClassName(messagingSystemName, connectorName, rightPanel.getMessageClassName());
