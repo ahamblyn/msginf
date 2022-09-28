@@ -22,11 +22,7 @@ public class ConfigurationController {
     @GetMapping("/all")
     public Configuration all() {
         Optional<Configuration> configuration = configurationService.allConfiguration();
-        if (configuration.isPresent()) {
-            return configuration.get();
-        } else {
-            return new Configuration();
-        }
+        return configuration.orElseGet(Configuration::new);
     }
 
 }

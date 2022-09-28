@@ -1,4 +1,4 @@
-package nz.co.pukeko.msginf.client.xmlbeans;
+package nz.co.pukeko.msginf.infrastructure.properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
