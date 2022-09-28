@@ -1,13 +1,11 @@
 package nz.co.pukeko.msginf.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.models.configuration.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import nz.co.pukeko.msginf.models.configuration.System;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.Optional;
 
 @Service
@@ -17,15 +15,21 @@ public class ConfigurationService implements IConfigurationService {
     @Override
     public Optional<Configuration> allConfiguration() {
         try {
-            //create ObjectMapper instance
-            ObjectMapper objectMapper = new ObjectMapper();
-            //read json file and convert to customer object
-            Resource resource = new ClassPathResource("msginf-config.json");
-            File file = resource.getFile();
-            Configuration configuration = objectMapper.readValue(file, Configuration.class);
-            return Optional.of(configuration);
+            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+            return Optional.of(parser.getConfiguration());
         } catch (Exception e) {
-            log.error("All configuration exception", e);
+            log.error("Unable to retrieve the configuration", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<System> getSystem(String name) {
+        try {
+            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(name);
+            return Optional.of(parser.getCurrentSystem());
+        } catch (Exception e) {
+            log.error("Unable to retrieve the configuration", e);
         }
         return Optional.empty();
     }
