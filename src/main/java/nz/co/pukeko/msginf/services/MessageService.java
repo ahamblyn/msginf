@@ -16,8 +16,9 @@ public class MessageService implements IMessageService {
     public Optional<MessageResponse> submit(String payload) {
         // TODO hard code the queue manager parameters for now
         try {
-            QueueManager queueManager = new QueueManager("activemq", true);
+            QueueManager queueManager = new QueueManager("activemq");
             queueManager.sendMessage("activemq_submit_text", payload);
+            queueManager.close();
             return Optional.of(new MessageResponse("Message submitted successfully"));
         } catch (MessageException e) {
             log.error("Unable to submit the message", e);

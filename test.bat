@@ -1,2 +1,0 @@
-@echo off
-java -Xmx512M -classpath "out\production\msginf;out\test\msginf;lib\*;lib\junit\*;xmlbeans\*" -javaagent:lib/jar-loader.jar nz.co.pukeko.msginf.client.adapter.TestQueueManager %1 %2 %3 %4 %5 %6 %7%

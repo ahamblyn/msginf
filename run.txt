@@ -1,1 +1,0 @@
-test.bat submit activemq activemq_submit_text 1 10 C:\java\msginf\data\test.xml 9955
