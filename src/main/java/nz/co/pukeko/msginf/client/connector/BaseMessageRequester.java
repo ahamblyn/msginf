@@ -10,18 +10,15 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This class handles the requests to and the replies from the temporary reply queue. 
  * @author alisdairh
  */
+@Slf4j
 public abstract class BaseMessageRequester implements MessageRequester {
-	protected static Logger logger = LogManager.getLogger(BaseMessageRequester.class);
 	protected QueueChannel queueChannel;
 	protected MessageProducer producer;
 	protected Queue requestQueue;
@@ -40,7 +37,6 @@ public abstract class BaseMessageRequester implements MessageRequester {
 	 * @param replyWaitTime the reply wait timeout.
 	 */
 	protected BaseMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue requestQueue, Queue replyQueue, int replyWaitTime) {
-		MessagingLoggerConfiguration.configure();
 		this.identifier = Long.toString(System.currentTimeMillis());
 		try {
 			this.hostName = InetAddress.getLocalHost().getHostName();

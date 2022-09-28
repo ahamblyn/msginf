@@ -10,24 +10,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.QueueManager;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
 
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This servlet passes requests to the messaging infrastructure via the QueueManager.
  * It is used by non-Java clients to communicate with the messaging infrastructure via HTTP.
  * Three parameters are sent in the request: messaging system, connector and data:
- * Messaging system is the name of the  system to use in the XML properties file.
- * Connector is the name of the connector in the XML properties file and data is the message data. 
+ * Messaging system is the name of the  system to use in the properties file.
+ * Connector is the name of the connector in the properties file and data is the message data.
  * For asynchronous (submit) messages, the client can wait for and read an acknowledgement
  * in the response body.
 
@@ -37,6 +35,7 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author Alisdair Hamblyn
  */
+@Slf4j
 public class SenderServlet extends HttpServlet {
 
 	/**
@@ -45,22 +44,16 @@ public class SenderServlet extends HttpServlet {
 	private Hashtable<String,QueueManager> queueManagers;
 	
     /**
-	 * The log4j2 logger.
-     */
-	private static final Logger logger = LogManager.getLogger(SenderServlet.class);
-
-    /**
      * Initialises the servlet.
      * @param config the servlet configuration.
      * @throws ServletException servlet exception
      */
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		MessagingLoggerConfiguration.configure();
 		try {
 			initialiseQueueManagers();
 		} catch (MessageException me) {
-			logger.error(me.getMessage(), me);
+			log.error(me.getMessage(), me);
 			throw new ServletException(me);
 		}
 	}
@@ -106,9 +99,9 @@ public class SenderServlet extends HttpServlet {
 			messageID = Long.toString(System.currentTimeMillis());
 		}
 		if (bDebug) {
-			logger.debug("Messaging System," + messagingSystem);
-			logger.debug("Connector," + connector);
-			logger.debug("Data," + data);
+			log.debug("Messaging System," + messagingSystem);
+			log.debug("Connector," + connector);
+			log.debug("Data," + data);
 		}
 		try {
 			String payload;
@@ -119,7 +112,7 @@ public class SenderServlet extends HttpServlet {
 			}
 			long time = System.currentTimeMillis();
 			if (bDebug) {
-				logger.debug("Payload," + payload);
+				log.debug("Payload," + payload);
 			}
 			// get the required queue manager
 			QueueManager qm = queueManagers.get(messagingSystem);
@@ -129,7 +122,7 @@ public class SenderServlet extends HttpServlet {
 			}
 			String result = (String)qm.sendMessage(connector, payload);
 			long timeTaken = System.currentTimeMillis() - time;
-			logger.debug("Time taken for QueueManager to deal with the message," + timeTaken / 1000f);
+			log.debug("Time taken for QueueManager to deal with the message," + timeTaken / 1000f);
 			// if the reply from the queue manager is null then the message was not expecting a reply,
 			// therefore it is a submit (asynchronous) message.
 			if (result == null) {
@@ -152,7 +145,7 @@ public class SenderServlet extends HttpServlet {
                 result.put(fi.getFieldName(), fi.getString());
             }
         } catch (Exception e) {
-			logger.error("File Upload Exception", e);
+			log.error("File Upload Exception", e);
 		}
 		return result;
 	}
@@ -163,14 +156,14 @@ public class SenderServlet extends HttpServlet {
 	private void initialiseQueueManagers() throws MessageException {
 		if (queueManagers == null) {
 			queueManagers = new Hashtable<>();
-			// get the available messaging systems from the XML properties file
-			XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser();
+			// get the available messaging systems from the properties file
+			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 			List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
             for (String messagingSystem : availableMessagingSystems) {
                 // create queue managers which log statistics.
                 queueManagers.put(messagingSystem, new QueueManager(messagingSystem, true));
             }
-            logger.debug(queueManagers);
+            log.debug(queueManagers.toString());
 		}
 	}
 

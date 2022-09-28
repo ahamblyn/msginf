@@ -22,32 +22,25 @@ import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageControllerException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueUnavailableException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
- * The MessageController puts messages onto the queues defined in the XML properties file.
+ * The MessageController puts messages onto the queues defined in the properties file.
  * 
  * @author Alisdair Hamblyn
  */
 
+@Slf4j
 public class MessageController {
-
-   /**
-    * The log4j2 logger.
-    */
-   private static final Logger logger = LogManager.getLogger(MessageController.class);
 
     /**
      * The JMS session.
@@ -146,8 +139,8 @@ public class MessageController {
 
     /**
      * Constructs the MessageController instance.
-     * @param messagingSystem the messaging system in the XML properties file to use.
-     * @param connector the name of the connector as defined in the XML properties file.
+     * @param messagingSystem the messaging system in the properties file to use.
+     * @param connector the name of the connector as defined in the properties file.
      * @param queueName the JNDI queue name.
      * @param queueConnFactoryName the JNDI queue connection factory name.
      * @param jmsCtx the JMS context.
@@ -160,7 +153,6 @@ public class MessageController {
      * @throws MessageException Message exception
      */
 	public MessageController(String messagingSystem, String connector, String queueName, String replyQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
-      MessagingLoggerConfiguration.configure();
       this.connector = connector;
       this.queueName = queueName;
       this.queueConnFactoryName = queueConnFactoryName;
@@ -191,7 +183,7 @@ public class MessageController {
     public static void destroyQueueChannelPoolFactory() {
 		if (qcpf != null) {
 			qcpf = null;
-			logger.info("Destroyed singleton MessageController QueueChannelPoolFactory");
+			log.info("Destroyed singleton MessageController QueueChannelPoolFactory");
 		}
 	}
 
@@ -283,7 +275,7 @@ public class MessageController {
 		    long timeTaken = System.currentTimeMillis() - time;
 		    collector.incrementMessageCount(statsName);
 		    collector.addMessageTime(statsName, timeTaken);
-		    logger.debug(message + timeTaken/1000f);
+		    log.debug(message + timeTaken/1000f);
 		}
 	} 
 
@@ -319,7 +311,7 @@ public class MessageController {
     }
 
     private void setupQueueObjects() throws MessageException, JMSException {
-		logger.debug("Setting up: " + this);
+		log.debug("Setting up: " + this);
 		if (queueChannel != null) {
 			qcp.free(queueChannel);
 		}
@@ -416,7 +408,7 @@ public class MessageController {
      * Release the MessageController's resources.
      */
     public void release() {
-    	logger.debug("Release the message controller.");
+    	log.debug("Release the message controller.");
         try {
         	if (messageRequester != null) {
             	messageRequester.close();
@@ -428,7 +420,7 @@ public class MessageController {
         		requestReplyMessageProducer.close();
         	}
         } catch (JMSException | MessageRequesterException e) {
-        	logger.error(e.getMessage(), e);
+        	log.error(e.getMessage(), e);
         }
 		if (queueChannel != null){
             qcp.free(queueChannel);

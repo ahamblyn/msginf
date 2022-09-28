@@ -19,21 +19,19 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.InfrastructureUtilityClassException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLPropertiesQueue;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.infrastructure.properties.PropertiesQueue;
 
 /**
  * Utility class.
  * 
  * @author Alisdair Hamblyn
  */
+@Slf4j
 public class Util {
-	private static final Logger logger = LogManager.getLogger(Util.class);
-
 	/**
 	 * Reads a file into a String.
 	 * @param fileName the file name.
@@ -86,15 +84,15 @@ public class Util {
 	}
 
 	/**
-	 * Loads the jar files in the xml properties file.
+	 * Loads the jar files in the properties file.
 	 * @throws MessageException Message exception
 	 */
 	public static void loadRuntimeJarFiles() throws MessageException {
 		// load the runtime jar files
-		XMLMessageInfrastructurePropertiesFileParser systemParser = new XMLMessageInfrastructurePropertiesFileParser();
+		MessageInfrastructurePropertiesFileParser systemParser = new MessageInfrastructurePropertiesFileParser();
 		List<String> availableMessagingSystems = systemParser.getAvailableMessagingSystems();
 		for (String messagingSystem : availableMessagingSystems) {
-			XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser(messagingSystem);
+			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
 			// load system specific jar files into classpath
 			List<String> jarFileNames = parser.getJarFileNames();
 			try {
@@ -115,13 +113,13 @@ public class Util {
 	 */
 	public static Context createContext(String messagingSystem) throws MessageException {
 		InitialContext jmsCtx = null;
-		XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser(messagingSystem);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
 		String initialContextFactory = parser.getSystemInitialContextFactory();
 		String url = parser.getSystemUrl();
 		String host = parser.getSystemHost();
 		int port = parser.getSystemPort();
 		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs();
-		List<XMLPropertiesQueue> queues = parser.getQueues();
+		List<PropertiesQueue> queues = parser.getQueues();
 		try {
 			if (initialContextFactory == null || initialContextFactory.equals("")) {
 				// no properties required to initialise context
@@ -141,14 +139,14 @@ public class Util {
 					props.setProperty(Context.URL_PKG_PREFIXES, namingFactoryUrlPkgs);
 				}
 				// add queue info
-				for (XMLPropertiesQueue queue : queues) {
+				for (PropertiesQueue queue : queues) {
 					props.setProperty("queue." + queue.getJndiName(), queue.getPhysicalName());
 				}
 				jmsCtx = new InitialContext(props);
 			}
 		} catch (NamingException ne) {
 			// cannot connect
-			logger.info("Cannot initialise " + messagingSystem);
+			log.info("Cannot initialise " + messagingSystem);
 		}
 		return jmsCtx;
 	}
@@ -173,11 +171,11 @@ public class Util {
         // connect to the server socket
         try {
 			Socket clientSocket = new Socket(host, port);
-            logger.info("Connected to server " + host + ":" + port);
+            log.info("Connected to server " + host + ":" + port);
         } catch (UnknownHostException e) {
-            logger.error("Couldn't find " + host, e);
+            log.error("Couldn't find " + host, e);
         } catch (IOException e) {
-            logger.error("IO exception", e);
+            log.error("IO exception", e);
         }
     }
 }

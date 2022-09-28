@@ -5,28 +5,25 @@ import java.util.List;
 
 import javax.naming.Context;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 
 import junit.framework.AssertionFailedError;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Slf4j
 public class MessageTest {
-    protected static Logger logger = LogManager.getLogger(MessageTest.class);
     protected static QueueManager queueManager;
     protected static QueueManager resetQueueManager;
 	protected static MessageRequestReply messageRequestReply;
 
 	public static void setUp() {
-		MessagingLoggerConfiguration.configure();
 		messageRequestReply = new MessageRequestReply("activemq",
 				"QueueConnectionFactory", "RequestQueue",
 				"ReplyQueue", "true");
@@ -87,7 +84,7 @@ public class MessageTest {
 				bos = new ByteArrayOutputStream();
 				bos.write(readBinaryFile("../../data/" + fileName));
 			} catch (Exception ex) {
-				logger.error(ex.getMessage(), ex);
+				log.error(ex.getMessage(), ex);
 			}
 		}
 		return bos;
@@ -150,7 +147,7 @@ public class MessageTest {
 			}
 		}
 		sendResetCountMessage(connector);
-		logger.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 	
 	protected void runEchoTest(String connector, int numberOfMessages) throws Exception {
@@ -158,9 +155,9 @@ public class MessageTest {
 			String message = "Message[" + (i + 1) + "]";
 			Object reply = queueManager.sendMessage(connector, message, createTestNameHeaderProperties("echo"));
 			assertEquals(message, reply);
-			logger.info(reply);
+			log.info(reply.toString());
 		}
 		sendResetCountMessage(connector);
-		logger.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 }

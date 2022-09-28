@@ -44,6 +44,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @throws MessageException Message exception
      */
     public MessageInfrastructurePropertiesFileParser() throws MessageException {
+        parseFile();
     }
 
     /**
@@ -237,6 +238,33 @@ public class MessageInfrastructurePropertiesFileParser {
     public String getSystemUrl() {
         Optional<String> url = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getUrl()));
         return url.orElse("");
+    }
+
+    /**
+     * Returns the host for the current messaging system.
+     * @return the host for the current messaging system.
+     */
+    public String getSystemHost() {
+        Optional<String> host = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getHost()));
+        return host.orElse("");
+    }
+
+    /**
+     * Returns the port for the current messaging system.
+     * @return the port for the current messaging system.
+     */
+    public int getSystemPort() {
+        Optional<Integer> port = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getPort()));
+        return port.orElse(0);
+    }
+
+    /**
+     * Returns the naming factory url packages for the current messaging system.
+     * @return the naming factory url packages for the current messaging system.
+     */
+    public String getSystemNamingFactoryUrlPkgs() {
+        Optional<String> namingFactoryUrlPkgs = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getNamingFactoryUrlPkgs()));
+        return namingFactoryUrlPkgs.orElse("");
     }
 
     /**

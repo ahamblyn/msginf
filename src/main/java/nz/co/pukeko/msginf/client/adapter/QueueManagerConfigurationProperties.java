@@ -2,7 +2,7 @@ package nz.co.pukeko.msginf.client.adapter;
 
 /**
  * This class holds the QueueManager configuration properties
- * for each connector defined in the XML properties file.
+ * for each connector defined in the properties file.
  *
  * @param compressBinaryMessages Whether to compress binary messages or not.
  * @param requestReply           Whether the configuration is for request-reply or not.

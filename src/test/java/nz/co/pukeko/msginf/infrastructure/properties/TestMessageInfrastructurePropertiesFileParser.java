@@ -1,6 +1,5 @@
 package nz.co.pukeko.msginf.infrastructure.properties;
 
-import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,7 +45,6 @@ public class TestMessageInfrastructurePropertiesFileParser {
     public void validNoArgConstructorMessagingSystem() {
         try {
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            assertNull(parser.getConfiguration());
             assertNull(parser.getCurrentSystem());
             assertNull(parser.getCurrentMessagingSystem());
             parser.initializeCurrentSystem("activemq");

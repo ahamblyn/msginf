@@ -14,4 +14,7 @@ public class System {
     private String name;
     private String initialContextFactory;
     private String url;
+    private String host;
+    private Integer port;
+    private String namingFactoryUrlPkgs;
 }

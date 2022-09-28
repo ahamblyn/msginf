@@ -17,7 +17,7 @@ public interface QueueManagerAgreement {
     /**
 	 * Sends a text message to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param message the text message.
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
@@ -28,7 +28,7 @@ public interface QueueManagerAgreement {
 	/**
 	 * Sends a message stream to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param messageStream the message stream.
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
@@ -38,7 +38,7 @@ public interface QueueManagerAgreement {
     /**
 	 * Sends a text message to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param message the text message.
 	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
 	 * @return the reply (null for asynchronous messages).
@@ -50,7 +50,7 @@ public interface QueueManagerAgreement {
 	/**
 	 * Sends a message stream to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param messageStream the message stream.
 	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
 	 * @return the reply (null for asynchronous messages).
@@ -60,7 +60,7 @@ public interface QueueManagerAgreement {
 	
 	/**
 	 * Receives all the messages as Strings.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param timeout the timeout in milliseconds.
 	 * @return a list containing all the messages found.
 	 * @throws MessageException if an error occurs receiving the message.

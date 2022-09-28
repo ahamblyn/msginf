@@ -2,25 +2,19 @@ package nz.co.pukeko.msginf.client.adapter;
 
 import java.io.ByteArrayOutputStream;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * A thread used to run tests.
  * 
  * @author Alisdair Hamblyn
  */
+@Slf4j
 public class TestQueueManagerMessageHandler implements Runnable {
-	
-	/**
-	 * The log4j2 logger.
-	 */
-	private static final Logger logger = LogManager.getLogger(TestQueueManagerMessageHandler.class);
 	
 	/**
 	 * The message count.
@@ -59,7 +53,6 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 * @throws MessageException Message exception
 	 */
 	public TestQueueManagerMessageHandler(String messagingSystem, String connector, boolean logStatistics) throws MessageException {
-		MessagingLoggerConfiguration.configure();
 		this.connector = connector;
 		queueManager = new QueueManager(messagingSystem, logStatistics);
 	}
@@ -86,7 +79,6 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 * @throws MessageException Message exception
 	 */
 	public TestQueueManagerMessageHandler(String messagingSystem, String connector, int numberOfIterations, String dataFileName, boolean logStatistics, String testName) throws MessageException {
-		MessagingLoggerConfiguration.configure();
 		this.connector = connector;
 		this.numberOfIterations = numberOfIterations;
 		this.dataFileName = dataFileName;
@@ -129,7 +121,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 				bos = new ByteArrayOutputStream();
 				bos.write(binaryData);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 				return;
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
@@ -137,7 +129,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 					Object reply = queueManager.sendMessage(connector, bos, createTestNameHeaderProperties(testName));
 					handleReply(reply);
 				} catch (MessageException me) {
-					logger.error("Message Exception", me);
+					log.error("Message Exception", me);
 				}
 			}
 		} else {
@@ -145,7 +137,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			try {
 				temp = Util.readFile(dataFileName);
 			} catch (MessageException me) {
-				logger.error("Message Exception", me);
+				log.error("Message Exception", me);
 				return;
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
@@ -153,7 +145,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 					Object reply = queueManager.sendMessage(connector, temp, createTestNameHeaderProperties(testName));
 					handleReply(reply);
 				} catch (MessageException me) {
-					logger.error("Message Exception", me);
+					log.error("Message Exception", me);
 				}
 			}
 		}
@@ -167,22 +159,22 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	}
 
 	private void handleReply(Object reply) {
-		logger.info("Message number: " + getNextMessageCount());
+		log.info("Message number: " + getNextMessageCount());
 		if (reply != null) {
 			if (testName.equals("reply")) {
 				if (reply instanceof String response) {
 					if (response.startsWith("TextMessage") || response.startsWith("BytesMessage")) {
-						logger.info(response);
+						log.info(response);
 					} else {
-						logger.info("Text Message of length " + ((String)reply).length() + " bytes returned.");
+						log.info("Text Message of length " + ((String)reply).length() + " bytes returned.");
 					}
 				} else {
 					// byte[] returned
-					logger.info("Binary Message of length " + ((byte[])reply).length + " bytes returned.");
+					log.info("Binary Message of length " + ((byte[])reply).length + " bytes returned.");
 				}
 			} else {
 				// echo test
-				logger.info(reply);
+				log.info(reply.toString());
 			}
 		}
 	}

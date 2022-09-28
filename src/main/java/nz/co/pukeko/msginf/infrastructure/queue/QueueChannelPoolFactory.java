@@ -8,13 +8,11 @@ import javax.jms.QueueConnectionFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueChannelException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 
 /**
  * This class if a factory class to control the queue channel pool class. A single
@@ -24,17 +22,13 @@ import org.apache.logging.log4j.Logger;
  * @author Alisdair Hamblyn
  */
 
+@Slf4j
 public class QueueChannelPoolFactory {
 
     /**
      * The static singleton instance.
      */
    private static QueueChannelPoolFactory qcpf = null;
-
-    /**
-     * The log4j2 logger.
-     */
-   private static final Logger logger = LogManager.getLogger(QueueChannelPoolFactory.class);
 
     /**
      * A collection containing the queue channel pools.
@@ -46,15 +40,13 @@ public class QueueChannelPoolFactory {
      * pool collection.
      */
    protected QueueChannelPoolFactory() {
-      MessagingLoggerConfiguration.configure();
       queueChannelPools = new Hashtable<>();
    }
 
    private void initialiseAllChannelPools() throws MessageException {
 	   //TODO fix??
 		// initialise all the channel pools
-		XMLMessageInfrastructurePropertiesFileParser parser;
-		parser = new XMLMessageInfrastructurePropertiesFileParser();
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
        for (String messagingSystem : availableMessagingSystems) {
 //			initialise(messagingSystem);
@@ -68,7 +60,7 @@ public class QueueChannelPoolFactory {
    public synchronized static QueueChannelPoolFactory getInstance() {
       if (qcpf == null) {
          qcpf = new QueueChannelPoolFactory();
-         logger.info("Created QueueChannelPoolFactory");
+         log.info("Created QueueChannelPoolFactory");
       }
       return qcpf;
    }
@@ -79,7 +71,7 @@ public class QueueChannelPoolFactory {
    public synchronized static void destroyInstance() {
 		if (qcpf != null) {
 			qcpf = null;
-			logger.info("Destroyed singleton QueueChannelPoolFactory");
+			log.info("Destroyed singleton QueueChannelPoolFactory");
 		}
 	}
 
@@ -89,12 +81,12 @@ public class QueueChannelPoolFactory {
     */
    public void stopQueueChannelPools() throws MessageException {
     	if (queueChannelPools != null && queueChannelPools.size() > 0) {
-    		logger.info("Stopping Queue Channel Pools");
+    		log.info("Stopping Queue Channel Pools");
         	Enumeration<String> keys = queueChannelPools.keys();
         	while (keys.hasMoreElements()) {
         		String key = keys.nextElement();
         		QueueChannelPool temp = queueChannelPools.get(key);
-        		logger.debug("Queue Channel Pool: " + temp);
+        		log.debug("Queue Channel Pool: " + temp);
         		// close the channels in the pool
         		temp.closeQueueChannels();
         		// dereference queue channel pool
@@ -112,7 +104,7 @@ public class QueueChannelPoolFactory {
     */ 
    public void restartQueueChannelPools() throws MessageException {
     	if (queueChannelPools != null && queueChannelPools.size() > 0) {
-    		logger.info("Restarting Queue Channel Pools");
+    		log.info("Restarting Queue Channel Pools");
     		stopQueueChannelPools();
         	// create new queue channel pools
             initQCPF();
@@ -127,7 +119,7 @@ public class QueueChannelPoolFactory {
 	 */
    public void startQueueChannelPools() throws MessageException {
     	if (queueChannelPools == null || queueChannelPools.size() == 0) {
-    		logger.info("Starting Queue Channel Pools");
+    		log.info("Starting Queue Channel Pools");
         	// create new queue channel pools
             initQCPF();
     	} else {
@@ -165,7 +157,7 @@ public class QueueChannelPoolFactory {
     }
 
   private QueueChannelPool createQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException, NamingException {
-  	XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser(messagingSystem);
+	  MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
     // create the connection pools based on the config and put into the hashtable
     int queueChannelLimit = parser.getMaxConnections();
     // Submit Connectors

@@ -5,14 +5,11 @@ import java.util.List;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueControllerNotFoundException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This class is a factory class to produce the MessageController objects.
@@ -21,17 +18,13 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author Alisdair Hamblyn
  */
+@Slf4j
 public class MessageControllerFactory {
 
 	/**
 	 * The singleton MessageControllerFactory.
 	 */
 	private static MessageControllerFactory messageControllerFactory = null;
-
-	/**
-	 * The log4j2 logger.
-	 */
-	private static final Logger logger = LogManager.getLogger(MessageControllerFactory.class);
 
 	/**
 	 * The JMS contexts.
@@ -43,7 +36,6 @@ public class MessageControllerFactory {
 	 * @throws MessageException Message exception
 	 */
 	protected MessageControllerFactory() throws MessageException {
-		MessagingLoggerConfiguration.configure();
 		initialise();
 	}
 
@@ -56,7 +48,7 @@ public class MessageControllerFactory {
 	public synchronized static MessageControllerFactory getInstance() throws MessageException {
 		if (messageControllerFactory == null) {
 			messageControllerFactory = new MessageControllerFactory();
-			logger.info("Created singleton MessageControllerFactory");
+			log.info("Created singleton MessageControllerFactory");
 		}
 		return messageControllerFactory;
 	}
@@ -67,15 +59,15 @@ public class MessageControllerFactory {
 	public synchronized static void destroyInstance() {
 		if (messageControllerFactory != null) {
 			messageControllerFactory = null;
-			logger.info("Destroyed singleton MessageControllerFactory");
+			log.info("Destroyed singleton MessageControllerFactory");
 		}
 	}
 
 	/**
 	 * Gets a new MessageController instance for the connector. The MessageController puts the
-	 * message onto the queue defined for the connector in the XML properties file.
-	 * @param messagingSystem the messaging system defined in the XML properties file. 
-	 * @param connectorName the connector name defined in the XML properties file.
+	 * message onto the queue defined for the connector in the properties file.
+	 * @param messagingSystem the messaging system defined in the properties file.
+	 * @param connectorName the connector name defined in the properties file.
 	 * @param logStatistics whether to log the statistics or not.
 	 * @return a new MessageController instance for the connector.
 	 * @throws MessageException Message exception
@@ -88,7 +80,7 @@ public class MessageControllerFactory {
 			throw new QueueControllerNotFoundException("The JMS Context for " + messagingSystem + " was not found.");
 		}
 		MessageController mc = null;
-		XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser(messagingSystem);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
 		// check if the connector required is a submit one
 		if (parser.doesSubmitExist(connectorName)) {
 			String submitQueueName = parser.getSubmitConnectionSubmitQueueName(connectorName);
@@ -116,8 +108,8 @@ public class MessageControllerFactory {
 		// load the runtime jar files
 		Util.loadRuntimeJarFiles();
 		jmsContexts = new Hashtable<>();
-		//Initialise a jndi context for each system in the XML properties file
-		XMLMessageInfrastructurePropertiesFileParser systemParser = new XMLMessageInfrastructurePropertiesFileParser();
+		//Initialise a jndi context for each system in the properties file
+		MessageInfrastructurePropertiesFileParser systemParser = new MessageInfrastructurePropertiesFileParser();
 		List<String> availableMessagingSystems = systemParser.getAvailableMessagingSystems();
         for (String messagingSystem : availableMessagingSystems) {
             Context context = Util.createContext(messagingSystem);
@@ -125,11 +117,11 @@ public class MessageControllerFactory {
                 jmsContexts.put(messagingSystem, context);
             }
         }
-        logger.info("The messaging systems available are: " + jmsContexts.keySet());
+        log.info("The messaging systems available are: " + jmsContexts.keySet());
 	}
 	
 	/**
-	 * Re-read the XML properties file and reconnect to the configured messaging systems 
+	 * Re-read the properties file and reconnect to the configured messaging systems
 	 * @throws MessageException Message exception
 	 */
 	public void reloadMessagingSystems() throws MessageException {
