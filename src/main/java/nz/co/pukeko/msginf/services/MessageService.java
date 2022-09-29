@@ -20,7 +20,7 @@ public class MessageService implements IMessageService {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            QueueManager queueManager = new QueueManager(messageSystem);
+            QueueManager queueManager = new QueueManager(messageSystem, true);
             queueManager.sendMessage(messageConnector, payload);
             queueManager.close();
             Instant finish = Instant.now();

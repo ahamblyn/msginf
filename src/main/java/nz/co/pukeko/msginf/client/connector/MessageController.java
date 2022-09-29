@@ -3,6 +3,8 @@ package nz.co.pukeko.msginf.client.connector;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -204,8 +206,7 @@ public class MessageController {
      * @throws MessageException if the message cannot be sent.
      */
    public Object sendMessage(ByteArrayOutputStream messageStream, HeaderProperties<String, Object> headerProperties) throws MessageException {
-	String statsName = this.getClass().getName() + ":" + connector;
-    long time = System.currentTimeMillis();
+    Instant start = Instant.now();
     Object reply = null;
     try {
         Message jmsMessage = createMessage(messageStream);
@@ -223,17 +224,17 @@ public class MessageController {
             	((BytesMessage)replyMsg).readBytes(messageData);
             	reply = messageData;
             }
-            collateStats(statsName, time, "Time taken for request-reply,");
+            collateStats(connector, start, "Time taken for request-reply,");
         } else {
         	// submit
             submitMessageProducer.send(jmsMessage);
-            collateStats(statsName, time, "Time taken for submit,");
+            collateStats(connector, start, "Time taken for submit,");
         }
         return reply;
     } catch (JMSException e) {
     	// increment failed message count
         if (logStatistics) {
-        	collector.incrementFailedMessageCount(statsName);
+        	collector.incrementFailedMessageCount(connector);
         }
         throw new QueueUnavailableException(e);
     }
@@ -241,8 +242,7 @@ public class MessageController {
    
    public synchronized List<String> receiveMessages(long timeout) throws MessageException {
 	    List<String> messages = new ArrayList<>();
-		String statsName = this.getClass().getName() + ":" + connector;
-	    long time = System.currentTimeMillis();
+ 	    Instant start = Instant.now();
 	    try {
 		    // create a consumer based on the request queue
 		    MessageConsumer messageConsumer = session.createConsumer(queue);
@@ -258,24 +258,24 @@ public class MessageController {
 	                messages.add("Binary messages...");
 				}
 			}
-            collateStats(statsName, time, "Time taken for receive,");
+            collateStats(connector, start, "Time taken for receive,");
 			messageConsumer.close();
 	    } catch (JMSException e) {
 	    	// increment failed message count
 	        if (logStatistics) {
-	        	collector.incrementFailedMessageCount(statsName);
+	        	collector.incrementFailedMessageCount(connector);
 	        }
 	        throw new QueueUnavailableException(e);
 	    }
 	   return messages;
    }
 
-	private void collateStats(String statsName, long time, String message) {
+	private void collateStats(String connector, Instant start, String message) {
 		if (logStatistics) {
-		    long timeTaken = System.currentTimeMillis() - time;
-		    collector.incrementMessageCount(statsName);
-		    collector.addMessageTime(statsName, timeTaken);
-		    log.debug(message + timeTaken/1000f);
+			Instant finish = Instant.now();
+			long duration = Duration.between(start, finish).toMillis();
+		    collector.incrementMessageCount(connector);
+		    collector.addMessageTime(connector, duration);
 		}
 	} 
 

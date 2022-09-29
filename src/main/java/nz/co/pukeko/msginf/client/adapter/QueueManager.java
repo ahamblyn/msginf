@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.connector.MessageController;
 import nz.co.pukeko.msginf.client.connector.MessageControllerFactory;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
-import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
@@ -47,11 +46,6 @@ public class QueueManager implements QueueManagerAgreement {
 	 */
 	private final String messagingSystem;
 
-	/**
-	 * The queue statistics collector.
-	 */
-	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
-	
 	/**
 	 * Whether to log the statistics or not.
 	 */
@@ -114,22 +108,10 @@ public class QueueManager implements QueueManagerAgreement {
 	private Object putMessageOnQueue(String connector, String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
 		Object result;
 		try {
-			long time = System.currentTimeMillis();
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			bos.write(message.getBytes());
 			result = mc.sendMessage(bos,headerProperties);
-			if (logStatistics) {
-				collector.incrementMessageCount(connector);
-			}
-			if (logStatistics) {
-				long timeTaken = System.currentTimeMillis() - time;
-				collector.addMessageTime(connector, timeTaken);
-				log.debug("Time taken for MessageController to deal with the message," + timeTaken / 1000f);
-			}
 		} catch (IOException ioe) {
-			if (logStatistics) {
-				collector.incrementFailedMessageCount(connector);
-			}
 			throw new QueueManagerException(ioe);
 		}
 		return result;
@@ -161,25 +143,13 @@ public class QueueManager implements QueueManagerAgreement {
 		if (messageStream instanceof ByteArrayOutputStream) {
 			MessageController mc = getMessageConnector(connector);
 			try {
-				long time = System.currentTimeMillis();
 				QueueManagerConfigurationProperties qmbcp = queueManagerConfigurationProperties.get(connector);
 				if (qmbcp.compressBinaryMessages()) {
 					result = mc.sendMessage(compress((ByteArrayOutputStream)messageStream),headerProperties);
 				} else {
 					result = mc.sendMessage((ByteArrayOutputStream)messageStream,headerProperties);
 				}
-				if (logStatistics) {
-					collector.incrementMessageCount(connector);
-				}
-				if (logStatistics) {
-					long timeTaken = System.currentTimeMillis() - time;
-					collector.addMessageTime(connector, timeTaken);
-					log.debug("Time taken for MessageController to deal with the message," + timeTaken / 1000f);
-				}
 			} catch (MessageException me) {
-				if (logStatistics) {
-					collector.incrementFailedMessageCount(connector);
-				}
 				throw me;
 			}
 		} else {

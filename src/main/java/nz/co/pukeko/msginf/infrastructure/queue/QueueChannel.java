@@ -10,6 +10,8 @@ import javax.jms.TemporaryQueue;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 /**
  * This class is a holder class containing a QueueSession and gets the
  * corresponding QueueSender for a particular queue. Used by the queue channel
@@ -45,7 +47,7 @@ public class QueueChannel {
       log.debug("Created new QueueChannel...");
       this.session = session;
       this.queueConnection = queueConnection;
-      setQueueChannelIdentifier(Long.toString(System.currentTimeMillis()));
+      setQueueChannelIdentifier(UUID.randomUUID().toString());
    }
 
    /**
