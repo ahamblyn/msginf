@@ -8,10 +8,9 @@ import javax.jms.QueueConnection;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
+import lombok.extern.slf4j.Slf4j;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.UUID;
 
 /**
  * This class is a holder class containing a QueueSession and gets the
@@ -21,12 +20,8 @@ import org.apache.logging.log4j.Logger;
  * @author Alisdair Hamblyn
  */
 
+@Slf4j
 public class QueueChannel {
-	
-    /**
-     * The log4j2 logger.
-     */
-	private static final Logger logger = LogManager.getLogger(QueueChannel.class);
 	
 	/**
 	 * A unique identifier for each queue channel
@@ -49,11 +44,10 @@ public class QueueChannel {
      * @param session the session.
      */
    public QueueChannel(QueueConnection queueConnection, Session session) {
-      MessagingLoggerConfiguration.configure();
-      logger.debug("Created new QueueChannel...");
+      log.debug("Created new QueueChannel...");
       this.session = session;
       this.queueConnection = queueConnection;
-      setQueueChannelIdentifier(Long.toString(System.currentTimeMillis()));
+      setQueueChannelIdentifier(UUID.randomUUID().toString());
    }
 
    /**
@@ -102,10 +96,10 @@ public class QueueChannel {
    public void close() {
 	   try {
 	    	this.session.close();
-	        logger.debug("Closed QueueChannel session...");
+            log.debug("Closed QueueChannel session...");
 	        this.queueConnection.stop();
 	        this.queueConnection.close();
-	        logger.debug("Stopped and closed the QueueChannel connection...");
+            log.debug("Stopped and closed the QueueChannel connection...");
 	   } catch (JMSException jmse) {
 		   // swallow this
 	   }

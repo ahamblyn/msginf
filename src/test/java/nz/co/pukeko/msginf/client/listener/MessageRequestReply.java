@@ -20,11 +20,10 @@ import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * @author AlisdairH
@@ -32,9 +31,9 @@ import org.apache.logging.log4j.Logger;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
+@Slf4j
 public class MessageRequestReply implements MessageListener {
 	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
-	private static final Logger logger = LogManager.getLogger(MessageRequestReply.class);
 	private QueueConnectionFactory queueConnectionFactory;
 	private Queue requestQueue;
 	private Queue replyQueue;
@@ -98,7 +97,7 @@ public class MessageRequestReply implements MessageListener {
             queueConnection.start();
      		mrh = new MessageReplyHandler(session, replyMessageProducer, bUseCorrelationID);
         } catch (JMSException jmse) {
-            logger.error(jmse.getMessage(), jmse);
+            log.error(jmse.getMessage(), jmse);
         }
     }
 
@@ -106,7 +105,7 @@ public class MessageRequestReply implements MessageListener {
 		try {
 			queueConnection.stop();
 		} catch (JMSException jmse) {
-			logger.error(jmse.getMessage(), jmse);
+			log.error(jmse.getMessage(), jmse);
 		}
 	}
 
@@ -126,19 +125,19 @@ public class MessageRequestReply implements MessageListener {
             	}
         	}
         	if (bReset) {
-        		logger.info("Reset Message received...");
+        		log.info("Reset Message received...");
     			reset(message);
         	} else {
             	if (message instanceof TextMessage) {
-            		logger.info("TextMessage received...");
+            		log.info("TextMessage received...");
                     handleMessage(message, testName);
             	} else if (message instanceof BytesMessage) {
-            		logger.info("BytesMessage received...");
+            		log.info("BytesMessage received...");
                     handleMessage(message, testName);
             	}
         	}
         } catch (JMSException jmse) {
-            logger.error(jmse.getMessage(), jmse);
+            log.error(jmse.getMessage(), jmse);
         }
 	}
 
@@ -158,11 +157,11 @@ public class MessageRequestReply implements MessageListener {
 
 	private void reset(Message message) throws JMSException {
 		// log the current message count and reset
-		logger.info("Number of messages received: " + getMessageCount());
+		log.info("Number of messages received: " + getMessageCount());
 		resetMessageCount();
-		logger.info("Messages count reset to " + getMessageCount());
+		log.info("Messages count reset to " + getMessageCount());
 		mrh.submitResetMessageToReplyQueue(message);
-		logger.info(collector.toString());
+		log.info(collector.toString());
 		collector.resetQueueStatistics();
 	}
 }

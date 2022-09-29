@@ -1,14 +1,13 @@
 package nz.co.pukeko.msginf.client.socket;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
 
+@Slf4j
 public class TestSocketServer implements Runnable {
-    private static final Logger logger = LogManager.getLogger(TestSocketServer.class);
     private final int port;
 
     public TestSocketServer(int port) {
@@ -19,18 +18,18 @@ public class TestSocketServer implements Runnable {
         ServerSocket serverSocket;
         try {
             serverSocket = new ServerSocket(port);
-            logger.info("Listening to port: " + port);
+            log.info("Listening to port: " + port);
         } catch (IOException e) {
-            logger.error("Could not listen to port: " + port, e);
+            log.error("Could not listen to port: " + port, e);
             return;
         }
         Socket clientSocket;
         try {
-            logger.info("Waiting  for connections on port: " + port);
+            log.info("Waiting  for connections on port: " + port);
             clientSocket = serverSocket.accept();
-            logger.info("Connect made on port: " + port);
+            log.info("Connect made on port: " + port);
         } catch (IOException e) {
-            logger.error("Could not listen to port: " + port, e);
+            log.error("Could not listen to port: " + port, e);
             return;
         }
         try {
@@ -41,6 +40,6 @@ public class TestSocketServer implements Runnable {
         } catch (IOException e) {
             // don't care...
         }
-        logger.info("Exiting TestSocketServer thread");
+        log.info("Exiting TestSocketServer thread");
     }
 }

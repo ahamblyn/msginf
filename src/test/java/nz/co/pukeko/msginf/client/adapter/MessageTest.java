@@ -5,28 +5,25 @@ import java.util.List;
 
 import javax.naming.Context;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 
-import junit.framework.AssertionFailedError;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+@Slf4j
 public class MessageTest {
-    protected static Logger logger = LogManager.getLogger(MessageTest.class);
     protected static QueueManager queueManager;
     protected static QueueManager resetQueueManager;
 	protected static MessageRequestReply messageRequestReply;
 
 	public static void setUp() {
-		MessagingLoggerConfiguration.configure();
 		messageRequestReply = new MessageRequestReply("activemq",
 				"QueueConnectionFactory", "RequestQueue",
 				"ReplyQueue", "true");
@@ -87,7 +84,7 @@ public class MessageTest {
 				bos = new ByteArrayOutputStream();
 				bos.write(readBinaryFile("../../data/" + fileName));
 			} catch (Exception ex) {
-				logger.error(ex.getMessage(), ex);
+				log.error(ex.getMessage(), ex);
 			}
 		}
 		return bos;
@@ -109,7 +106,7 @@ public class MessageTest {
 		if (messageSizes != null) {
             for (Integer messageSize : messageSizes) {
                 if (messageSize != expectedMessageSize) {
-                    throw new AssertionFailedError("The message retrieved is not of the expected size: " + expectedMessageSize + ". A message of " + messageSize + " was retrieved.");
+                    fail("The message retrieved is not of the expected size: " + expectedMessageSize + ". A message of " + messageSize + " was retrieved.");
                 }
             }
         }
@@ -123,7 +120,7 @@ public class MessageTest {
 				queueManager.sendMessage(connector, bos, createTestNameHeaderProperties("submit"));
 			}
 		} else {
-			throw new AssertionFailedError("Unable to read: " + fileName);
+			fail("Unable to read: " + fileName);
 		}
 	}
 	
@@ -134,23 +131,23 @@ public class MessageTest {
 			if (type.equals("text")) {
 				// assert that a String is returned and it is of the size requested.
 				if (!(reply instanceof String)) {
-					throw new AssertionFailedError("The text reply message is not a String. A text message was requested.");
+					fail("The text reply message is not a String. A text message was requested.");
 				}
 				if (!(((String)reply).length() == Integer.parseInt(size))) {
-					throw new AssertionFailedError("The text reply message is not of the size requested.");
+					fail("The text reply message is not of the size requested.");
 				}
 			} else {
 				// assert that a byte[] is returned and it is of the size requested.
 				if (!(reply instanceof byte[])) {
-					throw new AssertionFailedError("The binary reply message is not a byte[]. A binary message was requested.");
+					fail("The binary reply message is not a byte[]. A binary message was requested.");
 				}
 				if (!(((byte[])reply).length == Integer.parseInt(size))) {
-					throw new AssertionFailedError("The binary reply message is not of the size requested.");
+					fail("The binary reply message is not of the size requested.");
 				}
 			}
 		}
 		sendResetCountMessage(connector);
-		logger.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 	
 	protected void runEchoTest(String connector, int numberOfMessages) throws Exception {
@@ -158,9 +155,9 @@ public class MessageTest {
 			String message = "Message[" + (i + 1) + "]";
 			Object reply = queueManager.sendMessage(connector, message, createTestNameHeaderProperties("echo"));
 			assertEquals(message, reply);
-			logger.info(reply);
+			log.info(reply.toString());
 		}
 		sendResetCountMessage(connector);
-		logger.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 }

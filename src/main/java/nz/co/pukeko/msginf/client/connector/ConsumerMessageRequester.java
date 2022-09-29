@@ -5,6 +5,7 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 
@@ -12,6 +13,7 @@ import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
  * This class handles the requests to and the replies from the temporary reply queue. 
  * @author alisdairh
  */
+@Slf4j
 public class ConsumerMessageRequester extends BaseMessageRequester {
 	
 	/**
@@ -62,6 +64,6 @@ public class ConsumerMessageRequester extends BaseMessageRequester {
      * @throws MessageRequesterException Message requester exception
      */
     public void close() throws MessageRequesterException {
-		logger.debug("Closing the ConsumerMessageRequester");
+		log.debug("Closing the ConsumerMessageRequester");
 	}
 }

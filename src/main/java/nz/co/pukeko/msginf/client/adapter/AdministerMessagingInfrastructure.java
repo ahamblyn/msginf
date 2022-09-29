@@ -1,13 +1,11 @@
 package nz.co.pukeko.msginf.client.adapter;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.connector.MessageController;
 import nz.co.pukeko.msginf.client.connector.MessageControllerFactory;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+@Slf4j
 public class AdministerMessagingInfrastructure {
 	/**
 	 * The singleton AdministerMessagingInfrastructure.
@@ -15,15 +13,9 @@ public class AdministerMessagingInfrastructure {
 	private static AdministerMessagingInfrastructure administerMessagingInfrastructure = null;
 
 	/**
-	 * The log4j2 logger.
-	 */
-	private static final Logger logger = LogManager.getLogger(AdministerMessagingInfrastructure.class);
-
-	/**
 	 * The AdministerMessagingInfrastructure constructor.
 	 */
 	protected AdministerMessagingInfrastructure() {
-		MessagingLoggerConfiguration.configure();
 	}
 
 	/**
@@ -44,7 +36,7 @@ public class AdministerMessagingInfrastructure {
 		try {
 			// stop the queue channel pools
             QueueChannelPoolFactory.getInstance().stopQueueChannelPools();
-			logger.info("Stopped the queue channel pools");
+			log.info("Stopped the queue channel pools");
 			// Destroy the queue channel pool factory
 			QueueChannelPoolFactory.destroyInstance();
 			// Destroy the message controller factory
@@ -52,7 +44,7 @@ public class AdministerMessagingInfrastructure {
 			// Destroy the Message Controller queue channel pool factory
 			MessageController.destroyQueueChannelPoolFactory();
 		} catch (Exception e) {
-			logger.error("Can't stop the messaging infrastructure", e);
+			log.error("Can't stop the messaging infrastructure", e);
 		}
 	}
 }

@@ -2,21 +2,19 @@ package nz.co.pukeko.msginf.client.adapter;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.socket.ShutdownThread;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Class to test the messaging infrastructure.
  * 
  * @author Alisdair Hamblyn
  */
+@Slf4j
 public class TestQueueManager {
-	private static final Logger logger = LogManager.getLogger(TestQueueManager.class);
 	private final String testName;
 	private final String messagingSystem;
 	private final String connectorName;
@@ -32,7 +30,6 @@ public class TestQueueManager {
 	 * @param dataFileName the data file name.
 	 */
 	public TestQueueManager(String testName, String messagingSystem, String connectorName, int numberOfThreads, int numberOfIterations, String dataFileName) {
-		MessagingLoggerConfiguration.configure();
 		this.testName = testName;
 		this.messagingSystem = messagingSystem;
 		this.connectorName = connectorName;
@@ -72,7 +69,7 @@ public class TestQueueManager {
 		} catch (NumberFormatException nfe) {
 			System.out.println("Please enter numbers for <Threads>, <Messages>, and <Port>.");
 		} catch (MessageException me) {
-			logger.error(me);
+			log.error("Message Exception", me);
 		}
 	}
 	
@@ -91,7 +88,7 @@ public class TestQueueManager {
 	 * Display the statistics for the test.
 	 */
 	public void stats() {
-		logger.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 
 	/**
@@ -158,10 +155,10 @@ public class TestQueueManager {
 		if (messages != null) {
 			for (int i = 0; i < messages.size(); i++) {
 				String message = messages.get(i);
-				logger.info("Message[" + i + "]: " + message);
+				log.info("Message[" + i + "]: " + message);
 			}
 		} else {
-			logger.info("No messages...");
+			log.info("No messages...");
 		}
 	}
 

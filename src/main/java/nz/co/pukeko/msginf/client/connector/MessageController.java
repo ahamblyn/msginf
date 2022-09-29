@@ -3,6 +3,8 @@ package nz.co.pukeko.msginf.client.connector;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -22,32 +24,25 @@ import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageControllerException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueUnavailableException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
- * The MessageController puts messages onto the queues defined in the XML properties file.
+ * The MessageController puts messages onto the queues defined in the properties file.
  * 
  * @author Alisdair Hamblyn
  */
 
+@Slf4j
 public class MessageController {
-
-   /**
-    * The log4j2 logger.
-    */
-   private static final Logger logger = LogManager.getLogger(MessageController.class);
 
     /**
      * The JMS session.
@@ -146,8 +141,8 @@ public class MessageController {
 
     /**
      * Constructs the MessageController instance.
-     * @param messagingSystem the messaging system in the XML properties file to use.
-     * @param connector the name of the connector as defined in the XML properties file.
+     * @param messagingSystem the messaging system in the properties file to use.
+     * @param connector the name of the connector as defined in the properties file.
      * @param queueName the JNDI queue name.
      * @param queueConnFactoryName the JNDI queue connection factory name.
      * @param jmsCtx the JMS context.
@@ -160,7 +155,6 @@ public class MessageController {
      * @throws MessageException Message exception
      */
 	public MessageController(String messagingSystem, String connector, String queueName, String replyQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
-      MessagingLoggerConfiguration.configure();
       this.connector = connector;
       this.queueName = queueName;
       this.queueConnFactoryName = queueConnFactoryName;
@@ -191,7 +185,7 @@ public class MessageController {
     public static void destroyQueueChannelPoolFactory() {
 		if (qcpf != null) {
 			qcpf = null;
-			logger.info("Destroyed singleton MessageController QueueChannelPoolFactory");
+			log.info("Destroyed singleton MessageController QueueChannelPoolFactory");
 		}
 	}
 
@@ -212,8 +206,7 @@ public class MessageController {
      * @throws MessageException if the message cannot be sent.
      */
    public Object sendMessage(ByteArrayOutputStream messageStream, HeaderProperties<String, Object> headerProperties) throws MessageException {
-	String statsName = this.getClass().getName() + ":" + connector;
-    long time = System.currentTimeMillis();
+    Instant start = Instant.now();
     Object reply = null;
     try {
         Message jmsMessage = createMessage(messageStream);
@@ -231,17 +224,17 @@ public class MessageController {
             	((BytesMessage)replyMsg).readBytes(messageData);
             	reply = messageData;
             }
-            collateStats(statsName, time, "Time taken for request-reply,");
+            collateStats(connector, start, "Time taken for request-reply,");
         } else {
         	// submit
             submitMessageProducer.send(jmsMessage);
-            collateStats(statsName, time, "Time taken for submit,");
+            collateStats(connector, start, "Time taken for submit,");
         }
         return reply;
     } catch (JMSException e) {
     	// increment failed message count
         if (logStatistics) {
-        	collector.incrementFailedMessageCount(statsName);
+        	collector.incrementFailedMessageCount(connector);
         }
         throw new QueueUnavailableException(e);
     }
@@ -249,8 +242,7 @@ public class MessageController {
    
    public synchronized List<String> receiveMessages(long timeout) throws MessageException {
 	    List<String> messages = new ArrayList<>();
-		String statsName = this.getClass().getName() + ":" + connector;
-	    long time = System.currentTimeMillis();
+ 	    Instant start = Instant.now();
 	    try {
 		    // create a consumer based on the request queue
 		    MessageConsumer messageConsumer = session.createConsumer(queue);
@@ -266,24 +258,24 @@ public class MessageController {
 	                messages.add("Binary messages...");
 				}
 			}
-            collateStats(statsName, time, "Time taken for receive,");
+            collateStats(connector, start, "Time taken for receive,");
 			messageConsumer.close();
 	    } catch (JMSException e) {
 	    	// increment failed message count
 	        if (logStatistics) {
-	        	collector.incrementFailedMessageCount(statsName);
+	        	collector.incrementFailedMessageCount(connector);
 	        }
 	        throw new QueueUnavailableException(e);
 	    }
 	   return messages;
    }
 
-	private void collateStats(String statsName, long time, String message) {
+	private void collateStats(String connector, Instant start, String message) {
 		if (logStatistics) {
-		    long timeTaken = System.currentTimeMillis() - time;
-		    collector.incrementMessageCount(statsName);
-		    collector.addMessageTime(statsName, timeTaken);
-		    logger.debug(message + timeTaken/1000f);
+			Instant finish = Instant.now();
+			long duration = Duration.between(start, finish).toMillis();
+		    collector.incrementMessageCount(connector);
+		    collector.addMessageTime(connector, duration);
 		}
 	} 
 
@@ -319,7 +311,7 @@ public class MessageController {
     }
 
     private void setupQueueObjects() throws MessageException, JMSException {
-		logger.debug("Setting up: " + this);
+		log.debug("Setting up: " + this);
 		if (queueChannel != null) {
 			qcp.free(queueChannel);
 		}
@@ -416,7 +408,7 @@ public class MessageController {
      * Release the MessageController's resources.
      */
     public void release() {
-    	logger.debug("Release the message controller.");
+    	log.debug("Release the message controller.");
         try {
         	if (messageRequester != null) {
             	messageRequester.close();
@@ -428,7 +420,7 @@ public class MessageController {
         		requestReplyMessageProducer.close();
         	}
         } catch (JMSException | MessageRequesterException e) {
-        	logger.error(e.getMessage(), e);
+        	log.error(e.getMessage(), e);
         }
 		if (queueChannel != null){
             qcp.free(queueChannel);

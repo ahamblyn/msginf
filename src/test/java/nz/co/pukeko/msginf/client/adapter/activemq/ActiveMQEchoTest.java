@@ -1,5 +1,6 @@
 package nz.co.pukeko.msginf.client.adapter.activemq;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.QueueManager;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.client.adapter.MessageTest;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class ActiveMQEchoTest extends MessageTest {
 
 	@BeforeAll
@@ -24,16 +26,16 @@ public class ActiveMQEchoTest extends MessageTest {
 
 	@Test
 	public void consumer() throws Exception {
-		logger.info("Running text consumer echo test...");
+		log.info("Running text consumer echo test...");
 		runEchoTest("activemq_rr_text_consumer", 10);
-		logger.info("Text consumer echo test OK");
+		log.info("Text consumer echo test OK");
 	}
 
 	@Disabled
 	@Test
 	public void future() throws Exception {
-		logger.info("Running text future echo test...");
+		log.info("Running text future echo test...");
 		runEchoTest("activemq_rr_text_future", 10);
-		logger.info("Text future echo test OK");
+		log.info("Text future echo test OK");
 	}
 }

@@ -2,18 +2,15 @@ package nz.co.pukeko.msginf.client.adapter;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+@Slf4j
 public class TestMessageReceiver {
-	private static final Logger logger = LogManager.getLogger(TestMessageReceiver.class);
 	private final String connectorName;
 	private final QueueManager queueManager;
 	
 	public TestMessageReceiver(String messagingSystem, String connectorName) throws MessageException {
-		MessagingLoggerConfiguration.configure();
 		this.connectorName = connectorName;
 		queueManager = new QueueManager(messagingSystem, true);
 	}
@@ -22,7 +19,7 @@ public class TestMessageReceiver {
 		try {
 			return queueManager.receiveMessages(connectorName, timeout);
 		} catch (MessageException me) {
-			logger.error("Message Exception", me);
+			log.error("Message Exception", me);
 		}
 		return null;
 	}

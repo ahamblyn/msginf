@@ -8,13 +8,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 import nz.co.pukeko.msginf.infrastructure.util.ClassPathHacker;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -25,13 +23,12 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Alisdair Hamblyn
  */
+@Slf4j
 public class TestMessagingInfrastructure {
-    private static final Logger logger = LogManager.getLogger(TestMessagingInfrastructure.class);
 	private static MessageRequestReply messageRequestReply;
 
 	@BeforeAll
 	public static void setUp() {
-		MessagingLoggerConfiguration.configure();
 		try {
 			ClassPathHacker.addFile("C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar");
 		} catch (IOException e) {
@@ -58,7 +55,7 @@ public class TestMessagingInfrastructure {
 	 */
 	@Test
 	public void binaryActiveMQSubmit() throws MessageException, NamingException, JMSException {
-		logger.info("Running binaryActiveMQSubmit...");
+		log.info("Running binaryActiveMQSubmit...");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "activemq", "activemq_submit_binary" , 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -80,7 +77,7 @@ public class TestMessagingInfrastructure {
 	 */
 	@Test
 	public void binaryActiveMQConsumerRequestReply() throws MessageException {
-		logger.info("Running binaryActiveMQConsumerRequestReply...");
+		log.info("Running binaryActiveMQConsumerRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_binary_consumer", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -93,7 +90,7 @@ public class TestMessagingInfrastructure {
 	@Test
 	@Disabled
 	public void binaryActiveMQFutureRequestReply() throws MessageException {
-		logger.info("Running binaryActiveMQFutureRequestReply...");
+		log.info("Running binaryActiveMQFutureRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_binary_future", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -105,7 +102,7 @@ public class TestMessagingInfrastructure {
 	 */
 	@Test
 	public void textActiveMQSubmit() throws MessageException, NamingException, JMSException {
-		logger.info("Running textActiveMQSubmit...");
+		log.info("Running textActiveMQSubmit...");
 		TestQueueManager testQueueManager = new TestQueueManager("submit", "activemq", "activemq_submit_text", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -127,7 +124,7 @@ public class TestMessagingInfrastructure {
 	 */
 	@Test
 	public void textActiveMQConsumerRequestReply() throws MessageException {
-		logger.info("Running textActiveMQConsumerRequestReply...");
+		log.info("Running textActiveMQConsumerRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_text_consumer",  2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();
@@ -140,7 +137,7 @@ public class TestMessagingInfrastructure {
 	@Test
 	@Disabled
 	public void textActiveMQFutureRequestReply() throws MessageException {
-		logger.info("Running textActiveMQFutureRequestReply...");
+		log.info("Running textActiveMQFutureRequestReply...");
 		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_text_future", 2, 10, "data/test.xml");
 		testQueueManager.run();
 		testQueueManager.stats();

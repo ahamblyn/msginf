@@ -1,10 +1,9 @@
 package nz.co.pukeko.msginf.client.adapter;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Slf4j
 public class TestMsgInfDirectly {
-	private static final Logger logger = LogManager.getLogger(TestMsgInfDirectly.class);
 	private static QueueManager queueManager;
 	private static MessageRequestReply messageRequestReply;
 
@@ -49,7 +48,7 @@ public class TestMsgInfDirectly {
 			Object reply = queueManager.sendMessage("activemq_rr_text_consumer", "Message[" + (i + 1) + "]");
 			assertNotNull(reply);
 		}
-		logger.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 	
 	@Test
@@ -59,6 +58,6 @@ public class TestMsgInfDirectly {
 			Object submitReply = queueManager.sendMessage("activemq_submit_text", "Message[" + (i + 1) + "]");
 			assertNull(submitReply);
 		}
-		logger.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 }

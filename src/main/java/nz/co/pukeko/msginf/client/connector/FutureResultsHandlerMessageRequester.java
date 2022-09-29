@@ -10,6 +10,7 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 
@@ -19,6 +20,7 @@ import EDU.oswego.cs.dl.util.concurrent.FutureResult;
  * This class handles the requests to and the replies from the temporary reply queue. 
  * @author alisdairh
  */
+@Slf4j
 public class FutureResultsHandlerMessageRequester extends BaseMessageRequester implements MessageListener {
     private final Map<String,FutureResult> requests = new HashMap<>();
 	
@@ -78,7 +80,7 @@ public class FutureResultsHandlerMessageRequester extends BaseMessageRequester i
      */
     public void close() throws MessageRequesterException {
     	if (consumer != null) {
-    		logger.debug("Closing the FutureResultsHandlerMessageRequester");
+    		log.debug("Closing the FutureResultsHandlerMessageRequester");
     		try {
         		consumer.close();
     		} catch (JMSException jmse) {
@@ -110,7 +112,7 @@ public class FutureResultsHandlerMessageRequester extends BaseMessageRequester i
             }
         }
         catch (JMSException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 

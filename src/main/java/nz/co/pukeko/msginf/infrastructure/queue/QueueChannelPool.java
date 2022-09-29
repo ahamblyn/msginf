@@ -7,12 +7,9 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.Session;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueChannelException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This class preallocates, recycles, and manages a pool of queue channels.
@@ -23,12 +20,8 @@ import org.apache.logging.log4j.Logger;
  * @author Alisdair Hamblyn
  */
 
+@Slf4j
 public class QueueChannelPool implements Runnable {
-
-    /**
-     * The log4j2 logger.
-     */
-   private static final Logger logger = LogManager.getLogger(QueueChannelPool.class);
 
     /**
      * The maximum number of queue channels per queue manager. Limited to 100
@@ -67,7 +60,6 @@ public class QueueChannelPool implements Runnable {
      */
    public QueueChannelPool(QueueConnectionFactory connFactory, int queueChannelLimit) throws MessageException {
       this.queueChannelLimit = queueChannelLimit;
-      MessagingLoggerConfiguration.configure();
       this.connFactory = connFactory;
       startQueueChannels();
    }
@@ -125,7 +117,7 @@ public class QueueChannelPool implements Runnable {
             notifyAll();
          }
       } catch (MessageException me) {
-         logger.error(me.getMessage(), me);
+         log.error(me.getMessage(), me);
       }
    }
 

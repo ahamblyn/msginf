@@ -6,12 +6,14 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.QueueManager;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.client.adapter.MessageTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 public class ActiveMQSubmitTest extends MessageTest {
 
 	@BeforeAll
@@ -37,10 +39,10 @@ public class ActiveMQSubmitTest extends MessageTest {
 
 	@Test
 	public void submitSmallFile() throws Exception {
-		logger.info("Running submit small file test...");
+		log.info("Running submit small file test...");
 		runSubmitTest("activemq_submit_binary", "8520.pdf", 10);
 		// dequeue the messages and compare expected sizes
 		retrieveSubmitMessageSizesAndAnalyze(createActiveMQContext(), "QueueConnectionFactory", "TestQueue", 8520);
-		logger.info("Submit small file test OK");
+		log.info("Submit small file test OK");
 	}
 }

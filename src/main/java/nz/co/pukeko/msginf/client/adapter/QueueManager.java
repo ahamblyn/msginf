@@ -8,18 +8,14 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.zip.Deflater;
 
+import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.connector.MessageController;
 import nz.co.pukeko.msginf.client.connector.MessageControllerFactory;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
-import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
-import nz.co.pukeko.msginf.infrastructure.logging.MessagingLoggerConfiguration;
-import nz.co.pukeko.msginf.infrastructure.pref.xmlbeans.XMLMessageInfrastructurePropertiesFileParser;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 
 /**
  * The QueueManager is used by client applications to send and receive messages.
@@ -27,6 +23,7 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author Alisdair Hamblyn
  */
+@Slf4j
 public class QueueManager implements QueueManagerAgreement {
 
 	/**
@@ -45,20 +42,10 @@ public class QueueManager implements QueueManagerAgreement {
 	private final Hashtable<String,MessageController> messageControllers = new Hashtable<>();
 
 	/**
-	 * The log4j2 logger.
-	 */
-	private static final Logger logger = LogManager.getLogger(QueueManager.class);
-
-	/**
 	 * The Messaging System.
 	 */
 	private final String messagingSystem;
 
-	/**
-	 * The queue statistics collector.
-	 */
-	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
-	
 	/**
 	 * Whether to log the statistics or not.
 	 */
@@ -71,7 +58,6 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @throws MessageException message exception
 	 */
 	public QueueManager(String messagingSystem, boolean logStatistics) throws MessageException {
-		MessagingLoggerConfiguration.configure();
 		this.messagingSystem = messagingSystem;
 		this.logStatistics = logStatistics;
 		if (queueManagerConfigurationProperties == null) {
@@ -95,7 +81,7 @@ public class QueueManager implements QueueManagerAgreement {
     /**
 	 * Sends a text message to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param message the text message.
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
@@ -106,7 +92,7 @@ public class QueueManager implements QueueManagerAgreement {
     /**
 	 * Sends a text message to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param message the text message.
 	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
 	 * @return the reply (null for asynchronous messages).
@@ -120,25 +106,12 @@ public class QueueManager implements QueueManagerAgreement {
 	}
 
 	private Object putMessageOnQueue(String connector, String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
-		String statsName = this.getClass().getName() + ":" + connector;
 		Object result;
 		try {
-			long time = System.currentTimeMillis();
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			bos.write(message.getBytes());
 			result = mc.sendMessage(bos,headerProperties);
-			if (logStatistics) {
-				collector.incrementMessageCount(statsName);
-			}
-			if (logStatistics) {
-				long timeTaken = System.currentTimeMillis() - time;
-				collector.addMessageTime(statsName, timeTaken);
-				logger.debug("Time taken for MessageController to deal with the message," + timeTaken / 1000f);
-			}
 		} catch (IOException ioe) {
-			if (logStatistics) {
-				collector.incrementFailedMessageCount(statsName);
-			}
 			throw new QueueManagerException(ioe);
 		}
 		return result;
@@ -147,7 +120,7 @@ public class QueueManager implements QueueManagerAgreement {
     /**
 	 * Sends a binary message to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param messageStream the binary message stream.
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
@@ -159,7 +132,7 @@ public class QueueManager implements QueueManagerAgreement {
     /**
 	 * Sends a binary message to the connector specified. Returns null for asynchronous (submit) connectors 
 	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param messageStream the binary message stream.
 	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
 	 * @return the reply (null for asynchronous messages).
@@ -170,25 +143,13 @@ public class QueueManager implements QueueManagerAgreement {
 		if (messageStream instanceof ByteArrayOutputStream) {
 			MessageController mc = getMessageConnector(connector);
 			try {
-				long time = System.currentTimeMillis();
 				QueueManagerConfigurationProperties qmbcp = queueManagerConfigurationProperties.get(connector);
 				if (qmbcp.compressBinaryMessages()) {
 					result = mc.sendMessage(compress((ByteArrayOutputStream)messageStream),headerProperties);
 				} else {
 					result = mc.sendMessage((ByteArrayOutputStream)messageStream,headerProperties);
 				}
-				if (logStatistics) {
-					collector.incrementMessageCount(connector);
-				}
-				if (logStatistics) {
-					long timeTaken = System.currentTimeMillis() - time;
-					collector.addMessageTime(connector, timeTaken);
-					logger.debug("Time taken for MessageController to deal with the message," + timeTaken / 1000f);
-				}
 			} catch (MessageException me) {
-				if (logStatistics) {
-					collector.incrementFailedMessageCount(connector);
-				}
 				throw me;
 			}
 		} else {
@@ -199,7 +160,7 @@ public class QueueManager implements QueueManagerAgreement {
 	
 	/**
 	 * Receives all the messages as Strings.
-	 * @param connector the name of the connector as defined in the XML properties file.
+	 * @param connector the name of the connector as defined in the properties file.
 	 * @param timeout the timeout in milliseconds.
 	 * @return a list containing all the messages found.
 	 */
@@ -253,7 +214,7 @@ public class QueueManager implements QueueManagerAgreement {
 			mc = messageConnFactory.getNewQueueControllerInstance(messagingSystem, connector, logStatistics);
 			if (mc == null) {
 				// No MessageController exists for the messaging systems and connector.
-				throw new ConfigurationException("The " + connector + " connector does not exist in the XML configuration file for the " + messagingSystem + " messaging system.");
+				throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");
 			} else {
 				messageControllers.put(connector, mc);
 			}
@@ -262,7 +223,7 @@ public class QueueManager implements QueueManagerAgreement {
 	}
 
 	private void loadConfig() throws MessageException {
-		XMLMessageInfrastructurePropertiesFileParser parser = new XMLMessageInfrastructurePropertiesFileParser(messagingSystem);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
         // Submit Connectors
     	List<String> submitConnectorNames = parser.getSubmitConnectorNames();
 		for (String connectorName : submitConnectorNames) {
