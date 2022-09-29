@@ -3,10 +3,7 @@ package nz.co.pukeko.msginf.controllers;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
 import nz.co.pukeko.msginf.services.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -21,8 +18,10 @@ public class MessageController {
     }
 
     @PostMapping(path = "/submit")
-    public MessageResponse submit(@RequestBody String payload) {
-        Optional<MessageResponse> messageResponse = messageService.submit(payload);
+    public MessageResponse submit(@RequestHeader(name="x-message-system") String messageSystem,
+                                  @RequestHeader(name="x-message-connector") String messageConnector,
+                                  @RequestBody String payload) {
+        Optional<MessageResponse> messageResponse = messageService.submit(messageSystem, messageConnector, payload);
         return messageResponse.orElseGet(MessageResponse::new);
     }
 

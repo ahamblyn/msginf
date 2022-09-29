@@ -13,16 +13,14 @@ import java.util.Optional;
 public class MessageService implements IMessageService {
 
     @Override
-    public Optional<MessageResponse> submit(String payload) {
-        // TODO hard code the queue manager parameters for now
+    public Optional<MessageResponse> submit(String messageSystem, String messageConnector, String payload) {
         try {
-            QueueManager queueManager = new QueueManager("activemq");
-            queueManager.sendMessage("activemq_submit_text", payload);
+            QueueManager queueManager = new QueueManager(messageSystem);
+            queueManager.sendMessage(messageConnector, payload);
             queueManager.close();
             return Optional.of(new MessageResponse("Message submitted successfully"));
         } catch (MessageException e) {
-            log.error("Unable to submit the message", e);
+            return Optional.of(new MessageResponse(e.getMessage()));
         }
-        return Optional.empty();
     }
 }

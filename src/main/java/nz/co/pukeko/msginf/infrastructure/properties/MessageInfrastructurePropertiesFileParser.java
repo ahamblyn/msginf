@@ -60,7 +60,7 @@ public class MessageInfrastructurePropertiesFileParser {
         this.messagingSystem = messagingSystem;
         parseFile();
         Optional<System> sys = findSystem();
-        currentSystem = sys.orElseThrow(()-> new PropertiesFileException("No system was found in the properties file for ${messagingSystem}"));
+        currentSystem = sys.orElseThrow(()-> new PropertiesFileException("No system was found in the properties file for " + messagingSystem));
     }
 
     private void parseFile() throws PropertiesFileException {
