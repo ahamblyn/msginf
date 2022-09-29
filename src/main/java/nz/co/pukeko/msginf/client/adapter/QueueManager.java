@@ -112,7 +112,6 @@ public class QueueManager implements QueueManagerAgreement {
 	}
 
 	private Object putMessageOnQueue(String connector, String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
-		String statsName = this.getClass().getName() + ":" + connector;
 		Object result;
 		try {
 			long time = System.currentTimeMillis();
@@ -120,16 +119,16 @@ public class QueueManager implements QueueManagerAgreement {
 			bos.write(message.getBytes());
 			result = mc.sendMessage(bos,headerProperties);
 			if (logStatistics) {
-				collector.incrementMessageCount(statsName);
+				collector.incrementMessageCount(connector);
 			}
 			if (logStatistics) {
 				long timeTaken = System.currentTimeMillis() - time;
-				collector.addMessageTime(statsName, timeTaken);
+				collector.addMessageTime(connector, timeTaken);
 				log.debug("Time taken for MessageController to deal with the message," + timeTaken / 1000f);
 			}
 		} catch (IOException ioe) {
 			if (logStatistics) {
-				collector.incrementFailedMessageCount(statsName);
+				collector.incrementFailedMessageCount(connector);
 			}
 			throw new QueueManagerException(ioe);
 		}

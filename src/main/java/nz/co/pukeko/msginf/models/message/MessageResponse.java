@@ -9,4 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 public class MessageResponse {
     private String message;
+    private String transactionId;
+    private Long responseTimeInMilliseconds;
 }

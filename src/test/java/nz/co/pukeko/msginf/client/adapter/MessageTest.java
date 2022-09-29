@@ -12,10 +12,10 @@ import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 
-import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.AfterAll;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class MessageTest {
@@ -106,7 +106,7 @@ public class MessageTest {
 		if (messageSizes != null) {
             for (Integer messageSize : messageSizes) {
                 if (messageSize != expectedMessageSize) {
-                    throw new AssertionFailedError("The message retrieved is not of the expected size: " + expectedMessageSize + ". A message of " + messageSize + " was retrieved.");
+                    fail("The message retrieved is not of the expected size: " + expectedMessageSize + ". A message of " + messageSize + " was retrieved.");
                 }
             }
         }
@@ -120,7 +120,7 @@ public class MessageTest {
 				queueManager.sendMessage(connector, bos, createTestNameHeaderProperties("submit"));
 			}
 		} else {
-			throw new AssertionFailedError("Unable to read: " + fileName);
+			fail("Unable to read: " + fileName);
 		}
 	}
 	
@@ -131,18 +131,18 @@ public class MessageTest {
 			if (type.equals("text")) {
 				// assert that a String is returned and it is of the size requested.
 				if (!(reply instanceof String)) {
-					throw new AssertionFailedError("The text reply message is not a String. A text message was requested.");
+					fail("The text reply message is not a String. A text message was requested.");
 				}
 				if (!(((String)reply).length() == Integer.parseInt(size))) {
-					throw new AssertionFailedError("The text reply message is not of the size requested.");
+					fail("The text reply message is not of the size requested.");
 				}
 			} else {
 				// assert that a byte[] is returned and it is of the size requested.
 				if (!(reply instanceof byte[])) {
-					throw new AssertionFailedError("The binary reply message is not a byte[]. A binary message was requested.");
+					fail("The binary reply message is not a byte[]. A binary message was requested.");
 				}
 				if (!(((byte[])reply).length == Integer.parseInt(size))) {
-					throw new AssertionFailedError("The binary reply message is not of the size requested.");
+					fail("The binary reply message is not of the size requested.");
 				}
 			}
 		}
