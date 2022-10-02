@@ -1,8 +1,8 @@
 package nz.co.pukeko.msginf.infrastructure.queue;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 
 import javax.jms.QueueConnectionFactory;
 import javax.naming.Context;
@@ -18,7 +18,7 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
  * This class if a factory class to control the queue channel pool class. A single
  * queue channel pool class is instantiated for each queue connection factory.
  * This limits the number of concurrent TCP/IP connections.
- * 
+ *
  * @author Alisdair Hamblyn
  */
 
@@ -28,163 +28,162 @@ public class QueueChannelPoolFactory {
     /**
      * The static singleton instance.
      */
-   private static QueueChannelPoolFactory qcpf = null;
+    private static QueueChannelPoolFactory qcpf = null;
 
     /**
      * A collection containing the queue channel pools.
      */
-   private Hashtable<String,QueueChannelPool> queueChannelPools;
+    private Hashtable<String, QueueChannelPool> queueChannelPools;
 
     /**
      * The QueueChannelPoolFactory constructor. Instantiates the queue channel
      * pool collection.
      */
-   protected QueueChannelPoolFactory() {
-      queueChannelPools = new Hashtable<>();
-   }
+    protected QueueChannelPoolFactory() {
+        queueChannelPools = new Hashtable<>();
+    }
 
-   private void initialiseAllChannelPools() throws MessageException {
-	   //TODO fix??
-		// initialise all the channel pools
-		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
-       for (String messagingSystem : availableMessagingSystems) {
+    private void initialiseAllChannelPools() throws MessageException {
+        //TODO fix??
+        // initialise all the channel pools
+        MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+        List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
+        for (String messagingSystem : availableMessagingSystems) {
 //			initialise(messagingSystem);
-       }
-   }
+        }
+    }
 
     /**
-	 * Instantiates the singleton QueueChannelPoolFactory instance.
-	 * @return the singleton QueueChannelPoolFactory instance.
-	 */
-   public synchronized static QueueChannelPoolFactory getInstance() {
-      if (qcpf == null) {
-         qcpf = new QueueChannelPoolFactory();
-         log.info("Created QueueChannelPoolFactory");
-      }
-      return qcpf;
-   }
-
-	/**
-	 * Destroys the singleton QueueChannelPoolFactory.
-	 */
-   public synchronized static void destroyInstance() {
-		if (qcpf != null) {
-			qcpf = null;
-			log.info("Destroyed singleton QueueChannelPoolFactory");
-		}
-	}
-
-   /**
-    * Stops all the queue channel pools.
-    * @throws MessageException Message exception
-    */
-   public void stopQueueChannelPools() throws MessageException {
-    	if (queueChannelPools != null && queueChannelPools.size() > 0) {
-    		log.info("Stopping Queue Channel Pools");
-        	Enumeration<String> keys = queueChannelPools.keys();
-        	while (keys.hasMoreElements()) {
-        		String key = keys.nextElement();
-        		QueueChannelPool temp = queueChannelPools.get(key);
-        		log.debug("Queue Channel Pool: " + temp);
-        		// close the channels in the pool
-        		temp.closeQueueChannels();
-        		// dereference queue channel pool
-        		queueChannelPools.remove(temp);
-        		queueChannelPools = null;
-        	}
-    	} else {
-    		throw new QueueChannelException("The Queue Channel Pools have not been started.");
-    	}
+     * Instantiates the singleton QueueChannelPoolFactory instance.
+     *
+     * @return the singleton QueueChannelPoolFactory instance.
+     */
+    public synchronized static QueueChannelPoolFactory getInstance() {
+        return Optional.ofNullable(qcpf).orElseGet(() -> {
+            qcpf = new QueueChannelPoolFactory();
+            log.info("Created QueueChannelPoolFactory");
+            return qcpf;
+        });
     }
-    
-   /**
-    * Restarts all the queue channel pools.
-    * @throws MessageException Message exception
-    */ 
-   public void restartQueueChannelPools() throws MessageException {
-    	if (queueChannelPools != null && queueChannelPools.size() > 0) {
-    		log.info("Restarting Queue Channel Pools");
-    		stopQueueChannelPools();
-        	// create new queue channel pools
+
+    /**
+     * Destroys the singleton QueueChannelPoolFactory.
+     */
+    public synchronized static void destroyInstance() {
+        Optional.ofNullable(qcpf).ifPresent(queueChannelPoolFactory -> {
+            qcpf = null;
+            log.info("Destroyed singleton QueueChannelPoolFactory");
+        });
+    }
+
+    /**
+     * Stops all the queue channel pools.
+     *
+     * @throws MessageException Message exception
+     */
+    public void stopQueueChannelPools() throws MessageException {
+        Optional.ofNullable(queueChannelPools).orElseThrow(() -> new QueueChannelException("The Queue Channel Pools have not been started."));
+        log.info("Stopping Queue Channel Pools");
+        queueChannelPools.keySet().forEach(key -> {
+            QueueChannelPool temp = queueChannelPools.get(key);
+            log.debug("Queue Channel Pool: " + temp);
+            // close the channels in the pool
+            temp.closeQueueChannels();
+            // dereference queue channel pool
+            queueChannelPools.remove(temp);
+            queueChannelPools = null;
+        });
+    }
+
+    /**
+     * Restarts all the queue channel pools.
+     *
+     * @throws MessageException Message exception
+     */
+    public void restartQueueChannelPools() throws MessageException {
+        Optional.ofNullable(queueChannelPools).orElseThrow(() -> new QueueChannelException("The Queue Channel Pools have not been started."));
+        log.info("Restarting Queue Channel Pools");
+        stopQueueChannelPools();
+        // create new queue channel pools
+        initQCPF();
+    }
+
+    /**
+     * Starts all the queue channel pools.
+     *
+     * @throws MessageException Message exception
+     */
+    public void startQueueChannelPools() throws MessageException {
+        // TODO optional
+        if (queueChannelPools == null || queueChannelPools.size() == 0) {
+            log.info("Starting Queue Channel Pools");
+            // create new queue channel pools
             initQCPF();
-    	} else {
-    		throw new QueueChannelException("The Queue Channel Pools have not been started.");
-    	}
-    }
-
-	/**
-	 * Starts all the queue channel pools.
-	 * @throws MessageException Message exception
-	 */
-   public void startQueueChannelPools() throws MessageException {
-    	if (queueChannelPools == null || queueChannelPools.size() == 0) {
-    		log.info("Starting Queue Channel Pools");
-        	// create new queue channel pools
-            initQCPF();
-    	} else {
-    		throw new QueueChannelException("The Queue Channel Pools have already been started.");
-    	}
-    }
-    
-	private void initQCPF() throws MessageException {
-        queueChannelPools = new Hashtable<>();
-		if (qcpf != null) {
-			qcpf.initialiseAllChannelPools();
-		} else {
-			throw new QueueChannelException("As the queue channel pools will be started automagically by the first message, there is no need to start them manually.");
-		}
-	}
-
-	/**
-	 * Gets the queue channel pool for the queue connection factory.
-	 * @param queueConnectionFactoryName the queue connection factory name.
-	 * @return the queue channel pool.
-	 * @throws MessageException Message exception
-	 */
-	public synchronized QueueChannelPool getQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException {
-        QueueChannelPool qcp = queueChannelPools.get(queueConnectionFactoryName);
-        if (qcp == null) {
-        	// create QCP and store
-        	try {
-				qcp = createQueueChannelPool(jmsContext, messagingSystem, queueConnectionFactoryName);
-	        	queueChannelPools.put(queueConnectionFactoryName, qcp);
-			} catch (NamingException ne) {
-				throw new QueueChannelException(ne);
-			}
+        } else {
+            throw new QueueChannelException("The Queue Channel Pools have already been started.");
         }
-        return qcp;
     }
 
-  private QueueChannelPool createQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException, NamingException {
-	  MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
-    // create the connection pools based on the config and put into the hashtable
-    int queueChannelLimit = parser.getMaxConnections();
-    // Submit Connectors
-	List<String> submitConnectorNames = parser.getSubmitConnectorNames();
-      for (String connectorName : submitConnectorNames) {
-          String submitQueueManagerName = parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName);
-          if (submitQueueManagerName != null && !submitQueueManagerName.equals("")) {
-              if (queueConnectionFactoryName.equals(submitQueueManagerName)) {
-                  // create the QueueChannelPool
-                  QueueConnectionFactory connFactory = (QueueConnectionFactory) jmsContext.lookup(queueConnectionFactoryName);
-                  return new QueueChannelPool(connFactory, queueChannelLimit);
-              }
-          }
-      }
-      // Request Reply connectors
-	List<String> rrConnectorNames = parser.getRequestReplyConnectorNames();
-      for (String connectorName : rrConnectorNames) {
-          String requestQueueManagerName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName);
-          if (requestQueueManagerName != null && !requestQueueManagerName.equals("")) {
-              if (queueConnectionFactoryName.equals(requestQueueManagerName)) {
-                  // create the QueueChannelPool
-                  QueueConnectionFactory connFactory = (QueueConnectionFactory) jmsContext.lookup(queueConnectionFactoryName);
-                  return new QueueChannelPool(connFactory, queueChannelLimit);
-              }
-          }
-      }
-      return null;
-  }
-  
+    private void initQCPF() throws MessageException {
+        queueChannelPools = new Hashtable<>();
+        Optional.ofNullable(qcpf).orElseThrow(() ->
+                new QueueChannelException("As the queue channel pools will be started automagically by the first message, there is no need to start them manually."));
+        qcpf.initialiseAllChannelPools();
+    }
+
+    /**
+     * Gets the queue channel pool for the queue connection factory.
+     *
+     * @param queueConnectionFactoryName the queue connection factory name.
+     * @return the queue channel pool.
+     * @throws MessageException Message exception
+     */
+    public synchronized QueueChannelPool getQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException {
+        // TODO fix up
+        try {
+            return Optional.ofNullable(queueChannelPools.get(queueConnectionFactoryName)).orElseGet(() -> {
+                // create QCP and store
+                try {
+                    Optional<QueueChannelPool> qcp = createQueueChannelPool(jmsContext, messagingSystem, queueConnectionFactoryName);
+                    queueChannelPools.put(queueConnectionFactoryName, qcp.get());
+                    return qcp.get();
+                } catch (NamingException | MessageException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (RuntimeException e) {
+            throw new QueueChannelException(e);
+        }
+    }
+
+    // TODO return optional
+    private Optional<QueueChannelPool> createQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException, NamingException {
+        MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
+        // create the connection pools based on the config and put into the hashtable
+        int queueChannelLimit = parser.getMaxConnections();
+        // Submit Connectors
+        List<String> submitConnectorNames = parser.getSubmitConnectorNames();
+        Optional<String> submitConnector = submitConnectorNames.stream().filter(name -> {
+            String submitQueueManagerName = parser.getSubmitConnectionSubmitQueueConnFactoryName(name);
+            return queueConnectionFactoryName.equals(submitQueueManagerName);
+        }).findFirst();
+		if (submitConnector.isPresent()) {
+			// create the QueueChannelPool
+			QueueConnectionFactory connFactory = (QueueConnectionFactory) jmsContext.lookup(queueConnectionFactoryName);
+			return Optional.of(new QueueChannelPool(connFactory, queueChannelLimit));
+		}
+        // Request Reply connectors
+        List<String> rrConnectorNames = parser.getRequestReplyConnectorNames();
+		Optional<String> rrConnector = rrConnectorNames.stream().filter(name -> {
+			String requestQueueManagerName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(name);
+			return queueConnectionFactoryName.equals(requestQueueManagerName);
+		}).findFirst();
+		if (rrConnector.isPresent()) {
+			// create the QueueChannelPool
+			QueueConnectionFactory connFactory = (QueueConnectionFactory) jmsContext.lookup(queueConnectionFactoryName);
+			return Optional.of(new QueueChannelPool(connFactory, queueChannelLimit));
+		}
+        return Optional.empty();
+    }
+
 }

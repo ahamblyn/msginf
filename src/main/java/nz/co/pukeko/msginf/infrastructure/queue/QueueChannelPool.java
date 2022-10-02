@@ -136,18 +136,18 @@ public class QueueChannelPool implements Runnable {
     * Closes all the queue channels.
     */
    public synchronized void closeQueueChannels() {
-  		// close all the channels
-  	   	for (int i = 0; i < availableQueueChannels.size(); i++) {
-  	   		(availableQueueChannels.elementAt(i)).close();
-  	   	}
-  	   	for (int i = 0; i < busyQueueChannels.size(); i++) {
-  	   		(busyQueueChannels.elementAt(i)).close();
-  	   	}
-  	   	// dereference
-  	   	availableQueueChannels.clear();
-  	   	busyQueueChannels.clear();
-		availableQueueChannels = new Vector<>(queueChannelLimit);
-        busyQueueChannels = new Vector<>();
+      // close all the channels
+      for (QueueChannel queueChannel : availableQueueChannels) {
+         queueChannel.close();
+      }
+      for (QueueChannel queueChannel : busyQueueChannels) {
+         queueChannel.close();
+      }
+      // dereference
+  	  availableQueueChannels.clear();
+  	  busyQueueChannels.clear();
+	  availableQueueChannels = new Vector<>(queueChannelLimit);
+      busyQueueChannels = new Vector<>();
    }
 
     /**

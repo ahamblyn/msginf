@@ -1,13 +1,12 @@
 package nz.co.pukeko.msginf.controllers;
 
+import nz.co.pukeko.msginf.models.message.MessageResponse;
 import nz.co.pukeko.msginf.services.IStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/statistics")
@@ -22,6 +21,12 @@ public class StatisticsController {
     @GetMapping("/all")
     public String all() {
         String statistics = statisticsService.allStatistics();
+        return statistics;
+    }
+
+    @GetMapping("/reset")
+    public MessageResponse reset() {
+        MessageResponse statistics = statisticsService.resetStatistics();
         return statistics;
     }
 
