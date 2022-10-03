@@ -2,6 +2,7 @@ package nz.co.pukeko.msginf.client.connector;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
@@ -45,12 +46,17 @@ public class MessageControllerFactory {
 	 * @return the singleton MessageControllerFactory instance.
 	 * @throws MessageException Message exception
 	 */
-	public synchronized static MessageControllerFactory getInstance() throws MessageException {
-		if (messageControllerFactory == null) {
-			messageControllerFactory = new MessageControllerFactory();
+	public synchronized static MessageControllerFactory getInstance()  {
+		return Optional.ofNullable(messageControllerFactory).orElseGet(() -> {
+			try {
+				messageControllerFactory = new MessageControllerFactory();
+			} catch (MessageException e) {
+				log.error("Unable to create MessageControllerFactory", e);
+				throw new RuntimeException(e);
+			}
 			log.info("Created singleton MessageControllerFactory");
-		}
-		return messageControllerFactory;
+			return messageControllerFactory;
+		});
 	}
 
 	/**
@@ -72,7 +78,7 @@ public class MessageControllerFactory {
 	 * @return a new MessageController instance for the connector.
 	 * @throws MessageException Message exception
 	 */
-	public synchronized MessageController getNewQueueControllerInstance(String messagingSystem, String connectorName, boolean logStatistics) throws MessageException {
+	public synchronized MessageController getNewMessageControllerInstance(String messagingSystem, String connectorName, boolean logStatistics) throws MessageException {
 		// find the context for the messaging system
 		InitialContext jmsCtx = (InitialContext)jmsContexts.get(messagingSystem);
 		if (jmsCtx == null) {

@@ -58,6 +58,7 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @throws MessageException message exception
 	 */
 	public QueueManager(String messagingSystem, boolean logStatistics) throws MessageException {
+		// TODO catch the RuntimeExceptions and convert to MessageExceptions
 		this.messagingSystem = messagingSystem;
 		this.logStatistics = logStatistics;
 		if (queueManagerConfigurationProperties == null) {
@@ -101,11 +102,11 @@ public class QueueManager implements QueueManagerAgreement {
 	public synchronized Object sendMessage(String connector, String message, HeaderProperties<String,Object> headerProperties) throws MessageException {
 		Object result;
 		MessageController mc = getMessageConnector(connector);
-		result = putMessageOnQueue(connector, message, headerProperties, mc);
+		result = putMessageOnQueue(message, headerProperties, mc);
 		return result;
 	}
 
-	private Object putMessageOnQueue(String connector, String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
+	private Object putMessageOnQueue(String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
 		Object result;
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -211,7 +212,7 @@ public class QueueManager implements QueueManagerAgreement {
 	private MessageController getMessageConnector(String connector) throws MessageException {
 		MessageController mc = messageControllers.get(connector);
 		if (mc == null) {
-			mc = messageConnFactory.getNewQueueControllerInstance(messagingSystem, connector, logStatistics);
+			mc = messageConnFactory.getNewMessageControllerInstance(messagingSystem, connector, logStatistics);
 			if (mc == null) {
 				// No MessageController exists for the messaging systems and connector.
 				throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");

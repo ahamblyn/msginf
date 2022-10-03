@@ -156,7 +156,6 @@ public class QueueChannelPoolFactory {
         }
     }
 
-    // TODO return optional
     private Optional<QueueChannelPool> createQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException, NamingException {
         MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
         // create the connection pools based on the config and put into the hashtable
