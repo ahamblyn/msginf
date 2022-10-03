@@ -92,9 +92,9 @@ public class Util {
 		MessageInfrastructurePropertiesFileParser systemParser = new MessageInfrastructurePropertiesFileParser();
 		List<String> availableMessagingSystems = systemParser.getAvailableMessagingSystems();
 		for (String messagingSystem : availableMessagingSystems) {
-			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
+			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 			// load system specific jar files into classpath
-			List<String> jarFileNames = parser.getJarFileNames();
+			List<String> jarFileNames = parser.getJarFileNames(messagingSystem);
 			try {
 				for (String jarFileName : jarFileNames) {
 					ClassPathHacker.addFile(jarFileName);
@@ -113,13 +113,13 @@ public class Util {
 	 */
 	public static Context createContext(String messagingSystem) throws MessageException {
 		InitialContext jmsCtx = null;
-		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
-		String initialContextFactory = parser.getSystemInitialContextFactory();
-		String url = parser.getSystemUrl();
-		String host = parser.getSystemHost();
-		int port = parser.getSystemPort();
-		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs();
-		List<PropertiesQueue> queues = parser.getQueues();
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
+		String url = parser.getSystemUrl(messagingSystem);
+		String host = parser.getSystemHost(messagingSystem);
+		int port = parser.getSystemPort(messagingSystem);
+		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
+		List<PropertiesQueue> queues = parser.getQueues(messagingSystem);
 		try {
 			if (initialContextFactory == null || initialContextFactory.equals("")) {
 				// no properties required to initialise context

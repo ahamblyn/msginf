@@ -224,18 +224,18 @@ public class QueueManager implements QueueManagerAgreement {
 	}
 
 	private void loadConfig() throws MessageException {
-		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
         // Submit Connectors
-    	List<String> submitConnectorNames = parser.getSubmitConnectorNames();
+    	List<String> submitConnectorNames = parser.getSubmitConnectorNames(messagingSystem);
 		for (String connectorName : submitConnectorNames) {
-			boolean compressBinaryMessages = parser.getSubmitCompressBinaryMessages(connectorName);
+			boolean compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, connectorName);
 			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, false);
 			queueManagerConfigurationProperties.put(connectorName, qmbcp);
 		}
         // Request Reply connectors
-    	List<String> rrConnectorNames = parser.getRequestReplyConnectorNames();
+    	List<String> rrConnectorNames = parser.getRequestReplyConnectorNames(messagingSystem);
 		for (String connectorName : rrConnectorNames) {
-			boolean compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(connectorName);
+			boolean compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, connectorName);
 			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, true);
 			queueManagerConfigurationProperties.put(connectorName, qmbcp);
 		}

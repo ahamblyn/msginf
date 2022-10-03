@@ -86,25 +86,25 @@ public class MessageControllerFactory {
 			throw new QueueControllerNotFoundException("The JMS Context for " + messagingSystem + " was not found.");
 		}
 		MessageController mc = null;
-		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 		// check if the connector required is a submit one
-		if (parser.doesSubmitExist(connectorName)) {
-			String submitQueueName = parser.getSubmitConnectionSubmitQueueName(connectorName);
-			String submitQueueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(connectorName);
-			String messageClassName = parser.getSubmitConnectionMessageClassName(connectorName);
-			int messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(connectorName);
-			int replyWaitTime = parser.getSubmitConnectionReplyWaitTime(connectorName);
+		if (parser.doesSubmitExist(messagingSystem, connectorName)) {
+			String submitQueueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connectorName);
+			String submitQueueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connectorName);
+			String messageClassName = parser.getSubmitConnectionMessageClassName(messagingSystem, connectorName);
+			int messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connectorName);
+			int replyWaitTime = parser.getSubmitConnectionReplyWaitTime(messagingSystem, connectorName);
 			mc = new MessageController(messagingSystem, connectorName, submitQueueName, null, submitQueueConnFactoryName, jmsCtx, false, messageClassName, null, messageTimeToLive, replyWaitTime, logStatistics);
 		}
 		// check if the connector required is a request reply one
-		if (parser.doesRequestReplyExist(connectorName)) {
-			String requestQueueName = parser.getRequestReplyConnectionRequestQueueName(connectorName);
-			String replyQueueName = parser.getRequestReplyConnectionReplyQueueName(connectorName);
-			String requestQueueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(connectorName);
-			String messageClassName = parser.getRequestReplyConnectionMessageClassName(connectorName);
-			String requesterClassName = parser.getRequestReplyConnectionRequesterClassName(connectorName);
-			int messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(connectorName);
-			int replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(connectorName);
+		if (parser.doesRequestReplyExist(messagingSystem, connectorName)) {
+			String requestQueueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connectorName);
+			String replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connectorName);
+			String requestQueueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connectorName);
+			String messageClassName = parser.getRequestReplyConnectionMessageClassName(messagingSystem, connectorName);
+			String requesterClassName = parser.getRequestReplyConnectionRequesterClassName(messagingSystem, connectorName);
+			int messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connectorName);
+			int replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connectorName);
 			mc = new MessageController(messagingSystem, connectorName, requestQueueName, replyQueueName, requestQueueConnFactoryName, jmsCtx, true, messageClassName, requesterClassName, messageTimeToLive, replyWaitTime, logStatistics);
 		}
 		return mc;

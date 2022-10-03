@@ -26,8 +26,8 @@ public class ConfigurationService implements IConfigurationService {
     @Override
     public Optional<System> getSystem(String name) {
         try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(name);
-            return Optional.of(parser.getCurrentSystem());
+            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+            return parser.getSystem(name);
         } catch (Exception e) {
             log.error("Unable to retrieve the configuration", e);
         }

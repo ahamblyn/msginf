@@ -27,7 +27,7 @@ public class Messenger {
                     try {
                         queueManagers.put(messagingSystem, new QueueManager(messagingSystem, true));
                     } catch (MessageException e) {
-                        log.error("Unable to create QueueManager for ${messagingSystem}");
+                        log.error("Unable to create QueueManager for " + messagingSystem);
                     }
                 }
             });

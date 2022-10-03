@@ -157,13 +157,13 @@ public class QueueChannelPoolFactory {
     }
 
     private Optional<QueueChannelPool> createQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException, NamingException {
-        MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
+        MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
         // create the connection pools based on the config and put into the hashtable
-        int queueChannelLimit = parser.getMaxConnections();
+        int queueChannelLimit = parser.getMaxConnections(messagingSystem);
         // Submit Connectors
-        List<String> submitConnectorNames = parser.getSubmitConnectorNames();
+        List<String> submitConnectorNames = parser.getSubmitConnectorNames(messagingSystem);
         Optional<String> submitConnector = submitConnectorNames.stream().filter(name -> {
-            String submitQueueManagerName = parser.getSubmitConnectionSubmitQueueConnFactoryName(name);
+            String submitQueueManagerName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, name);
             return queueConnectionFactoryName.equals(submitQueueManagerName);
         }).findFirst();
 		if (submitConnector.isPresent()) {
@@ -172,9 +172,9 @@ public class QueueChannelPoolFactory {
 			return Optional.of(new QueueChannelPool(connFactory, queueChannelLimit));
 		}
         // Request Reply connectors
-        List<String> rrConnectorNames = parser.getRequestReplyConnectorNames();
+        List<String> rrConnectorNames = parser.getRequestReplyConnectorNames(messagingSystem);
 		Optional<String> rrConnector = rrConnectorNames.stream().filter(name -> {
-			String requestQueueManagerName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(name);
+			String requestQueueManagerName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, name);
 			return queueConnectionFactoryName.equals(requestQueueManagerName);
 		}).findFirst();
 		if (rrConnector.isPresent()) {
