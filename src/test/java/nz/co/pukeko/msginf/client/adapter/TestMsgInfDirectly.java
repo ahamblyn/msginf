@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,18 +16,20 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class TestMsgInfDirectly {
 	private static QueueManager queueManager;
 	private static MessageRequestReply messageRequestReply;
+	private static MessageInfrastructurePropertiesFileParser parser;
 
 	@BeforeAll
 	public static void setUp() {
-		messageRequestReply = new MessageRequestReply("activemq",
-				"QueueConnectionFactory", "RequestQueue",
-				"ReplyQueue", "true");
-		messageRequestReply.run();
 		try {
-			queueManager = new QueueManager("activemq", true);
+			parser = new MessageInfrastructurePropertiesFileParser();
+			messageRequestReply = new MessageRequestReply(parser, "activemq",
+					"QueueConnectionFactory", "RequestQueue",
+					"ReplyQueue", "true");
+			queueManager = new QueueManager(parser, "activemq", true);
 		} catch (MessageException e) {
 			e.printStackTrace();
 		}
+		messageRequestReply.run();
 	}
 
 	@AfterAll

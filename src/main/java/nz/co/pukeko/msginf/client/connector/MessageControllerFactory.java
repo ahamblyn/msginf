@@ -31,25 +31,33 @@ public class MessageControllerFactory {
 	 * The JMS contexts.
 	 */
 	private Hashtable<String,Context> jmsContexts = null;
-	
+
+	/**
+	 * The properties file parser.
+	 */
+	private MessageInfrastructurePropertiesFileParser parser;
+
 	/**
 	 * The MessageControllerFactory constructor.
+	 * @param parser the properties file parser
 	 * @throws MessageException Message exception
 	 */
-	protected MessageControllerFactory() throws MessageException {
-		initialise();
+	protected MessageControllerFactory(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
+		this.parser = parser;
+		initialise(parser);
 	}
 
 	/**
 	 * Gets the singleton MessageControllerFactory instance.
 	 * Used by the QueueManager.
+	 * @param parser the properties file parser
 	 * @return the singleton MessageControllerFactory instance.
 	 * @throws MessageException Message exception
 	 */
-	public synchronized static MessageControllerFactory getInstance()  {
+	public synchronized static MessageControllerFactory getInstance(MessageInfrastructurePropertiesFileParser parser)  {
 		return Optional.ofNullable(messageControllerFactory).orElseGet(() -> {
 			try {
-				messageControllerFactory = new MessageControllerFactory();
+				messageControllerFactory = new MessageControllerFactory(parser);
 			} catch (MessageException e) {
 				log.error("Unable to create MessageControllerFactory", e);
 				throw new RuntimeException(e);
@@ -86,7 +94,6 @@ public class MessageControllerFactory {
 			throw new QueueControllerNotFoundException("The JMS Context for " + messagingSystem + " was not found.");
 		}
 		MessageController mc = null;
-		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 		// check if the connector required is a submit one
 		if (parser.doesSubmitExist(messagingSystem, connectorName)) {
 			String submitQueueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connectorName);
@@ -94,7 +101,7 @@ public class MessageControllerFactory {
 			String messageClassName = parser.getSubmitConnectionMessageClassName(messagingSystem, connectorName);
 			int messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connectorName);
 			int replyWaitTime = parser.getSubmitConnectionReplyWaitTime(messagingSystem, connectorName);
-			mc = new MessageController(messagingSystem, connectorName, submitQueueName, null, submitQueueConnFactoryName, jmsCtx, false, messageClassName, null, messageTimeToLive, replyWaitTime, logStatistics);
+			mc = new MessageController(parser, messagingSystem, connectorName, submitQueueName, null, submitQueueConnFactoryName, jmsCtx, false, messageClassName, null, messageTimeToLive, replyWaitTime, logStatistics);
 		}
 		// check if the connector required is a request reply one
 		if (parser.doesRequestReplyExist(messagingSystem, connectorName)) {
@@ -105,20 +112,19 @@ public class MessageControllerFactory {
 			String requesterClassName = parser.getRequestReplyConnectionRequesterClassName(messagingSystem, connectorName);
 			int messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connectorName);
 			int replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connectorName);
-			mc = new MessageController(messagingSystem, connectorName, requestQueueName, replyQueueName, requestQueueConnFactoryName, jmsCtx, true, messageClassName, requesterClassName, messageTimeToLive, replyWaitTime, logStatistics);
+			mc = new MessageController(parser, messagingSystem, connectorName, requestQueueName, replyQueueName, requestQueueConnFactoryName, jmsCtx, true, messageClassName, requesterClassName, messageTimeToLive, replyWaitTime, logStatistics);
 		}
 		return mc;
 	}
 
-	private void initialise() throws MessageException {
+	private void initialise(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
 		// load the runtime jar files
-		Util.loadRuntimeJarFiles();
+		Util.loadRuntimeJarFiles(parser);
 		jmsContexts = new Hashtable<>();
 		//Initialise a jndi context for each system in the properties file
-		MessageInfrastructurePropertiesFileParser systemParser = new MessageInfrastructurePropertiesFileParser();
-		List<String> availableMessagingSystems = systemParser.getAvailableMessagingSystems();
+		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
         for (String messagingSystem : availableMessagingSystems) {
-            Context context = Util.createContext(messagingSystem);
+            Context context = Util.createContext(parser, messagingSystem);
             if (context != null) {
                 jmsContexts.put(messagingSystem, context);
             }
@@ -130,8 +136,8 @@ public class MessageControllerFactory {
 	 * Re-read the properties file and reconnect to the configured messaging systems
 	 * @throws MessageException Message exception
 	 */
-	public void reloadMessagingSystems() throws MessageException {
-		initialise();
+	public void reloadMessagingSystems(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
+		initialise(parser);
 	}
 	
 	/**

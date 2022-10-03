@@ -46,11 +46,13 @@ public class QueueChannelPoolFactory {
     private void initialiseAllChannelPools() throws MessageException {
         //TODO fix??
         // initialise all the channel pools
+/*
         MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
         List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
         for (String messagingSystem : availableMessagingSystems) {
 //			initialise(messagingSystem);
         }
+*/
     }
 
     /**
@@ -138,13 +140,13 @@ public class QueueChannelPoolFactory {
      * @return the queue channel pool.
      * @throws MessageException Message exception
      */
-    public synchronized QueueChannelPool getQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException {
+    public synchronized QueueChannelPool getQueueChannelPool(MessageInfrastructurePropertiesFileParser parser, Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException {
         // TODO fix up
         try {
             return Optional.ofNullable(queueChannelPools.get(queueConnectionFactoryName)).orElseGet(() -> {
                 // create QCP and store
                 try {
-                    Optional<QueueChannelPool> qcp = createQueueChannelPool(jmsContext, messagingSystem, queueConnectionFactoryName);
+                    Optional<QueueChannelPool> qcp = createQueueChannelPool(parser, jmsContext, messagingSystem, queueConnectionFactoryName);
                     queueChannelPools.put(queueConnectionFactoryName, qcp.get());
                     return qcp.get();
                 } catch (NamingException | MessageException e) {
@@ -156,8 +158,7 @@ public class QueueChannelPoolFactory {
         }
     }
 
-    private Optional<QueueChannelPool> createQueueChannelPool(Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException, NamingException {
-        MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+    private Optional<QueueChannelPool> createQueueChannelPool(MessageInfrastructurePropertiesFileParser parser, Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException, NamingException {
         // create the connection pools based on the config and put into the hashtable
         int queueChannelLimit = parser.getMaxConnections(messagingSystem);
         // Submit Connectors

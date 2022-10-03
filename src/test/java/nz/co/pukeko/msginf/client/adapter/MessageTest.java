@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 
@@ -22,11 +24,17 @@ public class MessageTest {
     protected static QueueManager queueManager;
     protected static QueueManager resetQueueManager;
 	protected static MessageRequestReply messageRequestReply;
+	protected static MessageInfrastructurePropertiesFileParser parser;
 
 	public static void setUp() {
-		messageRequestReply = new MessageRequestReply("activemq",
-				"QueueConnectionFactory", "RequestQueue",
-				"ReplyQueue", "true");
+		try {
+			parser = new MessageInfrastructurePropertiesFileParser();
+			messageRequestReply = new MessageRequestReply(parser, "activemq",
+					"QueueConnectionFactory", "RequestQueue",
+					"ReplyQueue", "true");
+		} catch (PropertiesFileException e) {
+			throw new RuntimeException(e);
+		}
 		messageRequestReply.run();
 	}
 
@@ -98,7 +106,7 @@ public class MessageTest {
 	}
 	
 	protected void retrieveSubmitMessageSizesAndAnalyze(Context jmsContext, String queueConnectionFactoryName, String queueName, int expectedMessageSize) throws Exception {
-		MessageReceiver mr = new MessageReceiver(jmsContext, queueConnectionFactoryName, queueName);
+		MessageReceiver mr = new MessageReceiver(parser, jmsContext, queueConnectionFactoryName, queueName);
 		mr.setup();
 		List<Integer> messageSizes = mr.readMessagesSizes();
 		mr.close();

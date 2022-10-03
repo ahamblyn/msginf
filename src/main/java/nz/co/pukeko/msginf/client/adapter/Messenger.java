@@ -25,7 +25,7 @@ public class Messenger {
                 Optional<QueueManager> queueManager = getQueueManager(messagingSystem);
                 if (queueManager.isEmpty()) {
                     try {
-                        queueManagers.put(messagingSystem, new QueueManager(messagingSystem, true));
+                        queueManagers.put(messagingSystem, new QueueManager(parser, messagingSystem, true));
                     } catch (MessageException e) {
                         log.error("Unable to create QueueManager for " + messagingSystem);
                     }

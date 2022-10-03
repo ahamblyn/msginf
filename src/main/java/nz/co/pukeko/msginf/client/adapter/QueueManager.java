@@ -42,6 +42,11 @@ public class QueueManager implements QueueManagerAgreement {
 	private final Hashtable<String,MessageController> messageControllers = new Hashtable<>();
 
 	/**
+	 * The properties file parser.
+	 */
+	private MessageInfrastructurePropertiesFileParser parser;
+
+	/**
 	 * The Messaging System.
 	 */
 	private final String messagingSystem;
@@ -57,8 +62,9 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @param logStatistics log the stats
 	 * @throws MessageException message exception
 	 */
-	public QueueManager(String messagingSystem, boolean logStatistics) throws MessageException {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, boolean logStatistics) throws MessageException {
 		// TODO catch the RuntimeExceptions and convert to MessageExceptions
+		this.parser = parser;
 		this.messagingSystem = messagingSystem;
 		this.logStatistics = logStatistics;
 		if (queueManagerConfigurationProperties == null) {
@@ -66,7 +72,7 @@ public class QueueManager implements QueueManagerAgreement {
 		}
 		loadConfig();
 		if (messageConnFactory == null) {
-			messageConnFactory = MessageControllerFactory.getInstance();
+			messageConnFactory = MessageControllerFactory.getInstance(parser);
 		}
 	}
 	
@@ -75,8 +81,8 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @param messagingSystem the messaging system
 	 * @throws MessageException message exception
 	 */
-	public QueueManager(String messagingSystem) throws MessageException {
-		this(messagingSystem, false);
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) throws MessageException {
+		this(parser, messagingSystem, false);
 	}
 	
     /**
@@ -223,8 +229,7 @@ public class QueueManager implements QueueManagerAgreement {
 		return mc;
 	}
 
-	private void loadConfig() throws MessageException {
-		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+	private void loadConfig() {
         // Submit Connectors
     	List<String> submitConnectorNames = parser.getSubmitConnectorNames(messagingSystem);
 		for (String connectorName : submitConnectorNames) {

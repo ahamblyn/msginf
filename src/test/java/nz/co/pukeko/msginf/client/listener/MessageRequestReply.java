@@ -23,6 +23,7 @@ import javax.naming.NamingException;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
 
 /**
@@ -42,12 +43,13 @@ public class MessageRequestReply implements MessageListener {
 	private boolean bUseCorrelationID = true;
 	private static long messageCount = 0;
 	
-	public MessageRequestReply(String messagingSystem, String queueConnectionFactoryName, String requestQueueName,
+	public MessageRequestReply(MessageInfrastructurePropertiesFileParser parser, String messagingSystem,
+							   String queueConnectionFactoryName, String requestQueueName,
 							   String replyQueueName, String useCorrelationID) {
 		try {
 			// load the runtime jar files
-			Util.loadRuntimeJarFiles();
-			Context context = Util.createContext(messagingSystem);
+			Util.loadRuntimeJarFiles(parser);
+			Context context = Util.createContext(parser, messagingSystem);
          	queueConnectionFactory = (QueueConnectionFactory) context.lookup(queueConnectionFactoryName);
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
@@ -82,9 +84,14 @@ public class MessageRequestReply implements MessageListener {
 		String requestQueueName = args[2];
 		String replyQueueName = args[3];
 		String useCorrelationID = args[4];
-		MessageRequestReply mrr = new MessageRequestReply(messagingSystem, queueConnectionFactoryName, requestQueueName,
-				replyQueueName, useCorrelationID);
-        mrr.run();
+		try {
+			MessageRequestReply mrr = new MessageRequestReply(new MessageInfrastructurePropertiesFileParser(), messagingSystem, queueConnectionFactoryName, requestQueueName,
+					replyQueueName, useCorrelationID);
+			mrr.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 
     public void run() {

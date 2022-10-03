@@ -1,5 +1,7 @@
 package nz.co.pukeko.msginf.infrastructure.properties;
 
+import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -13,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMessageInfrastructurePropertiesFileParser {
 
+    private static MessageInfrastructurePropertiesFileParser parser;
     private static final Map<String, ExpectedConnectorData> expectedConnectorDataMap;
     @TempDir
     private Path tempDir;
@@ -40,11 +43,19 @@ public class TestMessageInfrastructurePropertiesFileParser {
         expectedConnectorDataMap.put("activemq_rr_text_consumer", activemqRequestReplyTextExpectedData);
     }
 
+    @BeforeAll
+    public static void setUp() {
+        try {
+            parser = new MessageInfrastructurePropertiesFileParser();
+        } catch (PropertiesFileException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void validMessagingSystem() {
         String messagingSystem = "activemq";
         try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             assertNotNull(parser.getConfiguration());
             assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
             assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().getName());
@@ -61,7 +72,6 @@ public class TestMessageInfrastructurePropertiesFileParser {
         File tempConfigFile = tempConfigFilePath.toFile();
         try {
             // Get json from classpath config file
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             String json = parser.toString();
             // save json to temp config file
             FileWriter writer = new FileWriter(tempConfigFile);
@@ -69,9 +79,9 @@ public class TestMessageInfrastructurePropertiesFileParser {
             writer.close();
             // set system property and validate
             java.lang.System.setProperty("msginf.propertiesfile", tempConfigFile.getAbsolutePath());
-            parser = new MessageInfrastructurePropertiesFileParser();
-            assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().getName());
-            validateParser(parser);
+            MessageInfrastructurePropertiesFileParser tempFileParser = new MessageInfrastructurePropertiesFileParser();
+            assertEquals(messagingSystem, tempFileParser.getSystem(messagingSystem).orElseThrow().getName());
+            validateParser(tempFileParser);
             java.lang.System.setProperty("msginf.propertiesfile", "");
         } catch (Exception e) {
             fail("Exception thrown on valid messaging system");
