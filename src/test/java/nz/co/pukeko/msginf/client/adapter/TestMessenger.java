@@ -5,7 +5,9 @@ import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,5 +42,57 @@ public class TestMessenger {
         log.info(QueueStatisticsCollector.getInstance().toString());
     }
 
+    @Test
+    @Order(3)
+    public void submitThreads() throws Exception {
+        // submit so no response required - send 50 messages
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Thread newThread = new Thread(() -> {
+                try {
+                    for (int j = 0; j < 10; j++) {
+                        Object submitReply = messenger.sendMessage("activemq", "activemq_submit_text", "MessageZZZZ");
+                        assertNull(submitReply);
+                    }
+                } catch (MessageException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            threads.add(newThread);
+            newThread.start();
+        }
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        // dequeue messages
+        List<String> messages = messenger.receiveMessages("activemq", "activemq_submit_text", 2000);
+        assertNotNull(messages);
+        assertEquals(50, messages.size());
+        log.info(QueueStatisticsCollector.getInstance().toString());
+    }
 
+    @Test
+    @Order(4)
+    public void submitAsync() throws Exception {
+        // submit so no response required - send 20 messages
+        List<CompletableFuture<Object>> futureList=new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            futureList.add(CompletableFuture.supplyAsync(()-> {
+                Object submitReply = null;
+                try {
+                    submitReply = messenger.sendMessage("activemq", "activemq_submit_text", "MessageZZZZ");
+                } catch (MessageException e) {
+                    throw new RuntimeException(e);
+                }
+                assertNull(submitReply);
+                return submitReply;
+            }));
+        }
+        futureList.forEach(CompletableFuture::join);
+        // dequeue messages
+        List<String> messages = messenger.receiveMessages("activemq", "activemq_submit_text", 2000);
+        assertNotNull(messages);
+        assertEquals(20, messages.size());
+        log.info(QueueStatisticsCollector.getInstance().toString());
+    }
 }
