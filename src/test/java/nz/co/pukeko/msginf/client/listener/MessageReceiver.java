@@ -25,6 +25,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
 
 /**
@@ -40,10 +41,10 @@ public class MessageReceiver {
 	private QueueConnection queueConnection;
 	private MessageConsumer messageConsumer;
 
-	public MessageReceiver(Context jndiContext, String queueConnectionFactoryName, String queueName) {
+	public MessageReceiver(MessageInfrastructurePropertiesFileParser parser, Context jndiContext, String queueConnectionFactoryName, String queueName) {
 		// load the runtime jar files
 		try {
-			Util.loadRuntimeJarFiles();
+			Util.loadRuntimeJarFiles(parser);
 		} catch (MessageException me) {
 			me.printStackTrace();
 			System.exit(1);
@@ -52,16 +53,16 @@ public class MessageReceiver {
 		setup(queueConnectionFactoryName, queueName);
 	}
 
-	public MessageReceiver(String messagingSystem, String queueConnectionFactoryName, String queueName) {
+	public MessageReceiver(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String queueConnectionFactoryName, String queueName) {
 		// load the runtime jar files
 		try {
-			Util.loadRuntimeJarFiles();
+			Util.loadRuntimeJarFiles(parser);
 		} catch (MessageException me) {
 			me.printStackTrace();
 			System.exit(1);
 		}
 		try {
-			this.jndiContext = Util.createContext(messagingSystem);
+			this.jndiContext = Util.createContext(parser, messagingSystem);
 		} catch (MessageException me) {
 			me.printStackTrace();
 		}
@@ -80,12 +81,12 @@ public class MessageReceiver {
 			System.out.println("Usage: java nz.co.pukeko.msginf.client.listener.MessageReceiver <messaging system> <queue connection factory name> <queue-name>");
 			System.exit(1);
 		}
-		MessageReceiver test = new MessageReceiver(args[0], args[1], args[2]);
         try {
+			MessageReceiver test = new MessageReceiver(new MessageInfrastructurePropertiesFileParser(), args[0], args[1], args[2]);
             test.setup();
 			test.readAndSaveMessages();
 	        test.close();
-		} catch (NamingException | JMSException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}

@@ -1,9 +1,7 @@
 package nz.co.pukeko.msginf.infrastructure.data;
 
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
+import java.util.Optional;
 
 /**
  * Singleton class to collect timing statistics. This class will collect timings based on the collection name String passed in.
@@ -23,7 +21,7 @@ public class QueueStatisticsCollector {
 	/**
 	 * The QueueStatisticsCollector constructor.
 	 */
-	protected QueueStatisticsCollector() {
+	private QueueStatisticsCollector() {
 	}
 
 	/**
@@ -31,28 +29,19 @@ public class QueueStatisticsCollector {
 	 * @return the singleton QueueStatisticsCollector instance.
 	 */
 	public synchronized static QueueStatisticsCollector getInstance() {
-		if (queueStatisticsCollector == null) {
+		return Optional.ofNullable(queueStatisticsCollector).orElseGet(() -> {
 			queueStatisticsCollector = new QueueStatisticsCollector();
-		}
-		return queueStatisticsCollector;
-	}
-
-	/**
-	 * Static method to destroy the static QueueStatisticsCollector instance.
-	 */
-	public synchronized static void destroyInstance() {
-		if (queueStatisticsCollector != null) {
-			queueStatisticsCollector = null;
-		}
+			return queueStatisticsCollector;
+		});
 	}
 
 	private QueueStatistics getQueueStatistics(String collectionName) {
-		QueueStatistics queueStats = queueStatsTable.get(collectionName);
-		if (queueStats == null) {
-			queueStats = new QueueStatistics();
-			queueStatsTable.put(collectionName, queueStats);
-		}
-		return queueStats;
+		Optional<QueueStatistics> queueStats = Optional.ofNullable(queueStatsTable.get(collectionName));
+		return queueStats.orElseGet(() -> {
+			QueueStatistics qs = new QueueStatistics();
+			queueStatsTable.put(collectionName, qs);
+			return qs;
+		});
 	}
 
 	/**
@@ -87,12 +76,10 @@ public class QueueStatisticsCollector {
 	 * Reset the statistics for each collection.
 	 */
 	public synchronized void resetQueueStatistics() {
-		Enumeration<String> e = queueStatsTable.keys();
-		while (e.hasMoreElements()) {
-			String collectionName = e.nextElement();
+		queueStatsTable.keySet().forEach(collectionName -> {
 			QueueStatistics queueStats = getQueueStatistics(collectionName);
 			queueStats.reset();
-		}
+		});
 		queueStatsTable.clear();
 	}
 
@@ -106,29 +93,19 @@ public class QueueStatisticsCollector {
 	}
 	
 	/**
-	 * Gets the statistics Hashtable.
-	 * @return the statistics Hashtable.
-	 */
-	public Hashtable<String,QueueStatistics> getQueueStatsTable() {
-		return queueStatsTable;
-	}
-	
-	/**
 	 * Returns the collected statistics. 
 	 * @return the collected statistics.
 	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-        Vector<String> v = new Vector<>(queueStatsTable.keySet());
-        Collections.sort(v);
-        for (String key : v) {
-            QueueStatistics qstats = queueStatsTable.get(key);
-            sb.append("Queue Statistics for ");
-            sb.append(key);
-            sb.append(": ");
-            sb.append(qstats);
-            sb.append("\n");
-        }
+		queueStatsTable.keySet().stream().sorted().forEach(key -> {
+			QueueStatistics qstats = queueStatsTable.get(key);
+			sb.append("Queue Statistics for ");
+			sb.append(key);
+			sb.append(": ");
+			sb.append(qstats);
+			sb.append("\n");
+		});
         return sb.toString();
 	}
 }

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.QueueManager;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.client.adapter.MessageTest;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,10 @@ public class ActiveMQEchoTest extends MessageTest {
 		MessageTest.setUp();
 		try {
 			// log the times
-			queueManager = new QueueManager("activemq", true);
+			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+			queueManager = new QueueManager(parser, "activemq", true);
 			// don't log the times
-			resetQueueManager = new QueueManager("activemq", false);
+			resetQueueManager = new QueueManager(parser, "activemq", false);
 		} catch (MessageException e) {
 			e.printStackTrace();
 		}

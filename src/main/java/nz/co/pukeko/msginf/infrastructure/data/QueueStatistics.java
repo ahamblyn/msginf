@@ -1,8 +1,5 @@
 package nz.co.pukeko.msginf.infrastructure.data;
 
-import java.util.Hashtable;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.Vector;
 
 /**
@@ -77,17 +74,7 @@ public class QueueStatistics {
 	 * @return the average time per message.
 	 */
 	public double getAverageTimePerMessage() {
-		int number = messageTimes.size();
-		if (number != 0) {
-			long sum = 0;
-			for (int i = 0; i < messageTimes.size(); i++) {
-				sum = sum + messageTimes.elementAt(i);
-			}
-			return sum/(float)number;
-		} else {
-			// can't divide by 0
-			return 0;
-		}
+		return messageTimes.stream().mapToLong(v -> v).average().orElse(0.0d);
 	}
 	
 	/**
@@ -95,14 +82,7 @@ public class QueueStatistics {
 	 * @return the maximum message time.
 	 */
 	public long getMaxMessageTime() {
-		long maxTime = 0;
-		for (int i = 0; i < messageTimes.size(); i++) {
-			long value = messageTimes.elementAt(i);
-			if (value > maxTime) {
-				maxTime = value;
-			}
-		}
-		return maxTime;
+		return messageTimes.stream().mapToLong(v -> v).max().orElse(0);
 	}
 	
 	/**
@@ -110,35 +90,7 @@ public class QueueStatistics {
 	 * @return the minimum message time.
 	 */
 	public long getMinMessageTime() {
-		long minTime = Long.MAX_VALUE;
-		for (int i = 0; i < messageTimes.size(); i++) {
-			long value = messageTimes.elementAt(i);
-			if (value < minTime) {
-				minTime = value;
-			}
-		}
-		if (minTime == Long.MAX_VALUE) {
-			return 0;
-		}
-		return minTime;
-	}
-	
-	/**
-	 * Gets the histogram data.
-	 * @return the histogram data.
-	 */
-	public Hashtable<Long, Integer> getHistogramData() {
-		Hashtable<Long, Integer> res = new Hashtable<>();
-		SortedSet<Long> ss = new TreeSet<>(messageTimes);
-        for (Long value : ss) {
-            // find the number of times the time occurs in the messageTimes Vector
-            int count = findCount(value);
-            // add to hashtable
-            for (int i = 0; i < count; i++) {
-                res.put(value, count);
-            }
-        }
-        return res;
+		return messageTimes.stream().mapToLong(v -> v).min().orElse(0);
 	}
 	
 	/**
@@ -146,55 +98,9 @@ public class QueueStatistics {
 	 * @return the median message time.
 	 */
 	public double getMedianMessageTime() {
-		double medianTime;
-		Vector<Long> sortedVector = new Vector<>();
-		SortedSet<Long> ss = new TreeSet<>(messageTimes);
-        for (Long value : ss) {
-            // find the number of times the time occurs in the messageTimes Vector
-            int count = findCount(value);
-            // add to sortedVector
-            for (int i = 0; i < count; i++) {
-                sortedVector.add(value);
-            }
-        }
-        // find the "middle" value in the sortedVector
-		int numberMessages = messageTimes.size();
-		int oddEven = numberMessages % 2;
-		int middleIndex = numberMessages / 2;
-		if (oddEven == 1) {
-			// odd number of messages
-			medianTime = sortedVector.elementAt(middleIndex);
-		} else {
-			// even number of messages
-			if (middleIndex == 0) {
-				medianTime = 0.0;
-			} else {
-				long med = sortedVector.elementAt(middleIndex);
-				long med1 = sortedVector.elementAt(middleIndex - 1);
-				// average
-				long sum = med + med1;
-				medianTime = sum/2;
-			}
-		}
-		return medianTime;
-	}
-	
-	private int findCount(long value) {
-		int count = 0;
-		for (int i = 0; i < messageTimes.size(); i++) {
-			if (messageTimes.elementAt(i) == value) {
-				count++;
-			}
-		}
-		return count;
-	}
-	
-	/**
-	 * Gets the message times Vector.
-	 * @return the message times Vector.
-	 */
-	public Vector<Long> getMessageTimes() {
-		return messageTimes;
+		int size = messageTimes.size();
+		return messageTimes.stream().mapToLong(v -> v).sorted()
+				.skip((size - 1) / 2).limit(2 - size % 2).average().orElse(0.0d);
 	}
 	
 	/**

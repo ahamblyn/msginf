@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
 
@@ -54,7 +55,8 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 */
 	public TestQueueManagerMessageHandler(String messagingSystem, String connector, boolean logStatistics) throws MessageException {
 		this.connector = connector;
-		queueManager = new QueueManager(messagingSystem, logStatistics);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+		queueManager = new QueueManager(parser, messagingSystem, logStatistics);
 	}
 
 	/**
@@ -83,7 +85,8 @@ public class TestQueueManagerMessageHandler implements Runnable {
 		this.numberOfIterations = numberOfIterations;
 		this.dataFileName = dataFileName;
 		this.testName = testName;
-		queueManager = new QueueManager(messagingSystem, logStatistics);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+		queueManager = new QueueManager(parser, messagingSystem, logStatistics);
 	}
 
 	/**

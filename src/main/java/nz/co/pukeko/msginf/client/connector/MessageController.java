@@ -31,6 +31,7 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageControllerException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueUnavailableException;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
@@ -154,8 +155,8 @@ public class MessageController {
      * @param logStatistics whether to log the timing statistics or not.
      * @throws MessageException Message exception
      */
-	public MessageController(String messagingSystem, String connector, String queueName, String replyQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
-      this.connector = connector;
+	public MessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String queueName, String replyQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
+	  this.connector = connector;
       this.queueName = queueName;
       this.queueConnFactoryName = queueConnFactoryName;
       this.replyExpected = replyExpected;
@@ -172,7 +173,7 @@ public class MessageController {
           if (qcpf == null) {
               qcpf = QueueChannelPoolFactory.getInstance();
           }
-          qcp = qcpf.getQueueChannelPool(jmsCtx, messagingSystem, this.queueConnFactoryName);
+          qcp = qcpf.getQueueChannelPool(parser, jmsCtx, messagingSystem, this.queueConnFactoryName);
       	  setupQueueObjects();
       } catch (JMSException | NamingException e) {
           throw new MessageControllerException(e);

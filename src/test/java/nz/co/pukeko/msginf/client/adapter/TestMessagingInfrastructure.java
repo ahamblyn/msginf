@@ -1,6 +1,5 @@
 package nz.co.pukeko.msginf.client.adapter;
 
-import java.io.IOException;
 import java.util.Properties;
 
 import javax.jms.JMSException;
@@ -12,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.ClassPathHacker;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,18 +26,20 @@ import org.junit.jupiter.api.Test;
 @Slf4j
 public class TestMessagingInfrastructure {
 	private static MessageRequestReply messageRequestReply;
+	private static MessageInfrastructurePropertiesFileParser parser;
 
 	@BeforeAll
 	public static void setUp() {
 		try {
 			ClassPathHacker.addFile("C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			parser = new MessageInfrastructurePropertiesFileParser();
+			messageRequestReply = new MessageRequestReply(parser, "activemq",
+					"QueueConnectionFactory", "RequestQueue",
+					"ReplyQueue", "true");
+			messageRequestReply.run();
+		} catch (Exception e) {
+			log.error("Unable to setup TestMessagingInfrastructure test", e);
 		}
-		messageRequestReply = new MessageRequestReply("activemq",
-				"QueueConnectionFactory", "RequestQueue",
-				"ReplyQueue", "true");
-		messageRequestReply.run();
 	}
 
 	@AfterAll
@@ -66,7 +68,7 @@ public class TestMessagingInfrastructure {
 		props.setProperty("brokerURL", "tcp://localhost:61616");
 		props.setProperty("queue.TestQueue", "SUBMIT.QUEUE");
 		Context jmsCtx = new InitialContext(props);
-		MessageReceiver mr = new MessageReceiver(jmsCtx, "QueueConnectionFactory", "TestQueue");
+		MessageReceiver mr = new MessageReceiver(parser, jmsCtx, "QueueConnectionFactory", "TestQueue");
 		mr.setup();
 		mr.readAndSaveMessages();
 		mr.close();
@@ -113,7 +115,7 @@ public class TestMessagingInfrastructure {
 		props.setProperty("brokerURL", "tcp://localhost:61616");
 		props.setProperty("queue.TestQueue", "SUBMIT.QUEUE");
 		Context jmsCtx = new InitialContext(props);
-		MessageReceiver mr = new MessageReceiver(jmsCtx, "QueueConnectionFactory", "TestQueue");
+		MessageReceiver mr = new MessageReceiver(parser, jmsCtx, "QueueConnectionFactory", "TestQueue");
 		mr.setup();
 		mr.readAndSaveMessages();
 		mr.close();

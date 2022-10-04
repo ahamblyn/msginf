@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 
 @Slf4j
 public class TestMessageReceiver {
@@ -12,7 +13,8 @@ public class TestMessageReceiver {
 	
 	public TestMessageReceiver(String messagingSystem, String connectorName) throws MessageException {
 		this.connectorName = connectorName;
-		queueManager = new QueueManager(messagingSystem, true);
+		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
+		queueManager = new QueueManager(parser, messagingSystem, true);
 	}
 	
 	public List<String> receiveMessages(long timeout) {

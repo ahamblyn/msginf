@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukeko.msginf.models.configuration.*;
 import nz.co.pukeko.msginf.models.configuration.System;
@@ -30,37 +29,11 @@ public class MessageInfrastructurePropertiesFileParser {
     private Configuration configuration;
 
     /**
-     * The current messaging system being parsed
-     */
-    private System currentSystem;
-
-    /**
-     * The name of the current messaging system
-     */
-    private String messagingSystem;
-
-    /**
-     * This constructor only allows the configuration and the number of messaging systems configured to be accessed. No other system information can be accessed.
-     * @throws MessageException Message exception
-     */
-    public MessageInfrastructurePropertiesFileParser() throws MessageException {
-        parseFile();
-    }
-
-    /**
      * Main constructor. Allow access to the messaging system configuration.
-     * @param messagingSystem the messaging system
-     * @throws PropertiesFileException properties file exception
+     * @throws PropertiesFileException Properties file exception
      */
-    public MessageInfrastructurePropertiesFileParser(String messagingSystem) throws PropertiesFileException {
-        initializeCurrentSystem(messagingSystem);
-    }
-
-    public void initializeCurrentSystem(String messagingSystem) throws PropertiesFileException {
-        this.messagingSystem = messagingSystem;
+    public MessageInfrastructurePropertiesFileParser() throws PropertiesFileException {
         parseFile();
-        Optional<System> sys = findSystem();
-        currentSystem = sys.orElseThrow(()-> new PropertiesFileException("No system was found in the properties file for " + messagingSystem));
     }
 
     private void parseFile() throws PropertiesFileException {
@@ -110,22 +83,6 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Return the current system.
-     * @return the current system.
-     */
-    public System getCurrentSystem() {
-        return currentSystem;
-    }
-
-    /**
-     * Returns the name of the current messaging system.
-     * @return the name of the current messaging system.
-     */
-    public String getCurrentMessagingSystem() {
-        return messagingSystem;
-    }
-
-    /**
      * Returns a list of the names of the available messaging systems in the properties file.
      * @return a list of the names of the available messaging systems in the properties file.
      */
@@ -134,6 +91,10 @@ public class MessageInfrastructurePropertiesFileParser {
         Optional.ofNullable(configuration).ifPresent(config -> availableMessagingSystems.addAll(config.getSystems().getSystem().stream()
                 .map(System::getName).toList()));
         return availableMessagingSystems;
+    }
+
+    public Optional<System> getSystem(String messagingSystemName) {
+        return findSystem(messagingSystemName);
     }
 
     private Optional<System> findSystem(String messagingSystemName) {
@@ -148,22 +109,9 @@ public class MessageInfrastructurePropertiesFileParser {
         return ref.returnSystem;
     }
 
-    private Optional<System> findSystem() {
-        return findSystem(messagingSystem);
-    }
-
-    private Optional<Connectors> findConnectors() {
-        return Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getConnectors()));
-    }
-
     private Optional<Connectors> findConnectors(String messagingSystemName) {
         Optional<System> system = findSystem(messagingSystemName);
         return system.flatMap(sys -> Optional.ofNullable(sys.getConnectors()));
-    }
-
-    private Optional<Submit> findSubmit(String connectorName) {
-        Optional<Connectors> connectors = findConnectors();
-        return connectors.flatMap(conns -> findSubmit(conns, connectorName));
     }
 
     private Optional<Submit> findSubmit(String messagingSystemName, String connectorName) {
@@ -177,19 +125,9 @@ public class MessageInfrastructurePropertiesFileParser {
                         sub.getConnectorName().equals(connectorName)).findFirst());
     }
 
-    private Optional<SubmitConnection> findSubmitConnection(String connectorName) {
-        Optional<Submit> submit = findSubmit(connectorName);
-        return submit.flatMap(sub -> Optional.ofNullable(sub.getSubmitConnection()));
-    }
-
     private Optional<SubmitConnection> findSubmitConnection(String messagingSystemName, String connectorName) {
         Optional<Submit> submit = findSubmit(messagingSystemName, connectorName);
         return submit.flatMap(sub -> Optional.ofNullable(sub.getSubmitConnection()));
-    }
-
-    private Optional<RequestReply> findRequestReply(String connectorName) {
-        Optional<Connectors> connectors = findConnectors();
-        return connectors.flatMap(conns -> findRequestReply(conns, connectorName));
     }
 
     private Optional<RequestReply> findRequestReply(String messagingSystemName, String connectorName) {
@@ -203,88 +141,81 @@ public class MessageInfrastructurePropertiesFileParser {
                         rr.getConnectorName().equals(connectorName)).findFirst());
     }
 
-    private Optional<RequestReplyConnection> findRequestReplyConnection(String connectorName) {
-        Optional<RequestReply> requestReply = findRequestReply(connectorName);
-        return requestReply.flatMap(rr -> Optional.ofNullable(rr.getRequestReplyConnection()));
-    }
-
     private Optional<RequestReplyConnection> findRequestReplyConnection(String messagingSystemName, String connectorName) {
         Optional<RequestReply> requestReply = findRequestReply(messagingSystemName, connectorName);
         return requestReply.flatMap(rr -> Optional.ofNullable(rr.getRequestReplyConnection()));
     }
 
     /**
-     * Returns the name of the current messaging system.
-     * @return the name of the current messaging system.
+     * Returns the initial context factory name for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the initial context factory name for the messaging system.
      */
-    public String getSystemName() {
-        Optional<String> sysName = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getName()));
-        return sysName.orElse("");
-    }
-
-    /**
-     * Returns the initial context factory name for the current messaging system.
-     * @return the initial context factory name for the current messaging system.
-     */
-    public String getSystemInitialContextFactory() {
-        Optional<String> contextFactory = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getInitialContextFactory()));
+    public String getSystemInitialContextFactory(String messagingSystemName) {
+        Optional<String> contextFactory = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getInitialContextFactory()));
         return contextFactory.orElse("");
     }
 
     /**
-     * Returns the url for the current messaging system.
-     * @return the url for the current messaging system.
+     * Returns the url for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the url for the messaging system.
      */
-    public String getSystemUrl() {
-        Optional<String> url = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getUrl()));
+    public String getSystemUrl(String messagingSystemName) {
+        Optional<String> url = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getUrl()));
         return url.orElse("");
     }
 
     /**
-     * Returns the host for the current messaging system.
-     * @return the host for the current messaging system.
+     * Returns the host for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the host for the messaging system.
      */
-    public String getSystemHost() {
-        Optional<String> host = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getHost()));
+    public String getSystemHost(String messagingSystemName) {
+        Optional<String> host = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getHost()));
         return host.orElse("");
     }
 
     /**
-     * Returns the port for the current messaging system.
-     * @return the port for the current messaging system.
+     * Returns the port for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the port for the messaging system.
      */
-    public int getSystemPort() {
-        Optional<Integer> port = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getPort()));
+    public int getSystemPort(String messagingSystemName) {
+        Optional<Integer> port = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getPort()));
         return port.orElse(0);
     }
 
     /**
-     * Returns the naming factory url packages for the current messaging system.
-     * @return the naming factory url packages for the current messaging system.
+     * Returns the naming factory url packages for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the naming factory url packages for the messaging system.
      */
-    public String getSystemNamingFactoryUrlPkgs() {
-        Optional<String> namingFactoryUrlPkgs = Optional.ofNullable(currentSystem).flatMap(sys -> Optional.ofNullable(sys.getNamingFactoryUrlPkgs()));
+    public String getSystemNamingFactoryUrlPkgs(String messagingSystemName) {
+        Optional<String> namingFactoryUrlPkgs = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getNamingFactoryUrlPkgs()));
         return namingFactoryUrlPkgs.orElse("");
     }
 
     /**
-     * Returns a list of the jar file names for the current messaging system.
-     * @return a list of the jar file names for the current messaging system.
+     * Returns a list of the jar file names for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return a list of the jar file names for the messaging system.
      */
-    public List<String> getJarFileNames() {
+    public List<String> getJarFileNames(String messagingSystemName) {
         List<String> jarFileNamesList = new ArrayList<>();
-        Optional.ofNullable(currentSystem).ifPresent(system ->
+        findSystem(messagingSystemName).ifPresent(system ->
                 jarFileNamesList.addAll(system.getJarFiles().getJarFile().stream().map(JarFile::getJarFileName).toList()));
         return jarFileNamesList;
     }
 
     /**
-     * Returns a list of the configured queues for the current messaging system.
-     * @return a list of the configured queues for the current messaging system.
+     * Returns a list of the configured queues for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return a list of the configured queues for the messaging system.
      */
-    public List<PropertiesQueue> getQueues() {
+    public List<PropertiesQueue> getQueues(String messagingSystemName) {
         List<PropertiesQueue> queuesList = new ArrayList<>();
-        Optional.ofNullable(currentSystem).ifPresent(system -> {
+        findSystem(messagingSystemName).ifPresent(system -> {
             List<PropertiesQueue> props = system.getQueues().getQueue().stream()
                     .map(queue -> new PropertiesQueue(queue.getJndiName(), queue.getPhysicalName())).toList();
             queuesList.addAll(props);
@@ -293,213 +224,250 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns whether connection pooling is configured for the current messaging system.
-     * @return whether connection pooling is configured for the current messaging system.
+     * Returns whether connection pooling is configured for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return whether connection pooling is configured for the messaging system.
      */
-    public boolean getUseConnectionPooling() {
-        Optional<Connectors> connectors = findConnectors();
+    public boolean getUseConnectionPooling(String messagingSystemName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
         Optional<Boolean> b = connectors.flatMap(conns -> Optional.ofNullable(conns.getUseConnectionPooling()));
         return b.orElse(false);
     }
 
     /**
-     * Returns the maximum number of connections for the current messaging system.
-     * @return the maximum number of connections for the current messaging system.
+     * Returns the maximum number of connections for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the maximum number of connections for the messaging system.
      */
-    public int getMaxConnections() {
-        Optional<Connectors> connectors = findConnectors();
+    public int getMaxConnections(String messagingSystemName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
         Optional<Integer> res = connectors.flatMap(conns -> Optional.ofNullable(conns.getMaxConnections()));
         return res.orElse(0);
     }
 
     /**
-     * Returns the minimum number of connections for the current messaging system.
-     * @return the minimum number of connections for the current messaging system.
+     * Returns the minimum number of connections for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the minimum number of connections for the messaging system.
      */
-    public int getMinConnections() {
-        Optional<Connectors> connectors = findConnectors();
+    public int getMinConnections(String messagingSystemName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
         Optional<Integer> res = connectors.flatMap(conns -> Optional.ofNullable(conns.getMinConnections()));
         return res.orElse(0);
     }
 
     /**
-     * Returns a list of the names of the submit connectors for the current messaging system.
-     * @return a list of the names of the submit connectors for the current messaging system.
+     * Returns a list of the names of the submit connectors for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return a list of the names of the submit connectors for the messaging system.
      */
-    public List<String> getSubmitConnectorNames() {
+    public List<String> getSubmitConnectorNames(String messagingSystemName) {
         List<String> names = new ArrayList<>();
-        Optional<Connectors> connectors = findConnectors();
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
         connectors.ifPresent(conns -> names.addAll(conns.getSubmit().stream().map(Submit::getConnectorName).toList()));
         return names;
     }
 
     /**
-     * Returns whether the submit connector exists for the current messaging system.
-     * @return whether the submit connector exists for the current messaging system.
+     * Returns whether the submit connector exists for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return whether the submit connector exists for the messaging system.
      */
-    public boolean doesSubmitExist(String connectorName) {
-        Optional<Connectors> connectors = findConnectors();
+    public boolean doesSubmitExist(String messagingSystemName, String connectorName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
         return connectors.stream().anyMatch(conns -> conns.getSubmit().stream().anyMatch(sub ->
                         sub.getConnectorName().equals(connectorName)));
     }
 
     /**
-     * Returns a list of the names of the request-reply connectors for the current messaging system.
-     * @return a list of the names of the request-reply connectors for the current messaging system.
+     * Returns a list of the names of the request-reply connectors for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return a list of the names of the request-reply connectors for the messaging system.
      */
-    public List<String> getRequestReplyConnectorNames() {
+    public List<String> getRequestReplyConnectorNames(String messagingSystemName) {
         List<String> names = new ArrayList<>();
-        Optional<Connectors> connectors = findConnectors();
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
         connectors.ifPresent(conns -> names.addAll(conns.getRequestReply().stream().map(RequestReply::getConnectorName).toList()));
         return names;
     }
 
     /**
-     * Returns whether the request-reply connector exists for the current messaging system.
-     * @return whether the request-reply connector exists for the current messaging system.
+     * Returns whether the request-reply connector exists for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return whether the request-reply connector exists for the messaging system.
      */
-    public boolean doesRequestReplyExist(String connectorName) {
-        Optional<Connectors> connectors = findConnectors();
+    public boolean doesRequestReplyExist(String messagingSystemName, String connectorName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
         return connectors.stream().anyMatch(conns -> conns.getRequestReply().stream().anyMatch(rr ->
                 rr.getConnectorName().equals(connectorName)));
     }
 
     /**
      * Returns whether to compress binary messages for the submit connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return whether to compress binary messages for the submit connector.
      */
-    public boolean getSubmitCompressBinaryMessages(String connectorName) {
-        Optional<Submit> submit = findSubmit(connectorName);
+    public boolean getSubmitCompressBinaryMessages(String messagingSystemName, String connectorName) {
+        Optional<Submit> submit = findSubmit(messagingSystemName, connectorName);
         Optional<Boolean> b = submit.flatMap(sub -> Optional.ofNullable(sub.getCompressBinaryMessages()));
         return b.orElse(false);
     }
 
     /**
      * Returns the submit connection submit queue name for the submit connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the submit connection submit queue name for the submit connector.
      */
-    public String getSubmitConnectionSubmitQueueName(String connectorName) {
-        Optional<SubmitConnection> connection = findSubmitConnection(connectorName);
+    public String getSubmitConnectionSubmitQueueName(String messagingSystemName, String connectorName) {
+        Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<String> queueName = connection.flatMap(sub -> Optional.ofNullable(sub.getSubmitQueueName()));
         return queueName.orElse("");
     }
 
     /**
      * Returns the submit connection submit queue connection factory name for the submit connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the submit connection submit queue connection factory name for the submit connector.
      */
-    public String getSubmitConnectionSubmitQueueConnFactoryName(String connectorName) {
-        Optional<SubmitConnection> connection = findSubmitConnection(connectorName);
+    public String getSubmitConnectionSubmitQueueConnFactoryName(String messagingSystemName, String connectorName) {
+        Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<String> queueNameConnFactory = connection.flatMap(sub -> Optional.ofNullable(sub.getSubmitQueueConnFactoryName()));
         return queueNameConnFactory.orElse("");
     }
 
     /**
      * Returns the submit connection message class name for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the submit connection message class name for the request-reply connector.
      */
-    public String getSubmitConnectionMessageClassName(String connectorName) {
-        Optional<SubmitConnection> connection = findSubmitConnection(connectorName);
+    public String getSubmitConnectionMessageClassName(String messagingSystemName, String connectorName) {
+        Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<String> messageClassName = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageClassName()));
         return messageClassName.orElse("");
     }
 
     /**
      * Returns the submit connection message time to live for the submit connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the submit connection message time to live for the submit connector.
      */
-    public int getSubmitConnectionMessageTimeToLive(String connectorName) {
-        Optional<SubmitConnection> connection = findSubmitConnection(connectorName);
+    public int getSubmitConnectionMessageTimeToLive(String messagingSystemName, String connectorName) {
+        Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<Integer> messageTimeToLive = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageTimeToLive()));
         return messageTimeToLive.orElse(0);
     }
 
     /**
      * Returns the submit connection reply wait time for the submit connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the submit connection reply wait time for the submit connector.
      */
-    public int getSubmitConnectionReplyWaitTime(String connectorName) {
-        Optional<SubmitConnection> connection = findSubmitConnection(connectorName);
+    public int getSubmitConnectionReplyWaitTime(String messagingSystemName, String connectorName) {
+        Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<Integer> replyWaitTime = connection.flatMap(sub -> Optional.ofNullable(sub.getReplyWaitTime()));
         return replyWaitTime.orElse(0);
     }
 
     /**
      * Returns whether to compress binary messages for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return whether to compress binary messages for the request-reply connector.
      */
-    public boolean getRequestReplyCompressBinaryMessages(String connectorName) {
-        Optional<RequestReply> requestReply = findRequestReply(connectorName);
+    public boolean getRequestReplyCompressBinaryMessages(String messagingSystemName, String connectorName) {
+        Optional<RequestReply> requestReply = findRequestReply(messagingSystemName, connectorName);
         Optional<Boolean> b = requestReply.flatMap(rr -> Optional.ofNullable(rr.getCompressBinaryMessages()));
         return b.orElse(false);
     }
 
     /**
      * Returns the request-reply connection request queue name for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the request-reply connection request queue name for the request-reply connector.
      */
-    public String getRequestReplyConnectionRequestQueueName(String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(connectorName);
+    public String getRequestReplyConnectionRequestQueueName(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<String> queueName = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestQueueName()));
         return queueName.orElse("");
     }
 
     /**
      * Returns the request-reply connection reply queue name for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the request-reply connection reply queue name for the request-reply connector.
      */
-    public String getRequestReplyConnectionReplyQueueName(String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(connectorName);
+    public String getRequestReplyConnectionReplyQueueName(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<String> queueName = connection.flatMap(rr -> Optional.ofNullable(rr.getReplyQueueName()));
         return queueName.orElse("");
     }
 
     /**
      * Returns the request-reply connection request queue connection factory name for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the request-reply connection request queue connection factory name for the request-reply connector.
      */
-    public String getRequestReplyConnectionRequestQueueConnFactoryName(String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(connectorName);
+    public String getRequestReplyConnectionRequestQueueConnFactoryName(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<String> queueNameConnFactory = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestQueueConnFactoryName()));
         return queueNameConnFactory.orElse("");
     }
 
     /**
      * Returns the request-reply connection message class name for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the request-reply connection message class name for the request-reply connector.
      */
-    public String getRequestReplyConnectionMessageClassName(String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(connectorName);
+    public String getRequestReplyConnectionMessageClassName(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<String> messageClassName = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageClassName()));
         return messageClassName.orElse("");
     }
 
     /**
      * Returns the request-reply connection requester class name for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the request-reply connection requester class name for the request-reply connector.
      */
-    public String getRequestReplyConnectionRequesterClassName(String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(connectorName);
+    public String getRequestReplyConnectionRequesterClassName(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<String> requesterClassName = connection.flatMap(rr -> Optional.ofNullable(rr.getRequesterClassName()));
         return requesterClassName.orElse("");
     }
 
     /**
      * Returns the request-reply connection message time to live for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the request-reply connection message time to live for the request-reply connector.
      */
-    public int getRequestReplyConnectionMessageTimeToLive(String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(connectorName);
+    public int getRequestReplyConnectionMessageTimeToLive(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<Integer> messageTimeToLive = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageTimeToLive()));
         return messageTimeToLive.orElse(0);
     }
 
     /**
      * Returns the request-reply connection reply wait time for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
      * @return the request-reply connection reply wait time for the request-reply connector.
      */
-    public int getRequestReplyConnectionReplyWaitTime(String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(connectorName);
+    public int getRequestReplyConnectionReplyWaitTime(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<Integer> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.getReplyWaitTime()));
         return replyWaitTime.orElse(0);
     }

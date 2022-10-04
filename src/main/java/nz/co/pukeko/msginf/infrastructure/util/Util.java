@@ -85,16 +85,15 @@ public class Util {
 
 	/**
 	 * Loads the jar files in the properties file.
+	 * @param parser the properties file parser
 	 * @throws MessageException Message exception
 	 */
-	public static void loadRuntimeJarFiles() throws MessageException {
+	public static void loadRuntimeJarFiles(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
 		// load the runtime jar files
-		MessageInfrastructurePropertiesFileParser systemParser = new MessageInfrastructurePropertiesFileParser();
-		List<String> availableMessagingSystems = systemParser.getAvailableMessagingSystems();
+		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
 		for (String messagingSystem : availableMessagingSystems) {
-			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
 			// load system specific jar files into classpath
-			List<String> jarFileNames = parser.getJarFileNames();
+			List<String> jarFileNames = parser.getJarFileNames(messagingSystem);
 			try {
 				for (String jarFileName : jarFileNames) {
 					ClassPathHacker.addFile(jarFileName);
@@ -107,19 +106,19 @@ public class Util {
 
 	/**
 	 * Create the context.
+	 * @param parser the properties file parser
 	 * @param messagingSystem the messaging system.
 	 * @return the context.
 	 * @throws MessageException Message exception
 	 */
-	public static Context createContext(String messagingSystem) throws MessageException {
+	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) throws MessageException {
 		InitialContext jmsCtx = null;
-		MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser(messagingSystem);
-		String initialContextFactory = parser.getSystemInitialContextFactory();
-		String url = parser.getSystemUrl();
-		String host = parser.getSystemHost();
-		int port = parser.getSystemPort();
-		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs();
-		List<PropertiesQueue> queues = parser.getQueues();
+		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
+		String url = parser.getSystemUrl(messagingSystem);
+		String host = parser.getSystemHost(messagingSystem);
+		int port = parser.getSystemPort(messagingSystem);
+		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
+		List<PropertiesQueue> queues = parser.getQueues(messagingSystem);
 		try {
 			if (initialContextFactory == null || initialContextFactory.equals("")) {
 				// no properties required to initialise context
