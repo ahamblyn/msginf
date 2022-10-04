@@ -6,6 +6,7 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,9 +42,14 @@ public class Messenger {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
     }
 
-    public void sendMessage(String messagingSystem, String messageConnector, String payload) throws MessageException {
+    public Object sendMessage(String messagingSystem, String messageConnector, String payload) throws MessageException {
         QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
-        queueManager.sendMessage(messageConnector, payload);
+        return queueManager.sendMessage(messageConnector, payload);
+    }
+
+    public List<String> receiveMessages(String messagingSystem, String messageConnector, long timeout) throws MessageException {
+        QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
+        return queueManager.receiveMessages(messageConnector, timeout);
     }
 
     @Override

@@ -5,14 +5,14 @@ import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestMsgInfDirectly {
 	private static QueueManager queueManager;
 	private static MessageRequestReply messageRequestReply;
@@ -45,6 +45,7 @@ public class TestMsgInfDirectly {
 	}
 
 	@Test
+	@Order(2)
 	public void reply() throws MessageException {
 		// send 10 messages
 		for (int i = 0; i < 10; i++) {
@@ -55,12 +56,22 @@ public class TestMsgInfDirectly {
 	}
 	
 	@Test
+	@Order(1)
 	public void submit() throws MessageException {
 		// submit so no response required - send 10 messages
 		for (int i = 0; i < 10; i++) {
 			Object submitReply = queueManager.sendMessage("activemq_submit_text", "Message[" + (i + 1) + "]");
 			assertNull(submitReply);
 		}
+		log.info(QueueStatisticsCollector.getInstance().toString());
+	}
+
+	@Test
+	@Order(3)
+	public void receive() throws MessageException {
+		List<String> messages = queueManager.receiveMessages("activemq_submit_text", 2000);
+		assertNotNull(messages);
+		assertEquals(10, messages.size());
 		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
 }

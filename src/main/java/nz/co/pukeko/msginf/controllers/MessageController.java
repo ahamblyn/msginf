@@ -5,6 +5,7 @@ import nz.co.pukeko.msginf.services.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -23,6 +24,13 @@ public class MessageController {
                                   @RequestBody String payload) {
         Optional<MessageResponse> messageResponse = messageService.submit(messageSystem, messageConnector, payload);
         return messageResponse.orElseGet(MessageResponse::new);
+    }
+
+    @GetMapping("/receive")
+    public List<String> receiveMessages(@RequestHeader(name="x-message-system") String messageSystem,
+                                        @RequestHeader(name="x-message-connector") String messageConnector,
+                                        @RequestHeader(name="x-timeout") Long timeout) {
+        return messageService.receiveMessages(messageSystem, messageConnector, timeout);
     }
 
 }

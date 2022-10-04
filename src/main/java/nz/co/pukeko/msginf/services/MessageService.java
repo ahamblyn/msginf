@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -35,6 +34,16 @@ public class MessageService implements IMessageService {
         } catch (MessageException e) {
             log.error("Unable to submit the message", e);
             return Optional.of(new MessageResponse(e.getMessage(), transactionId));
+        }
+    }
+
+    @Override
+    public List<String> receiveMessages(String messagingSystem, String messageConnector, long timeout) {
+        try {
+            return messenger.receiveMessages(messagingSystem, messageConnector, timeout);
+        } catch (MessageException e) {
+            log.error("Unable to receive the messages", e);
+            return Collections.singletonList(e.getMessage());
         }
     }
 }
