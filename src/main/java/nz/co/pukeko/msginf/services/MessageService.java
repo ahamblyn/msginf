@@ -5,6 +5,7 @@ import nz.co.pukeko.msginf.client.adapter.Messenger;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +25,17 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Optional<MessageResponse> submit(String messageSystem, String messageConnector, String payload) {
+    public Optional<RestMessageResponse> submit(String messageSystem, String messageConnector, String payload) {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
             messenger.sendMessage(messageSystem, messageConnector, payload);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
-            return Optional.of(new MessageResponse("Message submitted successfully", transactionId, duration));
+            return Optional.of(new RestMessageResponse("Message submitted successfully", transactionId, duration));
         } catch (MessageException e) {
             log.error("Unable to submit the message", e);
-            return Optional.of(new MessageResponse(e.getMessage(), transactionId));
+            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId));
         }
     }
 
@@ -51,8 +52,8 @@ public class MessageService implements IMessageService {
     @Override
     public String requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) {
         try {
-            Object reply = messenger.sendMessage(messageSystem, messageConnector, payload, headerProperties);
-            return (String) Optional.ofNullable(reply).orElse("");
+            MessageResponse reply = messenger.sendMessage(messageSystem, messageConnector, payload, headerProperties);
+            return reply.getTextResponse();
         } catch (MessageException e) {
             return e.getMessage();
         }

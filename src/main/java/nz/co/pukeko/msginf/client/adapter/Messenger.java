@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -43,11 +44,11 @@ public class Messenger {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
     }
 
-    public Object sendMessage(String messagingSystem, String messageConnector, String payload) throws MessageException {
+    public MessageResponse sendMessage(String messagingSystem, String messageConnector, String payload) throws MessageException {
         return sendMessage(messagingSystem, messageConnector, payload, null);
     }
 
-    public Object sendMessage(String messagingSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) throws MessageException {
+    public MessageResponse sendMessage(String messagingSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) throws MessageException {
         QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
         return queueManager.sendMessage(messageConnector, payload, headerProperties);
     }

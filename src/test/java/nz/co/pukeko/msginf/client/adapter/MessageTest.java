@@ -14,10 +14,10 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.client.listener.MessageReceiver;
 
+import nz.co.pukeko.msginf.models.message.MessageResponse;
 import org.junit.jupiter.api.AfterAll;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 public class MessageTest {
@@ -69,7 +69,7 @@ public class MessageTest {
 		return headerProperties;
 	}
 
-	protected String createRequestXML(String type, String size) {
+	protected String createRequestXML(String type, int size) {
 		return "<?xml version=\"1.0\"?>" +
 					 "<DataRequest>" +
 					 "  <ReplyType>" + type + "</ReplyType>" +
@@ -132,26 +132,16 @@ public class MessageTest {
 		}
 	}
 	
-	protected void runReplyTest(String connector, String type, String size, int numberOfMessages) throws Exception {
+	protected void runReplyTest(String connector, String type, int size, int numberOfMessages) throws Exception {
 		for (int i = 0; i < numberOfMessages; i++) {
 			String message = createRequestXML(type, size);
-			Object reply = queueManager.sendMessage(connector, message, createTestNameHeaderProperties("reply"));
+			MessageResponse response = queueManager.sendMessage(connector, message, createTestNameHeaderProperties("reply"));
 			if (type.equals("text")) {
-				// assert that a String is returned and it is of the size requested.
-				if (!(reply instanceof String)) {
-					fail("The text reply message is not a String. A text message was requested.");
-				}
-				if (!(((String)reply).length() == Integer.parseInt(size))) {
-					fail("The text reply message is not of the size requested.");
-				}
+				assertNotNull(response.getTextResponse());
+				assertEquals(size, response.getTextResponse().length());
 			} else {
-				// assert that a byte[] is returned and it is of the size requested.
-				if (!(reply instanceof byte[])) {
-					fail("The binary reply message is not a byte[]. A binary message was requested.");
-				}
-				if (!(((byte[])reply).length == Integer.parseInt(size))) {
-					fail("The binary reply message is not of the size requested.");
-				}
+				assertNotNull(response.getBinaryResponse());
+				assertEquals(size, response.getBinaryResponse().length);
 			}
 		}
 		sendResetCountMessage(connector);
@@ -161,8 +151,8 @@ public class MessageTest {
 	protected void runEchoTest(String connector, int numberOfMessages) throws Exception {
 		for (int i = 0; i < numberOfMessages; i++) {
 			String message = "Message[" + (i + 1) + "]";
-			Object reply = queueManager.sendMessage(connector, message, createTestNameHeaderProperties("echo"));
-			assertEquals(message, reply);
+			MessageResponse reply = queueManager.sendMessage(connector, message, createTestNameHeaderProperties("echo"));
+			assertEquals(message, reply.getTextResponse());
 			log.info(reply.toString());
 		}
 		sendResetCountMessage(connector);

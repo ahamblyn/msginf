@@ -5,6 +5,7 @@ import java.util.List;
 
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
 
 /**
  * The QueueManagerAgreement interface.
@@ -22,7 +23,7 @@ public interface QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	Object sendMessage(String connector, String message)
+	MessageResponse sendMessage(String connector, String message)
 			throws MessageException;
 
 	/**
@@ -33,7 +34,7 @@ public interface QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	Object sendMessage(String connector, OutputStream messageStream) throws MessageException;
+	MessageResponse sendMessage(String connector, OutputStream messageStream) throws MessageException;
 
     /**
 	 * Sends a text message to the connector specified. Returns null for asynchronous (submit) connectors 
@@ -44,7 +45,7 @@ public interface QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	Object sendMessage(String connector, String message, HeaderProperties<String,Object> headerProperties)
+	MessageResponse sendMessage(String connector, String message, HeaderProperties<String,Object> headerProperties)
 			throws MessageException;
 
 	/**
@@ -56,7 +57,7 @@ public interface QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	Object sendMessage(String connector, OutputStream messageStream, HeaderProperties<String,Object> headerProperties) throws MessageException;
+	MessageResponse sendMessage(String connector, OutputStream messageStream, HeaderProperties<String,Object> headerProperties) throws MessageException;
 	
 	/**
 	 * Receives all the messages as Strings.

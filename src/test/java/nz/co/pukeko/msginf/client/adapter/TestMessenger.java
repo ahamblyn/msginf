@@ -5,6 +5,8 @@ import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.MessageResponseType;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -49,10 +51,9 @@ public class TestMessenger {
     @Test
     @Order(1)
     public void submit() throws MessageException {
-        // submit so no response required - send 10 messages
         for (int i = 0; i < 10; i++) {
-            Object submitReply = messenger.sendMessage("activemq", "activemq_submit_text", "Message[" + (i + 1) + "]");
-            assertNull(submitReply);
+            MessageResponse response = messenger.sendMessage("activemq", "activemq_submit_text", "Message[" + (i + 1) + "]");
+            assertNotNull(response);
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
     }
@@ -69,14 +70,13 @@ public class TestMessenger {
     @Test
     @Order(3)
     public void submitThreads() throws Exception {
-        // submit so no response required - send 50 messages
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Thread newThread = new Thread(() -> {
                 try {
                     for (int j = 0; j < 10; j++) {
-                        Object submitReply = messenger.sendMessage("activemq", "activemq_submit_text", "MessageZZZZ");
-                        assertNull(submitReply);
+                        MessageResponse response = messenger.sendMessage("activemq", "activemq_submit_text", "MessageZZZZ");
+                        assertNotNull(response);
                     }
                 } catch (MessageException e) {
                     throw new RuntimeException(e);
@@ -98,18 +98,16 @@ public class TestMessenger {
     @Test
     @Order(4)
     public void submitAsync() throws Exception {
-        // submit so no response required - send 20 messages
-        List<CompletableFuture<Object>> futureList = new ArrayList<>();
+        List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {
-                Object submitReply = null;
                 try {
-                    submitReply = messenger.sendMessage("activemq", "activemq_submit_text", "MessageZZZZ");
-                    assertNull(submitReply);
+                    MessageResponse response = messenger.sendMessage("activemq", "activemq_submit_text", "MessageZZZZ");
+                    assertNotNull(response);
+                    return response;
                 } catch (MessageException e) {
                     throw new RuntimeException(e);
                 }
-                return submitReply;
             }));
         }
         futureList.forEach(CompletableFuture::join);
@@ -123,10 +121,11 @@ public class TestMessenger {
     @Test
     @Order(5)
     public void reply() throws MessageException {
-        // send 10 messages
         for (int i = 0; i < 10; i++) {
-            Object reply = messenger.sendMessage("activemq", "activemq_rr_text_consumer", "Message[" + (i + 1) + "]");
-            assertNotNull(reply);
+            MessageResponse response = messenger.sendMessage("activemq", "activemq_rr_text_consumer", "Message[" + (i + 1) + "]");
+            assertNotNull(response);
+            assertNotNull(response.getTextResponse());
+            assertEquals(MessageResponseType.TEXT, response.getMessageResponseType());
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
     }
@@ -139,8 +138,10 @@ public class TestMessenger {
             Thread newThread = new Thread(() -> {
                 try {
                     for (int j = 0; j < 10; j++) {
-                        Object reply = messenger.sendMessage("activemq", "activemq_rr_text_consumer", "MessageZZZZ");
-                        assertNotNull(reply);
+                        MessageResponse response = messenger.sendMessage("activemq", "activemq_rr_text_consumer", "MessageZZZZ");
+                        assertNotNull(response);
+                        assertNotNull(response.getTextResponse());
+                        assertEquals(MessageResponseType.TEXT, response.getMessageResponseType());
                     }
                 } catch (MessageException e) {
                     throw new RuntimeException(e);
@@ -158,17 +159,18 @@ public class TestMessenger {
     @Test
     @Order(7)
     public void replyAsync() throws Exception {
-        List<CompletableFuture<Object>> futureList = new ArrayList<>();
+        List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {
-                Object reply = null;
                 try {
-                    reply = messenger.sendMessage("activemq", "activemq_rr_text_consumer", "MessageZZZZ");
-                    assertNotNull(reply);
+                    MessageResponse response = messenger.sendMessage("activemq", "activemq_rr_text_consumer", "MessageZZZZ");
+                    assertNotNull(response);
+                    assertNotNull(response.getTextResponse());
+                    assertEquals(MessageResponseType.TEXT, response.getMessageResponseType());
+                    return response;
                 } catch (MessageException e) {
                     throw new RuntimeException(e);
                 }
-                return reply;
             }));
         }
         futureList.forEach(CompletableFuture::join);

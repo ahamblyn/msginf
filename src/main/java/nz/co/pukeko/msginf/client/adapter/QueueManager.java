@@ -16,6 +16,7 @@ import nz.co.pukeko.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
 
 /**
  * The QueueManager is used by client applications to send and receive messages.
@@ -93,7 +94,7 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	public synchronized Object sendMessage(String connector, String message) throws MessageException {
+	public synchronized MessageResponse sendMessage(String connector, String message) throws MessageException {
 		return sendMessage(connector,message,null);
 	}
     /**
@@ -105,23 +106,19 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	public synchronized Object sendMessage(String connector, String message, HeaderProperties<String,Object> headerProperties) throws MessageException {
-		Object result;
+	public synchronized MessageResponse sendMessage(String connector, String message, HeaderProperties<String,Object> headerProperties) throws MessageException {
 		MessageController mc = getMessageConnector(connector);
-		result = putMessageOnQueue(message, headerProperties, mc);
-		return result;
+		return putMessageOnQueue(message, headerProperties, mc);
 	}
 
-	private Object putMessageOnQueue(String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
-		Object result;
+	private MessageResponse putMessageOnQueue(String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			bos.write(message.getBytes());
-			result = mc.sendMessage(bos,headerProperties);
+			return mc.sendMessage(bos,headerProperties);
 		} catch (IOException ioe) {
 			throw new QueueManagerException(ioe);
 		}
-		return result;
 	}
 
     /**
@@ -132,7 +129,7 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	public synchronized Object sendMessage(String connector, OutputStream messageStream) throws MessageException {
+	public synchronized MessageResponse sendMessage(String connector, OutputStream messageStream) throws MessageException {
 		return sendMessage(connector, messageStream, null);
 	}
 	
@@ -145,8 +142,8 @@ public class QueueManager implements QueueManagerAgreement {
 	 * @return the reply (null for asynchronous messages).
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	public synchronized Object sendMessage(String connector, OutputStream messageStream, HeaderProperties<String,Object> headerProperties) throws MessageException {
-		Object result;
+	public synchronized MessageResponse sendMessage(String connector, OutputStream messageStream, HeaderProperties<String,Object> headerProperties) throws MessageException {
+		MessageResponse result;
 		if (messageStream instanceof ByteArrayOutputStream) {
 			MessageController mc = getMessageConnector(connector);
 			try {

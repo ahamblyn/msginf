@@ -3,7 +3,7 @@ package nz.co.pukeko.msginf.services;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatistics;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
-import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -28,9 +28,9 @@ public class StatisticsService implements IStatisticsService {
     }
 
     @Override
-    public MessageResponse resetStatistics() {
+    public RestMessageResponse resetStatistics() {
         QueueStatisticsCollector.getInstance().resetQueueStatistics();
         String transactionId = UUID.randomUUID().toString();
-        return new MessageResponse("Statistics reset successfully", transactionId, 0L);
+        return new RestMessageResponse("Statistics reset successfully", transactionId, 0L);
     }
 }

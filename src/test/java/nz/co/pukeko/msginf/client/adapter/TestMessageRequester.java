@@ -22,6 +22,7 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
 
 public class TestMessageRequester {
 	private static long messageCount = 0;
@@ -161,7 +162,7 @@ public class TestMessageRequester {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					Object reply = sendMessage(temp);
+					String reply = sendMessage(temp);
 					System.out.println("Message number: " + getNextMessageCount());
 					if (reply != null) {
 						System.out.println(reply);

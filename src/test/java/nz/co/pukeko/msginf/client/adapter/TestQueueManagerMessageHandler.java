@@ -8,6 +8,7 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
 
 /**
  * A thread used to run tests.
@@ -129,8 +130,8 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					Object reply = queueManager.sendMessage(connector, bos, createTestNameHeaderProperties(testName));
-					handleReply(reply);
+					MessageResponse response = queueManager.sendMessage(connector, bos, createTestNameHeaderProperties(testName));
+					handleReply(response);
 				} catch (MessageException me) {
 					log.error("Message Exception", me);
 				}
@@ -145,8 +146,8 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					Object reply = queueManager.sendMessage(connector, temp, createTestNameHeaderProperties(testName));
-					handleReply(reply);
+					MessageResponse response = queueManager.sendMessage(connector, temp, createTestNameHeaderProperties(testName));
+					handleReply(response);
 				} catch (MessageException me) {
 					log.error("Message Exception", me);
 				}
@@ -161,24 +162,23 @@ public class TestQueueManagerMessageHandler implements Runnable {
 		return headerProperties;
 	}
 
-	private void handleReply(Object reply) {
+	private void handleReply(MessageResponse response) {
 		log.info("Message number: " + getNextMessageCount());
-		if (reply != null) {
-			if (testName.equals("reply")) {
-				if (reply instanceof String response) {
-					if (response.startsWith("TextMessage") || response.startsWith("BytesMessage")) {
-						log.info(response);
-					} else {
-						log.info("Text Message of length " + ((String)reply).length() + " bytes returned.");
-					}
+		if (testName.equals("reply")) {
+			if (response.getMessageResponseType() == response.getMessageResponseType()) {
+				String textResponse = response.getTextResponse();
+				if (textResponse.startsWith("TextMessage") || textResponse.startsWith("BytesMessage")) {
+					log.info(textResponse);
 				} else {
-					// byte[] returned
-					log.info("Binary Message of length " + ((byte[])reply).length + " bytes returned.");
+					log.info("Text Message of length " + textResponse.length() + " bytes returned.");
 				}
 			} else {
-				// echo test
-				log.info(reply.toString());
+				// byte[] returned
+				log.info("Binary Message of length " + response.getBinaryResponse().length + " bytes returned.");
 			}
+		} else {
+			// echo test
+			log.info(response.getTextResponse());
 		}
 	}
 }

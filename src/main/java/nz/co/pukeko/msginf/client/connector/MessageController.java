@@ -35,6 +35,8 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.MessageResponseType;
 
 /**
  * The MessageController puts messages onto the queues defined in the properties file.
@@ -196,7 +198,7 @@ public class MessageController {
      * @return the reply. Null for asynchronous (submit) messages.
      * @throws MessageException if the message cannot be sent.
      */
-   public Object sendMessage(ByteArrayOutputStream messageStream) throws MessageException {
+   public MessageResponse sendMessage(ByteArrayOutputStream messageStream) throws MessageException {
 	   return sendMessage(messageStream,null);
    }
     /**
@@ -206,24 +208,27 @@ public class MessageController {
      * @return the reply. Null for asynchronous (submit) messages.
      * @throws MessageException if the message cannot be sent.
      */
-   public Object sendMessage(ByteArrayOutputStream messageStream, HeaderProperties<String, Object> headerProperties) throws MessageException {
+   public MessageResponse sendMessage(ByteArrayOutputStream messageStream, HeaderProperties<String, Object> headerProperties) throws MessageException {
     Instant start = Instant.now();
-    Object reply = null;
+	MessageResponse messageResponse = new MessageResponse();
+	// TODO add message request to response.
     try {
         Message jmsMessage = createMessage(messageStream);
         setHeaderProperties(jmsMessage,headerProperties);
-        if (replyExpected) {
+        if (replyExpected) { // TODO get from message request
         	// request-reply
         	Message replyMsg = messageRequester.request(jmsMessage);
         	getHeaderProperties(replyMsg,headerProperties);
             if (replyMsg instanceof TextMessage) {
-                reply = ((TextMessage)replyMsg).getText();
+				messageResponse.setMessageResponseType(MessageResponseType.TEXT);
+				messageResponse.setTextResponse(((TextMessage)replyMsg).getText());
             }
             if (replyMsg instanceof BytesMessage) {
             	long messageLength = ((BytesMessage)replyMsg).getBodyLength();
             	byte[] messageData = new byte[(int)messageLength];
             	((BytesMessage)replyMsg).readBytes(messageData);
-            	reply = messageData;
+				messageResponse.setMessageResponseType(MessageResponseType.BINARY);
+				messageResponse.setBinaryResponse(messageData);
             }
             collateStats(connector, start, "Time taken for request-reply,");
         } else {
@@ -231,7 +236,7 @@ public class MessageController {
             submitMessageProducer.send(jmsMessage);
             collateStats(connector, start, "Time taken for submit,");
         }
-        return reply;
+        return messageResponse;
     } catch (JMSException e) {
     	// increment failed message count
         if (logStatistics) {
