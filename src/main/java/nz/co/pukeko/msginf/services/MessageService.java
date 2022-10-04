@@ -2,6 +2,7 @@ package nz.co.pukeko.msginf.services;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.Messenger;
+import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,4 +47,15 @@ public class MessageService implements IMessageService {
             return Collections.singletonList(e.getMessage());
         }
     }
+
+    @Override
+    public String requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) {
+        try {
+            Object reply = messenger.sendMessage(messageSystem, messageConnector, payload, headerProperties);
+            return (String) Optional.ofNullable(reply).orElse("");
+        } catch (MessageException e) {
+            return e.getMessage();
+        }
+    }
+
 }

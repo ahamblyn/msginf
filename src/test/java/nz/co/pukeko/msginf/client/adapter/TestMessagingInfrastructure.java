@@ -36,10 +36,10 @@ public class TestMessagingInfrastructure {
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
 					"ReplyQueue", "true");
+			messageRequestReply.run();
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			log.error("Unable to setup TestMessagingInfrastructure test", e);
 		}
-		messageRequestReply.run();
 	}
 
 	@AfterAll
