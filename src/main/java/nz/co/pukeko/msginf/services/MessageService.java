@@ -4,8 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.Messenger;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.models.message.MessageResponse;
-import nz.co.pukeko.msginf.models.message.RestMessageResponse;
+import nz.co.pukeko.msginf.models.message.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,9 @@ public class MessageService implements IMessageService {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            messenger.sendMessage(messageSystem, messageConnector, payload);
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, messageSystem, messageConnector);
+            messageRequest.setMessage(payload);
+            messenger.sendMessage(messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
             return Optional.of(new RestMessageResponse("Message submitted successfully", transactionId, duration));
@@ -52,7 +53,10 @@ public class MessageService implements IMessageService {
     @Override
     public String requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) {
         try {
-            MessageResponse reply = messenger.sendMessage(messageSystem, messageConnector, payload, headerProperties);
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, messageSystem, messageConnector);
+            messageRequest.setMessage(payload);
+            messageRequest.setHeaderProperties(headerProperties);
+            MessageResponse reply = messenger.sendMessage(messageRequest);
             return reply.getTextResponse();
         } catch (MessageException e) {
             return e.getMessage();

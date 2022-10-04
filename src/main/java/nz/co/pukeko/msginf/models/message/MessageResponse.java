@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MessageResponse {
-    private MessageResponseType messageResponseType;
+    private MessageType messageType;
     private String textResponse;
     private byte[] binaryResponse;
     private MessageRequest messageRequest;

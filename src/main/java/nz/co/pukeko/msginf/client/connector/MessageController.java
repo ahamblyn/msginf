@@ -35,8 +35,10 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
+import nz.co.pukeko.msginf.models.message.MessageRequest;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
-import nz.co.pukeko.msginf.models.message.MessageResponseType;
+import nz.co.pukeko.msginf.models.message.MessageType;
 
 /**
  * The MessageController puts messages onto the queues defined in the properties file.
@@ -194,40 +196,29 @@ public class MessageController {
 
     /**
      * This method sends the message to the JMS objects.
-     * @param messageStream the binary message stream.
-     * @return the reply. Null for asynchronous (submit) messages.
+     * @param messageRequest the message request.
+     * @return the message response.
      * @throws MessageException if the message cannot be sent.
      */
-   public MessageResponse sendMessage(ByteArrayOutputStream messageStream) throws MessageException {
-	   return sendMessage(messageStream,null);
-   }
-    /**
-     * This method sends the message to the JMS objects.
-     * @param messageStream the binary message stream.
-	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
-     * @return the reply. Null for asynchronous (submit) messages.
-     * @throws MessageException if the message cannot be sent.
-     */
-   public MessageResponse sendMessage(ByteArrayOutputStream messageStream, HeaderProperties<String, Object> headerProperties) throws MessageException {
+   public MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
     Instant start = Instant.now();
 	MessageResponse messageResponse = new MessageResponse();
-	// TODO add message request to response.
+    messageResponse.setMessageRequest(messageRequest);
     try {
-        Message jmsMessage = createMessage(messageStream);
-        setHeaderProperties(jmsMessage,headerProperties);
-        if (replyExpected) { // TODO get from message request
-        	// request-reply
+        Message jmsMessage = createMessage(messageRequest.getMessageStream());
+        setHeaderProperties(jmsMessage, messageRequest.getHeaderProperties());
+        if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
         	Message replyMsg = messageRequester.request(jmsMessage);
-        	getHeaderProperties(replyMsg,headerProperties);
+        	getHeaderProperties(replyMsg, messageRequest.getHeaderProperties());
             if (replyMsg instanceof TextMessage) {
-				messageResponse.setMessageResponseType(MessageResponseType.TEXT);
+				messageResponse.setMessageType(MessageType.TEXT);
 				messageResponse.setTextResponse(((TextMessage)replyMsg).getText());
             }
             if (replyMsg instanceof BytesMessage) {
             	long messageLength = ((BytesMessage)replyMsg).getBodyLength();
             	byte[] messageData = new byte[(int)messageLength];
             	((BytesMessage)replyMsg).readBytes(messageData);
-				messageResponse.setMessageResponseType(MessageResponseType.BINARY);
+				messageResponse.setMessageType(MessageType.BINARY);
 				messageResponse.setBinaryResponse(messageData);
             }
             collateStats(connector, start, "Time taken for request-reply,");
