@@ -18,7 +18,6 @@ import java.rmi.server.UID;
 public class ConsumerMessageRequester {
 	private QueueChannel queueChannel;
 	private MessageProducer producer;
-	private Queue requestQueue;
 	private Queue replyQueue;
 	private int replyWaitTime;
 	private MessageConsumer consumer;
@@ -29,11 +28,10 @@ public class ConsumerMessageRequester {
 	 * Constructs the ConsumerMessageRequester instance.
 	 * @param queueChannel the JMS queue channel.
 	 * @param producer the JMS producer.
-	 * @param requestQueue the request queue.
 	 * @param replyQueue the reply queue.
 	 * @param replyWaitTime the reply wait timeout.
 	 */
-	public ConsumerMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue requestQueue, Queue replyQueue, int replyWaitTime) {
+	public ConsumerMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue replyQueue, int replyWaitTime) {
 		this.identifier = Long.toString(System.currentTimeMillis());
 		try {
 			this.hostName = InetAddress.getLocalHost().getHostName();
@@ -42,7 +40,6 @@ public class ConsumerMessageRequester {
 		}
 		this.queueChannel = queueChannel;
 		this.producer = producer;
-		this.requestQueue = requestQueue;
 		this.replyWaitTime = replyWaitTime;
 		this.replyQueue = replyQueue;
 	}

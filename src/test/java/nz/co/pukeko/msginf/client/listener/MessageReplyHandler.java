@@ -135,20 +135,6 @@ public class MessageReplyHandler {
 		return null;
 	}
 	
-	private Node findRecursively(Node node, String name) {
-		if (node.getNodeType() == Node.ELEMENT_NODE) {
-			if (node.getNodeName().equals(name)) {
-				return node;
-			} else {
-				NodeList children = node.getChildNodes();
-				for (int i = 0; i < children.getLength(); i++) {
-					return findRecursively(children.item(i), name);
-				}
-			}
-		}
-		return node;
-	}	
-	
     public void reply(Message message) throws JMSException {
     	String collectionName = "MessageReplyHandler_1_reply";
 		long time = System.currentTimeMillis();

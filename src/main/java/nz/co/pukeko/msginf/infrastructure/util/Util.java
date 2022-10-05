@@ -2,7 +2,6 @@ package nz.co.pukeko.msginf.infrastructure.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -150,22 +149,6 @@ public class Util {
 		return jmsCtx;
 	}
 
-	/**
-     * Get the extension of a file.
-     * @param file File
-     * @return the extension
-     */
-	public static String getExtension(File file) {
-        String ext = null;
-        String s = file.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }	
-	
     public static void connectToPort(String host, int port) {
         // connect to the server socket
         try {

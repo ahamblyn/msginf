@@ -56,10 +56,9 @@ public class TestMessageRequester {
         queueConnection.start();
     	session = queueConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
 		Queue requestQueue = session.createQueue("REQUEST.QUEUE");
-		Queue replyQueue = session.createQueue("REPLY.QUEUE");
 		QueueChannel qc = new QueueChannel(queueConnection, session);
 		MessageProducer producer = qc.createMessageProducer(null);
-		requester = new ConsumerMessageRequester(qc, producer, requestQueue, replyQueue, 20000);
+		requester = new ConsumerMessageRequester(qc, producer, requestQueue, 20000);
 	}
 
 	public static void main(String[] args) {

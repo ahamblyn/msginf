@@ -220,11 +220,11 @@ public class MessageController {
 				messageResponse.setMessageType(MessageType.BINARY);
 				messageResponse.setBinaryResponse(messageData);
             }
-            collateStats(connector, start, "Time taken for request-reply,");
+            collateStats(connector, start);
         } else {
         	// submit
             submitMessageProducer.send(jmsMessage);
-            collateStats(connector, start, "Time taken for submit,");
+            collateStats(connector, start);
         }
         return messageResponse;
     } catch (JMSException e) {
@@ -254,7 +254,7 @@ public class MessageController {
 	                messages.add("Binary messages...");
 				}
 			}
-            collateStats(connector, start, "Time taken for receive,");
+            collateStats(connector, start);
 			messageConsumer.close();
 	    } catch (JMSException e) {
 	    	// increment failed message count
@@ -266,7 +266,7 @@ public class MessageController {
 	   return messages;
    }
 
-	private void collateStats(String connector, Instant start, String message) {
+	private void collateStats(String connector, Instant start) {
 		if (logStatistics) {
 			Instant finish = Instant.now();
 			long duration = Duration.between(start, finish).toMillis();
@@ -306,7 +306,7 @@ public class MessageController {
         return session.createStreamMessage();
     }
 
-    private void setupQueueObjects() throws MessageException, JMSException {
+    private void setupQueueObjects() throws JMSException {
 		log.debug("Setting up: " + this);
 		if (queueChannel != null) {
 			qcp.free(queueChannel);
@@ -321,7 +321,7 @@ public class MessageController {
 		}
 		// only create a requester for request-reply message controllers.
 		if (replyExpected) {
-			messageRequester = new ConsumerMessageRequester(queueChannel, requestReplyMessageProducer, queue, replyQueue, replyWaitTime);
+			messageRequester = new ConsumerMessageRequester(queueChannel, requestReplyMessageProducer, replyQueue, replyWaitTime);
 		}
 	}
     

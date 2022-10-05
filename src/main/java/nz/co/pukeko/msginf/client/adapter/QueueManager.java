@@ -15,6 +15,7 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.models.message.MessageRequest;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
 import nz.co.pukeko.msginf.models.message.MessageType;
 
@@ -25,17 +26,12 @@ import nz.co.pukeko.msginf.models.message.MessageType;
  * @author Alisdair Hamblyn
  */
 @Slf4j
-public class QueueManager implements QueueManagerAgreement {
+public class QueueManager {
 
 	/**
 	 * The message controller factory instance.
 	 */
 	private static MessageControllerFactory messageConnFactory;
-	
-    /**
-	 * A hashtable containing the queue manager properties for each connector.
-	 */
-	private Hashtable<String,QueueManagerConfigurationProperties> queueManagerConfigurationProperties;
 	
 	/**
 	 * The message controllers.
@@ -68,10 +64,6 @@ public class QueueManager implements QueueManagerAgreement {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
 		this.logStatistics = logStatistics;
-		if (queueManagerConfigurationProperties == null) {
-			queueManagerConfigurationProperties = new Hashtable<>();
-		}
-		loadConfig();
 		if (messageConnFactory == null) {
 			messageConnFactory = MessageControllerFactory.getInstance(parser);
 		}
@@ -119,8 +111,13 @@ public class QueueManager implements QueueManagerAgreement {
 		if (messageRequest.getMessageStream() != null) {
 			MessageController mc = getMessageConnector(messageRequest.getConnectorName());
 			try {
-				QueueManagerConfigurationProperties qmbcp = queueManagerConfigurationProperties.get(messageRequest.getConnectorName());
-				if (qmbcp.compressBinaryMessages()) {
+				boolean compressBinaryMessages = false;
+				if (messageRequest.getMessageRequestType() == MessageRequestType.SUBMIT) {
+					compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
+				} else if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
+					compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
+				}
+				if (compressBinaryMessages) {
 					messageRequest.setMessageStream(compress(messageRequest.getMessageStream()));
 				}
 				result = mc.sendMessage(messageRequest);
@@ -195,23 +192,6 @@ public class QueueManager implements QueueManagerAgreement {
 			}
 		}
 		return mc;
-	}
-
-	private void loadConfig() {
-        // Submit Connectors
-    	List<String> submitConnectorNames = parser.getSubmitConnectorNames(messagingSystem);
-		for (String connectorName : submitConnectorNames) {
-			boolean compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, false);
-			queueManagerConfigurationProperties.put(connectorName, qmbcp);
-		}
-        // Request Reply connectors
-    	List<String> rrConnectorNames = parser.getRequestReplyConnectorNames(messagingSystem);
-		for (String connectorName : rrConnectorNames) {
-			boolean compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, true);
-			queueManagerConfigurationProperties.put(connectorName, qmbcp);
-		}
 	}
 
 	/**

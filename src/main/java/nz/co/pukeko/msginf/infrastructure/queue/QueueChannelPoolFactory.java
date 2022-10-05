@@ -43,18 +43,6 @@ public class QueueChannelPoolFactory {
         queueChannelPools = new Hashtable<>();
     }
 
-    private void initialiseAllChannelPools() throws MessageException {
-        //TODO fix??
-        // initialise all the channel pools
-/*
-        MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-        List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
-        for (String messagingSystem : availableMessagingSystems) {
-//			initialise(messagingSystem);
-        }
-*/
-    }
-
     /**
      * Instantiates the singleton QueueChannelPoolFactory instance.
      *
@@ -95,42 +83,6 @@ public class QueueChannelPoolFactory {
             queueChannelPools.remove(temp);
             queueChannelPools = null;
         });
-    }
-
-    /**
-     * Restarts all the queue channel pools.
-     *
-     * @throws MessageException Message exception
-     */
-    public void restartQueueChannelPools() throws MessageException {
-        Optional.ofNullable(queueChannelPools).orElseThrow(() -> new QueueChannelException("The Queue Channel Pools have not been started."));
-        log.info("Restarting Queue Channel Pools");
-        stopQueueChannelPools();
-        // create new queue channel pools
-        initQCPF();
-    }
-
-    /**
-     * Starts all the queue channel pools.
-     *
-     * @throws MessageException Message exception
-     */
-    public void startQueueChannelPools() throws MessageException {
-        // TODO optional
-        if (queueChannelPools == null || queueChannelPools.size() == 0) {
-            log.info("Starting Queue Channel Pools");
-            // create new queue channel pools
-            initQCPF();
-        } else {
-            throw new QueueChannelException("The Queue Channel Pools have already been started.");
-        }
-    }
-
-    private void initQCPF() throws MessageException {
-        queueChannelPools = new Hashtable<>();
-        Optional.ofNullable(qcpf).orElseThrow(() ->
-                new QueueChannelException("As the queue channel pools will be started automagically by the first message, there is no need to start them manually."));
-        qcpf.initialiseAllChannelPools();
     }
 
     /**

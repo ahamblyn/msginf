@@ -111,22 +111,4 @@ public class MessageControllerFactory {
         }
         log.info("The messaging systems available are: " + jmsContexts.keySet());
 	}
-	
-	/**
-	 * Re-read the properties file and reconnect to the configured messaging systems
-	 * @throws MessageException Message exception
-	 */
-	public void reloadMessagingSystems(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
-		initialise(parser);
-	}
-	
-	/**
-	 * Returns true if the messaging system is available for use.
-	 * @param messagingSystem the messaging system
-	 * @return true if the messaging system is available for use
-	 */
-	public boolean isMessagingSystemAvailable(String messagingSystem) {
-		return jmsContexts.containsKey(messagingSystem);
-	}
-
 }

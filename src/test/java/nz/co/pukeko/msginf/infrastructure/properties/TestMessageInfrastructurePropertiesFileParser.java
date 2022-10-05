@@ -152,7 +152,6 @@ public class TestMessageInfrastructurePropertiesFileParser {
         public String replyQueueName;
         public String queueConnFactoryName;
         public String messageClassName;
-        public String requesterClassName;
         public int messageTimeToLive;
         public int replyWaitTime;
     }

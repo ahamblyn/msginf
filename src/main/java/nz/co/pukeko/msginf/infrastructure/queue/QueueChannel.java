@@ -61,16 +61,6 @@ public class QueueChannel {
    }
    
    /**
-    * Creates a JMS message consumer for the JMS queue. 
-    * @param queue the JMS queue.
-    * @return the JMS message consumer.
-    * @throws JMSException JMS exception
-    */
-   public MessageConsumer createMessageConsumer(Queue queue) throws JMSException {
-      return this.session.createConsumer(queue);
-   }
-   
-   /**
     * Creates a JMS message consumer for the JMS queue and message selector. 
     * @param queue the JMS queue.
     * @param messageSelector the message selector.
@@ -80,15 +70,6 @@ public class QueueChannel {
    public MessageConsumer createMessageConsumer(Queue queue, String messageSelector) throws JMSException {
        return this.session.createConsumer(queue, messageSelector);
     }
-   
-   /**
-    * Creates a JMS temporary queue.
-    * @return the JMS temporary queue.
-    * @throws JMSException JMS exception
-    */
-   public TemporaryQueue createTemporaryQueue() throws JMSException {
-	   return this.session.createTemporaryQueue();
-   }
    
    /**
     * Closes the JMS queue session and connections.
