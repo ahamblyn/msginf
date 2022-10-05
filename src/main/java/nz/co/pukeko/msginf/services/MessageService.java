@@ -51,15 +51,20 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public String requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) {
+    public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) {
+        String transactionId = UUID.randomUUID().toString();
         try {
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, messageSystem, messageConnector);
+            Instant start = Instant.now();
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, messageSystem, messageConnector);
             messageRequest.setMessage(payload);
             messageRequest.setHeaderProperties(headerProperties);
             MessageResponse reply = messenger.sendMessage(messageRequest);
-            return reply.getTextResponse();
+            Instant finish = Instant.now();
+            long duration = Duration.between(start, finish).toMillis();
+            return Optional.of(new RestMessageResponse(reply.getTextResponse(), transactionId, duration));
         } catch (MessageException e) {
-            return e.getMessage();
+            log.error("Unable to run requestReply", e);
+            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId));
         }
     }
 

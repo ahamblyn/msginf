@@ -35,11 +35,13 @@ public class MessageController {
     }
 
     @PostMapping(path = "/request")
-    public String request(@RequestHeader(name="x-message-system") String messageSystem,
+    public RestMessageResponse request(@RequestHeader(name="x-message-system") String messageSystem,
                                   @RequestHeader(name="x-message-connector") String messageConnector,
                                   @RequestBody String payload) {
+        // TODO add header properties to request header and make non-mandatory
         HeaderProperties<String,Object> headerProperties = new HeaderProperties<>();
         headerProperties.put("testname", "reply");
-        return messageService.requestReply(messageSystem, messageConnector, payload, headerProperties);
+        Optional<RestMessageResponse> messageResponse = messageService.requestReply(messageSystem, messageConnector, payload, headerProperties);
+        return messageResponse.orElseGet(RestMessageResponse::new);
     }
 }
