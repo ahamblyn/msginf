@@ -52,7 +52,7 @@ public class TestMsgInfDirectly {
 	public void reply() throws MessageException {
 		for (int i = 0; i < 10; i++) {
 			MessageResponse response = queueManager.sendMessage(TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-					MessageType.TEXT, "activemq", "activemq_rr_text_consumer", "Message[" + (i + 1) + "]"));
+					MessageType.TEXT, "activemq_rr_text_consumer", "Message[" + (i + 1) + "]"));
 			assertNotNull(response);
 			assertNotNull(response.getTextResponse());
 			assertEquals(MessageType.TEXT, response.getMessageType());
@@ -65,7 +65,7 @@ public class TestMsgInfDirectly {
 	public void submit() throws MessageException {
 		for (int i = 0; i < 10; i++) {
 			MessageResponse response = queueManager.sendMessage(TestUtil.createMessageRequest(MessageRequestType.SUBMIT,
-					MessageType.TEXT, "activemq", "activemq_submit_text", "Message[" + (i + 1) + "]"));
+					MessageType.TEXT, "activemq_submit_text", "Message[" + (i + 1) + "]"));
 			assertNotNull(response);
 			// TODO test message request from response
 		}

@@ -44,8 +44,8 @@ public class Messenger {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
     }
 
-    public MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
-        QueueManager queueManager = getQueueManager(messageRequest.getMessagingSystemName()).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messageRequest.getMessagingSystemName()));
+    public MessageResponse sendMessage(String messagingSystem, MessageRequest messageRequest) throws MessageException {
+        QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
         return queueManager.sendMessage(messageRequest);
     }
 

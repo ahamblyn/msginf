@@ -60,7 +60,7 @@ public class MessageTest {
 			HeaderProperties<String,Object> resetProperties = new HeaderProperties<>();
 			resetProperties.put("reset", Boolean.TRUE);
 			// don't expect a reply and don't care what the message is either.
-			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, "", connector, "XXXXXXXXXX");
+			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, "XXXXXXXXXX");
 			messageRequest.setHeaderProperties(resetProperties);
 			resetQueueManager.sendMessage(messageRequest);
 		} catch (Exception e) {
@@ -130,7 +130,7 @@ public class MessageTest {
 		if (bos != null) {
 			for (int i = 0; i < numberOfMessages; i++) {
 				// no reply expected as it is a submit
-				MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.BINARY, "", connector, "");
+				MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.BINARY, connector, "");
 				messageRequest.setMessageStream(bos);
 				messageRequest.setHeaderProperties(createTestNameHeaderProperties("submit"));
 				queueManager.sendMessage(messageRequest);
@@ -143,7 +143,7 @@ public class MessageTest {
 	protected void runReplyTest(String connector, String type, int size, int numberOfMessages) throws Exception {
 		for (int i = 0; i < numberOfMessages; i++) {
 			String message = createRequestXML(type, size);
-			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, "", connector, message);
+			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, connector, message);
 			messageRequest.setHeaderProperties(createTestNameHeaderProperties("reply"));
 			MessageResponse response = queueManager.sendMessage(messageRequest);
 			if (type.equals("text")) {
@@ -161,7 +161,7 @@ public class MessageTest {
 	protected void runEchoTest(String connector, int numberOfMessages) throws Exception {
 		for (int i = 0; i < numberOfMessages; i++) {
 			String message = "Message[" + (i + 1) + "]";
-			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, "", connector, message);
+			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, connector, message);
 			messageRequest.setHeaderProperties(createTestNameHeaderProperties("echo"));
 			MessageResponse reply = queueManager.sendMessage(messageRequest);
 			assertEquals(message, reply.getTextResponse());

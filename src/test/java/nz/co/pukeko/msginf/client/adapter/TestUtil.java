@@ -7,8 +7,8 @@ import nz.co.pukeko.msginf.models.message.MessageType;
 public class TestUtil {
 
     public static MessageRequest createMessageRequest(MessageRequestType messageRequestType, MessageType messageType,
-                                                String messagingSystem, String connector, String message) {
-        MessageRequest messageRequest = new MessageRequest(messageRequestType, messageType, messagingSystem, connector);
+                                                String connector, String message) {
+        MessageRequest messageRequest = new MessageRequest(messageRequestType, messageType, connector);
         messageRequest.setMessage(message);
         return messageRequest;
     }

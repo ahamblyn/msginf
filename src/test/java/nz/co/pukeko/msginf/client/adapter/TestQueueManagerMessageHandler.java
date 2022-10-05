@@ -102,7 +102,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			HeaderProperties<String,Object> resetProperties = new HeaderProperties<>();
 			resetProperties.put("reset", Boolean.TRUE);
 			// don't expect a reply and don't care what the message is either.
-			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, "", connector, "XXXXXXXXXX");
+			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, "XXXXXXXXXX");
 			messageRequest.setHeaderProperties(resetProperties);
 			queueManager.sendMessage(messageRequest);
 			queueManager.close();
@@ -135,7 +135,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.BINARY, "", connector, "");
+					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.BINARY, connector, "");
 					messageRequest.setMessageStream(bos);
 					messageRequest.setHeaderProperties(createTestNameHeaderProperties(testName));
 					MessageResponse response = queueManager.sendMessage(messageRequest);
@@ -154,7 +154,7 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, "", connector, temp);
+					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, temp);
 					messageRequest.setHeaderProperties(createTestNameHeaderProperties(testName));
 					MessageResponse response = queueManager.sendMessage(messageRequest);
 					handleReply(response);
