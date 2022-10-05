@@ -15,14 +15,12 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester;
-import nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester;
 import nz.co.pukeko.msginf.client.connector.MessageRequester;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
-import nz.co.pukeko.msginf.models.message.MessageResponse;
 
 public class TestMessageRequester {
 	private static long messageCount = 0;
@@ -39,8 +37,8 @@ public class TestMessageRequester {
 		this.numberOfIterations = 10;
 		this.dataFileName = "test.xml";
 		try {
-			setupActiveMQFuture();
-		} catch (JMSException | NamingException | MessageRequesterException e) {
+			setupActiveMQConsumer();
+		} catch (JMSException | NamingException e) {
 			e.printStackTrace();
 		}
 	}
@@ -49,22 +47,6 @@ public class TestMessageRequester {
 		return ++messageCount;
 	}
 
-	private void setupActiveMQFuture() throws JMSException, MessageRequesterException, NamingException {
-		Properties props = new Properties();
-		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-		props.setProperty("brokerURL", "reliable:tcp://localhost:61616");
-		Context ctx = new InitialContext(props);
-		QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory)ctx.lookup("QueueConnectionFactory");
-    	queueConnection = queueConnectionFactory.createQueueConnection();
-        queueConnection.start();
-    	session = queueConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
-		Queue requestQueue = session.createQueue("REQUEST.QUEUE");
-		Queue replyQueue = session.createQueue("REPLY.QUEUE");
-		QueueChannel qc = new QueueChannel(queueConnection, session);
-		MessageProducer producer = session.createProducer(null);
-		requester = new FutureResultsHandlerMessageRequester(qc, producer, requestQueue, replyQueue, 20000);
-	}
-	
 	private void setupActiveMQConsumer() throws JMSException, NamingException {
 		Properties props = new Properties();
 		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");

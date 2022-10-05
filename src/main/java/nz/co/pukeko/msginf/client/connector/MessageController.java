@@ -82,12 +82,12 @@ public class MessageController {
    /**
     * The queue connection factory name.
     */
-   private final String queueConnFactoryName;
+   private String queueConnFactoryName = "";
 
    /**
     * The application queue name.
     */
-   private final String queueName;
+   private String queueName = "";
 
    /**
     * The JMS message requester.
@@ -97,27 +97,27 @@ public class MessageController {
    /**
     * Whether a reply is expected or not.
     */
-   private final boolean replyExpected;
+   private boolean replyExpected = false;
    
    /**
     * The name of the message class to use. e.g. javax.jms.TextMessage
     */
-   private final String messageClassName;
+   private String messageClassName = "";
    
    /**
     * The name of the requester class to use. e.g. nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester
     */
-   private final String requesterClassName;
+   private String requesterClassName = "";
    
    /**
     * The time in milliseconds the message is to live. 0 means forever.
     */
-   private final int messageTimeToLive;
+   private int messageTimeToLive = 0;
    
    /**
     * The time in milliseconds to wait for a reply. 0 means forever.
     */
-   private final int replyWaitTime;
+   private int replyWaitTime = 0;
 
    /**
     * The messaging queue channel.
@@ -146,29 +146,36 @@ public class MessageController {
 
     /**
      * Constructs the MessageController instance.
+	 * @param parser the properties file parser.
      * @param messagingSystem the messaging system in the properties file to use.
      * @param connector the name of the connector as defined in the properties file.
-     * @param queueName the JNDI queue name.
-     * @param queueConnFactoryName the JNDI queue connection factory name.
      * @param jmsCtx the JMS context.
-     * @param replyExpected whether a reply is expected or not. True for synchronous (request/reply) messages.
-     * @param messageClassName the name of the message class to use. e.g. javax.jms.TextMessage
-     * @param requesterClassName the name of the MessageRequester to use.
-     * @param messageTimeToLive the time in milliseconds the message is to live. 0 means forever.
-     * @param replyWaitTime the time in milliseconds to wait for a reply. 0 means forever.
      * @param logStatistics whether to log the timing statistics or not.
      * @throws MessageException Message exception
      */
-	public MessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String queueName, String replyQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
+	public MessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
+							 Context jmsCtx, boolean logStatistics) throws MessageException {
 	  this.connector = connector;
-      this.queueName = queueName;
-      this.queueConnFactoryName = queueConnFactoryName;
-      this.replyExpected = replyExpected;
-      this.messageClassName = messageClassName;
-      this.requesterClassName = requesterClassName;
-      this.messageTimeToLive = messageTimeToLive;
-      this.replyWaitTime = replyWaitTime;
       this.logStatistics = logStatistics;
+  	  String replyQueueName = null;
+		if (parser.doesSubmitExist(messagingSystem, connector)) {
+			this.replyExpected = false;
+			this.queueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connector);
+			this.queueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connector);
+			this.messageClassName = parser.getSubmitConnectionMessageClassName(messagingSystem, connector);
+			this.messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connector);
+			this.replyWaitTime = parser.getSubmitConnectionReplyWaitTime(messagingSystem, connector);
+		} else if (parser.doesRequestReplyExist(messagingSystem, connector)) {
+			this.replyExpected = true;
+			this.queueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connector);
+			replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
+			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
+			this.messageClassName = parser.getRequestReplyConnectionMessageClassName(messagingSystem, connector);
+			this.requesterClassName = parser.getRequestReplyConnectionRequesterClassName(messagingSystem, connector);
+			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
+			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
+		}
+
       try {
          queue = (Queue)jmsCtx.lookup(this.queueName);
          if (replyQueueName != null) {
@@ -321,7 +328,7 @@ public class MessageController {
 			requestReplyMessageProducer.setTimeToLive(messageTimeToLive);
 		}
 		// only create a requester for request-reply message controllers.
-		if (requesterClassName != null) {
+		if (!requesterClassName.equals("")) {
 			messageRequester = createMessageRequester();
 		}
 	}
