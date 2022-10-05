@@ -15,7 +15,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester;
-import nz.co.pukeko.msginf.client.connector.MessageRequester;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
@@ -29,7 +28,7 @@ public class TestMessageRequester {
 	private final String dataFileName;
 	private QueueConnection queueConnection;
 	private Session session;
-	private MessageRequester requester;
+	private ConsumerMessageRequester requester;
 	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 	
 	public TestMessageRequester() {
@@ -107,14 +106,14 @@ public class TestMessageRequester {
 		private int numberOfIterations;
 		private String dataFileName;
 		private final Session session;
-		private final MessageRequester requester;
+		private final ConsumerMessageRequester requester;
 		
-		public TestMessageRequesterThread(Session session, MessageRequester requester) {
+		public TestMessageRequesterThread(Session session, ConsumerMessageRequester requester) {
 			this.session = session;
 			this.requester = requester;
 		}
 
-		public TestMessageRequesterThread(Session session, MessageRequester requester, int numberOfIterations, String dataFileName) {
+		public TestMessageRequesterThread(Session session, ConsumerMessageRequester requester, int numberOfIterations, String dataFileName) {
 			this(session, requester);
 			this.numberOfIterations = numberOfIterations;
 			this.dataFileName = dataFileName;

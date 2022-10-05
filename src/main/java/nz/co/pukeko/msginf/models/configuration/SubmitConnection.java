@@ -11,7 +11,6 @@ public class SubmitConnection {
     private String submitQueueName;
     private String submitQueueConnFactoryName;
     private String messageClassName;
-    private String requesterClassName;
     private Integer messageTimeToLive;
     private Integer replyWaitTime;
 }

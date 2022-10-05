@@ -1,8 +1,6 @@
 package nz.co.pukeko.msginf.client.connector;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -92,7 +90,7 @@ public class MessageController {
    /**
     * The JMS message requester.
     */
-   private MessageRequester messageRequester;
+   private ConsumerMessageRequester messageRequester;
    
    /**
     * Whether a reply is expected or not.
@@ -103,11 +101,6 @@ public class MessageController {
     * The name of the message class to use. e.g. javax.jms.TextMessage
     */
    private String messageClassName = "";
-   
-   /**
-    * The name of the requester class to use. e.g. nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester
-    */
-   private String requesterClassName = "";
    
    /**
     * The time in milliseconds the message is to live. 0 means forever.
@@ -171,7 +164,6 @@ public class MessageController {
 			replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
 			this.messageClassName = parser.getRequestReplyConnectionMessageClassName(messagingSystem, connector);
-			this.requesterClassName = parser.getRequestReplyConnectionRequesterClassName(messagingSystem, connector);
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
 		}
@@ -328,33 +320,11 @@ public class MessageController {
 			requestReplyMessageProducer.setTimeToLive(messageTimeToLive);
 		}
 		// only create a requester for request-reply message controllers.
-		if (!requesterClassName.equals("")) {
-			messageRequester = createMessageRequester();
+		if (replyExpected) {
+			messageRequester = new ConsumerMessageRequester(queueChannel, requestReplyMessageProducer, queue, replyQueue, replyWaitTime);
 		}
 	}
     
-    /**
-	 * Create the message requester using reflection.
-	 * 
-	 * @return the message requester.
-	 * @throws MessageRequesterException Message requester exception
-	 */
-    private MessageRequester createMessageRequester() throws MessageRequesterException {
-    	// use reflection to create the message requester.
-    	MessageRequester mr;
-    	try {
-			Class[] argumentClasses = new Class[] {QueueChannel.class, MessageProducer.class, Queue.class, Queue.class, int.class};
-			Object[] arguments = new Object[] {queueChannel, requestReplyMessageProducer, queue, replyQueue, replyWaitTime};
-			Class messageRequesterClass = Class.forName(requesterClassName);
-			Constructor constructor = messageRequesterClass.getConstructor(argumentClasses);
-			mr = (MessageRequester)constructor.newInstance(arguments);
-		} catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException |
-				 ClassNotFoundException e) {
-			throw new MessageRequesterException(e);
-		}
-		return mr;
-    }
-
 	private Message createMessage(ByteArrayOutputStream messageStream) throws JMSException {
 		Message jmsMessage = null;
 		if (messageClassName.equals("javax.jms.BytesMessage")) {

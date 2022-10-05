@@ -37,7 +37,6 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
         activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
         activemqRequestReplyTextExpectedData.messageClassName = "javax.jms.TextMessage";
-        activemqRequestReplyTextExpectedData.requesterClassName = "nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester";
         activemqRequestReplyTextExpectedData.messageTimeToLive = 0;
         activemqRequestReplyTextExpectedData.replyWaitTime = 20000;
         expectedConnectorDataMap.put("activemq_rr_text_consumer", activemqRequestReplyTextExpectedData);
@@ -142,7 +141,6 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertEquals(expectedData.replyQueueName, parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connectorName));
         assertEquals(expectedData.queueConnFactoryName, parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connectorName));
         assertEquals(expectedData.messageClassName, parser.getRequestReplyConnectionMessageClassName(messagingSystem, connectorName));
-        assertEquals(expectedData.requesterClassName, parser.getRequestReplyConnectionRequesterClassName(messagingSystem, connectorName));
         assertEquals(expectedData.messageTimeToLive, parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connectorName));
         assertEquals(expectedData.replyWaitTime, parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connectorName));
     }

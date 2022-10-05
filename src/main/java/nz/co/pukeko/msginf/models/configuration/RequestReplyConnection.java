@@ -12,7 +12,6 @@ public class RequestReplyConnection {
     private String replyQueueName;
     private String requestQueueConnFactoryName;
     private String messageClassName;
-    private String requesterClassName;
     private Integer messageTimeToLive;
     private Integer replyWaitTime;
 }

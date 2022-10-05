@@ -1,21 +1,30 @@
 package nz.co.pukeko.msginf.client.connector;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
+import javax.jms.*;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.rmi.server.UID;
 
 /**
  * This class handles the requests to and the replies from the temporary reply queue. 
  * @author alisdairh
  */
 @Slf4j
-public class ConsumerMessageRequester extends BaseMessageRequester {
-	
+public class ConsumerMessageRequester {
+	private QueueChannel queueChannel;
+	private MessageProducer producer;
+	private Queue requestQueue;
+	private Queue replyQueue;
+	private int replyWaitTime;
+	private MessageConsumer consumer;
+	private String identifier;
+	private String hostName;
+
 	/**
 	 * Constructs the ConsumerMessageRequester instance.
 	 * @param queueChannel the JMS queue channel.
@@ -25,7 +34,17 @@ public class ConsumerMessageRequester extends BaseMessageRequester {
 	 * @param replyWaitTime the reply wait timeout.
 	 */
 	public ConsumerMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue requestQueue, Queue replyQueue, int replyWaitTime) {
-		super(queueChannel, producer, requestQueue, replyQueue, replyWaitTime);
+		this.identifier = Long.toString(System.currentTimeMillis());
+		try {
+			this.hostName = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			this.hostName = "Unknown";
+		}
+		this.queueChannel = queueChannel;
+		this.producer = producer;
+		this.requestQueue = requestQueue;
+		this.replyWaitTime = replyWaitTime;
+		this.replyQueue = replyQueue;
 	}
 
     /**
@@ -41,7 +60,7 @@ public class ConsumerMessageRequester extends BaseMessageRequester {
 			// set the correlation ID
 	        String correlationID = createCorrelationID();
 	        message.setJMSCorrelationID(correlationID);
-	        doSend(message);
+			producer.send(message);
 	        String messageSelector = "JMSCorrelationID='" + correlationID + "'";
 	        // set up the queue receiver here as it needs to have the message id of the current message,
 	        // and it doesn't exist in the setupQueues method.
@@ -58,6 +77,15 @@ public class ConsumerMessageRequester extends BaseMessageRequester {
 			throw new MessageRequesterException(jmse);
 		}
     }
+
+	/**
+	 * Creates a unique correlation ID.
+	 * @return the unique correlation ID.
+	 */
+	private String createCorrelationID() {
+		UID uid = new UID();
+		return hostName + "-" + identifier + ":" + System.currentTimeMillis() + ":" + uid;
+	}
 
     /**
      * Closes the ConsumerMessageRequester.
