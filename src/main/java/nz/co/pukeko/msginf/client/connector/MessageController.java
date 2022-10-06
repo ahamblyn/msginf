@@ -207,7 +207,7 @@ public class MessageController {
         Message jmsMessage = createMessage(messageRequest.getMessageStream());
         setHeaderProperties(jmsMessage, messageRequest.getHeaderProperties());
         if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
-        	Message replyMsg = messageRequester.request(jmsMessage);
+        	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
         	getHeaderProperties(replyMsg, messageRequest.getHeaderProperties());
             if (replyMsg instanceof TextMessage) {
 				messageResponse.setMessageType(MessageType.TEXT);

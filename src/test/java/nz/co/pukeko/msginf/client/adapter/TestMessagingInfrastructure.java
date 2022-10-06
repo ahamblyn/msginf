@@ -34,7 +34,7 @@ public class TestMessagingInfrastructure {
 			parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
-					"ReplyQueue", "true");
+					"ReplyQueue");
 			messageRequestReply.run();
 		} catch (Exception e) {
 			log.error("Unable to setup TestMessagingInfrastructure test", e);

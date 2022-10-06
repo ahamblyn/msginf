@@ -40,12 +40,11 @@ public class MessageRequestReply implements MessageListener {
 	private Queue replyQueue;
 	private QueueConnection queueConnection;
 	private MessageReplyHandler mrh;
-	private boolean bUseCorrelationID = true;
 	private static long messageCount = 0;
 	
 	public MessageRequestReply(MessageInfrastructurePropertiesFileParser parser, String messagingSystem,
 							   String queueConnectionFactoryName, String requestQueueName,
-							   String replyQueueName, String useCorrelationID) {
+							   String replyQueueName) {
 		try {
 			// load the runtime jar files
 			Util.loadRuntimeJarFiles(parser);
@@ -53,9 +52,6 @@ public class MessageRequestReply implements MessageListener {
          	queueConnectionFactory = (QueueConnectionFactory) context.lookup(queueConnectionFactoryName);
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
-         	if (!useCorrelationID.equals("true")) {
-         		bUseCorrelationID = false;
-         	}
 		} catch (MessageException | NamingException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -75,18 +71,17 @@ public class MessageRequestReply implements MessageListener {
 	}
 
 	public static void main(String[] args) {
-		if (args.length != 5) {
-			System.out.println("Usage: java nz.co.pukeko.msginf.client.listener.MessageRequestReply <messaging system> <queue connection factory name> <request queue name> <reply queue name> <Use Correlation ID>");
+		if (args.length != 4) {
+			System.out.println("Usage: java nz.co.pukeko.msginf.client.listener.MessageRequestReply <messaging system> <queue connection factory name> <request queue name> <reply queue name>");
 			System.exit(1);
 		}
 		String messagingSystem = args[0];
 		String queueConnectionFactoryName = args[1];
 		String requestQueueName = args[2];
 		String replyQueueName = args[3];
-		String useCorrelationID = args[4];
 		try {
 			MessageRequestReply mrr = new MessageRequestReply(new MessageInfrastructurePropertiesFileParser(), messagingSystem, queueConnectionFactoryName, requestQueueName,
-					replyQueueName, useCorrelationID);
+					replyQueueName);
 			mrr.run();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,7 +97,7 @@ public class MessageRequestReply implements MessageListener {
 			MessageProducer replyMessageProducer = session.createProducer(replyQueue);
             consumer.setMessageListener(this);
             queueConnection.start();
-     		mrh = new MessageReplyHandler(session, replyMessageProducer, bUseCorrelationID);
+     		mrh = new MessageReplyHandler(session, replyMessageProducer);
         } catch (JMSException jmse) {
             log.error(jmse.getMessage(), jmse);
         }

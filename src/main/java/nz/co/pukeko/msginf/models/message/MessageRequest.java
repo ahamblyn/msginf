@@ -15,10 +15,12 @@ public class MessageRequest {
     private String message;
     private HeaderProperties<String, Object> headerProperties;
     private ByteArrayOutputStream messageStream;
+    private String correlationId;
 
-    public MessageRequest(MessageRequestType messageRequestType, MessageType messageType, String connectorName) {
+    public MessageRequest(MessageRequestType messageRequestType, MessageType messageType, String connectorName, String correlationId) {
         this.messageRequestType = messageRequestType;
         this.messageType = messageType;
         this.connectorName = connectorName;
+        this.correlationId = correlationId;
     }
 }

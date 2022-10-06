@@ -1,6 +1,7 @@
 package nz.co.pukeko.msginf.client.adapter;
 
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -121,9 +122,10 @@ public class TestMessageRequester {
 		public void sendResetCountMessage() {
 			try {
 				// reset listener
+				String correlationId = UUID.randomUUID().toString();
 				TextMessage requestMessage = session.createTextMessage();
 				requestMessage.setText("RESET_MESSAGE_COUNT");
-				Message responseMessage = requester.request(requestMessage);
+				Message responseMessage = requester.request(requestMessage, correlationId);
 				if (responseMessage instanceof TextMessage) {
 					System.out.println("Listener reset");
 				}
@@ -160,7 +162,8 @@ public class TestMessageRequester {
 			collector.incrementMessageCount(statsName);
 			TextMessage requestMessage = session.createTextMessage();
 			requestMessage.setText(messageString);
-			Message responseMessage = requester.request(requestMessage);
+			String correlationId = UUID.randomUUID().toString();
+			Message responseMessage = requester.request(requestMessage, correlationId);
 			if (responseMessage instanceof TextMessage) {
 				long timeTaken = System.currentTimeMillis() - time;
 				response = ((TextMessage)responseMessage).getText();

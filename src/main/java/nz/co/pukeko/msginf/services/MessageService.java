@@ -28,7 +28,7 @@ public class MessageService implements IMessageService {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, messageConnector);
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, messageConnector, transactionId);
             messageRequest.setMessage(payload);
             messenger.sendMessage(messageSystem, messageRequest);
             Instant finish = Instant.now();
@@ -55,7 +55,7 @@ public class MessageService implements IMessageService {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, messageConnector);
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, messageConnector, transactionId);
             messageRequest.setMessage(payload);
             messageRequest.setHeaderProperties(headerProperties);
             MessageResponse reply = messenger.sendMessage(messageSystem, messageRequest);

@@ -27,7 +27,7 @@ public class TestMsgInfDirectly {
 			parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
-					"ReplyQueue", "true");
+					"ReplyQueue");
 			queueManager = new QueueManager(parser, "activemq", true);
 			messageRequestReply.run();
 		} catch (MessageException e) {

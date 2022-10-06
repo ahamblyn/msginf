@@ -33,7 +33,7 @@ public class MessageTest {
 			parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
-					"ReplyQueue", "true");
+					"ReplyQueue");
 		} catch (PropertiesFileException e) {
 			throw new RuntimeException(e);
 		}

@@ -29,7 +29,7 @@ public class TestMessenger {
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             messageRequestReply = new MessageRequestReply(parser, "activemq",
                     "QueueConnectionFactory", "RequestQueue",
-                    "ReplyQueue", "true");
+                    "ReplyQueue");
             messageRequestReply.run();
         } catch (MessageException e) {
             log.error("Unable to setup TestMessenger test", e);

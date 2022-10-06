@@ -50,15 +50,14 @@ public class ConsumerMessageRequester {
      * @return the reply message.
      * @throws MessageRequesterException Message requester exception
      */
-	public Message request(Message message) throws MessageRequesterException {
+	public Message request(Message message, String correlationId) throws MessageRequesterException {
 		try {
 			// set the reply to queue
 			message.setJMSReplyTo(replyQueue);
 			// set the correlation ID
-	        String correlationID = createCorrelationID();
-	        message.setJMSCorrelationID(correlationID);
+	        message.setJMSCorrelationID(correlationId);
 			producer.send(message);
-	        String messageSelector = "JMSCorrelationID='" + correlationID + "'";
+	        String messageSelector = "JMSCorrelationID='" + correlationId + "'";
 	        // set up the queue receiver here as it needs to have the message id of the current message,
 	        // and it doesn't exist in the setupQueues method.
 	        consumer = queueChannel.createMessageConsumer(this.replyQueue, messageSelector);
