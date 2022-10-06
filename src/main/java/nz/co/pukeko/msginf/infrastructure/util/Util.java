@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -148,16 +146,4 @@ public class Util {
 		}
 		return jmsCtx;
 	}
-
-    public static void connectToPort(String host, int port) {
-        // connect to the server socket
-        try {
-			Socket clientSocket = new Socket(host, port);
-            log.info("Connected to server " + host + ":" + port);
-        } catch (UnknownHostException e) {
-            log.error("Couldn't find " + host, e);
-        } catch (IOException e) {
-            log.error("IO exception", e);
-        }
-    }
 }
