@@ -43,12 +43,10 @@ public class MessageReplyHandler {
 	private DocumentBuilder docBuilder;
 	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 	private final Hashtable<Integer,String> randomStrings = new Hashtable<>();
-	private final boolean useCorrelationID;
-	
-	public MessageReplyHandler(Session session, MessageProducer replyMessageProducer, boolean useCorrelationID) {
+
+	public MessageReplyHandler(Session session, MessageProducer replyMessageProducer) {
 		this.session = session;
 		this.replyMessageProducer = replyMessageProducer;
-		this.useCorrelationID = useCorrelationID;
 		try {
 			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
@@ -135,20 +133,6 @@ public class MessageReplyHandler {
 		return null;
 	}
 	
-	private Node findRecursively(Node node, String name) {
-		if (node.getNodeType() == Node.ELEMENT_NODE) {
-			if (node.getNodeName().equals(name)) {
-				return node;
-			} else {
-				NodeList children = node.getChildNodes();
-				for (int i = 0; i < children.getLength(); i++) {
-					return findRecursively(children.item(i), name);
-				}
-			}
-		}
-		return node;
-	}	
-	
     public void reply(Message message) throws JMSException {
     	String collectionName = "MessageReplyHandler_1_reply";
 		long time = System.currentTimeMillis();
@@ -195,11 +179,7 @@ public class MessageReplyHandler {
     private void submit(Message message, Message replyMessage) throws JMSException {
 		// set the message to expire after the timeout period has elapsed
         replyMessageProducer.setTimeToLive(120000);
-        if (useCorrelationID) {
-            replyMessage.setJMSCorrelationID(message.getJMSCorrelationID());
-        } else {
-            replyMessage.setJMSCorrelationID(message.getJMSMessageID());
-        }
+		replyMessage.setJMSCorrelationID(message.getJMSCorrelationID());
         replyMessageProducer.send(replyMessage);
 	}
 

@@ -437,18 +437,6 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the request-reply connection requester class name for the request-reply connector.
-     * @param messagingSystemName the messaging system
-     * @param connectorName the connector name
-     * @return the request-reply connection requester class name for the request-reply connector.
-     */
-    public String getRequestReplyConnectionRequesterClassName(String messagingSystemName, String connectorName) {
-        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<String> requesterClassName = connection.flatMap(rr -> Optional.ofNullable(rr.getRequesterClassName()));
-        return requesterClassName.orElse("");
-    }
-
-    /**
      * Returns the request-reply connection message time to live for the request-reply connector.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name

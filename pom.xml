@@ -30,13 +30,6 @@
             <systemPath>${project.basedir}/src/main/resources/jar-loader.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>EDU.oswego.cs</groupId>
-            <artifactId>dl.util.concurrent</artifactId>
-            <version>0.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/concurrent-1.3.4.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>2.19.0</version>

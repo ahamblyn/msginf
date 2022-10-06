@@ -15,7 +15,6 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
 import nz.co.pukeko.msginf.infrastructure.util.ClassPathHacker;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,7 +34,7 @@ public class TestMessagingInfrastructure {
 			parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
-					"ReplyQueue", "true");
+					"ReplyQueue");
 			messageRequestReply.run();
 		} catch (Exception e) {
 			log.error("Unable to setup TestMessagingInfrastructure test", e);
@@ -87,19 +86,6 @@ public class TestMessagingInfrastructure {
 	}
 
 	/*
-	 * 20 ActiveMQ Future Request/Reply binary messages.
-	 */
-	@Test
-	@Disabled
-	public void binaryActiveMQFutureRequestReply() throws MessageException {
-		log.info("Running binaryActiveMQFutureRequestReply...");
-		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_binary_future", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-	}
-
-	/*
 	 * 20 ActiveMQ Submit text messages.
 	 */
 	@Test
@@ -133,16 +119,4 @@ public class TestMessagingInfrastructure {
 		testQueueManager.close();
 	}
 
-	/*
-	 * 20 ActiveMQ Future Request/Reply text messages.
-	 */
-	@Test
-	@Disabled
-	public void textActiveMQFutureRequestReply() throws MessageException {
-		log.info("Running textActiveMQFutureRequestReply...");
-		TestQueueManager testQueueManager = new TestQueueManager("reply", "activemq", "activemq_rr_text_future", 2, 10, "data/test.xml");
-		testQueueManager.run();
-		testQueueManager.stats();
-		testQueueManager.close();
-	}
 }

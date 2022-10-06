@@ -5,6 +5,9 @@ import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.MessageType;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -24,7 +27,7 @@ public class TestMsgInfDirectly {
 			parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
-					"ReplyQueue", "true");
+					"ReplyQueue");
 			queueManager = new QueueManager(parser, "activemq", true);
 			messageRequestReply.run();
 		} catch (MessageException e) {
@@ -47,10 +50,12 @@ public class TestMsgInfDirectly {
 	@Test
 	@Order(2)
 	public void reply() throws MessageException {
-		// send 10 messages
 		for (int i = 0; i < 10; i++) {
-			Object reply = queueManager.sendMessage("activemq_rr_text_consumer", "Message[" + (i + 1) + "]");
-			assertNotNull(reply);
+			MessageResponse response = queueManager.sendMessage(TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+					MessageType.TEXT, "activemq_rr_text_consumer", "Message[" + (i + 1) + "]"));
+			assertNotNull(response);
+			assertNotNull(response.getTextResponse());
+			assertEquals(MessageType.TEXT, response.getMessageType());
 		}
 		log.info(QueueStatisticsCollector.getInstance().toString());
 	}
@@ -58,10 +63,11 @@ public class TestMsgInfDirectly {
 	@Test
 	@Order(1)
 	public void submit() throws MessageException {
-		// submit so no response required - send 10 messages
 		for (int i = 0; i < 10; i++) {
-			Object submitReply = queueManager.sendMessage("activemq_submit_text", "Message[" + (i + 1) + "]");
-			assertNull(submitReply);
+			MessageResponse response = queueManager.sendMessage(TestUtil.createMessageRequest(MessageRequestType.SUBMIT,
+					MessageType.TEXT, "activemq_submit_text", "Message[" + (i + 1) + "]"));
+			assertNotNull(response);
+			// TODO test message request from response
 		}
 		log.info(QueueStatisticsCollector.getInstance().toString());
 	}

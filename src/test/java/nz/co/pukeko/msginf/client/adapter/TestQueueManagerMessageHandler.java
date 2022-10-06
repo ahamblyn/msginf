@@ -6,8 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import nz.co.pukeko.msginf.infrastructure.util.BigFileReader;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
+import nz.co.pukeko.msginf.models.message.MessageRequest;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.MessageType;
 
 /**
  * A thread used to run tests.
@@ -98,7 +101,9 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			HeaderProperties<String,Object> resetProperties = new HeaderProperties<>();
 			resetProperties.put("reset", Boolean.TRUE);
 			// don't expect a reply and don't care what the message is either.
-			queueManager.sendMessage(connector, "XXXXXXXXXX", resetProperties);
+			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, "XXXXXXXXXX");
+			messageRequest.setHeaderProperties(resetProperties);
+			queueManager.sendMessage(messageRequest);
 			queueManager.close();
 		} catch (Exception e) {
 			// don't care about the exception
@@ -129,8 +134,11 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					Object reply = queueManager.sendMessage(connector, bos, createTestNameHeaderProperties(testName));
-					handleReply(reply);
+					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.BINARY, connector, "");
+					messageRequest.setMessageStream(bos);
+					messageRequest.setHeaderProperties(createTestNameHeaderProperties(testName));
+					MessageResponse response = queueManager.sendMessage(messageRequest);
+					handleReply(response);
 				} catch (MessageException me) {
 					log.error("Message Exception", me);
 				}
@@ -145,8 +153,10 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					Object reply = queueManager.sendMessage(connector, temp, createTestNameHeaderProperties(testName));
-					handleReply(reply);
+					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, temp);
+					messageRequest.setHeaderProperties(createTestNameHeaderProperties(testName));
+					MessageResponse response = queueManager.sendMessage(messageRequest);
+					handleReply(response);
 				} catch (MessageException me) {
 					log.error("Message Exception", me);
 				}
@@ -161,24 +171,23 @@ public class TestQueueManagerMessageHandler implements Runnable {
 		return headerProperties;
 	}
 
-	private void handleReply(Object reply) {
+	private void handleReply(MessageResponse response) {
 		log.info("Message number: " + getNextMessageCount());
-		if (reply != null) {
-			if (testName.equals("reply")) {
-				if (reply instanceof String response) {
-					if (response.startsWith("TextMessage") || response.startsWith("BytesMessage")) {
-						log.info(response);
-					} else {
-						log.info("Text Message of length " + ((String)reply).length() + " bytes returned.");
-					}
+		if (testName.equals("reply")) {
+			if (response.getMessageType() == MessageType.TEXT) {
+				String textResponse = response.getTextResponse();
+				if (textResponse.startsWith("TextMessage") || textResponse.startsWith("BytesMessage")) {
+					log.info(textResponse);
 				} else {
-					// byte[] returned
-					log.info("Binary Message of length " + ((byte[])reply).length + " bytes returned.");
+					log.info("Text Message of length " + textResponse.length() + " bytes returned.");
 				}
 			} else {
-				// echo test
-				log.info(reply.toString());
+				// byte[] returned
+				log.info("Binary Message of length " + response.getBinaryResponse().length + " bytes returned.");
 			}
+		} else {
+			// echo test
+			log.info(response.getTextResponse());
 		}
 	}
 }

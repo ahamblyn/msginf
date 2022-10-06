@@ -6,7 +6,6 @@ import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.client.adapter.MessageTest;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
@@ -33,11 +32,4 @@ public class ActiveMQEchoTest extends MessageTest {
 		log.info("Text consumer echo test OK");
 	}
 
-	@Disabled
-	@Test
-	public void future() throws Exception {
-		log.info("Running text future echo test...");
-		runEchoTest("activemq_rr_text_future", 10);
-		log.info("Text future echo test OK");
-	}
 }

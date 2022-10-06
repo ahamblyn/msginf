@@ -1,4 +1,4 @@
-package nz.co.pukeko.msginf.infrastructure.util;
+package nz.co.pukeko.msginf.client.adapter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -88,35 +88,6 @@ public class BigFileReader {
       }
       return out;  
    }
-   /**
-   *  Creates a big file with given name 
-   *  @param file the file name
-   */
-   public void createData(String file) throws Exception {
-      BufferedOutputStream os = new BufferedOutputStream(
-         new FileOutputStream(file));
-      byte[] b = new byte[]{0xC,0xA,0xF,0xE,0xB,0xA,0xB,0xE};
-      int    c = 1000000;
-      for (int i=0;i<c;i++){
-         os.write(b);
-         os.flush();
-      }
-   }
-
-   /**
-    *  Creates a big file with given name 
-    *  @param file the file name
-    *  @param rows the number of rows in the file
-    */
-   public void createData(String file, int rows) throws Exception {
-    BufferedOutputStream os = new BufferedOutputStream(
-       new FileOutputStream(file));
-    byte[] b = new byte[]{0xC,0xA,0xF,0xE,0xB,0xA,0xB,0xE,0xF,0xC};
-    for (int i=0;i<rows;i++){
-       os.write(b);
-       os.flush();
-    }
- }
 
    /**
    *  Test two different data reading algorithms:

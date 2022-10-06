@@ -1,8 +1,6 @@
 package nz.co.pukeko.msginf.client.connector;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,6 +33,10 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
+import nz.co.pukeko.msginf.models.message.MessageRequest;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.MessageType;
 
 /**
  * The MessageController puts messages onto the queues defined in the properties file.
@@ -78,42 +80,37 @@ public class MessageController {
    /**
     * The queue connection factory name.
     */
-   private final String queueConnFactoryName;
+   private String queueConnFactoryName = "";
 
    /**
     * The application queue name.
     */
-   private final String queueName;
+   private String queueName = "";
 
    /**
     * The JMS message requester.
     */
-   private MessageRequester messageRequester;
+   private ConsumerMessageRequester messageRequester;
    
    /**
     * Whether a reply is expected or not.
     */
-   private final boolean replyExpected;
+   private boolean replyExpected = false;
    
    /**
     * The name of the message class to use. e.g. javax.jms.TextMessage
     */
-   private final String messageClassName;
-   
-   /**
-    * The name of the requester class to use. e.g. nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester
-    */
-   private final String requesterClassName;
+   private String messageClassName = "";
    
    /**
     * The time in milliseconds the message is to live. 0 means forever.
     */
-   private final int messageTimeToLive;
+   private int messageTimeToLive = 0;
    
    /**
     * The time in milliseconds to wait for a reply. 0 means forever.
     */
-   private final int replyWaitTime;
+   private int replyWaitTime = 0;
 
    /**
     * The messaging queue channel.
@@ -142,29 +139,35 @@ public class MessageController {
 
     /**
      * Constructs the MessageController instance.
+	 * @param parser the properties file parser.
      * @param messagingSystem the messaging system in the properties file to use.
      * @param connector the name of the connector as defined in the properties file.
-     * @param queueName the JNDI queue name.
-     * @param queueConnFactoryName the JNDI queue connection factory name.
      * @param jmsCtx the JMS context.
-     * @param replyExpected whether a reply is expected or not. True for synchronous (request/reply) messages.
-     * @param messageClassName the name of the message class to use. e.g. javax.jms.TextMessage
-     * @param requesterClassName the name of the MessageRequester to use.
-     * @param messageTimeToLive the time in milliseconds the message is to live. 0 means forever.
-     * @param replyWaitTime the time in milliseconds to wait for a reply. 0 means forever.
      * @param logStatistics whether to log the timing statistics or not.
      * @throws MessageException Message exception
      */
-	public MessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String queueName, String replyQueueName, String queueConnFactoryName, Context jmsCtx, boolean replyExpected, String messageClassName, String requesterClassName, int messageTimeToLive, int replyWaitTime, boolean logStatistics) throws MessageException {
+	public MessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
+							 Context jmsCtx, boolean logStatistics) throws MessageException {
 	  this.connector = connector;
-      this.queueName = queueName;
-      this.queueConnFactoryName = queueConnFactoryName;
-      this.replyExpected = replyExpected;
-      this.messageClassName = messageClassName;
-      this.requesterClassName = requesterClassName;
-      this.messageTimeToLive = messageTimeToLive;
-      this.replyWaitTime = replyWaitTime;
       this.logStatistics = logStatistics;
+  	  String replyQueueName = null;
+		if (parser.doesSubmitExist(messagingSystem, connector)) {
+			this.replyExpected = false;
+			this.queueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connector);
+			this.queueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connector);
+			this.messageClassName = parser.getSubmitConnectionMessageClassName(messagingSystem, connector);
+			this.messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connector);
+			this.replyWaitTime = parser.getSubmitConnectionReplyWaitTime(messagingSystem, connector);
+		} else if (parser.doesRequestReplyExist(messagingSystem, connector)) {
+			this.replyExpected = true;
+			this.queueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connector);
+			replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
+			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
+			this.messageClassName = parser.getRequestReplyConnectionMessageClassName(messagingSystem, connector);
+			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
+			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
+		}
+
       try {
          queue = (Queue)jmsCtx.lookup(this.queueName);
          if (replyQueueName != null) {
@@ -192,46 +195,38 @@ public class MessageController {
 
     /**
      * This method sends the message to the JMS objects.
-     * @param messageStream the binary message stream.
-     * @return the reply. Null for asynchronous (submit) messages.
+     * @param messageRequest the message request.
+     * @return the message response.
      * @throws MessageException if the message cannot be sent.
      */
-   public Object sendMessage(ByteArrayOutputStream messageStream) throws MessageException {
-	   return sendMessage(messageStream,null);
-   }
-    /**
-     * This method sends the message to the JMS objects.
-     * @param messageStream the binary message stream.
-	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
-     * @return the reply. Null for asynchronous (submit) messages.
-     * @throws MessageException if the message cannot be sent.
-     */
-   public Object sendMessage(ByteArrayOutputStream messageStream, HeaderProperties<String, Object> headerProperties) throws MessageException {
+   public MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
     Instant start = Instant.now();
-    Object reply = null;
+	MessageResponse messageResponse = new MessageResponse();
+    messageResponse.setMessageRequest(messageRequest);
     try {
-        Message jmsMessage = createMessage(messageStream);
-        setHeaderProperties(jmsMessage,headerProperties);
-        if (replyExpected) {
-        	// request-reply
-        	Message replyMsg = messageRequester.request(jmsMessage);
-        	getHeaderProperties(replyMsg,headerProperties);
+        Message jmsMessage = createMessage(messageRequest.getMessageStream());
+        setHeaderProperties(jmsMessage, messageRequest.getHeaderProperties());
+        if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
+        	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
+        	getHeaderProperties(replyMsg, messageRequest.getHeaderProperties());
             if (replyMsg instanceof TextMessage) {
-                reply = ((TextMessage)replyMsg).getText();
+				messageResponse.setMessageType(MessageType.TEXT);
+				messageResponse.setTextResponse(((TextMessage)replyMsg).getText());
             }
             if (replyMsg instanceof BytesMessage) {
             	long messageLength = ((BytesMessage)replyMsg).getBodyLength();
             	byte[] messageData = new byte[(int)messageLength];
             	((BytesMessage)replyMsg).readBytes(messageData);
-            	reply = messageData;
+				messageResponse.setMessageType(MessageType.BINARY);
+				messageResponse.setBinaryResponse(messageData);
             }
-            collateStats(connector, start, "Time taken for request-reply,");
+            collateStats(connector, start);
         } else {
         	// submit
             submitMessageProducer.send(jmsMessage);
-            collateStats(connector, start, "Time taken for submit,");
+            collateStats(connector, start);
         }
-        return reply;
+        return messageResponse;
     } catch (JMSException e) {
     	// increment failed message count
         if (logStatistics) {
@@ -259,7 +254,7 @@ public class MessageController {
 	                messages.add("Binary messages...");
 				}
 			}
-            collateStats(connector, start, "Time taken for receive,");
+            collateStats(connector, start);
 			messageConsumer.close();
 	    } catch (JMSException e) {
 	    	// increment failed message count
@@ -271,7 +266,7 @@ public class MessageController {
 	   return messages;
    }
 
-	private void collateStats(String connector, Instant start, String message) {
+	private void collateStats(String connector, Instant start) {
 		if (logStatistics) {
 			Instant finish = Instant.now();
 			long duration = Duration.between(start, finish).toMillis();
@@ -311,7 +306,7 @@ public class MessageController {
         return session.createStreamMessage();
     }
 
-    private void setupQueueObjects() throws MessageException, JMSException {
+    private void setupQueueObjects() throws JMSException {
 		log.debug("Setting up: " + this);
 		if (queueChannel != null) {
 			qcp.free(queueChannel);
@@ -325,33 +320,11 @@ public class MessageController {
 			requestReplyMessageProducer.setTimeToLive(messageTimeToLive);
 		}
 		// only create a requester for request-reply message controllers.
-		if (requesterClassName != null) {
-			messageRequester = createMessageRequester();
+		if (replyExpected) {
+			messageRequester = new ConsumerMessageRequester(queueChannel, requestReplyMessageProducer, replyQueue, replyWaitTime);
 		}
 	}
     
-    /**
-	 * Create the message requester using reflection.
-	 * 
-	 * @return the message requester.
-	 * @throws MessageRequesterException Message requester exception
-	 */
-    private MessageRequester createMessageRequester() throws MessageRequesterException {
-    	// use reflection to create the message requester.
-    	MessageRequester mr;
-    	try {
-			Class[] argumentClasses = new Class[] {QueueChannel.class, MessageProducer.class, Queue.class, Queue.class, int.class};
-			Object[] arguments = new Object[] {queueChannel, requestReplyMessageProducer, queue, replyQueue, replyWaitTime};
-			Class messageRequesterClass = Class.forName(requesterClassName);
-			Constructor constructor = messageRequesterClass.getConstructor(argumentClasses);
-			mr = (MessageRequester)constructor.newInstance(arguments);
-		} catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException |
-				 ClassNotFoundException e) {
-			throw new MessageRequesterException(e);
-		}
-		return mr;
-    }
-
 	private Message createMessage(ByteArrayOutputStream messageStream) throws JMSException {
 		Message jmsMessage = null;
 		if (messageClassName.equals("javax.jms.BytesMessage")) {

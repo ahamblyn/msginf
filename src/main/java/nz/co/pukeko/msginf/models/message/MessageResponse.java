@@ -1,20 +1,13 @@
 package nz.co.pukeko.msginf.models.message;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
 public class MessageResponse {
-    private String message;
-    private String transactionId;
-    private Long responseTimeInMilliseconds;
-
-    public MessageResponse(String message, String transactionId) {
-        this.message = message;
-        this.transactionId = transactionId;
-        this.responseTimeInMilliseconds = 0L;
-    }
+    private MessageType messageType;
+    private String textResponse;
+    private byte[] binaryResponse;
+    private MessageRequest messageRequest;
 }

@@ -1,6 +1,6 @@
 package nz.co.pukeko.msginf.controllers;
 
-import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 import nz.co.pukeko.msginf.services.IStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,8 +25,8 @@ public class StatisticsController {
     }
 
     @GetMapping("/reset")
-    public MessageResponse reset() {
-        MessageResponse statistics = statisticsService.resetStatistics();
+    public RestMessageResponse reset() {
+        RestMessageResponse statistics = statisticsService.resetStatistics();
         return statistics;
     }
 

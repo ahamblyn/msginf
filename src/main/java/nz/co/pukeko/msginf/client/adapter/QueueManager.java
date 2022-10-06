@@ -2,7 +2,6 @@ package nz.co.pukeko.msginf.client.adapter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -11,11 +10,14 @@ import java.util.zip.Deflater;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.connector.MessageController;
 import nz.co.pukeko.msginf.client.connector.MessageControllerFactory;
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.models.message.MessageRequest;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageResponse;
+import nz.co.pukeko.msginf.models.message.MessageType;
 
 /**
  * The QueueManager is used by client applications to send and receive messages.
@@ -24,17 +26,12 @@ import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructureProper
  * @author Alisdair Hamblyn
  */
 @Slf4j
-public class QueueManager implements QueueManagerAgreement {
+public class QueueManager {
 
 	/**
 	 * The message controller factory instance.
 	 */
 	private static MessageControllerFactory messageConnFactory;
-	
-    /**
-	 * A hashtable containing the queue manager properties for each connector.
-	 */
-	private Hashtable<String,QueueManagerConfigurationProperties> queueManagerConfigurationProperties;
 	
 	/**
 	 * The message controllers.
@@ -67,10 +64,6 @@ public class QueueManager implements QueueManagerAgreement {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
 		this.logStatistics = logStatistics;
-		if (queueManagerConfigurationProperties == null) {
-			queueManagerConfigurationProperties = new Hashtable<>();
-		}
-		loadConfig();
 		if (messageConnFactory == null) {
 			messageConnFactory = MessageControllerFactory.getInstance(parser);
 		}
@@ -86,76 +79,48 @@ public class QueueManager implements QueueManagerAgreement {
 	}
 	
     /**
-	 * Sends a text message to the connector specified. Returns null for asynchronous (submit) connectors 
-	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the properties file.
-	 * @param message the text message.
-	 * @return the reply (null for asynchronous messages).
+	 * Sends a message to the connector specified.
+	 * @param messageRequest the message request.
+	 * @return the message response.
 	 * @throws MessageException if an error occurs sending the message.
 	 */
-	public synchronized Object sendMessage(String connector, String message) throws MessageException {
-		return sendMessage(connector,message,null);
-	}
-    /**
-	 * Sends a text message to the connector specified. Returns null for asynchronous (submit) connectors 
-	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the properties file.
-	 * @param message the text message.
-	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
-	 * @return the reply (null for asynchronous messages).
-	 * @throws MessageException if an error occurs sending the message.
-	 */
-	public synchronized Object sendMessage(String connector, String message, HeaderProperties<String,Object> headerProperties) throws MessageException {
-		Object result;
-		MessageController mc = getMessageConnector(connector);
-		result = putMessageOnQueue(message, headerProperties, mc);
-		return result;
+	public synchronized MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
+		if (messageRequest.getMessageType() == MessageType.TEXT) {
+			return sendTextMessage(messageRequest);
+		} else if (messageRequest.getMessageType() == MessageType.BINARY) {
+			return sendBinaryMessage(messageRequest);
+		} else {
+			throw new MessageException("Message Type " + messageRequest.getMessageType() + " not supported");
+		}
 	}
 
-	private Object putMessageOnQueue(String message, HeaderProperties<String,Object> headerProperties, MessageController mc) throws MessageException {
-		Object result;
+	private MessageResponse sendTextMessage(MessageRequest messageRequest) throws MessageException {
+		MessageController mc = getMessageConnector(messageRequest.getConnectorName());
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			bos.write(message.getBytes());
-			result = mc.sendMessage(bos,headerProperties);
+			bos.write(messageRequest.getMessage().getBytes());
+			messageRequest.setMessageStream(bos);
+			return mc.sendMessage(messageRequest);
 		} catch (IOException ioe) {
 			throw new QueueManagerException(ioe);
 		}
-		return result;
 	}
 
-    /**
-	 * Sends a binary message to the connector specified. Returns null for asynchronous (submit) connectors 
-	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the properties file.
-	 * @param messageStream the binary message stream.
-	 * @return the reply (null for asynchronous messages).
-	 * @throws MessageException if an error occurs sending the message.
-	 */
-	public synchronized Object sendMessage(String connector, OutputStream messageStream) throws MessageException {
-		return sendMessage(connector, messageStream, null);
-	}
-	
-    /**
-	 * Sends a binary message to the connector specified. Returns null for asynchronous (submit) connectors 
-	 * and the reply for synchronous (request/reply) connectors.
-	 * @param connector the name of the connector as defined in the properties file.
-	 * @param messageStream the binary message stream.
-	 * @param headerProperties the properties of the message header to set on the outgoing message, and if a reply is expected, the passed in properties are cleared, and the replies properties are copied in. 
-	 * @return the reply (null for asynchronous messages).
-	 * @throws MessageException if an error occurs sending the message.
-	 */
-	public synchronized Object sendMessage(String connector, OutputStream messageStream, HeaderProperties<String,Object> headerProperties) throws MessageException {
-		Object result;
-		if (messageStream instanceof ByteArrayOutputStream) {
-			MessageController mc = getMessageConnector(connector);
+	private MessageResponse sendBinaryMessage(MessageRequest messageRequest) throws MessageException {
+		MessageResponse result;
+		if (messageRequest.getMessageStream() != null) {
+			MessageController mc = getMessageConnector(messageRequest.getConnectorName());
 			try {
-				QueueManagerConfigurationProperties qmbcp = queueManagerConfigurationProperties.get(connector);
-				if (qmbcp.compressBinaryMessages()) {
-					result = mc.sendMessage(compress((ByteArrayOutputStream)messageStream),headerProperties);
-				} else {
-					result = mc.sendMessage((ByteArrayOutputStream)messageStream,headerProperties);
+				boolean compressBinaryMessages = false;
+				if (messageRequest.getMessageRequestType() == MessageRequestType.SUBMIT) {
+					compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
+				} else if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
+					compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
 				}
+				if (compressBinaryMessages) {
+					messageRequest.setMessageStream(compress(messageRequest.getMessageStream()));
+				}
+				result = mc.sendMessage(messageRequest);
 			} catch (MessageException me) {
 				throw me;
 			}
@@ -227,23 +192,6 @@ public class QueueManager implements QueueManagerAgreement {
 			}
 		}
 		return mc;
-	}
-
-	private void loadConfig() {
-        // Submit Connectors
-    	List<String> submitConnectorNames = parser.getSubmitConnectorNames(messagingSystem);
-		for (String connectorName : submitConnectorNames) {
-			boolean compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, false);
-			queueManagerConfigurationProperties.put(connectorName, qmbcp);
-		}
-        // Request Reply connectors
-    	List<String> rrConnectorNames = parser.getRequestReplyConnectorNames(messagingSystem);
-		for (String connectorName : rrConnectorNames) {
-			boolean compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, connectorName);
-			QueueManagerConfigurationProperties qmbcp = new QueueManagerConfigurationProperties(compressBinaryMessages, true);
-			queueManagerConfigurationProperties.put(connectorName, qmbcp);
-		}
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package nz.co.pukeko.msginf.client.adapter;
 
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -15,8 +16,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester;
-import nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester;
-import nz.co.pukeko.msginf.client.connector.MessageRequester;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
@@ -30,7 +29,7 @@ public class TestMessageRequester {
 	private final String dataFileName;
 	private QueueConnection queueConnection;
 	private Session session;
-	private MessageRequester requester;
+	private ConsumerMessageRequester requester;
 	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 	
 	public TestMessageRequester() {
@@ -38,8 +37,8 @@ public class TestMessageRequester {
 		this.numberOfIterations = 10;
 		this.dataFileName = "test.xml";
 		try {
-			setupActiveMQFuture();
-		} catch (JMSException | NamingException | MessageRequesterException e) {
+			setupActiveMQConsumer();
+		} catch (JMSException | NamingException e) {
 			e.printStackTrace();
 		}
 	}
@@ -48,22 +47,6 @@ public class TestMessageRequester {
 		return ++messageCount;
 	}
 
-	private void setupActiveMQFuture() throws JMSException, MessageRequesterException, NamingException {
-		Properties props = new Properties();
-		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-		props.setProperty("brokerURL", "reliable:tcp://localhost:61616");
-		Context ctx = new InitialContext(props);
-		QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory)ctx.lookup("QueueConnectionFactory");
-    	queueConnection = queueConnectionFactory.createQueueConnection();
-        queueConnection.start();
-    	session = queueConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
-		Queue requestQueue = session.createQueue("REQUEST.QUEUE");
-		Queue replyQueue = session.createQueue("REPLY.QUEUE");
-		QueueChannel qc = new QueueChannel(queueConnection, session);
-		MessageProducer producer = session.createProducer(null);
-		requester = new FutureResultsHandlerMessageRequester(qc, producer, requestQueue, replyQueue, 20000);
-	}
-	
 	private void setupActiveMQConsumer() throws JMSException, NamingException {
 		Properties props = new Properties();
 		props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
@@ -74,10 +57,9 @@ public class TestMessageRequester {
         queueConnection.start();
     	session = queueConnection.createSession(false,Session.AUTO_ACKNOWLEDGE);
 		Queue requestQueue = session.createQueue("REQUEST.QUEUE");
-		Queue replyQueue = session.createQueue("REPLY.QUEUE");
 		QueueChannel qc = new QueueChannel(queueConnection, session);
 		MessageProducer producer = qc.createMessageProducer(null);
-		requester = new ConsumerMessageRequester(qc, producer, requestQueue, replyQueue, 20000);
+		requester = new ConsumerMessageRequester(qc, producer, requestQueue, 20000);
 	}
 
 	public static void main(String[] args) {
@@ -124,14 +106,14 @@ public class TestMessageRequester {
 		private int numberOfIterations;
 		private String dataFileName;
 		private final Session session;
-		private final MessageRequester requester;
+		private final ConsumerMessageRequester requester;
 		
-		public TestMessageRequesterThread(Session session, MessageRequester requester) {
+		public TestMessageRequesterThread(Session session, ConsumerMessageRequester requester) {
 			this.session = session;
 			this.requester = requester;
 		}
 
-		public TestMessageRequesterThread(Session session, MessageRequester requester, int numberOfIterations, String dataFileName) {
+		public TestMessageRequesterThread(Session session, ConsumerMessageRequester requester, int numberOfIterations, String dataFileName) {
 			this(session, requester);
 			this.numberOfIterations = numberOfIterations;
 			this.dataFileName = dataFileName;
@@ -140,9 +122,10 @@ public class TestMessageRequester {
 		public void sendResetCountMessage() {
 			try {
 				// reset listener
+				String correlationId = UUID.randomUUID().toString();
 				TextMessage requestMessage = session.createTextMessage();
 				requestMessage.setText("RESET_MESSAGE_COUNT");
-				Message responseMessage = requester.request(requestMessage);
+				Message responseMessage = requester.request(requestMessage, correlationId);
 				if (responseMessage instanceof TextMessage) {
 					System.out.println("Listener reset");
 				}
@@ -161,7 +144,7 @@ public class TestMessageRequester {
 			}
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
-					Object reply = sendMessage(temp);
+					String reply = sendMessage(temp);
 					System.out.println("Message number: " + getNextMessageCount());
 					if (reply != null) {
 						System.out.println(reply);
@@ -179,7 +162,8 @@ public class TestMessageRequester {
 			collector.incrementMessageCount(statsName);
 			TextMessage requestMessage = session.createTextMessage();
 			requestMessage.setText(messageString);
-			Message responseMessage = requester.request(requestMessage);
+			String correlationId = UUID.randomUUID().toString();
+			Message responseMessage = requester.request(requestMessage, correlationId);
 			if (responseMessage instanceof TextMessage) {
 				long timeTaken = System.currentTimeMillis() - time;
 				response = ((TextMessage)responseMessage).getText();

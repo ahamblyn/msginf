@@ -32,7 +32,6 @@
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.TextMessage",
-                "requesterClassName": "nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000
               },
@@ -44,7 +43,6 @@
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.BytesMessage",
-                "requesterClassName": "nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000
               },
@@ -59,7 +57,6 @@
                 "replyQueueName": "ReplyQueue",
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.TextMessage",
-                "requesterClassName": "nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000
               },
@@ -71,38 +68,11 @@
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.TextMessage",
-                "requesterClassName": "nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000
-              },
-              "connectorName": "activemq_rr_text_future",
-              "compressBinaryMessages": true
-            },
-            {
-              "requestReplyConnection": {
-                "requestQueueName": "RequestQueue",
-                "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.BytesMessage",
-                "requesterClassName": "nz.co.pukeko.msginf.client.connector.ConsumerMessageRequester",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000
               },
               "connectorName": "activemq_rr_binary_consumer",
-              "compressBinaryMessages": true
-            },
-            {
-              "requestReplyConnection": {
-                "requestQueueName": "RequestQueue",
-                "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.BytesMessage",
-                "requesterClassName": "nz.co.pukeko.msginf.client.connector.FutureResultsHandlerMessageRequester",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000
-              },
-              "connectorName": "activemq_rr_binary_future",
               "compressBinaryMessages": true
             }
           ],
