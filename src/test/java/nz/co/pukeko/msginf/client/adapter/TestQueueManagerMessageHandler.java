@@ -3,7 +3,6 @@ package nz.co.pukeko.msginf.client.adapter;
 import java.io.ByteArrayOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
@@ -98,11 +97,8 @@ public class TestQueueManagerMessageHandler implements Runnable {
 	 */
 	public void sendResetCountMessage() {
 		try {
-			HeaderProperties<String,Object> resetProperties = new HeaderProperties<>();
-			resetProperties.put("reset", Boolean.TRUE);
 			// don't expect a reply and don't care what the message is either.
 			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, "XXXXXXXXXX");
-			messageRequest.setHeaderProperties(resetProperties);
 			queueManager.sendMessage(messageRequest);
 			queueManager.close();
 		} catch (Exception e) {
@@ -136,7 +132,6 @@ public class TestQueueManagerMessageHandler implements Runnable {
 				try {
 					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.BINARY, connector, "");
 					messageRequest.setMessageStream(bos);
-					messageRequest.setHeaderProperties(createTestNameHeaderProperties(testName));
 					MessageResponse response = queueManager.sendMessage(messageRequest);
 					handleReply(response);
 				} catch (MessageException me) {
@@ -154,7 +149,6 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			for (int i = 0; i < numberOfIterations; i++) {
 				try {
 					MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, temp);
-					messageRequest.setHeaderProperties(createTestNameHeaderProperties(testName));
 					MessageResponse response = queueManager.sendMessage(messageRequest);
 					handleReply(response);
 				} catch (MessageException me) {
@@ -163,12 +157,6 @@ public class TestQueueManagerMessageHandler implements Runnable {
 			}
 		}
 		queueManager.close();
-	}
-
-	private HeaderProperties<String,Object> createTestNameHeaderProperties(String testName) {
-		HeaderProperties<String,Object> headerProperties = new HeaderProperties<>();
-		headerProperties.put("testname", testName);
-		return headerProperties;
 	}
 
 	private void handleReply(MessageResponse response) {

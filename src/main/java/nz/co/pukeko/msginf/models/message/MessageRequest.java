@@ -13,7 +13,7 @@ public class MessageRequest {
     private MessageType messageType;
     private String connectorName;
     private String message;
-    private HeaderProperties<String, Object> headerProperties;
+    private HeaderProperties<String> headerProperties;
     private ByteArrayOutputStream messageStream;
     private String correlationId;
 

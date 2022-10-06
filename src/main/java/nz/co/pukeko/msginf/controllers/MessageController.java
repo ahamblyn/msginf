@@ -39,7 +39,7 @@ public class MessageController {
                                   @RequestHeader(name="x-message-connector") String messageConnector,
                                   @RequestBody String payload) {
         // TODO add header properties to request header and make non-mandatory
-        HeaderProperties<String,Object> headerProperties = new HeaderProperties<>();
+        HeaderProperties<String> headerProperties = new HeaderProperties<>();
         headerProperties.put("testname", "reply");
         Optional<RestMessageResponse> messageResponse = messageService.requestReply(messageSystem, messageConnector, payload, headerProperties);
         return messageResponse.orElseGet(RestMessageResponse::new);

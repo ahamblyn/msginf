@@ -7,6 +7,6 @@ import java.util.HashMap;
  * 
  * @author Stephen Denne
  */
-public class HeaderProperties<String,Object> extends HashMap<String,Object> {
+public class HeaderProperties<String> extends HashMap<String, String> {
 
 }

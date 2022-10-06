@@ -51,7 +51,7 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String,Object> headerProperties) {
+    public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String> headerProperties) {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();

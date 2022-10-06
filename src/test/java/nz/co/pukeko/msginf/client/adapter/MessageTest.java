@@ -7,7 +7,6 @@ import javax.naming.Context;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -56,21 +55,12 @@ public class MessageTest {
 
 	protected static void sendResetCountMessage(String connector) {
 		try {
-			HeaderProperties<String,Object> resetProperties = new HeaderProperties<>();
-			resetProperties.put("reset", Boolean.TRUE);
 			// don't expect a reply and don't care what the message is either.
 			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.TEXT, connector, "XXXXXXXXXX");
-			messageRequest.setHeaderProperties(resetProperties);
 			resetQueueManager.sendMessage(messageRequest);
 		} catch (Exception e) {
 			// don't care about the exception
 		}
-	}
-
-	protected HeaderProperties<String,Object> createTestNameHeaderProperties(String testName) {
-		HeaderProperties<String,Object> headerProperties = new HeaderProperties<>();
-		headerProperties.put("testname", testName);
-		return headerProperties;
 	}
 
 	protected String createRequestXML(String type, int size) {
@@ -131,7 +121,6 @@ public class MessageTest {
 				// no reply expected as it is a submit
 				MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.SUBMIT, MessageType.BINARY, connector, "");
 				messageRequest.setMessageStream(bos);
-				messageRequest.setHeaderProperties(createTestNameHeaderProperties("submit"));
 				queueManager.sendMessage(messageRequest);
 			}
 		} else {
@@ -143,7 +132,6 @@ public class MessageTest {
 		for (int i = 0; i < numberOfMessages; i++) {
 			String message = createRequestXML(type, size);
 			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, connector, message);
-			messageRequest.setHeaderProperties(createTestNameHeaderProperties("reply"));
 			MessageResponse response = queueManager.sendMessage(messageRequest);
 			if (type.equals("text")) {
 				assertNotNull(response.getTextResponse());
@@ -161,7 +149,6 @@ public class MessageTest {
 		for (int i = 0; i < numberOfMessages; i++) {
 			String message = "Message[" + (i + 1) + "]";
 			MessageRequest messageRequest = TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, connector, message);
-			messageRequest.setHeaderProperties(createTestNameHeaderProperties("echo"));
 			MessageResponse reply = queueManager.sendMessage(messageRequest);
 			assertEquals(message, reply.getTextResponse());
 			log.info(reply.toString());

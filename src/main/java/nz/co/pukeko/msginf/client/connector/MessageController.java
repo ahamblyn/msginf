@@ -275,13 +275,14 @@ public class MessageController {
 		}
 	} 
 
-	private void getHeaderProperties(Message replyMsg, HeaderProperties<String,Object> headerProperties) throws JMSException {
+	private void getHeaderProperties(Message replyMsg, HeaderProperties<String> headerProperties) throws JMSException {
+		// TODO replace for loop
 		if (headerProperties != null) {
 			Enumeration propertyNames = replyMsg.getPropertyNames();
 			headerProperties.clear();
 			while (propertyNames.hasMoreElements()) {
 				String propertyName = (String) propertyNames.nextElement();
-				headerProperties.put(propertyName,replyMsg.getObjectProperty(propertyName));
+				headerProperties.put(propertyName, replyMsg.getStringProperty(propertyName));
 			}
 		}
 	}
@@ -360,11 +361,13 @@ public class MessageController {
 		return jmsMessage;
 	}
 
-	private void setHeaderProperties(Message jmsMessage, HeaderProperties<String,Object> headerProperties) throws JMSException {
+	private void setHeaderProperties(Message jmsMessage, HeaderProperties<String> headerProperties) throws JMSException {
+		// TODO apply header properties from message request and properties from config. Request properties have priority.
+		// TODO replace for loop
 		if (headerProperties != null) {
-			for (Map.Entry<String,Object> property : headerProperties.entrySet()) {
+			for (Map.Entry<String, String> property : headerProperties.entrySet()) {
 				if (property.getValue() != null) {
-					jmsMessage.setObjectProperty(property.getKey(), property.getValue());
+					jmsMessage.setStringProperty(property.getKey(), property.getValue());
 				}
 			}
 		}
