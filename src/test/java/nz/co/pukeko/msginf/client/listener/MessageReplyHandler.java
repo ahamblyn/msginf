@@ -47,24 +47,24 @@ public class MessageReplyHandler {
     	if (requestMessage instanceof TextMessage requestTextMessage) {
 			// Add the time
 			String requestMessageText = requestTextMessage.getText() + " : Replied at " + new Date();
-			if (replyType.equals(MessageType.TEXT.name())) { // scenario 1
+			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 1
 				TextMessage replyMessage = session.createTextMessage();
 				replyMessage.setText(requestMessageText);
 				submit(requestTextMessage, replyMessage);
 			}
-			if (replyType.equals(MessageType.BINARY.name())) { // scenario 2
+			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 2
 				// Create random string the same size as the request
 				BytesMessage replyMessage = createRandomBinaryMessage(requestTextMessage.getText().length());
 				submit(requestTextMessage, replyMessage);
 			}
     	}
     	if (requestMessage instanceof BytesMessage requestBinaryMessage) {
-			if (replyType.equals(MessageType.TEXT.name())) { // scenario 3
+			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 3
 				TextMessage replyMessage = session.createTextMessage();
 				replyMessage.setText("Binary message processed at: " + new Date());
 				submit(requestBinaryMessage, replyMessage);
 			}
-			if (replyType.equals(MessageType.BINARY.name())) { // scenario 4
+			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 4
 				// Create random string the same size as the request
 				BytesMessage replyMessage = createRandomBinaryMessage((int) requestBinaryMessage.getBodyLength());
 				submit(requestBinaryMessage, replyMessage);

@@ -2,7 +2,7 @@ package nz.co.pukeko.msginf.services;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.Messenger;
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
+import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.models.message.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,13 +51,13 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload, HeaderProperties<String> headerProperties) {
+    public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload, MessageProperties<String> messageProperties) {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
             MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, MessageType.TEXT, messageConnector, transactionId);
             messageRequest.setMessage(payload);
-            messageRequest.setHeaderProperties(headerProperties);
+            messageRequest.setMessageProperties(messageProperties);
             MessageResponse reply = messenger.sendMessage(messageSystem, messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();

@@ -3,10 +3,7 @@ package nz.co.pukeko.msginf.client.connector;
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -23,7 +20,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
+import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageControllerException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
@@ -112,6 +109,11 @@ public class MessageController {
     */
    private int replyWaitTime = 0;
 
+	/**
+	 * The message properties from the configuration
+	 */
+	private MessageProperties<String> configMessageProperties;
+
    /**
     * The messaging queue channel.
     */
@@ -157,7 +159,7 @@ public class MessageController {
 			this.queueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connector);
 			this.messageClassName = parser.getSubmitConnectionMessageClassName(messagingSystem, connector);
 			this.messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connector);
-			this.replyWaitTime = parser.getSubmitConnectionReplyWaitTime(messagingSystem, connector);
+			this.configMessageProperties = parser.getSubmitConnectionMessageProperties(messagingSystem, connector);
 		} else if (parser.doesRequestReplyExist(messagingSystem, connector)) {
 			this.replyExpected = true;
 			this.queueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connector);
@@ -166,6 +168,7 @@ public class MessageController {
 			this.messageClassName = parser.getRequestReplyConnectionMessageClassName(messagingSystem, connector);
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
+			this.configMessageProperties = parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector);
 		}
 
       try {
@@ -205,10 +208,10 @@ public class MessageController {
     messageResponse.setMessageRequest(messageRequest);
     try {
         Message jmsMessage = createMessage(messageRequest.getMessageStream());
-        setHeaderProperties(jmsMessage, messageRequest.getHeaderProperties());
+		setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
         if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
         	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
-        	getHeaderProperties(replyMsg, messageRequest.getHeaderProperties());
+			getMessageProperties(replyMsg, messageRequest.getMessageProperties());
             if (replyMsg instanceof TextMessage) {
 				messageResponse.setMessageType(MessageType.TEXT);
 				messageResponse.setTextResponse(((TextMessage)replyMsg).getText());
@@ -275,14 +278,13 @@ public class MessageController {
 		}
 	} 
 
-	private void getHeaderProperties(Message replyMsg, HeaderProperties<String> headerProperties) throws JMSException {
-		// TODO replace for loop
-		if (headerProperties != null) {
+	private void getMessageProperties(Message replyMsg, MessageProperties<String> messageProperties) throws JMSException {
+		if (messageProperties != null) {
 			Enumeration propertyNames = replyMsg.getPropertyNames();
-			headerProperties.clear();
+			messageProperties.clear();
 			while (propertyNames.hasMoreElements()) {
 				String propertyName = (String) propertyNames.nextElement();
-				headerProperties.put(propertyName, replyMsg.getStringProperty(propertyName));
+				messageProperties.put(propertyName, replyMsg.getStringProperty(propertyName));
 			}
 		}
 	}
@@ -361,16 +363,20 @@ public class MessageController {
 		return jmsMessage;
 	}
 
-	private void setHeaderProperties(Message jmsMessage, HeaderProperties<String> headerProperties) throws JMSException {
-		// TODO apply header properties from message request and properties from config. Request properties have priority.
-		// TODO replace for loop
-		if (headerProperties != null) {
-			for (Map.Entry<String, String> property : headerProperties.entrySet()) {
-				if (property.getValue() != null) {
-					jmsMessage.setStringProperty(property.getKey(), property.getValue());
-				}
-			}
+	private void setMessageProperties(Message jmsMessage, MessageProperties<String> requestMessageProperties) throws JMSException {
+		// Apply header properties from message request and properties from config. Request properties have priority.
+		// TODO optionals
+		MessageProperties<String> combinedMessageProperties = new MessageProperties<>(configMessageProperties);
+		if (requestMessageProperties != null) {
+			combinedMessageProperties.putAll(requestMessageProperties);
 		}
+		combinedMessageProperties.keySet().forEach(k -> {
+			try {
+				jmsMessage.setStringProperty(k, combinedMessageProperties.get(k));
+			} catch (JMSException e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 	
     /**

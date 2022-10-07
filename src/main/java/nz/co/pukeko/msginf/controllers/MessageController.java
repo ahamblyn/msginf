@@ -1,6 +1,6 @@
 package nz.co.pukeko.msginf.controllers;
 
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
+import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 import nz.co.pukeko.msginf.services.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +39,9 @@ public class MessageController {
                                   @RequestHeader(name="x-message-connector") String messageConnector,
                                   @RequestBody String payload) {
         // TODO add header properties to request header and make non-mandatory
-        HeaderProperties<String> headerProperties = new HeaderProperties<>();
-        headerProperties.put("testname", "reply");
-        Optional<RestMessageResponse> messageResponse = messageService.requestReply(messageSystem, messageConnector, payload, headerProperties);
+        MessageProperties<String> messageProperties = new MessageProperties<>();
+        messageProperties.put("testname", "reply");
+        Optional<RestMessageResponse> messageResponse = messageService.requestReply(messageSystem, messageConnector, payload, messageProperties);
         return messageResponse.orElseGet(RestMessageResponse::new);
     }
 }

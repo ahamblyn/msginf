@@ -32,8 +32,7 @@
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.TextMessage",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "messageTimeToLive": 0
               },
               "connectorName": "activemq_submit_text",
               "compressBinaryMessages": true
@@ -43,8 +42,7 @@
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.BytesMessage",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "messageTimeToLive": 0
               },
               "connectorName": "activemq_submit_binary",
               "compressBinaryMessages": true
@@ -58,7 +56,13 @@
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.TextMessage",
                 "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
               },
               "connectorName": "activemq_rr_text_consumer",
               "compressBinaryMessages": true
@@ -70,7 +74,13 @@
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
                 "messageClassName": "javax.jms.BytesMessage",
                 "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
               },
               "connectorName": "activemq_rr_binary_consumer",
               "compressBinaryMessages": true

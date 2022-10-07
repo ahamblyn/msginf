@@ -1,6 +1,6 @@
 package nz.co.pukeko.msginf.services;
 
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
+import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 
 import java.util.List;
@@ -12,5 +12,5 @@ public interface IMessageService {
     public List<String> receiveMessages(String messagingSystem, String messageConnector, long timeout);
 
     public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload,
-                                                      HeaderProperties<String> headerProperties);
+                                                      MessageProperties<String> messageProperties);
 }
