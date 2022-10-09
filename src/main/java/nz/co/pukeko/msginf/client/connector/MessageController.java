@@ -254,7 +254,7 @@ public class MessageController {
 					messages.add(message.getText());
 				}
 				if (m instanceof BytesMessage) {
-	                messages.add("Binary messages...");
+	                messages.add("Binary message");
 				}
 			}
             collateStats(connector, start);
