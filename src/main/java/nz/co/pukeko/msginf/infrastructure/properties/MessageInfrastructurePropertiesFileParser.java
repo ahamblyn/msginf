@@ -8,6 +8,8 @@ import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukeko.msginf.models.configuration.*;
 import nz.co.pukeko.msginf.models.configuration.System;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -485,4 +487,21 @@ public class MessageInfrastructurePropertiesFileParser {
         return replyWaitTime.orElse(0);
     }
 
+    /**
+     * Returns message type based on message request type.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the request type based on message request type.
+     */
+    public MessageType getMessageType(String messagingSystemName, String connectorName, MessageRequestType messageRequestType) {
+        if (messageRequestType == MessageRequestType.SUBMIT) {
+            String requestType = getSubmitConnectionRequestType(messagingSystemName, connectorName).toUpperCase();
+            return MessageType.valueOf(requestType);
+        } else if (messageRequestType == MessageRequestType.REQUEST_RESPONSE) {
+            String requestType = getRequestReplyConnectionRequestType(messagingSystemName, connectorName).toUpperCase();
+            return MessageType.valueOf(requestType);
+        } else {
+            return MessageType.TEXT;
+        }
+    }
 }

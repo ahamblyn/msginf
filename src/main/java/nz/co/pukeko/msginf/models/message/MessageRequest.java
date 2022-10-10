@@ -17,9 +17,8 @@ public class MessageRequest {
     private ByteArrayOutputStream messageStream;
     private String correlationId;
 
-    public MessageRequest(MessageRequestType messageRequestType, MessageType messageType, String connectorName, String correlationId) {
+    public MessageRequest(MessageRequestType messageRequestType, String connectorName, String correlationId) {
         this.messageRequestType = messageRequestType;
-        this.messageType = messageType;
         this.connectorName = connectorName;
         this.correlationId = correlationId;
     }

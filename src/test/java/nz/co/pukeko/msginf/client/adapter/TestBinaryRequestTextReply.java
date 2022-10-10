@@ -54,7 +54,7 @@ public class TestBinaryRequestTextReply {
     public void replyBinaryMessages() throws Exception {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    MessageType.BINARY, "binary_request_text_reply", "data/905727.pdf"));
+                    "binary_request_text_reply", "data/905727.pdf"));
             assertNotNull(response);
             assertNotNull(response.getTextResponse());
             assertEquals(MessageType.TEXT, response.getMessageType());
@@ -71,7 +71,7 @@ public class TestBinaryRequestTextReply {
                 try {
                     for (int j = 0; j < 10; j++) {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                MessageType.BINARY, "binary_request_text_reply", "data/905727.pdf"));
+                                "binary_request_text_reply", "data/905727.pdf"));
                         assertNotNull(response);
                         assertNotNull(response.getTextResponse());
                         assertEquals(MessageType.TEXT, response.getMessageType());
@@ -97,7 +97,7 @@ public class TestBinaryRequestTextReply {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            MessageType.BINARY, "binary_request_text_reply", "data/905727.pdf"));
+                            "binary_request_text_reply", "data/905727.pdf"));
                     assertNotNull(response);
                     assertNotNull(response.getTextResponse());
                     assertEquals(MessageType.TEXT, response.getMessageType());

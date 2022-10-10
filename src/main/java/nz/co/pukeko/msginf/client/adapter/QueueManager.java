@@ -85,6 +85,9 @@ public class QueueManager {
 	 * @throws MessageException if an error occurs sending the message.
 	 */
 	public synchronized MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
+		// Get the request type from the config based on message request type: submit or request-response
+		messageRequest.setMessageType(parser.getMessageType(messagingSystem, messageRequest.getConnectorName(),
+				messageRequest.getMessageRequestType()));
 		if (messageRequest.getMessageType() == MessageType.TEXT) {
 			return sendTextMessage(messageRequest);
 		} else if (messageRequest.getMessageType() == MessageType.BINARY) {

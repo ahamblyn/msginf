@@ -40,7 +40,7 @@ public class TestSubmit {
     public void submitTextMessages() throws MessageException {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
-                    MessageType.TEXT, "submit_text", "Message[" + (i + 1) + "]"));
+                    "submit_text", "Message[" + (i + 1) + "]"));
             assertNotNull(response);
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -64,7 +64,7 @@ public class TestSubmit {
                 try {
                     for (int j = 0; j < 10; j++) {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
-                                MessageType.TEXT, "submit_text", "MessageZZZZ"));
+                                "submit_text", "MessageZZZZ"));
                         assertNotNull(response);
                     }
                 } catch (MessageException e) {
@@ -92,7 +92,7 @@ public class TestSubmit {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
-                            MessageType.TEXT, "submit_text", "MessageZZZZ"));
+                            "submit_text", "MessageZZZZ"));
                     assertNotNull(response);
                     return response;
                 } catch (MessageException e) {
@@ -113,7 +113,7 @@ public class TestSubmit {
     public void submitBinaryMessages() throws Exception {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
-                    MessageType.BINARY, "submit_binary", "data/905727.pdf"));
+                    "submit_binary", "data/905727.pdf"));
             assertNotNull(response);
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -137,7 +137,7 @@ public class TestSubmit {
                 try {
                     for (int j = 0; j < 10; j++) {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
-                                MessageType.BINARY, "submit_binary", "data/905727.pdf"));
+                                "submit_binary", "data/905727.pdf"));
                         assertNotNull(response);
                     }
                 } catch (Exception e) {
@@ -165,7 +165,7 @@ public class TestSubmit {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
-                            MessageType.BINARY, "submit_binary", "data/905727.pdf"));
+                            "submit_binary", "data/905727.pdf"));
                     assertNotNull(response);
                     return response;
                 } catch (Exception e) {

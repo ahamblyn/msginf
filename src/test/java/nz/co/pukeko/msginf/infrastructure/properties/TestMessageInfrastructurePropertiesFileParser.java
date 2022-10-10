@@ -1,6 +1,8 @@
 package nz.co.pukeko.msginf.infrastructure.properties;
 
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -85,6 +87,18 @@ public class TestMessageInfrastructurePropertiesFileParser {
         } catch (Exception e) {
             fail("Exception thrown on valid messaging system");
         }
+    }
+
+    @Test
+    public void messageRequestTypeSubmit() {
+        assertEquals(MessageType.TEXT, parser.getMessageType("activemq", "submit_text", MessageRequestType.SUBMIT));
+        assertEquals(MessageType.BINARY, parser.getMessageType("activemq", "submit_binary", MessageRequestType.SUBMIT));
+    }
+
+    @Test
+    public void messageRequestTypeRequestResponse() {
+        assertEquals(MessageType.TEXT, parser.getMessageType("activemq", "text_request_text_reply", MessageRequestType.REQUEST_RESPONSE));
+        assertEquals(MessageType.BINARY, parser.getMessageType("activemq", "binary_request_text_reply", MessageRequestType.REQUEST_RESPONSE));
     }
 
     private void validateParser(MessageInfrastructurePropertiesFileParser parser) {
