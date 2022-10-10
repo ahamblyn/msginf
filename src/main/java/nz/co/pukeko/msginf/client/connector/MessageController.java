@@ -1,6 +1,5 @@
 package nz.co.pukeko.msginf.client.connector;
 
-import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -92,11 +91,6 @@ public class MessageController {
    private boolean replyExpected = false;
    
    /**
-    * The request type. e.g. text or binary
-    */
-   private String requestType = "";
-   
-   /**
     * The time in milliseconds the message is to live. 0 means forever.
     */
    private int messageTimeToLive = 0;
@@ -154,7 +148,6 @@ public class MessageController {
 			this.replyExpected = false;
 			this.queueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connector);
-			this.requestType = parser.getSubmitConnectionRequestType(messagingSystem, connector);
 			this.messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connector);
 			this.configMessageProperties = parser.getSubmitConnectionMessageProperties(messagingSystem, connector);
 		} else if (parser.doesRequestReplyExist(messagingSystem, connector)) {
@@ -162,7 +155,6 @@ public class MessageController {
 			this.queueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connector);
 			replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
-			this.requestType = parser.getRequestReplyConnectionRequestType(messagingSystem, connector);
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
 			this.configMessageProperties = parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector);
@@ -204,7 +196,7 @@ public class MessageController {
 	MessageResponse messageResponse = new MessageResponse();
     messageResponse.setMessageRequest(messageRequest);
     try {
-        Message jmsMessage = createMessage(messageRequest.getMessageStream());
+        Message jmsMessage = createMessage(messageRequest);
 		setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
         if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
         	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
@@ -313,23 +305,19 @@ public class MessageController {
 		}
 	}
     
-	private Message createMessage(ByteArrayOutputStream messageStream) throws JMSException {
-		Message jmsMessage = null;
-		if (requestType.equals("text")) {
-			jmsMessage = createTextMessage();
+	private Message createMessage(MessageRequest messageRequest) throws JMSException {
+		if (messageRequest.getMessageType() == MessageType.TEXT) {
+			TextMessage message = createTextMessage();
+			message.setText(messageRequest.getMessage());
+			return message;
 		}
-		if (requestType.equals("binary")) {
-			jmsMessage = createBytesMessage();
+		if (messageRequest.getMessageType() == MessageType.BINARY) {
+			BytesMessage message = createBytesMessage();
+			message.writeBytes(messageRequest.getMessageStream().toByteArray());
+			return message;
 		}
-		if (jmsMessage != null) {
-			if (jmsMessage instanceof TextMessage) {
-				((TextMessage) jmsMessage).setText(messageStream.toString());
-			}
-		    if (jmsMessage instanceof BytesMessage) {
-				((BytesMessage) jmsMessage).writeBytes(messageStream.toByteArray());
-			}
-		}
-		return jmsMessage;
+		// TODO optional
+		return null;
 	}
 
 	private void setMessageProperties(Message jmsMessage, MessageProperties<String> requestMessageProperties) throws JMSException {
