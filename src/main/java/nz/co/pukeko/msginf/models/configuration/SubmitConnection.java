@@ -12,7 +12,7 @@ import java.util.List;
 public class SubmitConnection {
     private String submitQueueName;
     private String submitQueueConnFactoryName;
-    private String messageClassName;
+    private String requestType;
     private Integer messageTimeToLive;
     private List<MessageProperty> messageProperties;
 }

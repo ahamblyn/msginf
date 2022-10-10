@@ -7,14 +7,11 @@ import java.util.*;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
-import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -95,9 +92,9 @@ public class MessageController {
    private boolean replyExpected = false;
    
    /**
-    * The name of the message class to use. e.g. javax.jms.TextMessage
+    * The request type. e.g. text or binary
     */
-   private String messageClassName = "";
+   private String requestType = "";
    
    /**
     * The time in milliseconds the message is to live. 0 means forever.
@@ -157,7 +154,7 @@ public class MessageController {
 			this.replyExpected = false;
 			this.queueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connector);
-			this.messageClassName = parser.getSubmitConnectionMessageClassName(messagingSystem, connector);
+			this.requestType = parser.getSubmitConnectionRequestType(messagingSystem, connector);
 			this.messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connector);
 			this.configMessageProperties = parser.getSubmitConnectionMessageProperties(messagingSystem, connector);
 		} else if (parser.doesRequestReplyExist(messagingSystem, connector)) {
@@ -165,7 +162,7 @@ public class MessageController {
 			this.queueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connector);
 			replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
-			this.messageClassName = parser.getRequestReplyConnectionMessageClassName(messagingSystem, connector);
+			this.requestType = parser.getRequestReplyConnectionRequestType(messagingSystem, connector);
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
 			this.configMessageProperties = parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector);
@@ -297,18 +294,6 @@ public class MessageController {
         return session.createTextMessage();
     }
 
-    private ObjectMessage createObjectMessage() throws JMSException {
-        return session.createObjectMessage();
-    }
-
-    private MapMessage createMapMessage() throws JMSException {
-        return session.createMapMessage();
-    }
-
-    private StreamMessage createStreamMessage() throws JMSException {
-        return session.createStreamMessage();
-    }
-
     private void setupQueueObjects() throws JMSException {
 		log.debug("Setting up: " + this);
 		if (queueChannel != null) {
@@ -330,34 +315,18 @@ public class MessageController {
     
 	private Message createMessage(ByteArrayOutputStream messageStream) throws JMSException {
 		Message jmsMessage = null;
-		if (messageClassName.equals("javax.jms.BytesMessage")) {
-			jmsMessage = createBytesMessage();
-		}
-		if (messageClassName.equals("javax.jms.TextMessage")) {
+		if (requestType.equals("text")) {
 			jmsMessage = createTextMessage();
 		}
-		if (messageClassName.equals("javax.jms.ObjectMessage")) {
-			jmsMessage = createObjectMessage();
-		}
-		if (messageClassName.equals("javax.jms.MapMessage")) {
-			jmsMessage = createMapMessage();
-		}
-		if (messageClassName.equals("javax.jms.StreamMessage")) {
-			jmsMessage = createStreamMessage();
+		if (requestType.equals("binary")) {
+			jmsMessage = createBytesMessage();
 		}
 		if (jmsMessage != null) {
-		    if (jmsMessage instanceof BytesMessage) {
-				((BytesMessage) jmsMessage).writeBytes(messageStream.toByteArray());
-			}
 			if (jmsMessage instanceof TextMessage) {
 				((TextMessage) jmsMessage).setText(messageStream.toString());
 			}
-			if (jmsMessage instanceof ObjectMessage) {
-				((ObjectMessage) jmsMessage)
-						.setObject(messageStream.toString());
-			}
-			if (jmsMessage instanceof StreamMessage) {
-				((StreamMessage) jmsMessage).writeBytes(messageStream.toByteArray());
+		    if (jmsMessage instanceof BytesMessage) {
+				((BytesMessage) jmsMessage).writeBytes(messageStream.toByteArray());
 			}
 		}
 		return jmsMessage;

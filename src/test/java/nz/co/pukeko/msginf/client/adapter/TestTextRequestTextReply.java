@@ -54,7 +54,7 @@ public class TestTextRequestTextReply {
     public void replyTextMessages() throws MessageException {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    MessageType.TEXT, "activemq_rr_text_consumer", "Message[" + (i + 1) + "]"));
+                    MessageType.TEXT, "text_request_text_reply", "Message[" + (i + 1) + "]"));
             assertNotNull(response);
             assertNotNull(response.getTextResponse());
             assertEquals(MessageType.TEXT, response.getMessageType());
@@ -71,7 +71,7 @@ public class TestTextRequestTextReply {
                 try {
                     for (int j = 0; j < 10; j++) {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                MessageType.TEXT, "activemq_rr_text_consumer", "MessageZZZZ"));
+                                MessageType.TEXT, "text_request_text_reply", "MessageZZZZ"));
                         assertNotNull(response);
                         assertNotNull(response.getTextResponse());
                         assertEquals(MessageType.TEXT, response.getMessageType());
@@ -97,7 +97,7 @@ public class TestTextRequestTextReply {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            MessageType.TEXT, "activemq_rr_text_consumer", "MessageZZZZ"));
+                            MessageType.TEXT, "text_request_text_reply", "MessageZZZZ"));
                     assertNotNull(response);
                     assertNotNull(response.getTextResponse());
                     assertEquals(MessageType.TEXT, response.getMessageType());

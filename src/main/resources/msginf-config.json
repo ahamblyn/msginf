@@ -31,20 +31,20 @@
               "submitConnection": {
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.TextMessage",
+                "requestType": "text",
                 "messageTimeToLive": 0
               },
-              "connectorName": "activemq_submit_text",
+              "connectorName": "submit_text",
               "compressBinaryMessages": true
             },
             {
               "submitConnection": {
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.BytesMessage",
+                "requestType": "binary",
                 "messageTimeToLive": 0
               },
-              "connectorName": "activemq_submit_binary",
+              "connectorName": "submit_binary",
               "compressBinaryMessages": true
             }
           ],
@@ -54,7 +54,7 @@
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.TextMessage",
+                "requestType": "text",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
                 "messageProperties": [
@@ -64,7 +64,7 @@
                   }
                 ]
               },
-              "connectorName": "activemq_rr_text_consumer",
+              "connectorName": "text_request_text_reply",
               "compressBinaryMessages": true
             },
             {
@@ -72,7 +72,7 @@
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.BytesMessage",
+                "requestType": "binary",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
                 "messageProperties": [
@@ -82,7 +82,7 @@
                   }
                 ]
               },
-              "connectorName": "activemq_rr_binary_consumer",
+              "connectorName": "binary_request_text_reply",
               "compressBinaryMessages": true
             }
           ],

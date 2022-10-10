@@ -342,15 +342,15 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the submit connection message class name for the request-reply connector.
+     * Returns the submit connection request type for the request-reply connector.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
-     * @return the submit connection message class name for the request-reply connector.
+     * @return the submit connection request type for the request-reply connector.
      */
-    public String getSubmitConnectionMessageClassName(String messagingSystemName, String connectorName) {
+    public String getSubmitConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<String> messageClassName = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageClassName()));
-        return messageClassName.orElse("");
+        Optional<String> requestType = connection.flatMap(sub -> Optional.ofNullable(sub.getRequestType()));
+        return requestType.orElse("text"); // default to text
     }
 
     /**
@@ -432,15 +432,15 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the request-reply connection message class name for the request-reply connector.
+     * Returns the request-reply connection request type for the request-reply connector.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
-     * @return the request-reply connection message class name for the request-reply connector.
+     * @return the request-reply connection request type for the request-reply connector.
      */
-    public String getRequestReplyConnectionMessageClassName(String messagingSystemName, String connectorName) {
+    public String getRequestReplyConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<String> messageClassName = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageClassName()));
-        return messageClassName.orElse("");
+        Optional<String> requestType = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestType()));
+        return requestType.orElse("text"); // default to text
     }
 
     /**
