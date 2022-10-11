@@ -5,7 +5,6 @@ import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
-import nz.co.pukeko.msginf.models.message.MessageType;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class TestSubmit {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        AdministerMessagingInfrastructure.getInstance().shutdown();
     }
 
     @Test

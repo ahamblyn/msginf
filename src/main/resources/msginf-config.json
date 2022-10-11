@@ -72,6 +72,24 @@
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
+              },
+              "connectorName": "text_request_binary_reply",
+              "compressBinaryMessages": true
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
                 "requestType": "binary",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
@@ -83,6 +101,24 @@
                 ]
               },
               "connectorName": "binary_request_text_reply",
+              "compressBinaryMessages": true
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
+              },
+              "connectorName": "binary_request_binary_reply",
               "compressBinaryMessages": true
             }
           ],

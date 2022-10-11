@@ -93,6 +93,7 @@ public class MessageRequestReply implements MessageListener {
 	public void shutdown() {
 		try {
 			queueConnection.stop();
+			queueConnection.close();
 		} catch (JMSException jmse) {
 			log.error(jmse.getMessage(), jmse);
 		}

@@ -46,12 +46,12 @@ public class TestTextRequestTextReply {
         } catch (InterruptedException e) {
         }
         messageRequestReply.shutdown();
-        AdministerMessagingInfrastructure.getInstance().shutdown();
+        //AdministerMessagingInfrastructure.getInstance().shutdown();
     }
 
     @Test
     @Order(1)
-    public void replyTextMessages() throws MessageException {
+    public void reply() throws MessageException {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
                     "text_request_text_reply", "Message[" + (i + 1) + "]"));
@@ -64,7 +64,7 @@ public class TestTextRequestTextReply {
 
     @Test
     @Order(2)
-    public void replyTextMessagesThreads() throws Exception {
+    public void replyThreads() throws Exception {
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Thread newThread = new Thread(() -> {
@@ -91,7 +91,7 @@ public class TestTextRequestTextReply {
 
     @Test
     @Order(3)
-    public void replyTextMessagesAsync() {
+    public void replyAsync() {
         List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {

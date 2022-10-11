@@ -44,7 +44,6 @@ public class TestMsgInfDirectly {
 		}
 		messageRequestReply.shutdown();
 		queueManager.close();
-		AdministerMessagingInfrastructure.getInstance().shutdown();
 	}
 
 	@Test

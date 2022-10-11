@@ -99,14 +99,7 @@ public class QueueManager {
 
 	private MessageResponse sendTextMessage(MessageRequest messageRequest) throws MessageException {
 		MessageController mc = getMessageConnector(messageRequest.getConnectorName());
-		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			bos.write(messageRequest.getMessage().getBytes());
-			messageRequest.setMessageStream(bos);
-			return mc.sendMessage(messageRequest);
-		} catch (IOException ioe) {
-			throw new QueueManagerException(ioe);
-		}
+		return mc.sendMessage(messageRequest);
 	}
 
 	private MessageResponse sendBinaryMessage(MessageRequest messageRequest) throws MessageException {

@@ -14,12 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestBinaryRequestTextReply {
+public class TestBinaryRequestBinaryReply {
 
     private static Messenger messenger;
     private static MessageRequestReply messageRequestReply;
@@ -33,7 +32,7 @@ public class TestBinaryRequestTextReply {
                     "ReplyQueue");
             messageRequestReply.run();
         } catch (MessageException e) {
-            log.error("Unable to setup TestBinaryRequestTextReply test", e);
+            log.error("Unable to setup TestBinaryRequestBinaryReply test", e);
         }
         messenger = new Messenger();
     }
@@ -53,10 +52,10 @@ public class TestBinaryRequestTextReply {
     public void reply() throws Exception {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    "binary_request_text_reply", "data/905727.pdf"));
+                    "binary_request_binary_reply", "data/905727.pdf"));
             assertNotNull(response);
-            assertNotNull(response.getTextResponse());
-            assertEquals(MessageType.TEXT, response.getMessageType());
+            assertNotEquals(0, response.getBinaryResponse().length);
+            assertEquals(MessageType.BINARY, response.getMessageType());
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
     }
@@ -70,10 +69,10 @@ public class TestBinaryRequestTextReply {
                 try {
                     for (int j = 0; j < 10; j++) {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                "binary_request_text_reply", "data/905727.pdf"));
+                                "binary_request_binary_reply", "data/905727.pdf"));
                         assertNotNull(response);
-                        assertNotNull(response.getTextResponse());
-                        assertEquals(MessageType.TEXT, response.getMessageType());
+                        assertNotEquals(0, response.getBinaryResponse().length);
+                        assertEquals(MessageType.BINARY, response.getMessageType());
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -96,10 +95,10 @@ public class TestBinaryRequestTextReply {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            "binary_request_text_reply", "data/905727.pdf"));
+                            "binary_request_binary_reply", "data/905727.pdf"));
                     assertNotNull(response);
-                    assertNotNull(response.getTextResponse());
-                    assertEquals(MessageType.TEXT, response.getMessageType());
+                    assertNotEquals(0, response.getBinaryResponse().length);
+                    assertEquals(MessageType.BINARY, response.getMessageType());
                     return response;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
