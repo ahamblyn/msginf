@@ -8,6 +8,7 @@ import nz.co.pukeko.msginf.models.message.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -24,19 +25,22 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Optional<RestMessageResponse> submit(String messageSystem, String messageConnector, String payload) {
+    public Optional<RestMessageResponse> submit(RestMessageRequest payload) {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, messageConnector, transactionId);
-            messageRequest.setMessage(payload);
-            messenger.sendMessage(messageSystem, messageRequest);
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.getMessageConnector(), transactionId);
+            if (payload.getBinaryMessage() != null && !payload.getBinaryMessage().isEmpty()) {
+                messageRequest.setMessageStream(decodeBinaryMessage(payload.getBinaryMessage()));
+            }
+            messageRequest.setMessage(payload.getTextMessage());
+            messenger.sendMessage(payload.getMessageSystem(), messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
-            return Optional.of(new RestMessageResponse("Message submitted successfully", transactionId, duration));
+            return Optional.of(new RestMessageResponse("Message submitted successfully", transactionId, TransactionStatus.SUCCESS, duration));
         } catch (MessageException e) {
             log.error("Unable to submit the message", e);
-            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId));
+            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.FAILURE));
         }
     }
 
@@ -61,10 +65,26 @@ public class MessageService implements IMessageService {
             MessageResponse reply = messenger.sendMessage(messageSystem, messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
-            return Optional.of(new RestMessageResponse(reply.getTextResponse(), transactionId, duration));
+            return Optional.of(new RestMessageResponse(reply.getTextResponse(), transactionId, TransactionStatus.SUCCESS, duration));
         } catch (MessageException e) {
             log.error("Unable to run requestReply", e);
-            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId));
+            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.FAILURE));
+        }
+    }
+
+    /**
+     * Convert the binary message string into a ByteArrayOutputStream
+     * @param binaryMessage
+     * @return
+     */
+    private ByteArrayOutputStream decodeBinaryMessage(String binaryMessage) throws MessageException {
+        try {
+            byte[] decodedMessage = Base64.getDecoder().decode(binaryMessage);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(decodedMessage.length);
+            baos.writeBytes(decodedMessage);
+            return baos;
+        } catch (RuntimeException e) {
+            throw new MessageException("Unable to decode the binary message");
         }
     }
 

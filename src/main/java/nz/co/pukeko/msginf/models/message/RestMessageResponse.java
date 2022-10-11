@@ -10,11 +10,13 @@ import lombok.*;
 public class RestMessageResponse {
     private String message;
     private String transactionId;
+    private TransactionStatus transactionStatus;
     private Long responseTimeInMilliseconds;
 
-    public RestMessageResponse(String message, String transactionId) {
+    public RestMessageResponse(String message, String transactionId, TransactionStatus transactionStatus) {
         this.message = message;
         this.transactionId = transactionId;
+        this.transactionStatus = transactionStatus;
         this.responseTimeInMilliseconds = 0L;
     }
 }

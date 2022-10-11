@@ -1,9 +1,12 @@
 package nz.co.pukeko.msginf.controllers;
 
 import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
+import nz.co.pukeko.msginf.models.message.RestMessageRequest;
 import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 import nz.co.pukeko.msginf.services.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,12 +22,11 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @PostMapping(path = "/submit")
-    public RestMessageResponse submit(@RequestHeader(name="x-message-system") String messageSystem,
-                                      @RequestHeader(name="x-message-connector") String messageConnector,
-                                      @RequestBody String payload) {
-        Optional<RestMessageResponse> messageResponse = messageService.submit(messageSystem, messageConnector, payload);
-        return messageResponse.orElseGet(RestMessageResponse::new);
+    @PostMapping(path = "/submit", consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<RestMessageResponse> submit(@RequestBody RestMessageRequest payload) {
+        Optional<RestMessageResponse> messageResponse = messageService.submit(payload);
+        return ResponseEntity.of(Optional.of(messageResponse.orElseGet(RestMessageResponse::new)));
     }
 
     @GetMapping("/receive")
@@ -38,7 +40,6 @@ public class MessageController {
     public RestMessageResponse request(@RequestHeader(name="x-message-system") String messageSystem,
                                   @RequestHeader(name="x-message-connector") String messageConnector,
                                   @RequestBody String payload) {
-        // TODO add header properties to request header and make non-mandatory
         MessageProperties<String> messageProperties = new MessageProperties<>();
         messageProperties.put("testname", "reply");
         Optional<RestMessageResponse> messageResponse = messageService.requestReply(messageSystem, messageConnector, payload, messageProperties);
