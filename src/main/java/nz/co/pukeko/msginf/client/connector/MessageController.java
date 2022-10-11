@@ -18,10 +18,7 @@ import javax.naming.NamingException;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
-import nz.co.pukeko.msginf.infrastructure.exception.MessageControllerException;
-import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
-import nz.co.pukeko.msginf.infrastructure.exception.QueueUnavailableException;
+import nz.co.pukeko.msginf.infrastructure.exception.*;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
@@ -158,6 +155,9 @@ public class MessageController {
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
 			this.configMessageProperties = parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector);
+		} else {
+			// No configuration found.
+			throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");
 		}
 
       try {

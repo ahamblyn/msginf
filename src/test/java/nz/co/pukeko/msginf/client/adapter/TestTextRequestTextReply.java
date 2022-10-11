@@ -46,7 +46,6 @@ public class TestTextRequestTextReply {
         } catch (InterruptedException e) {
         }
         messageRequestReply.shutdown();
-        //AdministerMessagingInfrastructure.getInstance().shutdown();
     }
 
     @Test
