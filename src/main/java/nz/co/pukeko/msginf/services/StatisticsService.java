@@ -32,6 +32,6 @@ public class StatisticsService implements IStatisticsService {
     public RestMessageResponse resetStatistics() {
         QueueStatisticsCollector.getInstance().resetQueueStatistics();
         String transactionId = UUID.randomUUID().toString();
-        return new RestMessageResponse("Statistics reset successfully", transactionId, TransactionStatus.SUCCESS, 0L);
+        return new RestMessageResponse("Statistics reset successfully", transactionId, TransactionStatus.SUCCESS);
     }
 }
