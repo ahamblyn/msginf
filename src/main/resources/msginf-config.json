@@ -31,7 +31,7 @@
                 "messageTimeToLive": 0
               },
               "connectorName": "submit_text",
-              "compressBinaryMessages": true
+              "compressBinaryMessages": false
             },
             {
               "submitConnection": {
@@ -41,7 +41,7 @@
                 "messageTimeToLive": 0
               },
               "connectorName": "submit_binary",
-              "compressBinaryMessages": true
+              "compressBinaryMessages": false
             }
           ],
           "requestReply": [
@@ -61,7 +61,7 @@
                 ]
               },
               "connectorName": "text_request_text_reply",
-              "compressBinaryMessages": true
+              "compressBinaryMessages": false
             },
             {
               "requestReplyConnection": {
@@ -79,7 +79,7 @@
                 ]
               },
               "connectorName": "text_request_binary_reply",
-              "compressBinaryMessages": true
+              "compressBinaryMessages": false
             },
             {
               "requestReplyConnection": {
@@ -97,7 +97,7 @@
                 ]
               },
               "connectorName": "binary_request_text_reply",
-              "compressBinaryMessages": true
+              "compressBinaryMessages": false
             },
             {
               "requestReplyConnection": {
@@ -115,7 +115,7 @@
                 ]
               },
               "connectorName": "binary_request_binary_reply",
-              "compressBinaryMessages": true
+              "compressBinaryMessages": false
             }
           ],
           "useConnectionPooling": true,
