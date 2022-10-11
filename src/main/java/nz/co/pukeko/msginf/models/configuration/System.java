@@ -4,12 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
 public class System {
-    private JarFiles jarFiles;
-    private Queues queues;
+    private List<JarFile> jarFiles;
+    private List<Queue> queues;
     private Connectors connectors;
     private String name;
     private String initialContextFactory;

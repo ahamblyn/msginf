@@ -2,29 +2,25 @@
   "systems": {
     "system": [
       {
-        "jarFiles": {
-          "jarFile": [
-            {
-              "jarFileName": "C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar"
-            }
-          ]
-        },
-        "queues": {
-          "queue": [
-            {
-              "jndiName": "TestQueue",
-              "physicalName": "TEST.QUEUE"
-            },
-            {
-              "jndiName": "RequestQueue",
-              "physicalName": "REQUEST.QUEUE"
-            },
-            {
-              "jndiName": "ReplyQueue",
-              "physicalName": "REPLY.QUEUE"
-            }
-          ]
-        },
+        "jarFiles": [
+          {
+            "jarFileName": "C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar"
+          }
+        ],
+        "queues": [
+          {
+            "jndiName": "TestQueue",
+            "physicalName": "TEST.QUEUE"
+          },
+          {
+            "jndiName": "RequestQueue",
+            "physicalName": "REQUEST.QUEUE"
+          },
+          {
+            "jndiName": "ReplyQueue",
+            "physicalName": "REPLY.QUEUE"
+          }
+        ],
         "connectors": {
           "submit": [
             {
