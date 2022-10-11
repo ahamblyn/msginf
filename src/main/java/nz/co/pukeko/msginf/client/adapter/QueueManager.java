@@ -127,12 +127,12 @@ public class QueueManager {
 	}
 	
 	/**
-	 * Receives all the messages as Strings.
+	 * Receives all the messages.
 	 * @param connector the name of the connector as defined in the properties file.
 	 * @param timeout the timeout in milliseconds.
 	 * @return a list containing all the messages found.
 	 */
-	public synchronized List<String> receiveMessages(String connector, long timeout) throws MessageException {
+	public synchronized List<MessageResponse> receiveMessages(String connector, long timeout) throws MessageException {
 		MessageController mc = getMessageConnector(connector);
 		return mc.receiveMessages(timeout);
 	}

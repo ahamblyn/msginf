@@ -30,10 +30,10 @@ public class MessageController {
     }
 
     @GetMapping("/receive")
-    public List<String> receiveMessages(@RequestHeader(name="x-message-system") String messageSystem,
+    public ResponseEntity<List<RestMessageResponse>> receiveMessages(@RequestHeader(name="x-message-system") String messageSystem,
                                         @RequestHeader(name="x-message-connector") String messageConnector,
                                         @RequestHeader(name="x-timeout") Long timeout) {
-        return messageService.receiveMessages(messageSystem, messageConnector, timeout);
+        return ResponseEntity.of(Optional.of(messageService.receiveMessages(messageSystem, messageConnector, timeout)));
     }
 
     @PostMapping(path = "/request")

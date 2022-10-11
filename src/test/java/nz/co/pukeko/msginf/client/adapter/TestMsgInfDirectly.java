@@ -74,7 +74,7 @@ public class TestMsgInfDirectly {
 	@Test
 	@Order(3)
 	public void receive() throws MessageException {
-		List<String> messages = queueManager.receiveMessages("submit_text", 2000);
+		List<MessageResponse> messages = queueManager.receiveMessages("submit_text", 2000);
 		assertNotNull(messages);
 		assertEquals(10, messages.size());
 		log.info(QueueStatisticsCollector.getInstance().toString());

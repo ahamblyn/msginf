@@ -4,11 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.Messenger;
 import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.infrastructure.util.Util;
 import nz.co.pukeko.msginf.models.message.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -31,7 +31,7 @@ public class MessageService implements IMessageService {
             Instant start = Instant.now();
             MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.getMessageConnector(), transactionId);
             if (payload.getBinaryMessage() != null && !payload.getBinaryMessage().isEmpty()) {
-                messageRequest.setMessageStream(decodeBinaryMessage(payload.getBinaryMessage()));
+                messageRequest.setMessageStream(Util.decodeBinaryMessage(payload.getBinaryMessage()));
             }
             messageRequest.setMessage(payload.getTextMessage());
             messenger.sendMessage(payload.getMessageSystem(), messageRequest);
@@ -45,12 +45,17 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public List<String> receiveMessages(String messagingSystem, String messageConnector, long timeout) {
+    public List<RestMessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout) {
         try {
-            return messenger.receiveMessages(messagingSystem, messageConnector, timeout);
+            List<MessageResponse> messages = messenger.receiveMessages(messagingSystem, messageConnector, timeout);
+            return messages.stream().map(m -> {
+                return new RestMessageResponse("Received message", m.getTextResponse(),
+                        Util.encodeBinaryMessage(m.getBinaryResponse()), UUID.randomUUID().toString(),
+                        TransactionStatus.SUCCESS, 0L);
+            }).toList();
         } catch (MessageException e) {
             log.error("Unable to receive the messages", e);
-            return Collections.singletonList(e.getMessage());
+            return Collections.singletonList(new RestMessageResponse(e.getMessage(), UUID.randomUUID().toString(), TransactionStatus.FAILURE));
         }
     }
 
@@ -71,21 +76,4 @@ public class MessageService implements IMessageService {
             return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.FAILURE));
         }
     }
-
-    /**
-     * Convert the binary message string into a ByteArrayOutputStream
-     * @param binaryMessage
-     * @return
-     */
-    private ByteArrayOutputStream decodeBinaryMessage(String binaryMessage) throws MessageException {
-        try {
-            byte[] decodedMessage = Base64.getDecoder().decode(binaryMessage);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(decodedMessage.length);
-            baos.writeBytes(decodedMessage);
-            return baos;
-        } catch (RuntimeException e) {
-            throw new MessageException("Unable to decode the binary message");
-        }
-    }
-
 }

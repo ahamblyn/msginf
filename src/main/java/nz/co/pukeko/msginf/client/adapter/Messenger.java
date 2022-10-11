@@ -49,7 +49,7 @@ public class Messenger {
         return queueManager.sendMessage(messageRequest);
     }
 
-    public List<String> receiveMessages(String messagingSystem, String messageConnector, long timeout) throws MessageException {
+    public List<MessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout) throws MessageException {
         QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
         return queueManager.receiveMessages(messageConnector, timeout);
     }

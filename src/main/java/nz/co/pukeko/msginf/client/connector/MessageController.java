@@ -201,14 +201,14 @@ public class MessageController {
         if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
         	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
 			getMessageProperties(replyMsg, messageRequest.getMessageProperties());
-            if (replyMsg instanceof TextMessage) {
+            if (replyMsg instanceof TextMessage textMessage) {
 				messageResponse.setMessageType(MessageType.TEXT);
-				messageResponse.setTextResponse(((TextMessage)replyMsg).getText());
+				messageResponse.setTextResponse(textMessage.getText());
             }
-            if (replyMsg instanceof BytesMessage) {
-            	long messageLength = ((BytesMessage)replyMsg).getBodyLength();
+            if (replyMsg instanceof BytesMessage binaryMessage) {
+            	long messageLength = binaryMessage.getBodyLength();
             	byte[] messageData = new byte[(int)messageLength];
-            	((BytesMessage)replyMsg).readBytes(messageData);
+				binaryMessage.readBytes(messageData);
 				messageResponse.setMessageType(MessageType.BINARY);
 				messageResponse.setBinaryResponse(messageData);
             }
@@ -228,23 +228,30 @@ public class MessageController {
     }
    }
    
-   public synchronized List<String> receiveMessages(long timeout) throws MessageException {
-	    List<String> messages = new ArrayList<>();
+   public synchronized List<MessageResponse> receiveMessages(long timeout) throws MessageException {
+	    List<MessageResponse> messages = new ArrayList<>();
  	    Instant start = Instant.now();
 	    try {
 		    // create a consumer based on the request queue
 		    MessageConsumer messageConsumer = session.createConsumer(queue);
 			while (true) {
+				MessageResponse messageResponse = new MessageResponse();
 				Message m = messageConsumer.receive(timeout);
 				if (m == null) {
 					break;
 				}
-				if (m instanceof TextMessage message) {
-					messages.add(message.getText());
+				if (m instanceof TextMessage textMessage) {
+					messageResponse.setMessageType(MessageType.TEXT);
+					messageResponse.setTextResponse(textMessage.getText());
 				}
-				if (m instanceof BytesMessage) {
-	                messages.add("Binary message");
+				if (m instanceof BytesMessage binaryMessage) {
+					messageResponse.setMessageType(MessageType.BINARY);
+					long messageLength = binaryMessage.getBodyLength();
+					byte[] messageData = new byte[(int)messageLength];
+					binaryMessage.readBytes(messageData);
+					messageResponse.setBinaryResponse(messageData);
 				}
+				messages.add(messageResponse);
 			}
             collateStats(connector, start);
 			messageConsumer.close();

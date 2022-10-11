@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface IMessageService {
     public Optional<RestMessageResponse> submit(RestMessageRequest payload);
 
-    public List<String> receiveMessages(String messagingSystem, String messageConnector, long timeout);
+    public List<RestMessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout);
 
     public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload,
                                                       MessageProperties<String> messageProperties);

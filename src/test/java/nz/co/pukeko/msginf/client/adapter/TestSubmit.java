@@ -47,7 +47,7 @@ public class TestSubmit {
     @Test
     @Order(2)
     public void receiveTextMessages() throws MessageException {
-        List<String> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -76,7 +76,7 @@ public class TestSubmit {
             thread.join();
         }
         // dequeue messages
-        List<String> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -100,7 +100,7 @@ public class TestSubmit {
         }
         futureList.forEach(CompletableFuture::join);
         // dequeue messages
-        List<String> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -120,7 +120,7 @@ public class TestSubmit {
     @Test
     @Order(6)
     public void receiveBinaryMessages() throws MessageException {
-        List<String> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -149,7 +149,7 @@ public class TestSubmit {
             thread.join();
         }
         // dequeue messages
-        List<String> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -173,7 +173,7 @@ public class TestSubmit {
         }
         futureList.forEach(CompletableFuture::join);
         // dequeue messages
-        List<String> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
