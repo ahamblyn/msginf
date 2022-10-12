@@ -85,6 +85,9 @@ public class QueueManager {
 	 * @throws MessageException if an error occurs sending the message.
 	 */
 	public synchronized MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
+		// Get the request type from the config based on message request type: submit or request-response
+		messageRequest.setMessageType(parser.getMessageType(messagingSystem, messageRequest.getConnectorName(),
+				messageRequest.getMessageRequestType()));
 		if (messageRequest.getMessageType() == MessageType.TEXT) {
 			return sendTextMessage(messageRequest);
 		} else if (messageRequest.getMessageType() == MessageType.BINARY) {
@@ -96,14 +99,7 @@ public class QueueManager {
 
 	private MessageResponse sendTextMessage(MessageRequest messageRequest) throws MessageException {
 		MessageController mc = getMessageConnector(messageRequest.getConnectorName());
-		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			bos.write(messageRequest.getMessage().getBytes());
-			messageRequest.setMessageStream(bos);
-			return mc.sendMessage(messageRequest);
-		} catch (IOException ioe) {
-			throw new QueueManagerException(ioe);
-		}
+		return mc.sendMessage(messageRequest);
 	}
 
 	private MessageResponse sendBinaryMessage(MessageRequest messageRequest) throws MessageException {
@@ -131,12 +127,12 @@ public class QueueManager {
 	}
 	
 	/**
-	 * Receives all the messages as Strings.
+	 * Receives all the messages.
 	 * @param connector the name of the connector as defined in the properties file.
 	 * @param timeout the timeout in milliseconds.
 	 * @return a list containing all the messages found.
 	 */
-	public synchronized List<String> receiveMessages(String connector, long timeout) throws MessageException {
+	public synchronized List<MessageResponse> receiveMessages(String connector, long timeout) throws MessageException {
 		MessageController mc = getMessageConnector(connector);
 		return mc.receiveMessages(timeout);
 	}

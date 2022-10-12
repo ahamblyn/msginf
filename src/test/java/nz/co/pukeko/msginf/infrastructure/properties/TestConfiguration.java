@@ -9,6 +9,8 @@ import org.springframework.core.io.Resource;
 
 import java.io.File;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @Slf4j
 public class TestConfiguration {
 
@@ -20,7 +22,6 @@ public class TestConfiguration {
         Resource resource = new ClassPathResource("msginf-config.json");
         File file = resource.getFile();
         Configuration configuration = objectMapper.readValue(file, Configuration.class);
-        //print customer details
-        log.info(configuration.toString());
+        assertNotNull(configuration);
     }
 }

@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukeko.msginf.models.configuration.*;
 import nz.co.pukeko.msginf.models.configuration.System;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -204,7 +207,7 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<String> getJarFileNames(String messagingSystemName) {
         List<String> jarFileNamesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system ->
-                jarFileNamesList.addAll(system.getJarFiles().getJarFile().stream().map(JarFile::getJarFileName).toList()));
+                jarFileNamesList.addAll(system.getJarFiles().stream().map(JarFile::getJarFileName).toList()));
         return jarFileNamesList;
     }
 
@@ -216,7 +219,7 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<PropertiesQueue> getQueues(String messagingSystemName) {
         List<PropertiesQueue> queuesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system -> {
-            List<PropertiesQueue> props = system.getQueues().getQueue().stream()
+            List<PropertiesQueue> props = system.getQueues().stream()
                     .map(queue -> new PropertiesQueue(queue.getJndiName(), queue.getPhysicalName())).toList();
             queuesList.addAll(props);
         });
@@ -341,15 +344,15 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the submit connection message class name for the request-reply connector.
+     * Returns the submit connection request type for the request-reply connector.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
-     * @return the submit connection message class name for the request-reply connector.
+     * @return the submit connection request type for the request-reply connector.
      */
-    public String getSubmitConnectionMessageClassName(String messagingSystemName, String connectorName) {
+    public String getSubmitConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<String> messageClassName = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageClassName()));
-        return messageClassName.orElse("");
+        Optional<String> requestType = connection.flatMap(sub -> Optional.ofNullable(sub.getRequestType()));
+        return requestType.orElse("text"); // default to text
     }
 
     /**
@@ -365,15 +368,21 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the submit connection reply wait time for the submit connector.
+     * Returns the submit connection message properties for the submit connector.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
-     * @return the submit connection reply wait time for the submit connector.
+     * @return the submit connection message properties for the submit connector.
      */
-    public int getSubmitConnectionReplyWaitTime(String messagingSystemName, String connectorName) {
+    public MessageProperties<String> getSubmitConnectionMessageProperties(String messagingSystemName, String connectorName) {
+        MessageProperties<String> messageProperties = new MessageProperties<>();
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<Integer> replyWaitTime = connection.flatMap(sub -> Optional.ofNullable(sub.getReplyWaitTime()));
-        return replyWaitTime.orElse(0);
+        Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageProperties()));
+        parserMessageProperties.ifPresent(properties -> {
+            properties.forEach(property -> {
+                messageProperties.put(property.getName(), property.getValue());
+            });
+        });
+        return messageProperties;
     }
 
     /**
@@ -425,15 +434,15 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the request-reply connection message class name for the request-reply connector.
+     * Returns the request-reply connection request type for the request-reply connector.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
-     * @return the request-reply connection message class name for the request-reply connector.
+     * @return the request-reply connection request type for the request-reply connector.
      */
-    public String getRequestReplyConnectionMessageClassName(String messagingSystemName, String connectorName) {
+    public String getRequestReplyConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<String> messageClassName = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageClassName()));
-        return messageClassName.orElse("");
+        Optional<String> requestType = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestType()));
+        return requestType.orElse("text"); // default to text
     }
 
     /**
@@ -449,6 +458,24 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
+     * Returns the request-reply connection message properties for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the request-reply connection message properties for the request-reply connector.
+     */
+    public MessageProperties<String> getRequestReplyConnectionMessageProperties(String messagingSystemName, String connectorName) {
+        MessageProperties<String> messageProperties = new MessageProperties<>();
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
+        Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageProperties()));
+        parserMessageProperties.ifPresent(properties -> {
+            properties.forEach(property -> {
+                messageProperties.put(property.getName(), property.getValue());
+            });
+        });
+        return messageProperties;
+    }
+
+    /**
      * Returns the request-reply connection reply wait time for the request-reply connector.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
@@ -460,4 +487,21 @@ public class MessageInfrastructurePropertiesFileParser {
         return replyWaitTime.orElse(0);
     }
 
+    /**
+     * Returns message type based on message request type.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the request type based on message request type.
+     */
+    public MessageType getMessageType(String messagingSystemName, String connectorName, MessageRequestType messageRequestType) {
+        if (messageRequestType == MessageRequestType.SUBMIT) {
+            String requestType = getSubmitConnectionRequestType(messagingSystemName, connectorName).toUpperCase();
+            return MessageType.valueOf(requestType);
+        } else if (messageRequestType == MessageRequestType.REQUEST_RESPONSE) {
+            String requestType = getRequestReplyConnectionRequestType(messagingSystemName, connectorName).toUpperCase();
+            return MessageType.valueOf(requestType);
+        } else {
+            return MessageType.TEXT;
+        }
+    }
 }

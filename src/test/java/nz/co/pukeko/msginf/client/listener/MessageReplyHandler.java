@@ -6,10 +6,7 @@
  */
 package nz.co.pukeko.msginf.client.listener;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Date;
-import java.util.Hashtable;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -17,19 +14,9 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
-
+import nz.co.pukeko.msginf.models.message.MessageType;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * @author AlisdairH
@@ -40,153 +27,62 @@ import org.xml.sax.SAXException;
 public class MessageReplyHandler {
 	private final Session session;
 	private final MessageProducer replyMessageProducer;
-	private DocumentBuilder docBuilder;
-	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
-	private final Hashtable<Integer,String> randomStrings = new Hashtable<>();
 
 	public MessageReplyHandler(Session session, MessageProducer replyMessageProducer) {
 		this.session = session;
 		this.replyMessageProducer = replyMessageProducer;
-		try {
-			docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
-		}
-	}
-	
-	private Message createReplyMessage(ReplyData replyData) throws JMSException {
-    	String collectionName = "MessageReplyHandler_3_createReplyMessage";
-		long time = System.currentTimeMillis();
-		Message replyMessage;
-    	if (replyData == null) {
-    		// return a generic text message
-            replyMessage = session.createTextMessage();
-            ((TextMessage)replyMessage).setText("TextMessage processed at: " + new Date());
-    	} else if (replyData.textReply()) {
-    		// get the random String
-    		Integer replySize = replyData.replySize();
-    		String reply = randomStrings.get(replySize);
-    		if (reply == null) {
-    			reply = RandomStringUtils.randomAlphanumeric(replySize);
-    			randomStrings.put(replySize, reply);
-    		}
-            replyMessage = session.createTextMessage();
-            ((TextMessage)replyMessage).setText(reply);
-    	} else {
-    		// get the random String
-    		Integer replySize = replyData.replySize();
-    		String reply = randomStrings.get(replySize);
-    		if (reply == null) {
-    			reply = RandomStringUtils.randomAlphanumeric(replySize);
-    			randomStrings.put(replySize, reply);
-    		}
-    		replyMessage = session.createBytesMessage();
-            ((BytesMessage)replyMessage).writeBytes(reply.getBytes());
-    	}
-		doCollector(collectionName, time);
-		return replyMessage;
-	}
-
-	private void doCollector(String collectionName, long time) {
-		collector.incrementMessageCount(collectionName);
-		long timeTaken = System.currentTimeMillis() - time;
-		collector.addMessageTime(collectionName, timeTaken);
-	}
-	
-	private ReplyData parseTextMessage(TextMessage message) throws JMSException {
-    	String collectionName = "MessageReplyHandler_2_parseTextMessage";
-		long time = System.currentTimeMillis();
-		boolean text;
-		int size;
-		String messageString = message.getText(); 
-		try {
-			// create the DOM Document
-			Document doc = docBuilder.parse(new InputSource(new StringReader(messageString)));
-			Element root = doc.getDocumentElement();
-			String replyType = findElementData(root, "ReplyType");
-			String replySize = findElementData(root, "ReplySize");
-			if (replyType != null && replySize != null) {
-				text = replyType.equals("text");
-				size = Integer.parseInt(replySize);
-				doCollector(collectionName, time);
-				return new ReplyData(text, size);
-			}
-		} catch (SAXException | IOException e) {
-		}
-		return null;
 	}
 	
 	/**
-	 * A real hack.
-	 * @param root element
-	 * @param elementName element name
-	 * @return the element data
+	 * 4 scenarios: 1. text request, text reply
+	 *              2. text request, binary reply
+	 *              3. binary request, text reply
+	 *              4. binary request, binary reply
+	 *
+	 * @param requestMessage the request message
+	 * @param replyType the reply type
+	 * @throws JMSException the JMS exception
 	 */
-	private String findElementData(Element root, String elementName) {
-		NodeList list = root.getElementsByTagName(elementName);
-		for (int i = 0; i < list.getLength(); i++) {
-			Node node = list.item(i);
-			NodeList nl = node.getChildNodes();
-			for (int j = 0; j < nl.getLength(); j++) {
-				return nl.item(j).getNodeValue();
+	public void reply(Message requestMessage, String replyType) throws JMSException {
+    	if (requestMessage instanceof TextMessage requestTextMessage) {
+			// Add the time
+			String requestMessageText = requestTextMessage.getText() + " : Replied at " + new Date();
+			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 1
+				TextMessage replyMessage = session.createTextMessage();
+				replyMessage.setText(requestMessageText);
+				submit(requestTextMessage, replyMessage);
 			}
-		}
-		return null;
-	}
-	
-    public void reply(Message message) throws JMSException {
-    	String collectionName = "MessageReplyHandler_1_reply";
-		long time = System.currentTimeMillis();
-    	if (message instanceof TextMessage) {
-        	// parse the message
-        	ReplyData replyData = parseTextMessage((TextMessage)message);
-        	// create the reply message
-        	Message replyMessage = createReplyMessage(replyData);
-            submit(message, replyMessage);
+			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 2
+				// Create random string the same size as the request
+				BytesMessage replyMessage = createRandomBinaryMessage(requestTextMessage.getText().length());
+				submit(requestTextMessage, replyMessage);
+			}
     	}
-    	if (message instanceof BytesMessage) {
-        	TextMessage replyMessage = session.createTextMessage();
-            replyMessage.setText("BytesMessage processed at: " + new Date());
-            submit(message, replyMessage);
+    	if (requestMessage instanceof BytesMessage requestBinaryMessage) {
+			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 3
+				TextMessage replyMessage = session.createTextMessage();
+				replyMessage.setText("Binary message processed at: " + new Date());
+				submit(requestBinaryMessage, replyMessage);
+			}
+			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 4
+				// Create random string the same size as the request
+				BytesMessage replyMessage = createRandomBinaryMessage((int) requestBinaryMessage.getBodyLength());
+				submit(requestBinaryMessage, replyMessage);
+			}
     	}
-		doCollector(collectionName, time);
-    }
-    
-    public void echo(Message message) throws JMSException {
-    	String collectionName = "MessageReplyHandler_1_echo";
-		long time = System.currentTimeMillis();
-		Message replyMessage = null;
-    	if (message instanceof TextMessage) {
-        	replyMessage = session.createTextMessage();
-            ((TextMessage)replyMessage).setText(((TextMessage)message).getText());
-    	}
-    	if (message instanceof BytesMessage) {
-        	replyMessage = session.createBytesMessage();
-        	long length = ((BytesMessage)message).getBodyLength();
-        	byte[] data = new byte[(int)length];
-        	((BytesMessage)message).readBytes(data);
-            ((BytesMessage)replyMessage).writeBytes(data);
-    	}
-        submit(message, replyMessage);
-		doCollector(collectionName, time);
     }
 
-    public void submitResetMessageToReplyQueue(Message message) throws JMSException {
-    	TextMessage replyMessage = session.createTextMessage();
-        replyMessage.setText("Message Listener reset");
-        submit(message, replyMessage);
-    }
+	private BytesMessage createRandomBinaryMessage(int messageLength) throws JMSException {
+		String randomReply = RandomStringUtils.randomAlphanumeric(messageLength);
+		BytesMessage replyMessage = session.createBytesMessage();
+		replyMessage.writeBytes(randomReply.getBytes());
+		return replyMessage;
+	}
 
     private void submit(Message message, Message replyMessage) throws JMSException {
 		// set the message to expire after the timeout period has elapsed
         replyMessageProducer.setTimeToLive(120000);
 		replyMessage.setJMSCorrelationID(message.getJMSCorrelationID());
         replyMessageProducer.send(replyMessage);
-	}
-
-	record ReplyData(boolean textReply, int replySize) {
-
-		public String toString() {
-			return "Text Reply = " + this.textReply + ":" + this.replySize;
-		}
 	}
 }

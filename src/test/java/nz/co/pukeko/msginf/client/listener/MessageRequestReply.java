@@ -6,7 +6,6 @@
  */
 package nz.co.pukeko.msginf.client.listener;
 
-import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -16,15 +15,17 @@ import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
+import nz.co.pukeko.msginf.infrastructure.properties.Constants;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
+import nz.co.pukeko.msginf.models.message.MessageType;
+
+import java.util.Optional;
 
 /**
  * @author AlisdairH
@@ -34,14 +35,12 @@ import nz.co.pukeko.msginf.infrastructure.util.Util;
  */
 @Slf4j
 public class MessageRequestReply implements MessageListener {
-	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 	private QueueConnectionFactory queueConnectionFactory;
 	private Queue requestQueue;
 	private Queue replyQueue;
 	private QueueConnection queueConnection;
 	private MessageReplyHandler mrh;
-	private static long messageCount = 0;
-	
+
 	public MessageRequestReply(MessageInfrastructurePropertiesFileParser parser, String messagingSystem,
 							   String queueConnectionFactoryName, String requestQueueName,
 							   String replyQueueName) {
@@ -56,18 +55,6 @@ public class MessageRequestReply implements MessageListener {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}
-	
-	private synchronized void incrementMessageCount() {
-		++messageCount;
-	}
-
-	private synchronized long getMessageCount() {
-		return messageCount;
-	}
-
-	private synchronized void resetMessageCount() {
-		messageCount = 0;
 	}
 
 	public static void main(String[] args) {
@@ -106,64 +93,27 @@ public class MessageRequestReply implements MessageListener {
 	public void shutdown() {
 		try {
 			queueConnection.stop();
+			queueConnection.close();
 		} catch (JMSException jmse) {
 			log.error(jmse.getMessage(), jmse);
 		}
 	}
 
-    public void onMessage(Message message) {
+	/**
+	 * This will echo the request.
+	 * @param message the message
+	 */
+	public void onMessage(Message message) {
         try {
-        	boolean bReset = false;
-        	String testName = (String)message.getObjectProperty("testname");
-        	// Reset could be either a Boolean or a String
-        	if (message.getObjectProperty("reset") instanceof Boolean reset) {
-				if (reset) {
-            		bReset = true;
-            	}
-        	}
-        	if (message.getObjectProperty("reset") instanceof String reset) {
-				if (reset.equals("true")) {
-            		bReset = true;
-            	}
-        	}
-        	if (bReset) {
-        		log.info("Reset Message received...");
-    			reset(message);
-        	} else {
-            	if (message instanceof TextMessage) {
-            		log.info("TextMessage received...");
-                    handleMessage(message, testName);
-            	} else if (message instanceof BytesMessage) {
-            		log.info("BytesMessage received...");
-                    handleMessage(message, testName);
-            	}
-        	}
+        	Optional<String> replyType = Optional.ofNullable(message.getStringProperty(Constants.REPLY_TYPE_KEY));
+			// if no replyType, default to text
+			handleMessage(message, replyType.orElse(MessageType.TEXT.name()));
         } catch (JMSException jmse) {
             log.error(jmse.getMessage(), jmse);
         }
 	}
 
-	private void handleMessage(Message message, String testName) throws JMSException {
-    	String collectionName = "MessageRequestReply";
-		long time = System.currentTimeMillis();
-		incrementMessageCount();
-		if (testName != null && testName.equals("reply")) {
-			mrh.reply(message);
-		} else {
-			mrh.echo(message);
-		}
-		collector.incrementMessageCount(collectionName);
-		long timeTaken = System.currentTimeMillis() - time;
-		collector.addMessageTime(collectionName, timeTaken);
-	}
-
-	private void reset(Message message) throws JMSException {
-		// log the current message count and reset
-		log.info("Number of messages received: " + getMessageCount());
-		resetMessageCount();
-		log.info("Messages count reset to " + getMessageCount());
-		mrh.submitResetMessageToReplyQueue(message);
-		log.info(collector.toString());
-		collector.resetQueueStatistics();
+	private void handleMessage(Message message, String replyType) throws JMSException {
+		mrh.reply(message, replyType);
 	}
 }

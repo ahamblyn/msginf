@@ -1,13 +1,10 @@
 package nz.co.pukeko.msginf.client.adapter;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
-import nz.co.pukeko.msginf.models.message.MessageType;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -18,22 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestMessenger {
+public class TestSubmit {
 
     private static Messenger messenger;
-    private static MessageRequestReply messageRequestReply;
 
     @BeforeAll
     public static void setUp() {
-        try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            messageRequestReply = new MessageRequestReply(parser, "activemq",
-                    "QueueConnectionFactory", "RequestQueue",
-                    "ReplyQueue");
-            messageRequestReply.run();
-        } catch (MessageException e) {
-            log.error("Unable to setup TestMessenger test", e);
-        }
         messenger = new Messenger();
     }
 
@@ -44,16 +31,14 @@ public class TestMessenger {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        messageRequestReply.shutdown();
-        AdministerMessagingInfrastructure.getInstance().shutdown();
     }
 
     @Test
     @Order(1)
-    public void submit() throws MessageException {
+    public void submitTextMessages() throws MessageException {
         for (int i = 0; i < 10; i++) {
-            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createMessageRequest(MessageRequestType.SUBMIT,
-                    MessageType.TEXT, "activemq_submit_text", "Message[" + (i + 1) + "]"));
+            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
+                    "submit_text", "Message[" + (i + 1) + "]"));
             assertNotNull(response);
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -61,8 +46,8 @@ public class TestMessenger {
 
     @Test
     @Order(2)
-    public void receive() throws MessageException {
-        List<String> messages = messenger.receiveMessages("activemq", "activemq_submit_text", 2000);
+    public void receiveTextMessages() throws MessageException {
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -70,14 +55,14 @@ public class TestMessenger {
 
     @Test
     @Order(3)
-    public void submitThreads() throws Exception {
+    public void submitTextMessagesThreads() throws Exception {
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Thread newThread = new Thread(() -> {
                 try {
                     for (int j = 0; j < 10; j++) {
-                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createMessageRequest(MessageRequestType.SUBMIT,
-                                MessageType.TEXT, "activemq_submit_text", "MessageZZZZ"));
+                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
+                                "submit_text", "MessageZZZZ"));
                         assertNotNull(response);
                     }
                 } catch (MessageException e) {
@@ -91,7 +76,7 @@ public class TestMessenger {
             thread.join();
         }
         // dequeue messages
-        List<String> messages = messenger.receiveMessages("activemq", "activemq_submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -99,13 +84,13 @@ public class TestMessenger {
 
     @Test
     @Order(4)
-    public void submitAsync() throws Exception {
+    public void submitTextMessagesAsync() throws Exception {
         List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
-                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createMessageRequest(MessageRequestType.SUBMIT,
-                            MessageType.TEXT, "activemq_submit_text", "MessageZZZZ"));
+                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
+                            "submit_text", "MessageZZZZ"));
                     assertNotNull(response);
                     return response;
                 } catch (MessageException e) {
@@ -115,7 +100,7 @@ public class TestMessenger {
         }
         futureList.forEach(CompletableFuture::join);
         // dequeue messages
-        List<String> messages = messenger.receiveMessages("activemq", "activemq_submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -123,32 +108,37 @@ public class TestMessenger {
 
     @Test
     @Order(5)
-    public void reply() throws MessageException {
+    public void submitBinaryMessages() throws Exception {
         for (int i = 0; i < 10; i++) {
-            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    MessageType.TEXT, "activemq_rr_text_consumer", "Message[" + (i + 1) + "]"));
+            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
+                    "submit_binary", "data/905727.pdf"));
             assertNotNull(response);
-            assertNotNull(response.getTextResponse());
-            assertEquals(MessageType.TEXT, response.getMessageType());
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
     }
 
     @Test
     @Order(6)
-    public void replyThreads() throws Exception {
+    public void receiveBinaryMessages() throws MessageException {
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        assertNotNull(messages);
+        assertEquals(10, messages.size());
+        log.info(QueueStatisticsCollector.getInstance().toString());
+    }
+
+    @Test
+    @Order(7)
+    public void submitBinaryMessagesThreads() throws Exception {
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Thread newThread = new Thread(() -> {
                 try {
                     for (int j = 0; j < 10; j++) {
-                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                MessageType.TEXT, "activemq_rr_text_consumer", "MessageZZZZ"));
+                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
+                                "submit_binary", "data/905727.pdf"));
                         assertNotNull(response);
-                        assertNotNull(response.getTextResponse());
-                        assertEquals(MessageType.TEXT, response.getMessageType());
                     }
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -158,28 +148,34 @@ public class TestMessenger {
         for (Thread thread : threads) {
             thread.join();
         }
+        // dequeue messages
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        assertNotNull(messages);
+        assertEquals(50, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
     }
 
     @Test
-    @Order(7)
-    public void replyAsync() throws Exception {
+    @Order(8)
+    public void submitBinaryMessagesAsync() throws Exception {
         List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
-                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            MessageType.TEXT, "activemq_rr_text_consumer", "MessageZZZZ"));
+                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
+                            "submit_binary", "data/905727.pdf"));
                     assertNotNull(response);
-                    assertNotNull(response.getTextResponse());
-                    assertEquals(MessageType.TEXT, response.getMessageType());
                     return response;
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }));
         }
         futureList.forEach(CompletableFuture::join);
+        // dequeue messages
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        assertNotNull(messages);
+        assertEquals(20, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
     }
 }

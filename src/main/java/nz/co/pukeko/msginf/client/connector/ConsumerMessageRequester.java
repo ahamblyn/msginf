@@ -6,10 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.rmi.server.UID;
-
 /**
  * This class handles the requests to and the replies from the temporary reply queue. 
  * @author alisdairh
@@ -21,8 +17,6 @@ public class ConsumerMessageRequester {
 	private Queue replyQueue;
 	private int replyWaitTime;
 	private MessageConsumer consumer;
-	private String identifier;
-	private String hostName;
 
 	/**
 	 * Constructs the ConsumerMessageRequester instance.
@@ -32,12 +26,6 @@ public class ConsumerMessageRequester {
 	 * @param replyWaitTime the reply wait timeout.
 	 */
 	public ConsumerMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue replyQueue, int replyWaitTime) {
-		this.identifier = Long.toString(System.currentTimeMillis());
-		try {
-			this.hostName = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			this.hostName = "Unknown";
-		}
 		this.queueChannel = queueChannel;
 		this.producer = producer;
 		this.replyWaitTime = replyWaitTime;
@@ -73,15 +61,6 @@ public class ConsumerMessageRequester {
 			throw new MessageRequesterException(jmse);
 		}
     }
-
-	/**
-	 * Creates a unique correlation ID.
-	 * @return the unique correlation ID.
-	 */
-	private String createCorrelationID() {
-		UID uid = new UID();
-		return hostName + "-" + identifier + ":" + System.currentTimeMillis() + ":" + uid;
-	}
 
     /**
      * Closes the ConsumerMessageRequester.

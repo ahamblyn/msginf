@@ -2,52 +2,46 @@
   "systems": {
     "system": [
       {
-        "jarFiles": {
-          "jarFile": [
-            {
-              "jarFileName": "C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar"
-            }
-          ]
-        },
-        "queues": {
-          "queue": [
-            {
-              "jndiName": "TestQueue",
-              "physicalName": "TEST.QUEUE"
-            },
-            {
-              "jndiName": "RequestQueue",
-              "physicalName": "REQUEST.QUEUE"
-            },
-            {
-              "jndiName": "ReplyQueue",
-              "physicalName": "REPLY.QUEUE"
-            }
-          ]
-        },
+        "jarFiles": [
+          {
+            "jarFileName": "C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar"
+          }
+        ],
+        "queues": [
+          {
+            "jndiName": "TestQueue",
+            "physicalName": "TEST.QUEUE"
+          },
+          {
+            "jndiName": "RequestQueue",
+            "physicalName": "REQUEST.QUEUE"
+          },
+          {
+            "jndiName": "ReplyQueue",
+            "physicalName": "REPLY.QUEUE"
+          }
+        ],
         "connectors": {
           "submit": [
             {
               "submitConnection": {
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.TextMessage",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "requestType": "text",
+                "messageTimeToLive": 0
               },
-              "connectorName": "activemq_submit_text",
-              "compressBinaryMessages": true
+              "connectorName": "submit_text",
+              "compressBinaryMessages": false
             },
             {
               "submitConnection": {
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.BytesMessage",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "requestType": "binary",
+                "messageTimeToLive": 0
               },
-              "connectorName": "activemq_submit_binary",
-              "compressBinaryMessages": true
+              "connectorName": "submit_binary",
+              "compressBinaryMessages": false
             }
           ],
           "requestReply": [
@@ -56,24 +50,72 @@
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.TextMessage",
+                "requestType": "text",
                 "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
               },
-              "connectorName": "activemq_rr_text_consumer",
-              "compressBinaryMessages": true
+              "connectorName": "text_request_text_reply",
+              "compressBinaryMessages": false
             },
             {
               "requestReplyConnection": {
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
                 "requestQueueConnFactoryName": "QueueConnectionFactory",
-                "messageClassName": "javax.jms.BytesMessage",
+                "requestType": "text",
                 "messageTimeToLive": 0,
-                "replyWaitTime": 20000
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
               },
-              "connectorName": "activemq_rr_binary_consumer",
-              "compressBinaryMessages": true
+              "connectorName": "text_request_binary_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
+              },
+              "connectorName": "binary_request_text_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
+              },
+              "connectorName": "binary_request_binary_reply",
+              "compressBinaryMessages": false
             }
           ],
           "useConnectionPooling": true,

@@ -2,7 +2,7 @@ package nz.co.pukeko.msginf.models.message;
 
 import lombok.Getter;
 import lombok.Setter;
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
+import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 
 import java.io.ByteArrayOutputStream;
 
@@ -13,13 +13,12 @@ public class MessageRequest {
     private MessageType messageType;
     private String connectorName;
     private String message;
-    private HeaderProperties<String, Object> headerProperties;
+    private MessageProperties<String> messageProperties;
     private ByteArrayOutputStream messageStream;
     private String correlationId;
 
-    public MessageRequest(MessageRequestType messageRequestType, MessageType messageType, String connectorName, String correlationId) {
+    public MessageRequest(MessageRequestType messageRequestType, String connectorName, String correlationId) {
         this.messageRequestType = messageRequestType;
-        this.messageType = messageType;
         this.connectorName = connectorName;
         this.correlationId = correlationId;
     }

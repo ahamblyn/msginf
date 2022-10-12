@@ -1,6 +1,8 @@
 package nz.co.pukeko.msginf.infrastructure.properties;
 
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
+import nz.co.pukeko.msginf.models.message.MessageRequestType;
+import nz.co.pukeko.msginf.models.message.MessageType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,20 +28,20 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqSubmitTextExpectedData.compressBinaryMessages = true;
         activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
         activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqSubmitTextExpectedData.messageClassName = "javax.jms.TextMessage";
+        activemqSubmitTextExpectedData.requestType = "text";
         activemqSubmitTextExpectedData.messageTimeToLive = 0;
         activemqSubmitTextExpectedData.replyWaitTime = 20000;
-        expectedConnectorDataMap.put("activemq_submit_text", activemqSubmitTextExpectedData);
+        expectedConnectorDataMap.put("submit_text", activemqSubmitTextExpectedData);
 
         ExpectedConnectorData activemqRequestReplyTextExpectedData = new ExpectedConnectorData();
         activemqRequestReplyTextExpectedData.compressBinaryMessages = true;
         activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
         activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
         activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqRequestReplyTextExpectedData.messageClassName = "javax.jms.TextMessage";
+        activemqRequestReplyTextExpectedData.requestType = "text";
         activemqRequestReplyTextExpectedData.messageTimeToLive = 0;
         activemqRequestReplyTextExpectedData.replyWaitTime = 20000;
-        expectedConnectorDataMap.put("activemq_rr_text_consumer", activemqRequestReplyTextExpectedData);
+        expectedConnectorDataMap.put("text_request_text_reply", activemqRequestReplyTextExpectedData);
     }
 
     @BeforeAll
@@ -87,6 +89,18 @@ public class TestMessageInfrastructurePropertiesFileParser {
         }
     }
 
+    @Test
+    public void messageRequestTypeSubmit() {
+        assertEquals(MessageType.TEXT, parser.getMessageType("activemq", "submit_text", MessageRequestType.SUBMIT));
+        assertEquals(MessageType.BINARY, parser.getMessageType("activemq", "submit_binary", MessageRequestType.SUBMIT));
+    }
+
+    @Test
+    public void messageRequestTypeRequestResponse() {
+        assertEquals(MessageType.TEXT, parser.getMessageType("activemq", "text_request_text_reply", MessageRequestType.REQUEST_RESPONSE));
+        assertEquals(MessageType.BINARY, parser.getMessageType("activemq", "binary_request_text_reply", MessageRequestType.REQUEST_RESPONSE));
+    }
+
     private void validateParser(MessageInfrastructurePropertiesFileParser parser) {
         String messagingSystem = "activemq";
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
@@ -106,14 +120,14 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertTrue(parser.getUseConnectionPooling(messagingSystem));
         assertEquals(20, parser.getMaxConnections(messagingSystem));
         assertEquals(5, parser.getMinConnections(messagingSystem));
-        assertTrue(parser.getSubmitConnectorNames(messagingSystem).stream().anyMatch(s -> s.equals("activemq_submit_text")));
-        assertTrue(parser.doesSubmitExist(messagingSystem, "activemq_submit_text"));
+        assertTrue(parser.getSubmitConnectorNames(messagingSystem).stream().anyMatch(s -> s.equals("submit_text")));
+        assertTrue(parser.doesSubmitExist(messagingSystem, "submit_text"));
         assertFalse(parser.doesSubmitExist(messagingSystem, "XXXXXXXXXX"));
-        assertSubmitConnector(parser, messagingSystem, "activemq_submit_text");
-        assertTrue(parser.getRequestReplyConnectorNames(messagingSystem).stream().anyMatch(s -> s.equals("activemq_rr_text_consumer")));
-        assertTrue(parser.doesRequestReplyExist(messagingSystem, "activemq_rr_text_consumer"));
+        assertSubmitConnector(parser, messagingSystem, "submit_text");
+        assertTrue(parser.getRequestReplyConnectorNames(messagingSystem).stream().anyMatch(s -> s.equals("text_request_text_reply")));
+        assertTrue(parser.doesRequestReplyExist(messagingSystem, "text_request_text_reply"));
         assertFalse(parser.doesRequestReplyExist(messagingSystem, "XXXXXXXXXX"));
-        assertRequestReplyConnector(parser, messagingSystem, "activemq_rr_text_consumer");
+        assertRequestReplyConnector(parser, messagingSystem, "text_request_text_reply");
     }
 
     private boolean validateQueueJNDIName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiName) {
@@ -124,14 +138,21 @@ public class TestMessageInfrastructurePropertiesFileParser {
         return parser.getQueues(messagingSystem).stream().anyMatch(q -> q.getPhysicalName().equals(physicalName));
     }
 
+    private boolean validateRequestReplyMessagePropertyName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String propertyName) {
+        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).containsKey(propertyName);
+    }
+
+    private boolean validateRequestReplyMessagePropertyValue(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String propertyValue) {
+        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).containsValue(propertyValue);
+    }
+
     private void assertSubmitConnector(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connectorName) {
         ExpectedConnectorData expectedData = expectedConnectorDataMap.get(connectorName);
         assertEquals(expectedData.compressBinaryMessages, parser.getSubmitCompressBinaryMessages(messagingSystem, connectorName));
         assertEquals(expectedData.submitQueueName, parser.getSubmitConnectionSubmitQueueName(messagingSystem, connectorName));
         assertEquals(expectedData.queueConnFactoryName, parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connectorName));
-        assertEquals(expectedData.messageClassName, parser.getSubmitConnectionMessageClassName(messagingSystem, connectorName));
+        assertEquals(expectedData.requestType, parser.getSubmitConnectionRequestType(messagingSystem, connectorName));
         assertEquals(expectedData.messageTimeToLive, parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connectorName));
-        assertEquals(expectedData.replyWaitTime, parser.getSubmitConnectionReplyWaitTime(messagingSystem, connectorName));
     }
 
     private void assertRequestReplyConnector(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connectorName) {
@@ -140,9 +161,11 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertEquals(expectedData.requestQueueName, parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connectorName));
         assertEquals(expectedData.replyQueueName, parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connectorName));
         assertEquals(expectedData.queueConnFactoryName, parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connectorName));
-        assertEquals(expectedData.messageClassName, parser.getRequestReplyConnectionMessageClassName(messagingSystem, connectorName));
+        assertEquals(expectedData.requestType, parser.getRequestReplyConnectionRequestType(messagingSystem, connectorName));
         assertEquals(expectedData.messageTimeToLive, parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connectorName));
         assertEquals(expectedData.replyWaitTime, parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connectorName));
+        assertTrue(validateRequestReplyMessagePropertyName(parser, messagingSystem, connectorName, "ReplyType"));
+        assertTrue(validateRequestReplyMessagePropertyValue(parser, messagingSystem, connectorName, "text"));
     }
 
     private static class ExpectedConnectorData {
@@ -151,7 +174,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         public String requestQueueName;
         public String replyQueueName;
         public String queueConnFactoryName;
-        public String messageClassName;
+        public String requestType;
         public int messageTimeToLive;
         public int replyWaitTime;
     }

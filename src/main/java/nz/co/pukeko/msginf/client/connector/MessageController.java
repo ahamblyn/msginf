@@ -1,34 +1,24 @@
 package nz.co.pukeko.msginf.client.connector;
 
-import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
-import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.data.HeaderProperties;
+import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
-import nz.co.pukeko.msginf.infrastructure.exception.MessageControllerException;
-import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
-import nz.co.pukeko.msginf.infrastructure.exception.QueueUnavailableException;
+import nz.co.pukeko.msginf.infrastructure.exception.*;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
@@ -98,11 +88,6 @@ public class MessageController {
    private boolean replyExpected = false;
    
    /**
-    * The name of the message class to use. e.g. javax.jms.TextMessage
-    */
-   private String messageClassName = "";
-   
-   /**
     * The time in milliseconds the message is to live. 0 means forever.
     */
    private int messageTimeToLive = 0;
@@ -111,6 +96,11 @@ public class MessageController {
     * The time in milliseconds to wait for a reply. 0 means forever.
     */
    private int replyWaitTime = 0;
+
+	/**
+	 * The message properties from the configuration
+	 */
+	private MessageProperties<String> configMessageProperties;
 
    /**
     * The messaging queue channel.
@@ -155,17 +145,19 @@ public class MessageController {
 			this.replyExpected = false;
 			this.queueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getSubmitConnectionSubmitQueueConnFactoryName(messagingSystem, connector);
-			this.messageClassName = parser.getSubmitConnectionMessageClassName(messagingSystem, connector);
 			this.messageTimeToLive = parser.getSubmitConnectionMessageTimeToLive(messagingSystem, connector);
-			this.replyWaitTime = parser.getSubmitConnectionReplyWaitTime(messagingSystem, connector);
+			this.configMessageProperties = parser.getSubmitConnectionMessageProperties(messagingSystem, connector);
 		} else if (parser.doesRequestReplyExist(messagingSystem, connector)) {
 			this.replyExpected = true;
 			this.queueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connector);
 			replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
-			this.messageClassName = parser.getRequestReplyConnectionMessageClassName(messagingSystem, connector);
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
+			this.configMessageProperties = parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector);
+		} else {
+			// No configuration found.
+			throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");
 		}
 
       try {
@@ -204,19 +196,19 @@ public class MessageController {
 	MessageResponse messageResponse = new MessageResponse();
     messageResponse.setMessageRequest(messageRequest);
     try {
-        Message jmsMessage = createMessage(messageRequest.getMessageStream());
-        setHeaderProperties(jmsMessage, messageRequest.getHeaderProperties());
+        Message jmsMessage = createMessage(messageRequest);
+		setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
         if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
         	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
-        	getHeaderProperties(replyMsg, messageRequest.getHeaderProperties());
-            if (replyMsg instanceof TextMessage) {
+			getMessageProperties(replyMsg, messageRequest.getMessageProperties());
+            if (replyMsg instanceof TextMessage textMessage) {
 				messageResponse.setMessageType(MessageType.TEXT);
-				messageResponse.setTextResponse(((TextMessage)replyMsg).getText());
+				messageResponse.setTextResponse(textMessage.getText());
             }
-            if (replyMsg instanceof BytesMessage) {
-            	long messageLength = ((BytesMessage)replyMsg).getBodyLength();
+            if (replyMsg instanceof BytesMessage binaryMessage) {
+            	long messageLength = binaryMessage.getBodyLength();
             	byte[] messageData = new byte[(int)messageLength];
-            	((BytesMessage)replyMsg).readBytes(messageData);
+				binaryMessage.readBytes(messageData);
 				messageResponse.setMessageType(MessageType.BINARY);
 				messageResponse.setBinaryResponse(messageData);
             }
@@ -236,23 +228,30 @@ public class MessageController {
     }
    }
    
-   public synchronized List<String> receiveMessages(long timeout) throws MessageException {
-	    List<String> messages = new ArrayList<>();
+   public synchronized List<MessageResponse> receiveMessages(long timeout) throws MessageException {
+	    List<MessageResponse> messages = new ArrayList<>();
  	    Instant start = Instant.now();
 	    try {
 		    // create a consumer based on the request queue
 		    MessageConsumer messageConsumer = session.createConsumer(queue);
 			while (true) {
+				MessageResponse messageResponse = new MessageResponse();
 				Message m = messageConsumer.receive(timeout);
 				if (m == null) {
 					break;
 				}
-				if (m instanceof TextMessage message) {
-					messages.add(message.getText());
+				if (m instanceof TextMessage textMessage) {
+					messageResponse.setMessageType(MessageType.TEXT);
+					messageResponse.setTextResponse(textMessage.getText());
 				}
-				if (m instanceof BytesMessage) {
-	                messages.add("Binary messages...");
+				if (m instanceof BytesMessage binaryMessage) {
+					messageResponse.setMessageType(MessageType.BINARY);
+					long messageLength = binaryMessage.getBodyLength();
+					byte[] messageData = new byte[(int)messageLength];
+					binaryMessage.readBytes(messageData);
+					messageResponse.setBinaryResponse(messageData);
 				}
+				messages.add(messageResponse);
 			}
             collateStats(connector, start);
 			messageConsumer.close();
@@ -275,13 +274,13 @@ public class MessageController {
 		}
 	} 
 
-	private void getHeaderProperties(Message replyMsg, HeaderProperties<String,Object> headerProperties) throws JMSException {
-		if (headerProperties != null) {
+	private void getMessageProperties(Message replyMsg, MessageProperties<String> messageProperties) throws JMSException {
+		if (messageProperties != null) {
 			Enumeration propertyNames = replyMsg.getPropertyNames();
-			headerProperties.clear();
+			messageProperties.clear();
 			while (propertyNames.hasMoreElements()) {
 				String propertyName = (String) propertyNames.nextElement();
-				headerProperties.put(propertyName,replyMsg.getObjectProperty(propertyName));
+				messageProperties.put(propertyName, replyMsg.getStringProperty(propertyName));
 			}
 		}
 	}
@@ -292,18 +291,6 @@ public class MessageController {
 
     private TextMessage createTextMessage() throws JMSException {
         return session.createTextMessage();
-    }
-
-    private ObjectMessage createObjectMessage() throws JMSException {
-        return session.createObjectMessage();
-    }
-
-    private MapMessage createMapMessage() throws JMSException {
-        return session.createMapMessage();
-    }
-
-    private StreamMessage createStreamMessage() throws JMSException {
-        return session.createStreamMessage();
     }
 
     private void setupQueueObjects() throws JMSException {
@@ -325,49 +312,35 @@ public class MessageController {
 		}
 	}
     
-	private Message createMessage(ByteArrayOutputStream messageStream) throws JMSException {
-		Message jmsMessage = null;
-		if (messageClassName.equals("javax.jms.BytesMessage")) {
-			jmsMessage = createBytesMessage();
+	private Message createMessage(MessageRequest messageRequest) throws JMSException {
+		if (messageRequest.getMessageType() == MessageType.TEXT) {
+			TextMessage message = createTextMessage();
+			message.setText(messageRequest.getMessage());
+			return message;
 		}
-		if (messageClassName.equals("javax.jms.TextMessage")) {
-			jmsMessage = createTextMessage();
+		if (messageRequest.getMessageType() == MessageType.BINARY) {
+			BytesMessage message = createBytesMessage();
+			message.writeBytes(messageRequest.getMessageStream().toByteArray());
+			return message;
 		}
-		if (messageClassName.equals("javax.jms.ObjectMessage")) {
-			jmsMessage = createObjectMessage();
-		}
-		if (messageClassName.equals("javax.jms.MapMessage")) {
-			jmsMessage = createMapMessage();
-		}
-		if (messageClassName.equals("javax.jms.StreamMessage")) {
-			jmsMessage = createStreamMessage();
-		}
-		if (jmsMessage != null) {
-		    if (jmsMessage instanceof BytesMessage) {
-				((BytesMessage) jmsMessage).writeBytes(messageStream.toByteArray());
-			}
-			if (jmsMessage instanceof TextMessage) {
-				((TextMessage) jmsMessage).setText(messageStream.toString());
-			}
-			if (jmsMessage instanceof ObjectMessage) {
-				((ObjectMessage) jmsMessage)
-						.setObject(messageStream.toString());
-			}
-			if (jmsMessage instanceof StreamMessage) {
-				((StreamMessage) jmsMessage).writeBytes(messageStream.toByteArray());
-			}
-		}
-		return jmsMessage;
+		// TODO optional
+		return null;
 	}
 
-	private void setHeaderProperties(Message jmsMessage, HeaderProperties<String,Object> headerProperties) throws JMSException {
-		if (headerProperties != null) {
-			for (Map.Entry<String,Object> property : headerProperties.entrySet()) {
-				if (property.getValue() != null) {
-					jmsMessage.setObjectProperty(property.getKey(), property.getValue());
-				}
-			}
+	private void setMessageProperties(Message jmsMessage, MessageProperties<String> requestMessageProperties) throws JMSException {
+		// Apply header properties from message request and properties from config. Request properties have priority.
+		// TODO optionals
+		MessageProperties<String> combinedMessageProperties = new MessageProperties<>(configMessageProperties);
+		if (requestMessageProperties != null) {
+			combinedMessageProperties.putAll(requestMessageProperties);
 		}
+		combinedMessageProperties.keySet().forEach(k -> {
+			try {
+				jmsMessage.setStringProperty(k, combinedMessageProperties.get(k));
+			} catch (JMSException e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 	
     /**

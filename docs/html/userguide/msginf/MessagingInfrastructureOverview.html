@@ -865,7 +865,7 @@ It is up to the calling application to know what Object is going to be
 returned by the messaging infrastructure.<br>
 <br>
 Message header properties can be sent using the <span
- style="font-family: monospace;">nz.co.pukeko.msginf.infrastructure.data.HeaderProperties</span>
+ style="font-family: monospace;">nz.co.pukeko.msginf.infrastructure.data.MessageProperties</span>
 class, which class extends <span style="font-family: monospace;">java.util.HashMap</span>.
 This class is used to store the message header properties and is passed
 to the messaging infrastructure using the <span
@@ -881,11 +881,11 @@ connector, String message) throws MessageException;</span><br
 connector, OutputStream messageStream) throws MessageException;</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">public Object sendMessage(String
-connector, String message, HeaderProperties headerProperties) throws
+connector, String message, HeaderProperties messageProperties) throws
 MessageException;</span><br style="font-family: monospace;">
 <span style="font-family: monospace;">public Object sendMessage(String
 connector, OutputStream messageStream, HeaderProperties
-headerProperties) throws MessageException;</span><br
+messageProperties) throws MessageException;</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;">public void close();</span><br>
 <hr style="width: 100%; height: 2px;"><span style="font-family: serif;"></span><a

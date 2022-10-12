@@ -5,12 +5,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -149,15 +148,27 @@ public class Util {
 		return jmsCtx;
 	}
 
-    public static void connectToPort(String host, int port) {
-        // connect to the server socket
-        try {
-			Socket clientSocket = new Socket(host, port);
-            log.info("Connected to server " + host + ":" + port);
-        } catch (UnknownHostException e) {
-            log.error("Couldn't find " + host, e);
-        } catch (IOException e) {
-            log.error("IO exception", e);
-        }
-    }
+	/**
+	 * Convert the binary message string into a ByteArrayOutputStream
+	 * @param binaryMessage
+	 * @return
+	 */
+	public static ByteArrayOutputStream decodeBinaryMessage(String binaryMessage) throws MessageException {
+		try {
+			byte[] decodedMessage = Base64.getDecoder().decode(binaryMessage);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(decodedMessage.length);
+			baos.writeBytes(decodedMessage);
+			return baos;
+		} catch (RuntimeException e) {
+			throw new MessageException("Unable to decode the binary message");
+		}
+	}
+
+	public static String encodeBinaryMessage(byte[] binaryMessage) {
+		if (binaryMessage != null) {
+			return Base64.getEncoder().encodeToString(binaryMessage);
+		} else {
+			return null;
+		}
+	}
 }

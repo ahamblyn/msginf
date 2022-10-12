@@ -44,15 +44,14 @@ public class TestMsgInfDirectly {
 		}
 		messageRequestReply.shutdown();
 		queueManager.close();
-		AdministerMessagingInfrastructure.getInstance().shutdown();
 	}
 
 	@Test
 	@Order(2)
 	public void reply() throws MessageException {
 		for (int i = 0; i < 10; i++) {
-			MessageResponse response = queueManager.sendMessage(TestUtil.createMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-					MessageType.TEXT, "activemq_rr_text_consumer", "Message[" + (i + 1) + "]"));
+			MessageResponse response = queueManager.sendMessage(TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+					"text_request_text_reply", "Message[" + (i + 1) + "]"));
 			assertNotNull(response);
 			assertNotNull(response.getTextResponse());
 			assertEquals(MessageType.TEXT, response.getMessageType());
@@ -64,8 +63,8 @@ public class TestMsgInfDirectly {
 	@Order(1)
 	public void submit() throws MessageException {
 		for (int i = 0; i < 10; i++) {
-			MessageResponse response = queueManager.sendMessage(TestUtil.createMessageRequest(MessageRequestType.SUBMIT,
-					MessageType.TEXT, "activemq_submit_text", "Message[" + (i + 1) + "]"));
+			MessageResponse response = queueManager.sendMessage(TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
+					"submit_text", "Message[" + (i + 1) + "]"));
 			assertNotNull(response);
 			// TODO test message request from response
 		}
@@ -75,7 +74,7 @@ public class TestMsgInfDirectly {
 	@Test
 	@Order(3)
 	public void receive() throws MessageException {
-		List<String> messages = queueManager.receiveMessages("activemq_submit_text", 2000);
+		List<MessageResponse> messages = queueManager.receiveMessages("submit_text", 2000);
 		assertNotNull(messages);
 		assertEquals(10, messages.size());
 		log.info(QueueStatisticsCollector.getInstance().toString());
