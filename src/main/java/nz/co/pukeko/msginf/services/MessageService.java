@@ -2,9 +2,9 @@ package nz.co.pukeko.msginf.services;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.client.adapter.Messenger;
-import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
+import nz.co.pukeko.msginf.models.configuration.MessageProperty;
 import nz.co.pukeko.msginf.models.message.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,12 +83,11 @@ public class MessageService implements IMessageService {
         }
     }
 
-    private MessageProperties<String> createMessageProperties(RestMessageRequest payload) {
-        MessageProperties<String> messageProperties = new MessageProperties<>();
+    private List<MessageProperty> createMessageProperties(RestMessageRequest payload) {
+        List<MessageProperty> messageProperties = new ArrayList<>();
         if (payload.getMessageProperties() != null) {
-            payload.getMessageProperties().forEach(property -> {
-                messageProperties.put(property.getName(), property.getValue());
-            });
+            messageProperties = payload.getMessageProperties().stream().map(property ->
+                    new MessageProperty(property.getName(), property.getValue())).toList();
         }
         return messageProperties;
     }

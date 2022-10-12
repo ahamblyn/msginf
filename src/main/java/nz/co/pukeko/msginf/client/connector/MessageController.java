@@ -16,13 +16,13 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.*;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
+import nz.co.pukeko.msginf.models.configuration.MessageProperty;
 import nz.co.pukeko.msginf.models.message.MessageRequest;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
@@ -100,7 +100,7 @@ public class MessageController {
 	/**
 	 * The message properties from the configuration
 	 */
-	private MessageProperties<String> configMessageProperties;
+	private List<MessageProperty> configMessageProperties;
 
    /**
     * The messaging queue channel.
@@ -274,13 +274,13 @@ public class MessageController {
 		}
 	} 
 
-	private void getMessageProperties(Message replyMsg, MessageProperties<String> messageProperties) throws JMSException {
+	private void getMessageProperties(Message replyMsg, List<MessageProperty> messageProperties) throws JMSException {
 		if (messageProperties != null) {
 			Enumeration propertyNames = replyMsg.getPropertyNames();
 			messageProperties.clear();
 			while (propertyNames.hasMoreElements()) {
 				String propertyName = (String) propertyNames.nextElement();
-				messageProperties.put(propertyName, replyMsg.getStringProperty(propertyName));
+				messageProperties.add(new MessageProperty(propertyName, replyMsg.getStringProperty(propertyName)));
 			}
 		}
 	}
@@ -327,16 +327,16 @@ public class MessageController {
 		return null;
 	}
 
-	private void setMessageProperties(Message jmsMessage, MessageProperties<String> requestMessageProperties) throws JMSException {
+	private void setMessageProperties(Message jmsMessage, List<MessageProperty> requestMessageProperties) throws JMSException {
 		// Apply header properties from message request and properties from config. Request properties have priority.
 		// TODO optionals
-		MessageProperties<String> combinedMessageProperties = new MessageProperties<>(configMessageProperties);
+		List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
 		if (requestMessageProperties != null) {
-			combinedMessageProperties.putAll(requestMessageProperties);
+			combinedMessageProperties.addAll(requestMessageProperties);
 		}
-		combinedMessageProperties.keySet().forEach(k -> {
+		combinedMessageProperties.forEach(property -> {
 			try {
-				jmsMessage.setStringProperty(k, combinedMessageProperties.get(k));
+				jmsMessage.setStringProperty(property.getName(), property.getValue());
 			} catch (JMSException e) {
 				throw new RuntimeException(e);
 			}

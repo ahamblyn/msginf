@@ -1,6 +1,5 @@
 package nz.co.pukeko.msginf.services;
 
-import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.models.message.RestMessageRequest;
 import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 

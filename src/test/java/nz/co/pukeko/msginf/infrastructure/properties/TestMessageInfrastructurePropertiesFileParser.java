@@ -25,7 +25,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
     static {
         expectedConnectorDataMap = new HashMap<>();
         ExpectedConnectorData activemqSubmitTextExpectedData = new ExpectedConnectorData();
-        activemqSubmitTextExpectedData.compressBinaryMessages = true;
+        activemqSubmitTextExpectedData.compressBinaryMessages = false;
         activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
         activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
         activemqSubmitTextExpectedData.requestType = "text";
@@ -34,7 +34,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         expectedConnectorDataMap.put("submit_text", activemqSubmitTextExpectedData);
 
         ExpectedConnectorData activemqRequestReplyTextExpectedData = new ExpectedConnectorData();
-        activemqRequestReplyTextExpectedData.compressBinaryMessages = true;
+        activemqRequestReplyTextExpectedData.compressBinaryMessages = false;
         activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
         activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
         activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
@@ -139,11 +139,11 @@ public class TestMessageInfrastructurePropertiesFileParser {
     }
 
     private boolean validateRequestReplyMessagePropertyName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String propertyName) {
-        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).containsKey(propertyName);
+        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).stream().anyMatch(property -> property.getName().equals(propertyName));
     }
 
     private boolean validateRequestReplyMessagePropertyValue(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String propertyValue) {
-        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).containsValue(propertyValue);
+        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).stream().anyMatch(property -> property.getValue().equals(propertyValue));
     }
 
     private void assertSubmitConnector(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connectorName) {
