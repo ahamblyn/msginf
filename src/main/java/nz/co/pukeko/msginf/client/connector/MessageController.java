@@ -277,7 +277,6 @@ public class MessageController {
 	private void getMessageProperties(Message replyMsg, List<MessageProperty> messageProperties) throws JMSException {
 		if (messageProperties != null) {
 			Enumeration propertyNames = replyMsg.getPropertyNames();
-			messageProperties.clear();
 			while (propertyNames.hasMoreElements()) {
 				String propertyName = (String) propertyNames.nextElement();
 				messageProperties.add(new MessageProperty(propertyName, replyMsg.getStringProperty(propertyName)));
@@ -315,12 +314,12 @@ public class MessageController {
 	private Message createMessage(MessageRequest messageRequest) throws JMSException {
 		if (messageRequest.getMessageType() == MessageType.TEXT) {
 			TextMessage message = createTextMessage();
-			message.setText(messageRequest.getMessage());
+			message.setText(messageRequest.getTextMessage());
 			return message;
 		}
 		if (messageRequest.getMessageType() == MessageType.BINARY) {
 			BytesMessage message = createBytesMessage();
-			message.writeBytes(messageRequest.getMessageStream().toByteArray());
+			message.writeBytes(messageRequest.getBinaryMessage());
 			return message;
 		}
 		// TODO optional

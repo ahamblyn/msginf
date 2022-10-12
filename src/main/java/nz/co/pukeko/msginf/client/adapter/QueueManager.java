@@ -104,7 +104,7 @@ public class QueueManager {
 
 	private MessageResponse sendBinaryMessage(MessageRequest messageRequest) throws MessageException {
 		MessageResponse result;
-		if (messageRequest.getMessageStream() != null) {
+		if (messageRequest.getBinaryMessage() != null) {
 			MessageController mc = getMessageConnector(messageRequest.getConnectorName());
 			try {
 				boolean compressBinaryMessages = false;
@@ -114,7 +114,7 @@ public class QueueManager {
 					compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
 				}
 				if (compressBinaryMessages) {
-					messageRequest.setMessageStream(compress(messageRequest.getMessageStream()));
+					messageRequest.setBinaryMessage(compress(messageRequest.getBinaryMessage()));
 				}
 				result = mc.sendMessage(messageRequest);
 			} catch (MessageException me) {
@@ -150,13 +150,12 @@ public class QueueManager {
 		messageControllers.clear();
 	}
 
-	private ByteArrayOutputStream compress(ByteArrayOutputStream input) throws MessageException {
-		byte[] inputData = input.toByteArray();
-		ByteArrayOutputStream out = new ByteArrayOutputStream(inputData.length);
+	private byte[] compress(byte[] input) throws MessageException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream(input.length);
 		Deflater compressor = new Deflater();
 		compressor.setLevel(Deflater.BEST_COMPRESSION);
 		// Give the compressor the data to compress
-		compressor.setInput(inputData);
+		compressor.setInput(input);
 		compressor.finish();
 		// Create a byte array to hold the compressed data.
 		// There is no guarantee that the compressed data will be smaller than
@@ -173,7 +172,7 @@ public class QueueManager {
 			throw new QueueManagerException(ioe);
 		}
 		// Get the compressed data
-		return out;
+		return out.toByteArray();
 	}
 
 	private MessageController getMessageConnector(String connector) throws MessageException {

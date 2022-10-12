@@ -31,9 +31,9 @@ public class MessageService implements IMessageService {
             Instant start = Instant.now();
             MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.getMessageConnector(), transactionId);
             if (payload.getBinaryMessage() != null && !payload.getBinaryMessage().isEmpty()) {
-                messageRequest.setMessageStream(Util.decodeBinaryMessage(payload.getBinaryMessage()));
+                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.getBinaryMessage()));
             }
-            messageRequest.setMessage(payload.getTextMessage());
+            messageRequest.setTextMessage(payload.getTextMessage());
             messenger.sendMessage(payload.getMessageSystem(), messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
@@ -66,9 +66,9 @@ public class MessageService implements IMessageService {
             Instant start = Instant.now();
             MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, payload.getMessageConnector(), transactionId);
             if (payload.getBinaryMessage() != null && !payload.getBinaryMessage().isEmpty()) {
-                messageRequest.setMessageStream(Util.decodeBinaryMessage(payload.getBinaryMessage()));
+                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.getBinaryMessage()));
             }
-            messageRequest.setMessage(payload.getTextMessage());
+            messageRequest.setTextMessage(payload.getTextMessage());
             messageRequest.setMessageProperties(createMessageProperties(payload));
             MessageResponse reply = messenger.sendMessage(payload.getMessageSystem(), messageRequest);
             Instant finish = Instant.now();

@@ -14,7 +14,7 @@ public class TestUtil {
     public static MessageRequest createTextMessageRequest(MessageRequestType messageRequestType, String connector, String message) {
         String correlationId = UUID.randomUUID().toString();
         MessageRequest messageRequest = new MessageRequest(messageRequestType, connector, correlationId);
-        messageRequest.setMessage(message);
+        messageRequest.setTextMessage(message);
         return messageRequest;
     }
 
@@ -24,7 +24,7 @@ public class TestUtil {
         File file = new File(filePath);
         ByteArrayOutputStream message = new ByteArrayOutputStream();
         FileUtils.copyFile(file, message);
-        messageRequest.setMessageStream(message);
+        messageRequest.setBinaryMessage(message.toByteArray());
         return messageRequest;
     }
 }

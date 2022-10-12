@@ -65,8 +65,8 @@ public class MessageReplyHandler {
 				submit(requestBinaryMessage, replyMessage);
 			}
 			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 4
-				// Create random string the same size as the request
-				BytesMessage replyMessage = createRandomBinaryMessage((int) requestBinaryMessage.getBodyLength());
+				// Echo the binary request
+				BytesMessage replyMessage = createEchoBinaryMessage(requestBinaryMessage);
 				submit(requestBinaryMessage, replyMessage);
 			}
     	}
@@ -76,6 +76,14 @@ public class MessageReplyHandler {
 		String randomReply = RandomStringUtils.randomAlphanumeric(messageLength);
 		BytesMessage replyMessage = session.createBytesMessage();
 		replyMessage.writeBytes(randomReply.getBytes());
+		return replyMessage;
+	}
+
+	private BytesMessage createEchoBinaryMessage(BytesMessage requestBinaryMessage) throws JMSException {
+		byte[] bytes = new byte[(int) requestBinaryMessage.getBodyLength()];
+		requestBinaryMessage.readBytes(bytes);
+		BytesMessage replyMessage = session.createBytesMessage();
+		replyMessage.writeBytes(bytes);
 		return replyMessage;
 	}
 

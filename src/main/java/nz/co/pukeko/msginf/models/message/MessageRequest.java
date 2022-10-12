@@ -13,9 +13,9 @@ public class MessageRequest {
     private MessageRequestType messageRequestType;
     private MessageType messageType;
     private String connectorName;
-    private String message;
+    private String textMessage;
     private List<MessageProperty> messageProperties;
-    private ByteArrayOutputStream messageStream;
+    private byte[] binaryMessage;
     private String correlationId;
 
     public MessageRequest(MessageRequestType messageRequestType, String connectorName, String correlationId) {

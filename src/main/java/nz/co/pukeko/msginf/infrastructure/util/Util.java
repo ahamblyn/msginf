@@ -153,18 +153,17 @@ public class Util {
 	 * @param binaryMessage
 	 * @return
 	 */
-	public static ByteArrayOutputStream decodeBinaryMessage(String binaryMessage) throws MessageException {
+	public static byte[] decodeBinaryMessage(String binaryMessage) throws MessageException {
 		try {
 			byte[] decodedMessage = Base64.getDecoder().decode(binaryMessage);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(decodedMessage.length);
-			baos.writeBytes(decodedMessage);
-			return baos;
+			return decodedMessage;
 		} catch (RuntimeException e) {
 			throw new MessageException("Unable to decode the binary message");
 		}
 	}
 
 	public static String encodeBinaryMessage(byte[] binaryMessage) {
+		// TODO optional
 		if (binaryMessage != null) {
 			return Base64.getEncoder().encodeToString(binaryMessage);
 		} else {
