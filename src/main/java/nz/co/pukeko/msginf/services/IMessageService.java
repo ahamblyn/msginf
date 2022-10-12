@@ -12,5 +12,5 @@ public interface IMessageService {
 
     public List<RestMessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout);
 
-    public Optional<RestMessageResponse> requestReply(RestMessageRequest payload, MessageProperties<String> messageProperties);
+    public Optional<RestMessageResponse> requestReply(RestMessageRequest payload);
 }

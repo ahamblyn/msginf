@@ -60,7 +60,7 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Optional<RestMessageResponse> requestReply(RestMessageRequest payload, MessageProperties<String> messageProperties) {
+    public Optional<RestMessageResponse> requestReply(RestMessageRequest payload) {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
@@ -69,7 +69,7 @@ public class MessageService implements IMessageService {
                 messageRequest.setMessageStream(Util.decodeBinaryMessage(payload.getBinaryMessage()));
             }
             messageRequest.setMessage(payload.getTextMessage());
-            messageRequest.setMessageProperties(messageProperties);
+            messageRequest.setMessageProperties(createMessageProperties(payload));
             MessageResponse reply = messenger.sendMessage(payload.getMessageSystem(), messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
@@ -81,5 +81,15 @@ public class MessageService implements IMessageService {
             log.error("Unable to run requestReply", e);
             return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.FAILURE));
         }
+    }
+
+    private MessageProperties<String> createMessageProperties(RestMessageRequest payload) {
+        MessageProperties<String> messageProperties = new MessageProperties<>();
+        if (payload.getMessageProperties() != null) {
+            payload.getMessageProperties().forEach(property -> {
+                messageProperties.put(property.getName(), property.getValue());
+            });
+        }
+        return messageProperties;
     }
 }

@@ -3,6 +3,8 @@ package nz.co.pukeko.msginf.models.message;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class RestMessageRequest {
@@ -11,4 +13,5 @@ public class RestMessageRequest {
     private String textMessage;
     // base64 encoded
     private String binaryMessage;
+    private List<RestMessageRequestProperty> messageProperties;
 }
