@@ -60,17 +60,23 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Optional<RestMessageResponse> requestReply(String messageSystem, String messageConnector, String payload, MessageProperties<String> messageProperties) {
+    public Optional<RestMessageResponse> requestReply(RestMessageRequest payload, MessageProperties<String> messageProperties) {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, messageConnector, transactionId);
-            messageRequest.setMessage(payload);
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, payload.getMessageConnector(), transactionId);
+            if (payload.getBinaryMessage() != null && !payload.getBinaryMessage().isEmpty()) {
+                messageRequest.setMessageStream(Util.decodeBinaryMessage(payload.getBinaryMessage()));
+            }
+            messageRequest.setMessage(payload.getTextMessage());
             messageRequest.setMessageProperties(messageProperties);
-            MessageResponse reply = messenger.sendMessage(messageSystem, messageRequest);
+            MessageResponse reply = messenger.sendMessage(payload.getMessageSystem(), messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
-            return Optional.of(new RestMessageResponse(reply.getTextResponse(), transactionId, TransactionStatus.SUCCESS, duration));
+            RestMessageResponse restMessageResponse = new RestMessageResponse("Response", reply.getTextResponse(),
+                    Util.encodeBinaryMessage(reply.getBinaryResponse()), UUID.randomUUID().toString(),
+                    TransactionStatus.SUCCESS, duration);
+            return Optional.of(restMessageResponse);
         } catch (MessageException e) {
             log.error("Unable to run requestReply", e);
             return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.FAILURE));

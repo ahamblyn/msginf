@@ -36,13 +36,13 @@ public class MessageController {
         return ResponseEntity.of(Optional.of(messageService.receiveMessages(messageSystem, messageConnector, timeout)));
     }
 
-    @PostMapping(path = "/request")
-    public RestMessageResponse request(@RequestHeader(name="x-message-system") String messageSystem,
-                                  @RequestHeader(name="x-message-connector") String messageConnector,
-                                  @RequestBody String payload) {
+    @PostMapping(path = "/request", consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<RestMessageResponse> request(@RequestBody RestMessageRequest payload) {
+        // TODO put headers into RestMessageRequest
         MessageProperties<String> messageProperties = new MessageProperties<>();
         messageProperties.put("testname", "reply");
-        Optional<RestMessageResponse> messageResponse = messageService.requestReply(messageSystem, messageConnector, payload, messageProperties);
-        return messageResponse.orElseGet(RestMessageResponse::new);
+        Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload, messageProperties);
+        return ResponseEntity.of(Optional.of(messageResponse.orElseGet(RestMessageResponse::new)));
     }
 }
