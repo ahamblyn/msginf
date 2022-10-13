@@ -33,7 +33,7 @@ public class QueueChannelPoolFactory {
     /**
      * A collection containing the queue channel pools.
      */
-    private Hashtable<String, QueueChannelPool> queueChannelPools;
+    private final Hashtable<String, QueueChannelPool> queueChannelPools;
 
     /**
      * The QueueChannelPoolFactory constructor. Instantiates the queue channel
@@ -53,35 +53,6 @@ public class QueueChannelPoolFactory {
             qcpf = new QueueChannelPoolFactory();
             log.info("Created QueueChannelPoolFactory");
             return qcpf;
-        });
-    }
-
-    /**
-     * Destroys the singleton QueueChannelPoolFactory.
-     */
-    public synchronized static void destroyInstance() {
-        Optional.ofNullable(qcpf).ifPresent(queueChannelPoolFactory -> {
-            qcpf = null;
-            log.info("Destroyed singleton QueueChannelPoolFactory");
-        });
-    }
-
-    /**
-     * Stops all the queue channel pools.
-     *
-     * @throws MessageException Message exception
-     */
-    public void stopQueueChannelPools() throws MessageException {
-        Optional.ofNullable(queueChannelPools).orElseThrow(() -> new QueueChannelException("The Queue Channel Pools have not been started."));
-        log.info("Stopping Queue Channel Pools");
-        queueChannelPools.keySet().forEach(key -> {
-            QueueChannelPool temp = queueChannelPools.get(key);
-            log.debug("Queue Channel Pool: " + temp);
-            // close the channels in the pool
-            temp.closeQueueChannels();
-            // dereference queue channel pool
-            queueChannelPools.remove(temp);
-            queueChannelPools = null;
         });
     }
 

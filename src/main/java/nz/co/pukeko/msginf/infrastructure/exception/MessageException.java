@@ -33,18 +33,4 @@ public class MessageException extends Exception {
 	   super(message, e);
    }
 
-   /**
-    * Gets the exception message.
-    * @return the exception message.
-    */
-   public String getMessage() {
-      return super.getMessage();
-   }
-
-   /**
-    * Prints the exception stack trace.
-    */
-   public void printStackTrace() {
-	   super.printStackTrace();
-   }
 }

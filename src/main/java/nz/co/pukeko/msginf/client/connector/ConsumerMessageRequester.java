@@ -12,11 +12,10 @@ import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
  */
 @Slf4j
 public class ConsumerMessageRequester {
-	private QueueChannel queueChannel;
-	private MessageProducer producer;
-	private Queue replyQueue;
-	private int replyWaitTime;
-	private MessageConsumer consumer;
+	private final QueueChannel queueChannel;
+	private final MessageProducer producer;
+	private final Queue replyQueue;
+	private final int replyWaitTime;
 
 	/**
 	 * Constructs the ConsumerMessageRequester instance.
@@ -48,7 +47,7 @@ public class ConsumerMessageRequester {
 	        String messageSelector = "JMSCorrelationID='" + correlationId + "'";
 	        // set up the queue receiver here as it needs to have the message id of the current message,
 	        // and it doesn't exist in the setupQueues method.
-	        consumer = queueChannel.createMessageConsumer(this.replyQueue, messageSelector);
+			MessageConsumer consumer = queueChannel.createMessageConsumer(this.replyQueue, messageSelector);
 	        Message replyMsg = consumer.receive(replyWaitTime);
 	        consumer.close();
 	        // if replyMsg is null, the receive has timed out
@@ -64,9 +63,11 @@ public class ConsumerMessageRequester {
 
     /**
      * Closes the ConsumerMessageRequester.
-     * @throws MessageRequesterException Message requester exception
+     * @throws JMSException JMS exception
      */
-    public void close() throws MessageRequesterException {
+    public void close() throws JMSException {
 		log.debug("Closing the ConsumerMessageRequester");
+		producer.close();
+		queueChannel.close();
 	}
 }

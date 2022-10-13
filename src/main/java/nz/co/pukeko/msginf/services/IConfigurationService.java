@@ -6,7 +6,7 @@ import nz.co.pukeko.msginf.models.configuration.System;
 import java.util.Optional;
 
 public interface IConfigurationService {
-    public Optional<Configuration> allConfiguration();
+    Optional<Configuration> allConfiguration();
 
-    public Optional<System> getSystem(String name);
+    Optional<System> getSystem(String name);
 }

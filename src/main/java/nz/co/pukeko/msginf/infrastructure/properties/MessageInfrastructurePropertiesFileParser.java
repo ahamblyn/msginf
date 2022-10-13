@@ -373,10 +373,9 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the submit connection message properties for the submit connector.
      */
     public List<MessageProperty> getSubmitConnectionMessageProperties(String messagingSystemName, String connectorName) {
-        List<MessageProperty> messageProperties = new ArrayList<>();
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageProperties()));
-        return parserMessageProperties.orElse(messageProperties);
+        return parserMessageProperties.orElse(new ArrayList<>());
     }
 
     /**
@@ -458,10 +457,9 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the request-reply connection message properties for the request-reply connector.
      */
     public List<MessageProperty> getRequestReplyConnectionMessageProperties(String messagingSystemName, String connectorName) {
-        List<MessageProperty> messageProperties = new ArrayList<>();
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageProperties()));
-        return parserMessageProperties.orElse(messageProperties);
+        return parserMessageProperties.orElse(new ArrayList<>());
     }
 
     /**

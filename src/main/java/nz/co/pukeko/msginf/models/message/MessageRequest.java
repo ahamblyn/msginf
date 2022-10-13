@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import nz.co.pukeko.msginf.models.configuration.MessageProperty;
 
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 @Getter

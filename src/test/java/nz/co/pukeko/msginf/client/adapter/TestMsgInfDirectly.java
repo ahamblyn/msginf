@@ -19,12 +19,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestMsgInfDirectly {
 	private static QueueManager queueManager;
 	private static MessageRequestReply messageRequestReply;
-	private static MessageInfrastructurePropertiesFileParser parser;
 
 	@BeforeAll
 	public static void setUp() {
 		try {
-			parser = new MessageInfrastructurePropertiesFileParser();
+			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
 					"ReplyQueue");

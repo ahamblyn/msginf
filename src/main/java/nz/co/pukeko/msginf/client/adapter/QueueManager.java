@@ -1,7 +1,5 @@
 package nz.co.pukeko.msginf.client.adapter;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -13,7 +11,6 @@ import nz.co.pukeko.msginf.client.connector.MessageController;
 import nz.co.pukeko.msginf.client.connector.MessageControllerFactory;
 import nz.co.pukeko.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
-import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.util.Util;
 import nz.co.pukeko.msginf.models.message.MessageRequest;
@@ -43,7 +40,7 @@ public class QueueManager {
 	/**
 	 * The properties file parser.
 	 */
-	private MessageInfrastructurePropertiesFileParser parser;
+	private final MessageInfrastructurePropertiesFileParser parser;
 
 	/**
 	 * The Messaging System.
@@ -59,9 +56,8 @@ public class QueueManager {
 	 * Constructs the QueueManager instance.
 	 * @param messagingSystem messaging system
 	 * @param logStatistics log the stats
-	 * @throws MessageException message exception
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, boolean logStatistics) throws MessageException {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, boolean logStatistics) {
 		// TODO catch the RuntimeExceptions and convert to MessageExceptions
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
@@ -74,9 +70,8 @@ public class QueueManager {
 	/**
 	 * Constructs the QueueManager instance. Logging off by default.
 	 * @param messagingSystem the messaging system
-	 * @throws MessageException message exception
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) throws MessageException {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) {
 		this(parser, messagingSystem, false);
 	}
 	
@@ -108,31 +103,27 @@ public class QueueManager {
 		MessageResponse result;
 		if (messageRequest.getBinaryMessage() != null) {
 			MessageController mc = getMessageConnector(messageRequest.getConnectorName());
-			try {
-				boolean compressBinaryMessages = false;
-				if (messageRequest.getMessageRequestType() == MessageRequestType.SUBMIT) {
-					compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
-				} else if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
-					compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
+			boolean compressBinaryMessages = false;
+			if (messageRequest.getMessageRequestType() == MessageRequestType.SUBMIT) {
+				compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
+			} else if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
+				compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
+			}
+			if (compressBinaryMessages) {
+				messageRequest.setBinaryMessage(Util.compress(messageRequest.getBinaryMessage(), Deflater.BEST_COMPRESSION));
+			}
+			result = mc.sendMessage(messageRequest);
+			if (compressBinaryMessages && result.getMessageType() == MessageType.BINARY) {
+				// decompress request and result binary messages
+				try {
+					result.setBinaryResponse(Util.decompress(result.getBinaryResponse()));
+					messageRequest.setBinaryMessage(Util.decompress(messageRequest.getBinaryMessage()));
+				} catch (DataFormatException e) {
+					// ok if it fails, just use the current binary response.
 				}
-				if (compressBinaryMessages) {
-					messageRequest.setBinaryMessage(Util.compress(messageRequest.getBinaryMessage(), Deflater.BEST_COMPRESSION));
-				}
-				result = mc.sendMessage(messageRequest);
-				if (compressBinaryMessages && result.getMessageType() == MessageType.BINARY) {
-					// decompress request and result binary messages
-					try {
-						result.setBinaryResponse(Util.decompress(result.getBinaryResponse()));
-						messageRequest.setBinaryMessage(Util.decompress(messageRequest.getBinaryMessage()));
-					} catch (DataFormatException e) {
-						// ok if it fails, just use the current binary response.
-					}
-				}
-			} catch (MessageException me) {
-				throw me;
 			}
 		} else {
-			throw new ConfigurationException("The system is able to handle only ByteArrayOutputStream messages.");
+			throw new ConfigurationException("The system is able to handle only byte[] messages.");
 		}
 		return result;
 	}
@@ -159,31 +150,6 @@ public class QueueManager {
 			mc.release();
 		}
 		messageControllers.clear();
-	}
-
-	private byte[] compress(byte[] input) throws MessageException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream(input.length);
-		Deflater compressor = new Deflater();
-		compressor.setLevel(Deflater.BEST_COMPRESSION);
-		// Give the compressor the data to compress
-		compressor.setInput(input);
-		compressor.finish();
-		// Create a byte array to hold the compressed data.
-		// There is no guarantee that the compressed data will be smaller than
-		// the uncompressed data.
-		// Compress the data
-		byte[] buf = new byte[1024];
-		while (!compressor.finished()) {
-			int count = compressor.deflate(buf);
-			out.write(buf, 0, count);
-		}	// end while
-		try {
-			out.close();
-		} catch (IOException ioe) {
-			throw new QueueManagerException(ioe);
-		}
-		// Get the compressed data
-		return out.toByteArray();
 	}
 
 	private MessageController getMessageConnector(String connector) throws MessageException {

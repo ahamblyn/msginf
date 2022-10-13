@@ -2,7 +2,6 @@ package nz.co.pukeko.msginf.client.adapter;
 
 import nz.co.pukeko.msginf.models.message.MessageRequest;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
-import nz.co.pukeko.msginf.models.message.MessageType;
 import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayOutputStream;

@@ -29,9 +29,8 @@ public class Util {
 	/**
 	 * Compress the input byte[]
 	 * @param input the byte[] to compress
-	 * @param compressionLevel
+	 * @param compressionLevel tje compression level
 	 * @return the compressed byte[]
-	 * @throws IOException
 	 */
 	public static byte[] compress(byte[] input, int compressionLevel) {
 		Deflater compressor = new Deflater(compressionLevel);
@@ -53,7 +52,7 @@ public class Util {
 	 * Decompress the input byte[]
 	 * @param input the byte[] to decompress
 	 * @return the decompressed byte[]
-	 * @throws DataFormatException
+	 * @throws DataFormatException the data format exception
 	 */
 	public static byte[] decompress(byte[] input) throws DataFormatException {
 		Inflater decompressor = new Inflater();
@@ -96,9 +95,8 @@ public class Util {
 	 * @param parser the properties file parser
 	 * @param messagingSystem the messaging system.
 	 * @return the context.
-	 * @throws MessageException Message exception
 	 */
-	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) throws MessageException {
+	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) {
 		InitialContext jmsCtx = null;
 		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
 		String url = parser.getSystemUrl(messagingSystem);
@@ -139,13 +137,12 @@ public class Util {
 
 	/**
 	 * Convert the binary message string into a ByteArrayOutputStream
-	 * @param binaryMessage
-	 * @return
+	 * @param binaryMessage the binary message to decode
+	 * @return the decoded binary message
 	 */
 	public static byte[] decodeBinaryMessage(String binaryMessage) throws MessageException {
 		try {
-			byte[] decodedMessage = Base64.getDecoder().decode(binaryMessage);
-			return decodedMessage;
+			return Base64.getDecoder().decode(binaryMessage);
 		} catch (RuntimeException e) {
 			throw new MessageException("Unable to decode the binary message");
 		}

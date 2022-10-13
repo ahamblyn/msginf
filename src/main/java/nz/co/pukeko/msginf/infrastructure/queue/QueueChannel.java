@@ -6,11 +6,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
-import javax.jms.TemporaryQueue;
 
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.UUID;
 
 /**
  * This class is a holder class containing a QueueSession and gets the
@@ -23,11 +20,6 @@ import java.util.UUID;
 @Slf4j
 public class QueueChannel {
 	
-	/**
-	 * A unique identifier for each queue channel
-	 */
-    private String queueChannelIdentifier;
-
     /**
      * The JMS session.
      */
@@ -47,7 +39,6 @@ public class QueueChannel {
       log.debug("Created new QueueChannel...");
       this.session = session;
       this.queueConnection = queueConnection;
-      setQueueChannelIdentifier(UUID.randomUUID().toString());
    }
 
    /**
@@ -94,15 +85,4 @@ public class QueueChannel {
       return this.session;
    }
 
-   /**
-    * Gets the queue channel identifier.
-    * @return the queue channel identifier.
-    */ 
-   public String getQueueChannelIdentifier() {
-        return queueChannelIdentifier;
-    }
-
-    private void setQueueChannelIdentifier(String queueChannelIdentifier) {
-        this.queueChannelIdentifier = queueChannelIdentifier;
-    }
 }

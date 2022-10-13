@@ -17,10 +17,10 @@ import java.util.*;
 @Slf4j
 public class MessageService implements IMessageService {
 
-    @Autowired
-    private Messenger messenger;
+    private final Messenger messenger;
 
-    public void setMessenger(Messenger messenger) {
+    @Autowired
+    public MessageService(Messenger messenger) {
         this.messenger = messenger;
     }
 

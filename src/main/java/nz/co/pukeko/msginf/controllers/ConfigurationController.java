@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequestMapping("/v1/configuration")
 public class ConfigurationController {
 
-    private IConfigurationService configurationService;
+    private final IConfigurationService configurationService;
 
     public ConfigurationController(@Autowired IConfigurationService configurationService) {
         this.configurationService = configurationService;

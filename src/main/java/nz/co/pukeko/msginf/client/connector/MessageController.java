@@ -70,12 +70,12 @@ public class MessageController {
    /**
     * The queue connection factory name.
     */
-   private String queueConnFactoryName = "";
+   private String queueConnFactoryName;
 
    /**
     * The application queue name.
     */
-   private String queueName = "";
+   private String queueName;
 
    /**
     * The JMS message requester.
@@ -85,12 +85,12 @@ public class MessageController {
    /**
     * Whether a reply is expected or not.
     */
-   private boolean replyExpected = false;
+   private boolean replyExpected;
    
    /**
     * The time in milliseconds the message is to live. 0 means forever.
     */
-   private int messageTimeToLive = 0;
+   private int messageTimeToLive;
    
    /**
     * The time in milliseconds to wait for a reply. 0 means forever.
@@ -100,7 +100,7 @@ public class MessageController {
 	/**
 	 * The message properties from the configuration
 	 */
-	private List<MessageProperty> configMessageProperties;
+	private final List<MessageProperty> configMessageProperties;
 
    /**
     * The messaging queue channel.
@@ -175,16 +175,6 @@ public class MessageController {
       }
 	}
    
-   /**
-    * Static method to destroy the queue channel pool factory.
-    */
-    public static void destroyQueueChannelPoolFactory() {
-		if (qcpf != null) {
-			qcpf = null;
-			log.info("Destroyed singleton MessageController QueueChannelPoolFactory");
-		}
-	}
-
     /**
      * This method sends the message to the JMS objects.
      * @param messageRequest the message request.
@@ -326,7 +316,7 @@ public class MessageController {
 		return null;
 	}
 
-	private void setMessageProperties(Message jmsMessage, List<MessageProperty> requestMessageProperties) throws JMSException {
+	private void setMessageProperties(Message jmsMessage, List<MessageProperty> requestMessageProperties) {
 		// Apply header properties from message request and properties from config. Request properties have priority.
 		// TODO optionals
 		List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
@@ -365,7 +355,7 @@ public class MessageController {
         	if (requestReplyMessageProducer != null) {
         		requestReplyMessageProducer.close();
         	}
-        } catch (JMSException | MessageRequesterException e) {
+        } catch (JMSException e) {
         	log.error(e.getMessage(), e);
         }
 		if (queueChannel != null){

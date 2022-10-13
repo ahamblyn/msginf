@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequestMapping("/v1/message")
 public class MessageController {
 
-    private IMessageService messageService;
+    private final IMessageService messageService;
 
     public MessageController(@Autowired IMessageService messageService) {
         this.messageService = messageService;
