@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import nz.co.pukeko.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.exception.QueueManagerException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukeko.msginf.infrastructure.util.Util;
 import nz.co.pukeko.msginf.models.message.MessageRequest;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
@@ -114,9 +116,18 @@ public class QueueManager {
 					compressBinaryMessages = parser.getRequestReplyCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
 				}
 				if (compressBinaryMessages) {
-					messageRequest.setBinaryMessage(compress(messageRequest.getBinaryMessage()));
+					messageRequest.setBinaryMessage(Util.compress(messageRequest.getBinaryMessage(), Deflater.BEST_COMPRESSION));
 				}
 				result = mc.sendMessage(messageRequest);
+				if (compressBinaryMessages && result.getMessageType() == MessageType.BINARY) {
+					// decompress request and result binary messages
+					try {
+						result.setBinaryResponse(Util.decompress(result.getBinaryResponse()));
+						messageRequest.setBinaryMessage(Util.decompress(messageRequest.getBinaryMessage()));
+					} catch (DataFormatException e) {
+						// ok if it fails, just use the current binary response.
+					}
+				}
 			} catch (MessageException me) {
 				throw me;
 			}

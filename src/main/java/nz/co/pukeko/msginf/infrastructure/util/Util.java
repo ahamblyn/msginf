@@ -1,24 +1,19 @@
 package nz.co.pukeko.msginf.infrastructure.util;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.exception.InfrastructureUtilityClassException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.properties.PropertiesQueue;
@@ -30,55 +25,49 @@ import nz.co.pukeko.msginf.infrastructure.properties.PropertiesQueue;
  */
 @Slf4j
 public class Util {
+
 	/**
-	 * Reads a file into a String.
-	 * @param fileName the file name.
-	 * @return the file contents as a String.
-	 * @throws MessageException Message exception
+	 * Compress the input byte[]
+	 * @param input the byte[] to compress
+	 * @param compressionLevel
+	 * @return the compressed byte[]
+	 * @throws IOException
 	 */
-	public static String readFile(String fileName) throws MessageException {
-		String res = "";
-		try {
-			String thisLine;
-			FileInputStream fin = new FileInputStream(fileName);
-			BufferedReader myInput = new BufferedReader(new InputStreamReader(fin));
-			while ((thisLine = myInput.readLine()) != null) {
-				res = res + thisLine;
+	public static byte[] compress(byte[] input, int compressionLevel) {
+		Deflater compressor = new Deflater(compressionLevel);
+		compressor.setInput(input);
+		compressor.finish();
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		byte[] readBuffer = new byte[1024];
+		while (!compressor.finished()) {
+			int readCount = compressor.deflate(readBuffer);
+			if (readCount > 0) {
+				bao.write(readBuffer, 0, readCount);
 			}
-		} catch (IOException ioe) {
-			throw new InfrastructureUtilityClassException(ioe);
 		}
-		return res;
+		compressor.end();
+		return bao.toByteArray();
 	}
 
 	/**
-	 * Decompresses a bytes message.
-	 * @param message the bytes message.
-	 * @return the decompressed byte array.
-	 * @throws JMSException JMS exception
+	 * Decompress the input byte[]
+	 * @param input the byte[] to decompress
+	 * @return the decompressed byte[]
+	 * @throws DataFormatException
 	 */
-	public static byte[] decompressBytesMessage(BytesMessage message) throws JMSException {
-    	message.getBodyLength();
-    	long length = message.getBodyLength();
-    	byte[] data = new byte[(int)length];
-    	message.readBytes(data);
-		Inflater decompresser = new Inflater();
-		// Give the decompresser the data to inflate
-		decompresser.setInput(data, 0, data.length);
-		// Create a byte array to hold the decompressed data.
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
-		// decompress the data
-		try {
-			byte[] buf = new byte[1024];
-			while (!decompresser.finished()) {
-				int count = decompresser.inflate(buf);
-				bos.write(buf, 0, count);
-			}	// end while
-		    bos.close();
-		} catch (IOException | DataFormatException e) {
-    	}
-		// Get the decompressed data
-		return bos.toByteArray();
+	public static byte[] decompress(byte[] input) throws DataFormatException {
+		Inflater decompressor = new Inflater();
+		decompressor.setInput(input);
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		byte[] readBuffer = new byte[1024];
+		while (!decompressor.finished()) {
+			int readCount = decompressor.inflate(readBuffer);
+			if (readCount > 0) {
+				bao.write(readBuffer, 0, readCount);
+			}
+		}
+		decompressor.end();
+		return bao.toByteArray();
 	}
 
 	/**
