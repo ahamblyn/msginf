@@ -54,7 +54,7 @@ public class TestBinaryRequestBinaryReply {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
                     "binary_request_binary_reply", "data/905727.pdf"));
             assertNotNull(response);
-            assertNotEquals(0, response.getBinaryResponse().length);
+            assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
             assertEquals(MessageType.BINARY, response.getMessageType());
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -71,7 +71,7 @@ public class TestBinaryRequestBinaryReply {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
                                 "binary_request_binary_reply", "data/905727.pdf"));
                         assertNotNull(response);
-                        assertNotEquals(0, response.getBinaryResponse().length);
+                        assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
                         assertEquals(MessageType.BINARY, response.getMessageType());
                     }
                 } catch (Exception e) {
@@ -97,7 +97,7 @@ public class TestBinaryRequestBinaryReply {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
                             "binary_request_binary_reply", "data/905727.pdf"));
                     assertNotNull(response);
-                    assertNotEquals(0, response.getBinaryResponse().length);
+                    assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
                     assertEquals(MessageType.BINARY, response.getMessageType());
                     return response;
                 } catch (Exception e) {

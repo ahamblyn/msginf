@@ -33,7 +33,7 @@ public class QueueChannelPoolFactory {
     /**
      * A collection containing the queue channel pools.
      */
-    private Hashtable<String, QueueChannelPool> queueChannelPools;
+    private final Hashtable<String, QueueChannelPool> queueChannelPools;
 
     /**
      * The QueueChannelPoolFactory constructor. Instantiates the queue channel
@@ -57,35 +57,6 @@ public class QueueChannelPoolFactory {
     }
 
     /**
-     * Destroys the singleton QueueChannelPoolFactory.
-     */
-    public synchronized static void destroyInstance() {
-        Optional.ofNullable(qcpf).ifPresent(queueChannelPoolFactory -> {
-            qcpf = null;
-            log.info("Destroyed singleton QueueChannelPoolFactory");
-        });
-    }
-
-    /**
-     * Stops all the queue channel pools.
-     *
-     * @throws MessageException Message exception
-     */
-    public void stopQueueChannelPools() throws MessageException {
-        Optional.ofNullable(queueChannelPools).orElseThrow(() -> new QueueChannelException("The Queue Channel Pools have not been started."));
-        log.info("Stopping Queue Channel Pools");
-        queueChannelPools.keySet().forEach(key -> {
-            QueueChannelPool temp = queueChannelPools.get(key);
-            log.debug("Queue Channel Pool: " + temp);
-            // close the channels in the pool
-            temp.closeQueueChannels();
-            // dereference queue channel pool
-            queueChannelPools.remove(temp);
-            queueChannelPools = null;
-        });
-    }
-
-    /**
      * Gets the queue channel pool for the queue connection factory.
      *
      * @param queueConnectionFactoryName the queue connection factory name.
@@ -93,14 +64,16 @@ public class QueueChannelPoolFactory {
      * @throws MessageException Message exception
      */
     public synchronized QueueChannelPool getQueueChannelPool(MessageInfrastructurePropertiesFileParser parser, Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException {
-        // TODO fix up
         try {
             return Optional.ofNullable(queueChannelPools.get(queueConnectionFactoryName)).orElseGet(() -> {
                 // create QCP and store
                 try {
-                    Optional<QueueChannelPool> qcp = createQueueChannelPool(parser, jmsContext, messagingSystem, queueConnectionFactoryName);
-                    queueChannelPools.put(queueConnectionFactoryName, qcp.get());
-                    return qcp.get();
+                    Optional<QueueChannelPool> qcpOpt = createQueueChannelPool(parser, jmsContext, messagingSystem, queueConnectionFactoryName);
+                    QueueChannelPool qcp = qcpOpt.orElseThrow(() -> {
+                        throw new RuntimeException("Unable to create Queue Channel Pool");
+                    });
+                    queueChannelPools.put(queueConnectionFactoryName, qcp);
+                    return qcp;
                 } catch (NamingException | MessageException e) {
                     throw new RuntimeException(e);
                 }

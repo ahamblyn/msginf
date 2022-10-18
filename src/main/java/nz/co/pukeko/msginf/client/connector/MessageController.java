@@ -16,13 +16,13 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.*;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPool;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannelPoolFactory;
+import nz.co.pukeko.msginf.models.configuration.MessageProperty;
 import nz.co.pukeko.msginf.models.message.MessageRequest;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
@@ -70,12 +70,12 @@ public class MessageController {
    /**
     * The queue connection factory name.
     */
-   private String queueConnFactoryName = "";
+   private final String queueConnFactoryName;
 
    /**
     * The application queue name.
     */
-   private String queueName = "";
+   private final String queueName;
 
    /**
     * The JMS message requester.
@@ -85,12 +85,12 @@ public class MessageController {
    /**
     * Whether a reply is expected or not.
     */
-   private boolean replyExpected = false;
+   private final boolean replyExpected;
    
    /**
     * The time in milliseconds the message is to live. 0 means forever.
     */
-   private int messageTimeToLive = 0;
+   private final int messageTimeToLive;
    
    /**
     * The time in milliseconds to wait for a reply. 0 means forever.
@@ -100,7 +100,7 @@ public class MessageController {
 	/**
 	 * The message properties from the configuration
 	 */
-	private MessageProperties<String> configMessageProperties;
+	private final List<MessageProperty> configMessageProperties;
 
    /**
     * The messaging queue channel.
@@ -175,16 +175,6 @@ public class MessageController {
       }
 	}
    
-   /**
-    * Static method to destroy the queue channel pool factory.
-    */
-    public static void destroyQueueChannelPoolFactory() {
-		if (qcpf != null) {
-			qcpf = null;
-			log.info("Destroyed singleton MessageController QueueChannelPoolFactory");
-		}
-	}
-
     /**
      * This method sends the message to the JMS objects.
      * @param messageRequest the message request.
@@ -196,7 +186,9 @@ public class MessageController {
 	MessageResponse messageResponse = new MessageResponse();
     messageResponse.setMessageRequest(messageRequest);
     try {
-        Message jmsMessage = createMessage(messageRequest);
+        Message jmsMessage = createMessage(messageRequest).orElseThrow(() -> {
+			throw new RuntimeException("Unable to create JMS message.");
+		});
 		setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
         if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
         	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
@@ -219,7 +211,7 @@ public class MessageController {
             collateStats(connector, start);
         }
         return messageResponse;
-    } catch (JMSException e) {
+    } catch (JMSException | MessageException e) {
     	// increment failed message count
         if (logStatistics) {
         	collector.incrementFailedMessageCount(connector);
@@ -274,13 +266,12 @@ public class MessageController {
 		}
 	} 
 
-	private void getMessageProperties(Message replyMsg, MessageProperties<String> messageProperties) throws JMSException {
+	private void getMessageProperties(Message replyMsg, List<MessageProperty> messageProperties) throws JMSException {
 		if (messageProperties != null) {
 			Enumeration propertyNames = replyMsg.getPropertyNames();
-			messageProperties.clear();
 			while (propertyNames.hasMoreElements()) {
 				String propertyName = (String) propertyNames.nextElement();
-				messageProperties.put(propertyName, replyMsg.getStringProperty(propertyName));
+				messageProperties.add(new MessageProperty(propertyName, replyMsg.getStringProperty(propertyName)));
 			}
 		}
 	}
@@ -312,31 +303,29 @@ public class MessageController {
 		}
 	}
     
-	private Message createMessage(MessageRequest messageRequest) throws JMSException {
+	private Optional<Message> createMessage(MessageRequest messageRequest) throws JMSException {
 		if (messageRequest.getMessageType() == MessageType.TEXT) {
 			TextMessage message = createTextMessage();
-			message.setText(messageRequest.getMessage());
-			return message;
+			message.setText(messageRequest.getTextMessage());
+			return Optional.of(message);
 		}
 		if (messageRequest.getMessageType() == MessageType.BINARY) {
 			BytesMessage message = createBytesMessage();
-			message.writeBytes(messageRequest.getMessageStream().toByteArray());
-			return message;
+			message.writeBytes(messageRequest.getBinaryMessage());
+			return Optional.of(message);
 		}
-		// TODO optional
-		return null;
+		return Optional.empty();
 	}
 
-	private void setMessageProperties(Message jmsMessage, MessageProperties<String> requestMessageProperties) throws JMSException {
+	private void setMessageProperties(Message jmsMessage, List<MessageProperty> requestMessageProperties) {
 		// Apply header properties from message request and properties from config. Request properties have priority.
-		// TODO optionals
-		MessageProperties<String> combinedMessageProperties = new MessageProperties<>(configMessageProperties);
+		List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
 		if (requestMessageProperties != null) {
-			combinedMessageProperties.putAll(requestMessageProperties);
+			combinedMessageProperties.addAll(requestMessageProperties);
 		}
-		combinedMessageProperties.keySet().forEach(k -> {
+		combinedMessageProperties.forEach(property -> {
 			try {
-				jmsMessage.setStringProperty(k, combinedMessageProperties.get(k));
+				jmsMessage.setStringProperty(property.getName(), property.getValue());
 			} catch (JMSException e) {
 				throw new RuntimeException(e);
 			}
@@ -366,7 +355,7 @@ public class MessageController {
         	if (requestReplyMessageProducer != null) {
         		requestReplyMessageProducer.close();
         	}
-        } catch (JMSException | MessageRequesterException e) {
+        } catch (JMSException e) {
         	log.error(e.getMessage(), e);
         }
 		if (queueChannel != null){

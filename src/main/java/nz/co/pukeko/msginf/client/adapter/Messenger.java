@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class Messenger {
-    private Map<String, QueueManager> queueManagers = new HashMap<>();
+    private final Map<String, QueueManager> queueManagers = new HashMap<>();
 
     public Messenger() {
         // create a queue manager for each messaging system and put into map
@@ -27,16 +27,12 @@ public class Messenger {
             parser.getAvailableMessagingSystems().forEach(messagingSystem -> {
                 Optional<QueueManager> queueManager = getQueueManager(messagingSystem);
                 if (queueManager.isEmpty()) {
-                    try {
-                        queueManagers.put(messagingSystem, new QueueManager(parser, messagingSystem, true));
-                    } catch (MessageException e) {
-                        log.error("Unable to create QueueManager for " + messagingSystem);
-                    }
+                    queueManagers.put(messagingSystem, new QueueManager(parser, messagingSystem, true));
                 }
             });
         } catch (MessageException me) {
-            log.error("Messenger unable to be created");
-            // TODO throw appropriate runtime exception
+            log.error("Messenger unable to be created", me);
+            throw new RuntimeException(me);
         }
     }
 

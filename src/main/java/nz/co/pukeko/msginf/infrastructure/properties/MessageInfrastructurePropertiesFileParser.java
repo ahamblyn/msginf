@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukeko.msginf.models.configuration.*;
 import nz.co.pukeko.msginf.models.configuration.System;
@@ -101,15 +100,10 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     private Optional<System> findSystem(String messagingSystemName) {
-        // TODO fix return
-        final var ref = new Object() {
-            Optional<System> returnSystem;
-        };
-        Optional.ofNullable(configuration).flatMap(config -> Optional.ofNullable(config.getSystems()))
-                .flatMap(systems -> Optional.ofNullable(systems.getSystem()))
-                .ifPresent(systemsList -> ref.returnSystem = systemsList.stream().filter(system ->
-                        system.getName().equals(messagingSystemName)).findFirst());
-        return ref.returnSystem;
+        return Optional.ofNullable(configuration)
+                .flatMap(config -> Optional.ofNullable(config.getSystems())
+                        .flatMap(systems -> systems.getSystem().stream()
+                                .filter(sys -> sys.getName().equals(messagingSystemName)).findFirst()));
     }
 
     private Optional<Connectors> findConnectors(String messagingSystemName) {
@@ -373,16 +367,10 @@ public class MessageInfrastructurePropertiesFileParser {
      * @param connectorName the connector name
      * @return the submit connection message properties for the submit connector.
      */
-    public MessageProperties<String> getSubmitConnectionMessageProperties(String messagingSystemName, String connectorName) {
-        MessageProperties<String> messageProperties = new MessageProperties<>();
+    public List<MessageProperty> getSubmitConnectionMessageProperties(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageProperties()));
-        parserMessageProperties.ifPresent(properties -> {
-            properties.forEach(property -> {
-                messageProperties.put(property.getName(), property.getValue());
-            });
-        });
-        return messageProperties;
+        return parserMessageProperties.orElse(new ArrayList<>());
     }
 
     /**
@@ -463,16 +451,10 @@ public class MessageInfrastructurePropertiesFileParser {
      * @param connectorName the connector name
      * @return the request-reply connection message properties for the request-reply connector.
      */
-    public MessageProperties<String> getRequestReplyConnectionMessageProperties(String messagingSystemName, String connectorName) {
-        MessageProperties<String> messageProperties = new MessageProperties<>();
+    public List<MessageProperty> getRequestReplyConnectionMessageProperties(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageProperties()));
-        parserMessageProperties.ifPresent(properties -> {
-            properties.forEach(property -> {
-                messageProperties.put(property.getName(), property.getValue());
-            });
-        });
-        return messageProperties;
+        return parserMessageProperties.orElse(new ArrayList<>());
     }
 
     /**

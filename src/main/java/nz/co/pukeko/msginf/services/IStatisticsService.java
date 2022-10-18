@@ -4,9 +4,9 @@ import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 
 public interface IStatisticsService {
 
-    public String getConnectorStatistics(String connectorName);
+    String getConnectorStatistics(String connectorName);
 
-    public String allStatistics();
+    String allStatistics();
 
-    public RestMessageResponse resetStatistics();
+    RestMessageResponse resetStatistics();
 }

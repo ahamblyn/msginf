@@ -19,12 +19,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestMsgInfDirectly {
 	private static QueueManager queueManager;
 	private static MessageRequestReply messageRequestReply;
-	private static MessageInfrastructurePropertiesFileParser parser;
 
 	@BeforeAll
 	public static void setUp() {
 		try {
-			parser = new MessageInfrastructurePropertiesFileParser();
+			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
 					"ReplyQueue");
@@ -66,7 +65,6 @@ public class TestMsgInfDirectly {
 			MessageResponse response = queueManager.sendMessage(TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
 					"submit_text", "Message[" + (i + 1) + "]"));
 			assertNotNull(response);
-			// TODO test message request from response
 		}
 		log.info(QueueStatisticsCollector.getInstance().toString());
 	}

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/statistics")
 public class StatisticsController {
 
-    private IStatisticsService statisticsService;
+    private final IStatisticsService statisticsService;
 
     public StatisticsController(@Autowired IStatisticsService statisticsService) {
         this.statisticsService = statisticsService;
@@ -20,19 +20,16 @@ public class StatisticsController {
 
     @GetMapping("/all")
     public String all() {
-        String statistics = statisticsService.allStatistics();
-        return statistics;
+        return statisticsService.allStatistics();
     }
 
     @GetMapping("/reset")
     public RestMessageResponse reset() {
-        RestMessageResponse statistics = statisticsService.resetStatistics();
-        return statistics;
+        return statisticsService.resetStatistics();
     }
 
     @GetMapping("/connector/{connectorName}")
     public String system(@PathVariable("connectorName") String name) {
-        String statistics = statisticsService.getConnectorStatistics(name);
-        return statistics;
+        return statisticsService.getConnectorStatistics(name);
     }
 }

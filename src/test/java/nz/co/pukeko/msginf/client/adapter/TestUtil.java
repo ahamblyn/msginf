@@ -2,7 +2,6 @@ package nz.co.pukeko.msginf.client.adapter;
 
 import nz.co.pukeko.msginf.models.message.MessageRequest;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
-import nz.co.pukeko.msginf.models.message.MessageType;
 import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -14,7 +13,7 @@ public class TestUtil {
     public static MessageRequest createTextMessageRequest(MessageRequestType messageRequestType, String connector, String message) {
         String correlationId = UUID.randomUUID().toString();
         MessageRequest messageRequest = new MessageRequest(messageRequestType, connector, correlationId);
-        messageRequest.setMessage(message);
+        messageRequest.setTextMessage(message);
         return messageRequest;
     }
 
@@ -24,7 +23,7 @@ public class TestUtil {
         File file = new File(filePath);
         ByteArrayOutputStream message = new ByteArrayOutputStream();
         FileUtils.copyFile(file, message);
-        messageRequest.setMessageStream(message);
+        messageRequest.setBinaryMessage(message.toByteArray());
         return messageRequest;
     }
 }

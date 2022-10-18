@@ -1,9 +1,3 @@
-/*
- * Created on 11/04/2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package nz.co.pukeko.msginf.client.listener;
 
 import java.util.Date;
@@ -21,8 +15,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 /**
  * @author AlisdairH
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class MessageReplyHandler {
 	private final Session session;
@@ -65,8 +57,8 @@ public class MessageReplyHandler {
 				submit(requestBinaryMessage, replyMessage);
 			}
 			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 4
-				// Create random string the same size as the request
-				BytesMessage replyMessage = createRandomBinaryMessage((int) requestBinaryMessage.getBodyLength());
+				// Echo the binary request
+				BytesMessage replyMessage = createEchoBinaryMessage(requestBinaryMessage);
 				submit(requestBinaryMessage, replyMessage);
 			}
     	}
@@ -76,6 +68,14 @@ public class MessageReplyHandler {
 		String randomReply = RandomStringUtils.randomAlphanumeric(messageLength);
 		BytesMessage replyMessage = session.createBytesMessage();
 		replyMessage.writeBytes(randomReply.getBytes());
+		return replyMessage;
+	}
+
+	private BytesMessage createEchoBinaryMessage(BytesMessage requestBinaryMessage) throws JMSException {
+		byte[] bytes = new byte[(int) requestBinaryMessage.getBodyLength()];
+		requestBinaryMessage.readBytes(bytes);
+		BytesMessage replyMessage = session.createBytesMessage();
+		replyMessage.writeBytes(bytes);
 		return replyMessage;
 	}
 

@@ -35,7 +35,7 @@ public class MessageControllerFactory {
 	/**
 	 * The properties file parser.
 	 */
-	private MessageInfrastructurePropertiesFileParser parser;
+	private final MessageInfrastructurePropertiesFileParser parser;
 
 	/**
 	 * The MessageControllerFactory constructor.
@@ -52,7 +52,6 @@ public class MessageControllerFactory {
 	 * Used by the QueueManager.
 	 * @param parser the properties file parser
 	 * @return the singleton MessageControllerFactory instance.
-	 * @throws MessageException Message exception
 	 */
 	public synchronized static MessageControllerFactory getInstance(MessageInfrastructurePropertiesFileParser parser)  {
 		return Optional.ofNullable(messageControllerFactory).orElseGet(() -> {
@@ -65,16 +64,6 @@ public class MessageControllerFactory {
 			log.info("Created singleton MessageControllerFactory");
 			return messageControllerFactory;
 		});
-	}
-
-	/**
-	 * Static method to destroy the static MessageControllerFactory instance.
-	 */
-	public synchronized static void destroyInstance() {
-		if (messageControllerFactory != null) {
-			messageControllerFactory = null;
-			log.info("Destroyed singleton MessageControllerFactory");
-		}
 	}
 
 	/**
@@ -93,8 +82,7 @@ public class MessageControllerFactory {
 			// not found
 			throw new QueueControllerNotFoundException("The JMS Context for " + messagingSystem + " was not found.");
 		}
-		MessageController mc = new MessageController(parser, messagingSystem, connectorName, jmsCtx, logStatistics);
-		return mc;
+		return new MessageController(parser, messagingSystem, connectorName, jmsCtx, logStatistics);
 	}
 
 	private void initialise(MessageInfrastructurePropertiesFileParser parser) throws MessageException {

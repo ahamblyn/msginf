@@ -1,6 +1,5 @@
 package nz.co.pukeko.msginf.controllers;
 
-import nz.co.pukeko.msginf.infrastructure.data.MessageProperties;
 import nz.co.pukeko.msginf.models.message.RestMessageRequest;
 import nz.co.pukeko.msginf.models.message.RestMessageResponse;
 import nz.co.pukeko.msginf.services.IMessageService;
@@ -16,7 +15,7 @@ import java.util.Optional;
 @RequestMapping("/v1/message")
 public class MessageController {
 
-    private IMessageService messageService;
+    private final IMessageService messageService;
 
     public MessageController(@Autowired IMessageService messageService) {
         this.messageService = messageService;
@@ -39,10 +38,7 @@ public class MessageController {
     @PostMapping(path = "/request", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<RestMessageResponse> request(@RequestBody RestMessageRequest payload) {
-        // TODO put headers into RestMessageRequest
-        MessageProperties<String> messageProperties = new MessageProperties<>();
-        messageProperties.put("testname", "reply");
-        Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload, messageProperties);
+        Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload);
         return ResponseEntity.of(Optional.of(messageResponse.orElseGet(RestMessageResponse::new)));
     }
 }

@@ -115,7 +115,7 @@
                 ]
               },
               "connectorName": "binary_request_binary_reply",
-              "compressBinaryMessages": false
+              "compressBinaryMessages": true
             }
           ],
           "useConnectionPooling": true,

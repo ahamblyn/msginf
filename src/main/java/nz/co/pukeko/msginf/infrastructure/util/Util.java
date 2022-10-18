@@ -1,24 +1,19 @@
 package nz.co.pukeko.msginf.infrastructure.util;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukeko.msginf.infrastructure.exception.InfrastructureUtilityClassException;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.properties.PropertiesQueue;
@@ -30,55 +25,48 @@ import nz.co.pukeko.msginf.infrastructure.properties.PropertiesQueue;
  */
 @Slf4j
 public class Util {
+
 	/**
-	 * Reads a file into a String.
-	 * @param fileName the file name.
-	 * @return the file contents as a String.
-	 * @throws MessageException Message exception
+	 * Compress the input byte[]
+	 * @param input the byte[] to compress
+	 * @param compressionLevel tje compression level
+	 * @return the compressed byte[]
 	 */
-	public static String readFile(String fileName) throws MessageException {
-		String res = "";
-		try {
-			String thisLine;
-			FileInputStream fin = new FileInputStream(fileName);
-			BufferedReader myInput = new BufferedReader(new InputStreamReader(fin));
-			while ((thisLine = myInput.readLine()) != null) {
-				res = res + thisLine;
+	public static byte[] compress(byte[] input, int compressionLevel) {
+		Deflater compressor = new Deflater(compressionLevel);
+		compressor.setInput(input);
+		compressor.finish();
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		byte[] readBuffer = new byte[1024];
+		while (!compressor.finished()) {
+			int readCount = compressor.deflate(readBuffer);
+			if (readCount > 0) {
+				bao.write(readBuffer, 0, readCount);
 			}
-		} catch (IOException ioe) {
-			throw new InfrastructureUtilityClassException(ioe);
 		}
-		return res;
+		compressor.end();
+		return bao.toByteArray();
 	}
 
 	/**
-	 * Decompresses a bytes message.
-	 * @param message the bytes message.
-	 * @return the decompressed byte array.
-	 * @throws JMSException JMS exception
+	 * Decompress the input byte[]
+	 * @param input the byte[] to decompress
+	 * @return the decompressed byte[]
+	 * @throws DataFormatException the data format exception
 	 */
-	public static byte[] decompressBytesMessage(BytesMessage message) throws JMSException {
-    	message.getBodyLength();
-    	long length = message.getBodyLength();
-    	byte[] data = new byte[(int)length];
-    	message.readBytes(data);
-		Inflater decompresser = new Inflater();
-		// Give the decompresser the data to inflate
-		decompresser.setInput(data, 0, data.length);
-		// Create a byte array to hold the decompressed data.
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
-		// decompress the data
-		try {
-			byte[] buf = new byte[1024];
-			while (!decompresser.finished()) {
-				int count = decompresser.inflate(buf);
-				bos.write(buf, 0, count);
-			}	// end while
-		    bos.close();
-		} catch (IOException | DataFormatException e) {
-    	}
-		// Get the decompressed data
-		return bos.toByteArray();
+	public static byte[] decompress(byte[] input) throws DataFormatException {
+		Inflater decompressor = new Inflater();
+		decompressor.setInput(input);
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		byte[] readBuffer = new byte[1024];
+		while (!decompressor.finished()) {
+			int readCount = decompressor.inflate(readBuffer);
+			if (readCount > 0) {
+				bao.write(readBuffer, 0, readCount);
+			}
+		}
+		decompressor.end();
+		return bao.toByteArray();
 	}
 
 	/**
@@ -107,9 +95,8 @@ public class Util {
 	 * @param parser the properties file parser
 	 * @param messagingSystem the messaging system.
 	 * @return the context.
-	 * @throws MessageException Message exception
 	 */
-	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) throws MessageException {
+	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) {
 		InitialContext jmsCtx = null;
 		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
 		String url = parser.getSystemUrl(messagingSystem);
@@ -150,15 +137,12 @@ public class Util {
 
 	/**
 	 * Convert the binary message string into a ByteArrayOutputStream
-	 * @param binaryMessage
-	 * @return
+	 * @param binaryMessage the binary message to decode
+	 * @return the decoded binary message
 	 */
-	public static ByteArrayOutputStream decodeBinaryMessage(String binaryMessage) throws MessageException {
+	public static byte[] decodeBinaryMessage(String binaryMessage) throws MessageException {
 		try {
-			byte[] decodedMessage = Base64.getDecoder().decode(binaryMessage);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(decodedMessage.length);
-			baos.writeBytes(decodedMessage);
-			return baos;
+			return Base64.getDecoder().decode(binaryMessage);
 		} catch (RuntimeException e) {
 			throw new MessageException("Unable to decode the binary message");
 		}
@@ -168,6 +152,7 @@ public class Util {
 		if (binaryMessage != null) {
 			return Base64.getEncoder().encodeToString(binaryMessage);
 		} else {
+			// Want null returned, so it is not displayed in JSON response.
 			return null;
 		}
 	}
