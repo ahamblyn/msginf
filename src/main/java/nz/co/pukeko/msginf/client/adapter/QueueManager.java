@@ -58,7 +58,6 @@ public class QueueManager {
 	 * @param logStatistics log the stats
 	 */
 	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, boolean logStatistics) {
-		// TODO catch the RuntimeExceptions and convert to MessageExceptions
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
 		this.logStatistics = logStatistics;

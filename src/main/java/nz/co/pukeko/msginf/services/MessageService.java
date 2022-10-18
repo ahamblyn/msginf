@@ -48,11 +48,9 @@ public class MessageService implements IMessageService {
     public List<RestMessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout) {
         try {
             List<MessageResponse> messages = messenger.receiveMessages(messagingSystem, messageConnector, timeout);
-            return messages.stream().map(m -> {
-                return new RestMessageResponse("Received message", m.getTextResponse(),
-                        Util.encodeBinaryMessage(m.getBinaryResponse()), UUID.randomUUID().toString(),
-                        TransactionStatus.SUCCESS, 0L);
-            }).toList();
+            return messages.stream().map(m -> new RestMessageResponse("Received message", m.getTextResponse(),
+                    Util.encodeBinaryMessage(m.getBinaryResponse()), UUID.randomUUID().toString(),
+                    TransactionStatus.SUCCESS, 0L)).toList();
         } catch (MessageException e) {
             log.error("Unable to receive the messages", e);
             return Collections.singletonList(new RestMessageResponse(e.getMessage(), UUID.randomUUID().toString(), TransactionStatus.FAILURE));

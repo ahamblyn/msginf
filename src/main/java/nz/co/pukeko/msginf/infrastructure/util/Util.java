@@ -149,10 +149,10 @@ public class Util {
 	}
 
 	public static String encodeBinaryMessage(byte[] binaryMessage) {
-		// TODO optional
 		if (binaryMessage != null) {
 			return Base64.getEncoder().encodeToString(binaryMessage);
 		} else {
+			// Want null returned, so it is not displayed in JSON response.
 			return null;
 		}
 	}

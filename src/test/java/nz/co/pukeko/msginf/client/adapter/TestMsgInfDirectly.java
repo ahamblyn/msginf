@@ -65,7 +65,6 @@ public class TestMsgInfDirectly {
 			MessageResponse response = queueManager.sendMessage(TestUtil.createTextMessageRequest(MessageRequestType.SUBMIT,
 					"submit_text", "Message[" + (i + 1) + "]"));
 			assertNotNull(response);
-			// TODO test message request from response
 		}
 		log.info(QueueStatisticsCollector.getInstance().toString());
 	}

@@ -64,14 +64,16 @@ public class QueueChannelPoolFactory {
      * @throws MessageException Message exception
      */
     public synchronized QueueChannelPool getQueueChannelPool(MessageInfrastructurePropertiesFileParser parser, Context jmsContext, String messagingSystem, String queueConnectionFactoryName) throws MessageException {
-        // TODO fix up
         try {
             return Optional.ofNullable(queueChannelPools.get(queueConnectionFactoryName)).orElseGet(() -> {
                 // create QCP and store
                 try {
-                    Optional<QueueChannelPool> qcp = createQueueChannelPool(parser, jmsContext, messagingSystem, queueConnectionFactoryName);
-                    queueChannelPools.put(queueConnectionFactoryName, qcp.get());
-                    return qcp.get();
+                    Optional<QueueChannelPool> qcpOpt = createQueueChannelPool(parser, jmsContext, messagingSystem, queueConnectionFactoryName);
+                    QueueChannelPool qcp = qcpOpt.orElseThrow(() -> {
+                        throw new RuntimeException("Unable to create Queue Channel Pool");
+                    });
+                    queueChannelPools.put(queueConnectionFactoryName, qcp);
+                    return qcp;
                 } catch (NamingException | MessageException e) {
                     throw new RuntimeException(e);
                 }

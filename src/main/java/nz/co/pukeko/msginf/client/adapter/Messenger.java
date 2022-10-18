@@ -31,8 +31,8 @@ public class Messenger {
                 }
             });
         } catch (MessageException me) {
-            log.error("Messenger unable to be created");
-            // TODO throw appropriate runtime exception
+            log.error("Messenger unable to be created", me);
+            throw new RuntimeException(me);
         }
     }
 

@@ -70,12 +70,12 @@ public class MessageController {
    /**
     * The queue connection factory name.
     */
-   private String queueConnFactoryName;
+   private final String queueConnFactoryName;
 
    /**
     * The application queue name.
     */
-   private String queueName;
+   private final String queueName;
 
    /**
     * The JMS message requester.
@@ -85,12 +85,12 @@ public class MessageController {
    /**
     * Whether a reply is expected or not.
     */
-   private boolean replyExpected;
+   private final boolean replyExpected;
    
    /**
     * The time in milliseconds the message is to live. 0 means forever.
     */
-   private int messageTimeToLive;
+   private final int messageTimeToLive;
    
    /**
     * The time in milliseconds to wait for a reply. 0 means forever.
@@ -186,7 +186,9 @@ public class MessageController {
 	MessageResponse messageResponse = new MessageResponse();
     messageResponse.setMessageRequest(messageRequest);
     try {
-        Message jmsMessage = createMessage(messageRequest);
+        Message jmsMessage = createMessage(messageRequest).orElseThrow(() -> {
+			throw new RuntimeException("Unable to create JMS message.");
+		});
 		setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
         if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
         	Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
@@ -209,7 +211,7 @@ public class MessageController {
             collateStats(connector, start);
         }
         return messageResponse;
-    } catch (JMSException e) {
+    } catch (JMSException | MessageException e) {
     	// increment failed message count
         if (logStatistics) {
         	collector.incrementFailedMessageCount(connector);
@@ -301,24 +303,22 @@ public class MessageController {
 		}
 	}
     
-	private Message createMessage(MessageRequest messageRequest) throws JMSException {
+	private Optional<Message> createMessage(MessageRequest messageRequest) throws JMSException {
 		if (messageRequest.getMessageType() == MessageType.TEXT) {
 			TextMessage message = createTextMessage();
 			message.setText(messageRequest.getTextMessage());
-			return message;
+			return Optional.of(message);
 		}
 		if (messageRequest.getMessageType() == MessageType.BINARY) {
 			BytesMessage message = createBytesMessage();
 			message.writeBytes(messageRequest.getBinaryMessage());
-			return message;
+			return Optional.of(message);
 		}
-		// TODO optional
-		return null;
+		return Optional.empty();
 	}
 
 	private void setMessageProperties(Message jmsMessage, List<MessageProperty> requestMessageProperties) {
 		// Apply header properties from message request and properties from config. Request properties have priority.
-		// TODO optionals
 		List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
 		if (requestMessageProperties != null) {
 			combinedMessageProperties.addAll(requestMessageProperties);

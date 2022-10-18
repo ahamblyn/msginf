@@ -100,15 +100,10 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     private Optional<System> findSystem(String messagingSystemName) {
-        // TODO fix return
-        final var ref = new Object() {
-            Optional<System> returnSystem;
-        };
-        Optional.ofNullable(configuration).flatMap(config -> Optional.ofNullable(config.getSystems()))
-                .flatMap(systems -> Optional.ofNullable(systems.getSystem()))
-                .ifPresent(systemsList -> ref.returnSystem = systemsList.stream().filter(system ->
-                        system.getName().equals(messagingSystemName)).findFirst());
-        return ref.returnSystem;
+        return Optional.ofNullable(configuration)
+                .flatMap(config -> Optional.ofNullable(config.getSystems())
+                        .flatMap(systems -> systems.getSystem().stream()
+                                .filter(sys -> sys.getName().equals(messagingSystemName)).findFirst()));
     }
 
     private Optional<Connectors> findConnectors(String messagingSystemName) {
