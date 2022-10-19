@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @ToString
 public class System {
-    private List<JarFile> jarFiles;
+    private List<String> jarFiles;
     private List<Queue> queues;
     private Connectors connectors;
     private String name;

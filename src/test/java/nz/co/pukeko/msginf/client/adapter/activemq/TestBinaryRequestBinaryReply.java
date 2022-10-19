@@ -1,6 +1,8 @@
-package nz.co.pukeko.msginf.client.adapter;
+package nz.co.pukeko.msginf.client.adapter.activemq;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukeko.msginf.client.adapter.Messenger;
+import nz.co.pukeko.msginf.client.adapter.TestUtil;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
@@ -18,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestTextRequestBinaryReply {
+public class TestBinaryRequestBinaryReply {
 
     private static Messenger messenger;
     private static MessageRequestReply messageRequestReply;
@@ -32,7 +34,7 @@ public class TestTextRequestBinaryReply {
                     "ReplyQueue");
             messageRequestReply.run();
         } catch (MessageException e) {
-            log.error("Unable to setup TestTextRequestBinaryReply test", e);
+            log.error("Unable to setup TestBinaryRequestBinaryReply test", e);
         }
         messenger = new Messenger();
     }
@@ -49,12 +51,12 @@ public class TestTextRequestBinaryReply {
 
     @Test
     @Order(1)
-    public void reply() throws MessageException {
+    public void reply() throws Exception {
         for (int i = 0; i < 10; i++) {
-            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    "text_request_binary_reply", "Message[" + (i + 1) + "]"));
+            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+                    "binary_request_binary_reply", "data/905727.pdf"));
             assertNotNull(response);
-            assertNotEquals(0, response.getBinaryResponse().length);
+            assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
             assertEquals(MessageType.BINARY, response.getMessageType());
         }
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -68,13 +70,13 @@ public class TestTextRequestBinaryReply {
             Thread newThread = new Thread(() -> {
                 try {
                     for (int j = 0; j < 10; j++) {
-                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                "text_request_binary_reply", "MessageZZZZ"));
+                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+                                "binary_request_binary_reply", "data/905727.pdf"));
                         assertNotNull(response);
-                        assertNotEquals(0, response.getBinaryResponse().length);
+                        assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
                         assertEquals(MessageType.BINARY, response.getMessageType());
                     }
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -94,13 +96,13 @@ public class TestTextRequestBinaryReply {
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
-                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            "text_request_binary_reply", "MessageZZZZ"));
+                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+                            "binary_request_binary_reply", "data/905727.pdf"));
                     assertNotNull(response);
-                    assertNotEquals(0, response.getBinaryResponse().length);
+                    assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
                     assertEquals(MessageType.BINARY, response.getMessageType());
                     return response;
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }));

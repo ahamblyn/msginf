@@ -3,9 +3,7 @@
     "system": [
       {
         "jarFiles": [
-          {
-            "jarFileName": "C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar"
-          }
+          "C:\\alisdair\\java\\apache-activemq-5.17.2\\activemq-all-5.17.2.jar"
         ],
         "queues": [
           {
@@ -125,6 +123,131 @@
         "name": "activemq",
         "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
         "url": "tcp://localhost:61616"
+      },
+      {
+        "jarFiles": [
+          "C:\\alisdair\\java\\rabbitmq-jms-client\\rabbitmq-jms-2.6.0.jar",
+          "C:\\alisdair\\java\\rabbitmq-jms-client\\amqp-client-5.16.0.jar",
+          "C:\\alisdair\\java\\rabbitmq-jms-client\\fscontext-4.6-b01.jar"
+        ],
+        "queues": [
+          {
+            "jndiName": "TestQueue",
+            "physicalName": "TEST.QUEUE"
+          },
+          {
+            "jndiName": "RequestQueue",
+            "physicalName": "REQUEST.QUEUE"
+          },
+          {
+            "jndiName": "ReplyQueue",
+            "physicalName": "REPLY.QUEUE"
+          }
+        ],
+        "connectors": {
+          "submit": [
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "ConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_text",
+              "compressBinaryMessages": false
+            },
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "ConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_binary",
+              "compressBinaryMessages": false
+            }
+          ],
+          "requestReply": [
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
+              },
+              "connectorName": "text_request_text_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
+              },
+              "connectorName": "text_request_binary_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
+              },
+              "connectorName": "binary_request_text_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
+              },
+              "connectorName": "binary_request_binary_reply",
+              "compressBinaryMessages": true
+            }
+          ],
+          "useConnectionPooling": true,
+          "minConnections": 5,
+          "maxConnections": 20
+        },
+        "name": "rabbitmq",
+        "initialContextFactory": "com.sun.jndi.fscontext.RefFSContextFactory",
+        "url": "resource://rabbitmq-bindings"
       }
     ]
   }

@@ -201,7 +201,7 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<String> getJarFileNames(String messagingSystemName) {
         List<String> jarFileNamesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system ->
-                jarFileNamesList.addAll(system.getJarFiles().stream().map(JarFile::getJarFileName).toList()));
+                jarFileNamesList.addAll(system.getJarFiles()));
         return jarFileNamesList;
     }
 

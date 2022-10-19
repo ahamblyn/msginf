@@ -1,6 +1,5 @@
-package nz.co.pukeko.msginf;
+package nz.co.pukeko.msginf.client.adapter.activemq;
 
-import nz.co.pukeko.msginf.client.adapter.*;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
