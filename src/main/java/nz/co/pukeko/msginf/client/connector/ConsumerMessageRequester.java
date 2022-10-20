@@ -6,6 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukeko.msginf.infrastructure.queue.QueueChannel;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 /**
  * This class handles the requests to and the replies from the temporary reply queue. 
  * @author alisdairh
@@ -16,6 +20,7 @@ public class ConsumerMessageRequester {
 	private final MessageProducer producer;
 	private final Queue replyQueue;
 	private final int replyWaitTime;
+	private final boolean useMessageSelector;
 
 	/**
 	 * Constructs the ConsumerMessageRequester instance.
@@ -23,12 +28,15 @@ public class ConsumerMessageRequester {
 	 * @param producer the JMS producer.
 	 * @param replyQueue the reply queue.
 	 * @param replyWaitTime the reply wait timeout.
+	 * @param useMessageSelector whether to use a message selector or not.
 	 */
-	public ConsumerMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue replyQueue, int replyWaitTime) {
+	public ConsumerMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue replyQueue,
+									int replyWaitTime, boolean useMessageSelector) {
 		this.queueChannel = queueChannel;
 		this.producer = producer;
-		this.replyWaitTime = replyWaitTime;
 		this.replyQueue = replyQueue;
+		this.replyWaitTime = replyWaitTime;
+		this.useMessageSelector = useMessageSelector;
 	}
 
     /**
@@ -42,26 +50,54 @@ public class ConsumerMessageRequester {
 			// set the reply to queue
 			message.setJMSReplyTo(replyQueue);
 			// set the correlation ID
-	        message.setJMSCorrelationID(correlationId);
-			producer.send(message);
-	        String messageSelector = "JMSCorrelationID='" + correlationId + "'";
-	        // set up the queue receiver here as it needs to have the message id of the current message,
-	        // and it doesn't exist in the setupQueues method.
-			MessageConsumer consumer = queueChannel.createMessageConsumer(this.replyQueue, messageSelector);
-	        Message replyMsg = consumer.receive(replyWaitTime);
-	        consumer.close();
-	        // if replyMsg is null, the receive has timed out
-	        if (replyMsg == null) {
-	            Exception e = new Exception("The request/reply has timed out waiting for the reply after " + replyWaitTime + " milliseconds.");
-	            throw new MessageRequesterException(e);
-	        }
-	        return replyMsg;
-		} catch (JMSException jmse) {
-			throw new MessageRequesterException(jmse);
+			message.setJMSCorrelationID(correlationId);
+			Message replyMsg = null;
+			if (useMessageSelector) {
+				replyMsg = processRequestWithMessageSelector(message, correlationId);
+			} else {
+				replyMsg = processRequestWithoutMessageSelector(message, correlationId);
+			}
+			// if replyMsg is null, the receive has timed out
+			if (replyMsg == null) {
+				Exception e = new Exception("The request/reply has timed out waiting for the reply after " + replyWaitTime + " milliseconds.");
+				throw new MessageRequesterException(e);
+			}
+			return replyMsg;
+		} catch (JMSException | InterruptedException e) {
+			throw new MessageRequesterException(e);
 		}
-    }
+	}
 
-    /**
+	private Message processRequestWithMessageSelector(Message message, String correlationId) throws JMSException {
+		producer.send(message);
+		String messageSelector = "JMSCorrelationID='" + correlationId + "'";
+		// set up the queue receiver here as it needs to have the message id of the current message,
+		// and it doesn't exist in the setupQueues method.
+		MessageConsumer consumer = queueChannel.createMessageConsumer(this.replyQueue, messageSelector);
+		Message replyMsg = consumer.receive(replyWaitTime);
+		consumer.close();
+		return replyMsg;
+	}
+
+	private Message processRequestWithoutMessageSelector(Message message, String correlationId) throws JMSException, InterruptedException {
+		MessageConsumer consumer = queueChannel.createMessageConsumer(replyQueue);
+		BlockingQueue<Message> queue = new ArrayBlockingQueue<>(1);
+		consumer.setMessageListener(msg -> {
+			try {
+				if (msg.getJMSCorrelationID().equals(correlationId)) {
+					queue.add(msg);
+				}
+			} catch (JMSException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		producer.send(message);
+		Message replyMsg = queue.poll(replyWaitTime, TimeUnit.MILLISECONDS);
+		consumer.close();
+		return replyMsg;
+	}
+
+	/**
      * Closes the ConsumerMessageRequester.
      * @throws JMSException JMS exception
      */

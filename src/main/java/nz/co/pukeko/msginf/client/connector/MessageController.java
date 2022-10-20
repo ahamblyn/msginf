@@ -98,6 +98,11 @@ public class MessageController {
    private int replyWaitTime = 0;
 
 	/**
+	 * Whether to use a message selector to find the response messages.
+	 */
+	private boolean useMessageSelector = true;
+
+	/**
 	 * The message properties from the configuration
 	 */
 	private final List<MessageProperty> configMessageProperties;
@@ -154,6 +159,7 @@ public class MessageController {
 			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
+			this.useMessageSelector = parser.getRequestReplyConnectionUseMessageSelector(messagingSystem, connector);
 			this.configMessageProperties = parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector);
 		} else {
 			// No configuration found.
@@ -299,7 +305,8 @@ public class MessageController {
 		}
 		// only create a requester for request-reply message controllers.
 		if (replyExpected) {
-			messageRequester = new ConsumerMessageRequester(queueChannel, requestReplyMessageProducer, replyQueue, replyWaitTime);
+			messageRequester = new ConsumerMessageRequester(queueChannel, requestReplyMessageProducer, replyQueue,
+					replyWaitTime, useMessageSelector);
 		}
 	}
     

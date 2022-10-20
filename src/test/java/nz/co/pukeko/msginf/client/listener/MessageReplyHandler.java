@@ -42,6 +42,7 @@ public class MessageReplyHandler {
 			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 1
 				TextMessage replyMessage = session.createTextMessage();
 				replyMessage.setText(requestMessageText);
+				replyMessage.setStringProperty("JMSType", "TextMessage");
 				submit(requestTextMessage, replyMessage);
 			}
 			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 2
@@ -54,6 +55,7 @@ public class MessageReplyHandler {
 			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 3
 				TextMessage replyMessage = session.createTextMessage();
 				replyMessage.setText("Binary message processed at: " + new Date());
+				replyMessage.setStringProperty("JMSType", "TextMessage");
 				submit(requestBinaryMessage, replyMessage);
 			}
 			if (replyType.toUpperCase().equals(MessageType.BINARY.name())) { // scenario 4

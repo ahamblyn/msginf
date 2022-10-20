@@ -1,11 +1,6 @@
 package nz.co.pukeko.msginf.infrastructure.queue;
 
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.Session;
+import javax.jms.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,7 +56,26 @@ public class QueueChannel {
    public MessageConsumer createMessageConsumer(Queue queue, String messageSelector) throws JMSException {
        return this.session.createConsumer(queue, messageSelector);
     }
-   
+
+    /**
+     * Creates a JMS message consumer for the JMS queue.
+     * @param queue the JMS queue.
+     * @return the JMS message consumer.
+     * @throws JMSException JMS exception
+     */
+    public MessageConsumer createMessageConsumer(Queue queue) throws JMSException {
+        return this.session.createConsumer(queue);
+    }
+
+    /**
+     * Creates a JMS temporary queue.
+     * @return the JMS temporary queue.
+     * @throws JMSException JMS exception
+     */
+    public TemporaryQueue createTemporaryQueue() throws JMSException {
+        return this.session.createTemporaryQueue();
+    }
+
    /**
     * Closes the JMS queue session and connections.
     */ 

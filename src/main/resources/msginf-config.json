@@ -51,6 +51,7 @@
                 "requestType": "text",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": true,
                 "messageProperties": [
                   {
                     "name": "ReplyType",
@@ -69,6 +70,7 @@
                 "requestType": "text",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": true,
                 "messageProperties": [
                   {
                     "name": "ReplyType",
@@ -87,6 +89,7 @@
                 "requestType": "binary",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": true,
                 "messageProperties": [
                   {
                     "name": "ReplyType",
@@ -105,6 +108,7 @@
                 "requestType": "binary",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": true,
                 "messageProperties": [
                   {
                     "name": "ReplyType",
@@ -151,7 +155,13 @@
                 "submitQueueName": "TestQueue",
                 "submitQueueConnFactoryName": "ConnectionFactory",
                 "requestType": "text",
-                "messageTimeToLive": 0
+                "messageTimeToLive": 0,
+                "messageProperties": [
+                  {
+                    "name": "JMSType",
+                    "value": "TextMessage"
+                  }
+                ]
               },
               "connectorName": "submit_text",
               "compressBinaryMessages": false
@@ -172,14 +182,19 @@
               "requestReplyConnection": {
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestQueueConnFactoryName": "ConnectionFactory",
                 "requestType": "text",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": false,
                 "messageProperties": [
                   {
                     "name": "ReplyType",
                     "value": "text"
+                  },
+                  {
+                    "name": "JMSType",
+                    "value": "TextMessage"
                   }
                 ]
               },
@@ -190,14 +205,19 @@
               "requestReplyConnection": {
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestQueueConnFactoryName": "ConnectionFactory",
                 "requestType": "text",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": false,
                 "messageProperties": [
                   {
                     "name": "ReplyType",
                     "value": "binary"
+                  },
+                  {
+                    "name": "JMSType",
+                    "value": "TextMessage"
                   }
                 ]
               },
@@ -208,10 +228,11 @@
               "requestReplyConnection": {
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestQueueConnFactoryName": "ConnectionFactory",
                 "requestType": "binary",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": false,
                 "messageProperties": [
                   {
                     "name": "ReplyType",
@@ -226,10 +247,11 @@
               "requestReplyConnection": {
                 "requestQueueName": "RequestQueue",
                 "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "QueueConnectionFactory",
+                "requestQueueConnFactoryName": "ConnectionFactory",
                 "requestType": "binary",
                 "messageTimeToLive": 0,
                 "replyWaitTime": 20000,
+                "useMessageSelector": false,
                 "messageProperties": [
                   {
                     "name": "ReplyType",

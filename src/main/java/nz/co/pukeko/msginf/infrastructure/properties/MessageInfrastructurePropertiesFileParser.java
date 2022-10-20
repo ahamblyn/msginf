@@ -470,6 +470,18 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
+     * Returns the request-reply connection use message selector value for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the request-reply connection use message selector value for the request-reply connector.
+     */
+    public boolean getRequestReplyConnectionUseMessageSelector(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
+        Optional<Boolean> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.getUseMessageSelector()));
+        return replyWaitTime.orElse(true);
+    }
+
+    /**
      * Returns message type based on message request type.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
