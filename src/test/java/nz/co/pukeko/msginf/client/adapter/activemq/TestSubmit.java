@@ -1,6 +1,8 @@
-package nz.co.pukeko.msginf.client.adapter;
+package nz.co.pukeko.msginf.client.adapter.activemq;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukeko.msginf.client.adapter.Messenger;
+import nz.co.pukeko.msginf.client.adapter.TestUtil;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.models.message.MessageRequestType;
@@ -120,7 +122,7 @@ public class TestSubmit {
     @Test
     @Order(6)
     public void receiveBinaryMessages() throws MessageException {
-        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -149,7 +151,7 @@ public class TestSubmit {
             thread.join();
         }
         // dequeue messages
-        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());
@@ -173,7 +175,7 @@ public class TestSubmit {
         }
         futureList.forEach(CompletableFuture::join);
         // dequeue messages
-        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
+        List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
         log.info(QueueStatisticsCollector.getInstance().toString());

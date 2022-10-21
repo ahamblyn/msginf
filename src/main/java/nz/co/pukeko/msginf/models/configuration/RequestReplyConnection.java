@@ -16,5 +16,6 @@ public class RequestReplyConnection {
     private String requestType;
     private Integer messageTimeToLive;
     private Integer replyWaitTime;
+    private Boolean useMessageSelector;
     private List<MessageProperty> messageProperties;
 }

@@ -1,6 +1,8 @@
-package nz.co.pukeko.msginf.client.adapter;
+package nz.co.pukeko.msginf.client.adapter.activemq;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukeko.msginf.client.adapter.Messenger;
+import nz.co.pukeko.msginf.client.adapter.TestUtil;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
@@ -19,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestTextRequestTextReply {
+public class TestBinaryRequestTextReply {
 
     private static Messenger messenger;
     private static MessageRequestReply messageRequestReply;
@@ -33,7 +35,7 @@ public class TestTextRequestTextReply {
                     "ReplyQueue");
             messageRequestReply.run();
         } catch (MessageException e) {
-            log.error("Unable to setup TestTextRequestTextReply test", e);
+            log.error("Unable to setup TestBinaryRequestTextReply test", e);
         }
         messenger = new Messenger();
     }
@@ -50,10 +52,10 @@ public class TestTextRequestTextReply {
 
     @Test
     @Order(1)
-    public void reply() throws MessageException {
+    public void reply() throws Exception {
         for (int i = 0; i < 10; i++) {
-            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    "text_request_text_reply", "Message[" + (i + 1) + "]"));
+            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+                    "binary_request_text_reply", "data/905727.pdf"));
             assertNotNull(response);
             assertNotNull(response.getTextResponse());
             assertEquals(MessageType.TEXT, response.getMessageType());
@@ -69,13 +71,13 @@ public class TestTextRequestTextReply {
             Thread newThread = new Thread(() -> {
                 try {
                     for (int j = 0; j < 10; j++) {
-                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                "text_request_text_reply", "MessageZZZZ"));
+                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+                                "binary_request_text_reply", "data/905727.pdf"));
                         assertNotNull(response);
                         assertNotNull(response.getTextResponse());
                         assertEquals(MessageType.TEXT, response.getMessageType());
                     }
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -95,13 +97,13 @@ public class TestTextRequestTextReply {
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
-                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            "text_request_text_reply", "MessageZZZZ"));
+                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+                            "binary_request_text_reply", "data/905727.pdf"));
                     assertNotNull(response);
                     assertNotNull(response.getTextResponse());
                     assertEquals(MessageType.TEXT, response.getMessageType());
                     return response;
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }));

@@ -1,6 +1,7 @@
 package nz.co.pukeko.msginf.infrastructure.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
@@ -17,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.properties.PropertiesQueue;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 /**
  * Utility class.
@@ -100,6 +104,17 @@ public class Util {
 		InitialContext jmsCtx = null;
 		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
 		String url = parser.getSystemUrl(messagingSystem);
+		// if url is a resource then look in class path
+		if (url.startsWith("resource://")) {
+			url = StringUtils.removeStart(url, "resource://");
+			Resource resource = new ClassPathResource(url);
+			try {
+				url = resource.getURL().toString();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		log.info(messagingSystem + " System URL: " + url);
 		String host = parser.getSystemHost(messagingSystem);
 		int port = parser.getSystemPort(messagingSystem);
 		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
@@ -111,7 +126,7 @@ public class Util {
 			} else {
 				Properties props = new Properties();
 				props.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
-				if (url != null && !url.equals("")) {
+				if (!url.equals("")) {
 					props.setProperty(Context.PROVIDER_URL, url);
 					props.setProperty("brokerURL", url);
 				}
@@ -129,8 +144,7 @@ public class Util {
 				jmsCtx = new InitialContext(props);
 			}
 		} catch (NamingException ne) {
-			// cannot connect
-			log.info("Cannot initialise " + messagingSystem);
+			log.error("Cannot initialise " + messagingSystem, ne);
 		}
 		return jmsCtx;
 	}

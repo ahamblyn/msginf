@@ -1,6 +1,8 @@
-package nz.co.pukeko.msginf.client.adapter;
+package nz.co.pukeko.msginf.client.adapter.activemq;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukeko.msginf.client.adapter.QueueManager;
+import nz.co.pukeko.msginf.client.adapter.TestUtil;
 import nz.co.pukeko.msginf.client.listener.MessageRequestReply;
 import nz.co.pukeko.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;

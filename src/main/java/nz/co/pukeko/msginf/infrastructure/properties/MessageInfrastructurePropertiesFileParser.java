@@ -201,7 +201,7 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<String> getJarFileNames(String messagingSystemName) {
         List<String> jarFileNamesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system ->
-                jarFileNamesList.addAll(system.getJarFiles().stream().map(JarFile::getJarFileName).toList()));
+                jarFileNamesList.addAll(system.getJarFiles()));
         return jarFileNamesList;
     }
 
@@ -467,6 +467,18 @@ public class MessageInfrastructurePropertiesFileParser {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<Integer> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.getReplyWaitTime()));
         return replyWaitTime.orElse(0);
+    }
+
+    /**
+     * Returns the request-reply connection use message selector value for the request-reply connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the request-reply connection use message selector value for the request-reply connector.
+     */
+    public boolean getRequestReplyConnectionUseMessageSelector(String messagingSystemName, String connectorName) {
+        Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
+        Optional<Boolean> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.getUseMessageSelector()));
+        return replyWaitTime.orElse(true);
     }
 
     /**
