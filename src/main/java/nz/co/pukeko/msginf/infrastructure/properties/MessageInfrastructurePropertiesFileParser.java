@@ -149,7 +149,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the initial context factory name for the messaging system.
      */
     public String getSystemInitialContextFactory(String messagingSystemName) {
-        Optional<String> contextFactory = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getInitialContextFactory()));
+        Optional<String> contextFactory = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getInitialContextFactory()));
         return contextFactory.orElse("");
     }
 
@@ -159,7 +159,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the url for the messaging system.
      */
     public String getSystemUrl(String messagingSystemName) {
-        Optional<String> url = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getUrl()));
+        Optional<String> url = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getUrl()));
         return url.orElse("");
     }
 
@@ -169,7 +169,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the host for the messaging system.
      */
     public String getSystemHost(String messagingSystemName) {
-        Optional<String> host = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getHost()));
+        Optional<String> host = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getHost()));
         return host.orElse("");
     }
 
@@ -179,7 +179,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the port for the messaging system.
      */
     public int getSystemPort(String messagingSystemName) {
-        Optional<Integer> port = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getPort()));
+        Optional<Integer> port = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getPort()));
         return port.orElse(0);
     }
 
@@ -189,7 +189,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the naming factory url packages for the messaging system.
      */
     public String getSystemNamingFactoryUrlPkgs(String messagingSystemName) {
-        Optional<String> namingFactoryUrlPkgs = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getNamingFactoryUrlPkgs()));
+        Optional<String> namingFactoryUrlPkgs = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getNamingFactoryUrlPkgs()));
         return namingFactoryUrlPkgs.orElse("");
     }
 

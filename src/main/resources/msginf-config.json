@@ -125,8 +125,10 @@
           "maxConnections": 20
         },
         "name": "activemq",
-        "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "url": "tcp://localhost:61616"
+        "jndiProperties": {
+          "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+          "url": "tcp://localhost:61616"
+        }
       },
       {
         "jarFiles": [
@@ -268,8 +270,10 @@
           "maxConnections": 20
         },
         "name": "rabbitmq",
-        "initialContextFactory": "com.sun.jndi.fscontext.RefFSContextFactory",
-        "url": "resource://rabbitmq-bindings"
+        "jndiProperties": {
+          "initialContextFactory": "com.sun.jndi.fscontext.RefFSContextFactory",
+          "url": "resource://rabbitmq-bindings"
+        }
       }
     ]
   }
