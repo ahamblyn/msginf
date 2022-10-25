@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukeko.msginf.infrastructure.exception.MessageException;
 import nz.co.pukeko.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukeko.msginf.infrastructure.properties.PropertiesQueue;
+import nz.co.pukeko.msginf.models.configuration.VendorJNDIProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -104,6 +105,7 @@ public class Util {
 		InitialContext jmsCtx = null;
 		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
 		String url = parser.getSystemUrl(messagingSystem);
+		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
 		// if url is a resource then look in class path
 		if (url.startsWith("resource://")) {
 			url = StringUtils.removeStart(url, "resource://");
@@ -115,12 +117,9 @@ public class Util {
 			}
 		}
 		log.info(messagingSystem + " System URL: " + url);
-		String host = parser.getSystemHost(messagingSystem);
-		int port = parser.getSystemPort(messagingSystem);
-		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
 		List<PropertiesQueue> queues = parser.getQueues(messagingSystem);
 		try {
-			if (initialContextFactory == null || initialContextFactory.equals("")) {
+			if (initialContextFactory.equals("")) {
 				// no properties required to initialise context
 				jmsCtx = new InitialContext();
 			} else {
@@ -128,14 +127,14 @@ public class Util {
 				props.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
 				if (!url.equals("")) {
 					props.setProperty(Context.PROVIDER_URL, url);
-					props.setProperty("brokerURL", url);
 				}
-				if (host != null && !host.equals("")) {
-					props.setProperty("java.naming.factory.host", host);
-					props.setProperty("java.naming.factory.port", Integer.toString(port));
-				}
-				if (namingFactoryUrlPkgs != null && !namingFactoryUrlPkgs.equals("")) {
+				if (!namingFactoryUrlPkgs.equals("")) {
 					props.setProperty(Context.URL_PKG_PREFIXES, namingFactoryUrlPkgs);
+				}
+				// add vendor specific JNDI properties
+				List<VendorJNDIProperty> vendorJNDIProperties = parser.getVendorJNDIProperties(messagingSystem);
+				for (VendorJNDIProperty vendorJNDIProperty : vendorJNDIProperties) {
+					props.setProperty(vendorJNDIProperty.getName(), vendorJNDIProperty.getValue());
 				}
 				// add queue info
 				for (PropertiesQueue queue : queues) {

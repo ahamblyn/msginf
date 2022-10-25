@@ -274,6 +274,68 @@
           "initialContextFactory": "com.sun.jndi.fscontext.RefFSContextFactory",
           "url": "resource://rabbitmq-bindings"
         }
+      },
+      {
+        "jarFiles": [
+          "C:\\alisdair\\java\\kafka-jms-client\\kafka-jms-client-7.2.2.jar",
+          "C:\\alisdair\\java\\kafka-jms-client\\kafka-clients-3.3.1.jar",
+          "C:\\alisdair\\java\\kafka-jms-client\\guava-31.1-jre.jar",
+          "C:\\alisdair\\java\\kafka-jms-client\\jose4j-0.7.9.jar",
+          "C:\\alisdair\\java\\kafka-jms-client\\connect-runtime-3.3.1.jar",
+          "C:\\alisdair\\java\\kafka-jms-client\\connect-api-3.3.1.jar",
+          "C:\\alisdair\\java\\kafka-jms-client\\protobuf-java-3.21.8.jar"
+        ],
+        "queues": [
+          {
+            "jndiName": "TestQueue",
+            "physicalName": "TEST.QUEUE"
+          }
+        ],
+        "connectors": {
+          "submit": [
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_text",
+              "compressBinaryMessages": false
+            },
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_binary",
+              "compressBinaryMessages": false
+            }
+          ],
+          "useConnectionPooling": true,
+          "minConnections": 5,
+          "maxConnections": 20
+        },
+        "name": "kafka",
+        "jndiProperties": {
+          "initialContextFactory": "io.confluent.kafka.jms.KafkaInitialContextFactory",
+          "vendorJNDIProperties": [
+            {
+              "name": "client.id",
+              "value": "testing-01"
+            },
+            {
+              "name": "bootstrap.servers",
+              "value": "localhost:9092"
+            },
+            {
+              "name": "confluent.topic.replication.factor",
+              "value": "1"
+            }
+          ]
+        }
       }
     ]
   }

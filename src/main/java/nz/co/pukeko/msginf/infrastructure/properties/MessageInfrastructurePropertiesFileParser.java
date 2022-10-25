@@ -164,26 +164,6 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the host for the messaging system.
-     * @param messagingSystemName the messaging system
-     * @return the host for the messaging system.
-     */
-    public String getSystemHost(String messagingSystemName) {
-        Optional<String> host = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getHost()));
-        return host.orElse("");
-    }
-
-    /**
-     * Returns the port for the messaging system.
-     * @param messagingSystemName the messaging system
-     * @return the port for the messaging system.
-     */
-    public int getSystemPort(String messagingSystemName) {
-        Optional<Integer> port = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getPort()));
-        return port.orElse(0);
-    }
-
-    /**
      * Returns the naming factory url packages for the messaging system.
      * @param messagingSystemName the messaging system
      * @return the naming factory url packages for the messaging system.
@@ -218,6 +198,23 @@ public class MessageInfrastructurePropertiesFileParser {
             queuesList.addAll(props);
         });
         return queuesList;
+    }
+
+    /**
+     * Returns a list of the vendor specific JNDI properties for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return a list of the vendor specific JNDI properties for the messaging system.
+     */
+    public List<VendorJNDIProperty> getVendorJNDIProperties(String messagingSystemName) {
+        List<VendorJNDIProperty> propertiesList = new ArrayList<>();
+        findSystem(messagingSystemName).ifPresent(system -> {
+            Optional.ofNullable(system.getJndiProperties().getVendorJNDIProperties()).ifPresent(vendorJNDIProperties -> {
+                List<VendorJNDIProperty> props = system.getJndiProperties().getVendorJNDIProperties().stream()
+                        .map(property -> new VendorJNDIProperty(property.getName(), property.getValue())).toList();
+                propertiesList.addAll(props);
+            });
+        });
+        return propertiesList;
     }
 
     /**
