@@ -55,7 +55,7 @@ public class QueueChannelPool implements Runnable {
      * This sets up the collections, creates the initial queue channels, and
      * puts them into the available queue channel collection.
      * @param connFactory the JMS queue connection factory.
-     * @param queueChannelLimit the maximum nuber of queue channels.
+     * @param queueChannelLimit the maximum number of queue channels.
      * @throws MessageException Message exception
      */
    public QueueChannelPool(QueueConnectionFactory connFactory, int queueChannelLimit) throws MessageException {

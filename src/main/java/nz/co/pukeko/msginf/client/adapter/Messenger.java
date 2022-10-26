@@ -7,10 +7,10 @@ import nz.co.pukeko.msginf.models.message.MessageRequest;
 import nz.co.pukeko.msginf.models.message.MessageResponse;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Creates and manages QueueManager instances for each configured messaging system.
@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class Messenger {
-    private final Map<String, QueueManager> queueManagers = new HashMap<>();
+    private final ConcurrentMap<String, QueueManager> queueManagers = new ConcurrentHashMap<>();
 
     public Messenger() {
         // create a queue manager for each messaging system and put into map

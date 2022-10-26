@@ -1,8 +1,9 @@
 package nz.co.pukeko.msginf.infrastructure.queue;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.jms.QueueConnectionFactory;
 import javax.naming.Context;
@@ -33,14 +34,14 @@ public class QueueChannelPoolFactory {
     /**
      * A collection containing the queue channel pools.
      */
-    private final Hashtable<String, QueueChannelPool> queueChannelPools;
+    private final ConcurrentMap<String, QueueChannelPool> queueChannelPools;
 
     /**
      * The QueueChannelPoolFactory constructor. Instantiates the queue channel
      * pool collection.
      */
     protected QueueChannelPoolFactory() {
-        queueChannelPools = new Hashtable<>();
+        queueChannelPools = new ConcurrentHashMap<>();
     }
 
     /**

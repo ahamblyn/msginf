@@ -1,8 +1,8 @@
 package nz.co.pukeko.msginf.client.adapter;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
@@ -35,7 +35,7 @@ public class QueueManager {
 	/**
 	 * The message controllers.
 	 */
-	private final Hashtable<String,MessageController> messageControllers = new Hashtable<>();
+	private final ConcurrentMap<String,MessageController> messageControllers = new ConcurrentHashMap<>();
 
 	/**
 	 * The properties file parser.
@@ -142,12 +142,7 @@ public class QueueManager {
 	 * Close the resources.
 	 */
 	public synchronized void close() {
-		Enumeration<String> keys = messageControllers.keys();
-		while (keys.hasMoreElements()) {
-			String key = keys.nextElement();
-			MessageController mc = messageControllers.get(key);
-			mc.release();
-		}
+		messageControllers.values().forEach(MessageController::release);
 		messageControllers.clear();
 	}
 

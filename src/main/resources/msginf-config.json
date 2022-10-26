@@ -277,6 +277,141 @@
       },
       {
         "jarFiles": [
+          "C:\\alisdair\\java\\wso2mb-3.2.0\\client-lib\\andes-client-3.2.19.jar",
+          "C:\\alisdair\\java\\wso2mb-3.2.0\\client-lib\\org.wso2.securevault-1.0.0-wso2v2.jar"
+        ],
+        "queues": [
+          {
+            "jndiName": "TestQueue",
+            "physicalName": "TEST.QUEUE"
+          },
+          {
+            "jndiName": "RequestQueue",
+            "physicalName": "REQUEST.QUEUE"
+          },
+          {
+            "jndiName": "ReplyQueue",
+            "physicalName": "REPLY.QUEUE"
+          }
+        ],
+        "connectors": {
+          "submit": [
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "qpidConnectionfactory",
+                "requestType": "text",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_text",
+              "compressBinaryMessages": false
+            },
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "qpidConnectionfactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_binary",
+              "compressBinaryMessages": false
+            }
+          ],
+          "requestReply": [
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "qpidConnectionfactory",
+                "requestType": "text",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "useMessageSelector": true,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
+              },
+              "connectorName": "text_request_text_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "qpidConnectionfactory",
+                "requestType": "text",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "useMessageSelector": true,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
+              },
+              "connectorName": "text_request_binary_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "qpidConnectionfactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "useMessageSelector": true,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "text"
+                  }
+                ]
+              },
+              "connectorName": "binary_request_text_reply",
+              "compressBinaryMessages": false
+            },
+            {
+              "requestReplyConnection": {
+                "requestQueueName": "RequestQueue",
+                "replyQueueName": "ReplyQueue",
+                "requestQueueConnFactoryName": "qpidConnectionfactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0,
+                "replyWaitTime": 20000,
+                "useMessageSelector": true,
+                "messageProperties": [
+                  {
+                    "name": "ReplyType",
+                    "value": "binary"
+                  }
+                ]
+              },
+              "connectorName": "binary_request_binary_reply",
+              "compressBinaryMessages": true
+            }
+          ],
+          "useConnectionPooling": false,
+          "minConnections": 5,
+          "maxConnections": 20
+        },
+        "name": "wso2",
+        "jndiProperties": {
+          "initialContextFactory": "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+          "vendorJNDIProperties": [
+            {
+              "name": "connectionfactory.qpidConnectionfactory",
+              "value": "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+            }
+          ]
+        }
+      },
+      {
+        "jarFiles": [
           "C:\\alisdair\\java\\kafka-jms-client\\kafka-jms-client-7.2.2.jar",
           "C:\\alisdair\\java\\kafka-jms-client\\kafka-clients-3.3.1.jar",
           "C:\\alisdair\\java\\kafka-jms-client\\guava-31.1-jre.jar",
