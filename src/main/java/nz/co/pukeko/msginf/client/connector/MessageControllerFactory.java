@@ -1,8 +1,9 @@
 package nz.co.pukeko.msginf.client.connector;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
@@ -30,7 +31,7 @@ public class MessageControllerFactory {
 	/**
 	 * The JMS contexts.
 	 */
-	private Hashtable<String,Context> jmsContexts = null;
+	private ConcurrentMap<String,Context> jmsContexts = null;
 
 	/**
 	 * The properties file parser.
@@ -88,7 +89,7 @@ public class MessageControllerFactory {
 	private void initialise(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
 		// load the runtime jar files
 		Util.loadRuntimeJarFiles(parser);
-		jmsContexts = new Hashtable<>();
+		jmsContexts = new ConcurrentHashMap<>();
 		//Initialise a jndi context for each system in the properties file
 		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
         for (String messagingSystem : availableMessagingSystems) {

@@ -1,7 +1,8 @@
 package nz.co.pukeko.msginf.infrastructure.data;
 
-import java.util.Hashtable;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Singleton class to collect timing statistics. This class will collect timings based on the collection name String passed in.
@@ -16,7 +17,7 @@ public class QueueStatisticsCollector {
 	/**
 	 * A Hashtable to store the statistics for each collection.
 	 */
-	private final Hashtable<String,QueueStatistics> queueStatsTable = new Hashtable<>();
+	private final ConcurrentMap<String,QueueStatistics> queueStatsTable = new ConcurrentHashMap<>();
 
 	/**
 	 * The QueueStatisticsCollector constructor.

@@ -4,14 +4,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
+import javax.jms.*;
 import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -115,7 +109,7 @@ public class MessageController {
    /**
     * The queue channel pool.
     */
-    private final QueueChannelPool qcp;
+    private QueueChannelPool qcp;
 
    /**
     * The static queue channel pool factory.
@@ -132,6 +126,11 @@ public class MessageController {
 	 */
 	private final boolean logStatistics;
 
+	/**
+	 * Whether to use connection pooling or not.
+	 */
+	private final boolean useConnectionPooling;
+
     /**
      * Constructs the MessageController instance.
 	 * @param parser the properties file parser.
@@ -145,6 +144,7 @@ public class MessageController {
 							 Context jmsCtx, boolean logStatistics) throws MessageException {
 	  this.connector = connector;
       this.logStatistics = logStatistics;
+	  this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
   	  String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
 			this.replyExpected = false;
@@ -171,11 +171,14 @@ public class MessageController {
          if (replyQueueName != null) {
              replyQueue = (Queue)jmsCtx.lookup(replyQueueName);
          }
-          if (qcpf == null) {
-              qcpf = QueueChannelPoolFactory.getInstance();
-          }
-          qcp = qcpf.getQueueChannelPool(parser, jmsCtx, messagingSystem, this.queueConnFactoryName);
-      	  setupQueueObjects();
+		  log.info("Use connection pooling: " + useConnectionPooling);
+		  if (useConnectionPooling) {
+			  if (qcpf == null) {
+				  qcpf = QueueChannelPoolFactory.getInstance();
+			  }
+			  qcp = qcpf.getQueueChannelPool(parser, jmsCtx, messagingSystem, this.queueConnFactoryName);
+		  }
+		  setupQueueObjects(jmsCtx);
       } catch (JMSException | NamingException e) {
           throw new MessageControllerException(e);
       }
@@ -290,12 +293,25 @@ public class MessageController {
         return session.createTextMessage();
     }
 
-    private void setupQueueObjects() throws JMSException {
-		log.debug("Setting up: " + this);
-		if (queueChannel != null) {
-			qcp.free(queueChannel);
-		}
-		queueChannel = qcp.getQueueChannel();
+    private void setupQueueObjects(Context jmsContext) throws JMSException {
+	   if (useConnectionPooling) {
+		   if (queueChannel != null) {
+			   qcp.free(queueChannel);
+		   }
+		   queueChannel = qcp.getQueueChannel();
+	   } else {
+		   // create queue channel
+		   QueueConnectionFactory connFactory = null;
+		   try {
+			   connFactory = (QueueConnectionFactory) jmsContext.lookup(queueConnFactoryName);
+		   } catch (NamingException e) {
+			   throw new RuntimeException("Unable to lookup the queue connection factory", e);
+		   }
+		   QueueConnection qconn = connFactory.createQueueConnection();
+		   qconn.start();
+		   Session session = qconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		   queueChannel = new QueueChannel(qconn, session);
+	   }
 		session = queueChannel.getSession();
 		submitMessageProducer = queueChannel.createMessageProducer(this.queue);
 		requestReplyMessageProducer = queueChannel.createMessageProducer(this.queue);
@@ -365,7 +381,7 @@ public class MessageController {
         } catch (JMSException e) {
         	log.error(e.getMessage(), e);
         }
-		if (queueChannel != null){
+		if (queueChannel != null && useConnectionPooling) {
             qcp.free(queueChannel);
         }
     }
