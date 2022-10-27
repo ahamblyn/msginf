@@ -305,7 +305,7 @@ public class MessageController {
 		   try {
 			   connFactory = (QueueConnectionFactory) jmsContext.lookup(queueConnFactoryName);
 		   } catch (NamingException e) {
-			   throw new RuntimeException("Unable to lookup the queue connection factory", e);
+			   throw new RuntimeException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
 		   }
 		   QueueConnection qconn = connFactory.createQueueConnection();
 		   qconn.start();

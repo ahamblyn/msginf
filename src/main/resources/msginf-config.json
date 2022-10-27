@@ -134,7 +134,8 @@
         "jarFiles": [
           "C:\\alisdair\\java\\rabbitmq-jms-client\\rabbitmq-jms-2.6.0.jar",
           "C:\\alisdair\\java\\rabbitmq-jms-client\\amqp-client-5.16.0.jar",
-          "C:\\alisdair\\java\\rabbitmq-jms-client\\fscontext-4.6-b01.jar"
+          "C:\\alisdair\\java\\rabbitmq-jms-client\\fscontext-4.6-b01.jar",
+          "C:\\alisdair\\java\\rabbitmq-jms-client\\wildfly-common-1.5.2.Final.jar"
         ],
         "queues": [
           {
@@ -284,14 +285,6 @@
           {
             "jndiName": "TestQueue",
             "physicalName": "TEST.QUEUE"
-          },
-          {
-            "jndiName": "RequestQueue",
-            "physicalName": "REQUEST.QUEUE"
-          },
-          {
-            "jndiName": "ReplyQueue",
-            "physicalName": "REPLY.QUEUE"
           }
         ],
         "connectors": {
@@ -315,84 +308,6 @@
               },
               "connectorName": "submit_binary",
               "compressBinaryMessages": false
-            }
-          ],
-          "requestReply": [
-            {
-              "requestReplyConnection": {
-                "requestQueueName": "RequestQueue",
-                "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "qpidConnectionfactory",
-                "requestType": "text",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000,
-                "useMessageSelector": true,
-                "messageProperties": [
-                  {
-                    "name": "ReplyType",
-                    "value": "text"
-                  }
-                ]
-              },
-              "connectorName": "text_request_text_reply",
-              "compressBinaryMessages": false
-            },
-            {
-              "requestReplyConnection": {
-                "requestQueueName": "RequestQueue",
-                "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "qpidConnectionfactory",
-                "requestType": "text",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000,
-                "useMessageSelector": true,
-                "messageProperties": [
-                  {
-                    "name": "ReplyType",
-                    "value": "binary"
-                  }
-                ]
-              },
-              "connectorName": "text_request_binary_reply",
-              "compressBinaryMessages": false
-            },
-            {
-              "requestReplyConnection": {
-                "requestQueueName": "RequestQueue",
-                "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "qpidConnectionfactory",
-                "requestType": "binary",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000,
-                "useMessageSelector": true,
-                "messageProperties": [
-                  {
-                    "name": "ReplyType",
-                    "value": "text"
-                  }
-                ]
-              },
-              "connectorName": "binary_request_text_reply",
-              "compressBinaryMessages": false
-            },
-            {
-              "requestReplyConnection": {
-                "requestQueueName": "RequestQueue",
-                "replyQueueName": "ReplyQueue",
-                "requestQueueConnFactoryName": "qpidConnectionfactory",
-                "requestType": "binary",
-                "messageTimeToLive": 0,
-                "replyWaitTime": 20000,
-                "useMessageSelector": true,
-                "messageProperties": [
-                  {
-                    "name": "ReplyType",
-                    "value": "binary"
-                  }
-                ]
-              },
-              "connectorName": "binary_request_binary_reply",
-              "compressBinaryMessages": true
             }
           ],
           "useConnectionPooling": false,
@@ -470,6 +385,65 @@
               "value": "1"
             }
           ]
+        }
+      },
+      {
+        "jarFiles": [
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\artemis-jms-client-2.26.0.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\artemis-core-client-2.26.0.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\artemis-commons-2.26.0.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\artemis-selector-2.26.0.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\jboss-logging-3.5.0.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\jboss-logmanager-2.1.18.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\jakarta.jms-api-2.0.3.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\commons-beanutils-1.9.4.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-buffer-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-codec-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-codec-http-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-codec-socks-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-common-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-handler-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-handler-proxy-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-resolver-4.1.79.Final.jar",
+          "C:\\alisdair\\java\\apache-artemis-2.26.0\\lib\\netty-transport-4.1.79.Final.jar"
+        ],
+        "queues": [
+          {
+            "jndiName": "TestQueue",
+            "physicalName": "TEST.QUEUE"
+          }
+        ],
+        "connectors": {
+          "submit": [
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_text",
+              "compressBinaryMessages": false
+            },
+            {
+              "submitConnection": {
+                "submitQueueName": "TestQueue",
+                "submitQueueConnFactoryName": "QueueConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "submit_binary",
+              "compressBinaryMessages": false
+            }
+          ],
+          "useConnectionPooling": false,
+          "minConnections": 5,
+          "maxConnections": 20
+        },
+        "name": "artemis",
+        "jndiProperties": {
+          "initialContextFactory": "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+          "url": "tcp://localhost:61616"
         }
       }
     ]
