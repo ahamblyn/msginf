@@ -99,6 +99,10 @@
                     <groupId>com.google.collections</groupId>
                     <artifactId>google-collections</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
