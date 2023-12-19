@@ -9,7 +9,7 @@
         <version>3.1.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>nz.co.pukeko</groupId>
+    <groupId>nz.co.pukekocorp</groupId>
     <artifactId>msginf</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>msginf</name>
