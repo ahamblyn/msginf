@@ -342,8 +342,8 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getSubmitConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<String> requestType = connection.flatMap(sub -> Optional.ofNullable(sub.getRequestType()));
-        return requestType.orElse("text"); // default to text
+        Optional<RequestType> requestType = connection.flatMap(sub -> Optional.ofNullable(sub.getRequestType()));
+        return requestType.orElse(RequestType.TEXT).name(); // default to text
     }
 
     /**
@@ -426,8 +426,8 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getRequestReplyConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<String> requestType = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestType()));
-        return requestType.orElse("text"); // default to text
+        Optional<RequestType> requestType = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestType()));
+        return requestType.orElse(RequestType.TEXT).name(); // default to text
     }
 
     /**

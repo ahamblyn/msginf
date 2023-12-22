@@ -30,7 +30,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqSubmitTextExpectedData.compressBinaryMessages = false;
         activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
         activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqSubmitTextExpectedData.requestType = "text";
+        activemqSubmitTextExpectedData.requestType = "TEXT";
         activemqSubmitTextExpectedData.messageTimeToLive = 0;
         activemqSubmitTextExpectedData.replyWaitTime = 20000;
         expectedActiveMQConnectorDataMap.put("submit_text", activemqSubmitTextExpectedData);
@@ -40,7 +40,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
         activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
         activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqRequestReplyTextExpectedData.requestType = "text";
+        activemqRequestReplyTextExpectedData.requestType = "TEXT";
         activemqRequestReplyTextExpectedData.messageTimeToLive = 0;
         activemqRequestReplyTextExpectedData.replyWaitTime = 20000;
         activemqRequestReplyTextExpectedData.useMessageSelector = true;
@@ -51,7 +51,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         rabbitmqSubmitTextExpectedData.compressBinaryMessages = false;
         rabbitmqSubmitTextExpectedData.submitQueueName = "TestQueue";
         rabbitmqSubmitTextExpectedData.queueConnFactoryName = "ConnectionFactory";
-        rabbitmqSubmitTextExpectedData.requestType = "text";
+        rabbitmqSubmitTextExpectedData.requestType = "TEXT";
         rabbitmqSubmitTextExpectedData.messageTimeToLive = 0;
         rabbitmqSubmitTextExpectedData.replyWaitTime = 20000;
         expectedRabbitMQConnectorDataMap.put("submit_text", rabbitmqSubmitTextExpectedData);
@@ -61,7 +61,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         rabbitmqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
         rabbitmqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
         rabbitmqRequestReplyTextExpectedData.queueConnFactoryName = "ConnectionFactory";
-        rabbitmqRequestReplyTextExpectedData.requestType = "text";
+        rabbitmqRequestReplyTextExpectedData.requestType = "TEXT";
         rabbitmqRequestReplyTextExpectedData.messageTimeToLive = 0;
         rabbitmqRequestReplyTextExpectedData.replyWaitTime = 20000;
         rabbitmqRequestReplyTextExpectedData.useMessageSelector = false;

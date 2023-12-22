@@ -13,7 +13,7 @@ public class RequestReplyConnection {
     private String requestQueueName;
     private String replyQueueName;
     private String requestQueueConnFactoryName;
-    private String requestType;
+    private RequestType requestType;
     private Integer messageTimeToLive;
     private Integer replyWaitTime;
     private Boolean useMessageSelector;
