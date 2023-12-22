@@ -72,18 +72,17 @@ public class MessageControllerFactory {
 	 * message onto the queue defined for the connector in the properties file.
 	 * @param messagingSystem the messaging system defined in the properties file.
 	 * @param connectorName the connector name defined in the properties file.
-	 * @param logStatistics whether to log the statistics or not.
 	 * @return a new MessageController instance for the connector.
 	 * @throws MessageException Message exception
 	 */
-	public synchronized MessageController getNewMessageControllerInstance(String messagingSystem, String connectorName, boolean logStatistics) throws MessageException {
+	public synchronized MessageController getNewMessageControllerInstance(String messagingSystem, String connectorName) throws MessageException {
 		// find the context for the messaging system
 		InitialContext jmsCtx = (InitialContext)jmsContexts.get(messagingSystem);
 		if (jmsCtx == null) {
 			// not found
 			throw new QueueControllerNotFoundException("The JMS Context for " + messagingSystem + " was not found.");
 		}
-		return new MessageController(parser, messagingSystem, connectorName, jmsCtx, logStatistics);
+		return new MessageController(parser, messagingSystem, connectorName, jmsCtx);
 	}
 
 	private void initialise(MessageInfrastructurePropertiesFileParser parser) throws MessageException {

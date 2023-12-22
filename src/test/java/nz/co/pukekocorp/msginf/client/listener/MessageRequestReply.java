@@ -44,7 +44,7 @@ public class MessageRequestReply implements MessageListener {
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
 		} catch (MessageException | NamingException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			System.exit(1);
 		}
 	}
@@ -63,7 +63,7 @@ public class MessageRequestReply implements MessageListener {
 					replyQueueName);
 			mrr.run();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			System.exit(1);
 		}
 	}

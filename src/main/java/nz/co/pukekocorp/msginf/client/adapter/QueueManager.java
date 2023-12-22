@@ -11,6 +11,7 @@ import nz.co.pukekocorp.msginf.client.connector.MessageController;
 import nz.co.pukekocorp.msginf.client.connector.MessageControllerFactory;
 import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
+import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.infrastructure.util.Util;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
@@ -48,32 +49,26 @@ public class QueueManager {
 	private final String messagingSystem;
 
 	/**
-	 * Whether to log the statistics or not.
-	 */
-	private final boolean logStatistics;
-
-	/**
 	 * Constructs the QueueManager instance.
+	 * @param  parser the messaging infrastructure file parser
 	 * @param messagingSystem messaging system
-	 * @param logStatistics log the stats
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, boolean logStatistics) {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
-		this.logStatistics = logStatistics;
 		if (messageConnFactory == null) {
 			messageConnFactory = MessageControllerFactory.getInstance(parser);
 		}
 	}
-	
+
 	/**
-	 * Constructs the QueueManager instance. Logging off by default.
-	 * @param messagingSystem the messaging system
+	 * Constructs the QueueManager instance.
+	 * @param messagingSystem messaging system
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) {
-		this(parser, messagingSystem, false);
+	public QueueManager(String messagingSystem) throws PropertiesFileException {
+		this(new MessageInfrastructurePropertiesFileParser(), messagingSystem);
 	}
-	
+
     /**
 	 * Sends a message to the connector specified.
 	 * @param messageRequest the message request.
@@ -149,7 +144,7 @@ public class QueueManager {
 	private MessageController getMessageConnector(String connector) throws MessageException {
 		MessageController mc = messageControllers.get(connector);
 		if (mc == null) {
-			mc = messageConnFactory.getNewMessageControllerInstance(messagingSystem, connector, logStatistics);
+			mc = messageConnFactory.getNewMessageControllerInstance(messagingSystem, connector);
 			if (mc == null) {
 				// No MessageController exists for the messaging systems and connector.
 				throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");

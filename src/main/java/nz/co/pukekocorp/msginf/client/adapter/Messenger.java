@@ -27,7 +27,7 @@ public class Messenger {
             parser.getAvailableMessagingSystems().forEach(messagingSystem -> {
                 Optional<QueueManager> queueManager = getQueueManager(messagingSystem);
                 if (queueManager.isEmpty()) {
-                    queueManagers.put(messagingSystem, new QueueManager(parser, messagingSystem, true));
+                    queueManagers.put(messagingSystem, new QueueManager(parser, messagingSystem));
                 }
             });
         } catch (MessageException me) {

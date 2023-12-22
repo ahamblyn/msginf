@@ -5,6 +5,7 @@ import lombok.Setter;
 import nz.co.pukekocorp.msginf.models.configuration.MessageProperty;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -21,5 +22,11 @@ public class MessageRequest {
         this.messageRequestType = messageRequestType;
         this.connectorName = connectorName;
         this.correlationId = correlationId;
+    }
+
+    public MessageRequest(MessageRequestType messageRequestType, String connectorName) {
+        this.messageRequestType = messageRequestType;
+        this.connectorName = connectorName;
+        this.correlationId = UUID.randomUUID().toString();
     }
 }

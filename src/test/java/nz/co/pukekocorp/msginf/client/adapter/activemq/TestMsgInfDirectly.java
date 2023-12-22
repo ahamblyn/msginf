@@ -29,7 +29,7 @@ public class TestMsgInfDirectly {
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
 					"ReplyQueue");
-			queueManager = new QueueManager(parser, "activemq", true);
+			queueManager = new QueueManager(parser, "activemq");
 			messageRequestReply.run();
 		} catch (MessageException e) {
 			log.error("Unable to setup TestMsgInfDirectly test", e);

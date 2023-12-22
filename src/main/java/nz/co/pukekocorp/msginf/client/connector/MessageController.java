@@ -125,11 +125,6 @@ public class MessageController {
 	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 
 	/**
-	 * Whether to log the statistics or not.
-	 */
-	private final boolean logStatistics;
-
-	/**
 	 * Whether to use connection pooling or not.
 	 */
 	private final boolean useConnectionPooling;
@@ -140,13 +135,11 @@ public class MessageController {
      * @param messagingSystem the messaging system in the properties file to use.
      * @param connector the name of the connector as defined in the properties file.
      * @param jmsCtx the JMS context.
-     * @param logStatistics whether to log the timing statistics or not.
      * @throws MessageException Message exception
      */
 	public MessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
-							 Context jmsCtx, boolean logStatistics) throws MessageException {
+							 Context jmsCtx) throws MessageException {
 	  this.connector = connector;
-      this.logStatistics = logStatistics;
 	  this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
   	  String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
@@ -225,9 +218,7 @@ public class MessageController {
         return messageResponse;
     } catch (JMSException | MessageException e) {
     	// increment failed message count
-        if (logStatistics) {
-        	collector.incrementFailedMessageCount(connector);
-        }
+		collector.incrementFailedMessageCount(connector);
         throw new QueueUnavailableException(e);
     }
    }
@@ -261,22 +252,18 @@ public class MessageController {
 			messageConsumer.close();
 	    } catch (JMSException e) {
 	    	// increment failed message count
-	        if (logStatistics) {
-	        	collector.incrementFailedMessageCount(connector);
-	        }
+			collector.incrementFailedMessageCount(connector);
 	        throw new QueueUnavailableException(e);
 	    }
 	   return messages;
    }
 
 	private void collateStats(String connector, Instant start) {
-		if (logStatistics) {
-			Instant finish = Instant.now();
-			long duration = Duration.between(start, finish).toMillis();
-		    collector.incrementMessageCount(connector);
-		    collector.addMessageTime(connector, duration);
-		}
-	} 
+		Instant finish = Instant.now();
+		long duration = Duration.between(start, finish).toMillis();
+		collector.incrementMessageCount(connector);
+		collector.addMessageTime(connector, duration);
+	}
 
 	private void getMessageProperties(Message replyMsg, List<MessageProperty> messageProperties) throws JMSException {
 		if (messageProperties != null) {
