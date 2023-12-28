@@ -151,6 +151,7 @@ public class Util {
 	 * Convert the binary message string into a ByteArrayOutputStream
 	 * @param binaryMessage the binary message to decode
 	 * @return the decoded binary message
+	 * @throws MessageException message exception
 	 */
 	public static byte[] decodeBinaryMessage(String binaryMessage) throws MessageException {
 		try {
@@ -160,6 +161,11 @@ public class Util {
 		}
 	}
 
+	/**
+	 * Convert the binary message string into a String
+	 * @param binaryMessage the binary message to encode
+	 * @return the encoded binary message
+	 */
 	public static String encodeBinaryMessage(byte[] binaryMessage) {
 		if (binaryMessage != null) {
 			return Base64.getEncoder().encodeToString(binaryMessage);

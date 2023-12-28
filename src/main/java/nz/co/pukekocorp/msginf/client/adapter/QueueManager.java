@@ -64,6 +64,7 @@ public class QueueManager {
 	/**
 	 * Constructs the QueueManager instance.
 	 * @param messagingSystem messaging system
+	 * @throws PropertiesFileException if an error occurs.
 	 */
 	public QueueManager(String messagingSystem) throws PropertiesFileException {
 		this(new MessageInfrastructurePropertiesFileParser(), messagingSystem);
@@ -127,6 +128,7 @@ public class QueueManager {
 	 * @param connector the name of the connector as defined in the properties file.
 	 * @param timeout the timeout in milliseconds.
 	 * @return a list containing all the messages found.
+	 * @throws MessageException if an error occurs receiving the message.
 	 */
 	public synchronized List<MessageResponse> receiveMessages(String connector, long timeout) throws MessageException {
 		MessageController mc = getMessageConnector(connector);

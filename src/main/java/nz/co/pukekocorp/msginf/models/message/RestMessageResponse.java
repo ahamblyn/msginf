@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+/**
+ * REST message response
+ */
 @Getter
 @Setter
 @ToString
@@ -27,6 +30,12 @@ public class RestMessageResponse {
     @Schema(description = "The response time in ms")
     private Long responseTimeInMilliseconds;
 
+    /**
+     * RestMessageResponse constructor
+     * @param responseMessage Response message
+     * @param transactionId Transaction Id
+     * @param transactionStatus Transaction status
+     */
     public RestMessageResponse(String responseMessage, String transactionId, TransactionStatus transactionStatus) {
         this.responseMessage = responseMessage;
         this.transactionId = transactionId;
@@ -34,6 +43,13 @@ public class RestMessageResponse {
         this.responseTimeInMilliseconds = 0L;
     }
 
+    /**
+     * RestMessageResponse constructor
+     * @param responseMessage Response message
+     * @param transactionId Transaction Id
+     * @param transactionStatus Transaction status
+     * @param responseTimeInMilliseconds Response time
+     */
     public RestMessageResponse(String responseMessage, String transactionId, TransactionStatus transactionStatus, long responseTimeInMilliseconds) {
         this.responseMessage = responseMessage;
         this.transactionId = transactionId;

@@ -9,16 +9,28 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+/**
+ * The Statistics Service implementation.
+ */
 @Service
 @Slf4j
 public class StatisticsService implements IStatisticsService {
 
+    /**
+     * Returns the statistics for a connector
+     * @param connectorName the name of a connector
+     * @return the statistics
+     */
     @Override
     public String getConnectorStatistics(String connectorName) {
         QueueStatistics stats = QueueStatisticsCollector.getInstance().getQueueStats(connectorName);
         return stats.toString();
     }
 
+    /**
+     * Returns the statistics for all the messaging systems
+     * @return the statistics for all the messaging systems
+     */
     @Override
     public String allStatistics() {
         String stats = QueueStatisticsCollector.getInstance().toString();
@@ -28,6 +40,10 @@ public class StatisticsService implements IStatisticsService {
         return stats;
     }
 
+    /**
+     * Reset the statistics
+     * @return the result of the reset
+     */
     @Override
     public RestMessageResponse resetStatistics() {
         QueueStatisticsCollector.getInstance().resetQueueStatistics();

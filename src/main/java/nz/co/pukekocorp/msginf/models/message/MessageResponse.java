@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Message response
+ */
 @Getter
 @Setter
 @Schema(description = "The Message Response model")

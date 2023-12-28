@@ -95,6 +95,11 @@ public class MessageInfrastructurePropertiesFileParser {
         return availableMessagingSystems;
     }
 
+    /**
+     * Get system configuration for messaging system.
+     * @param messagingSystemName messaging system
+     * @return system configuration
+     */
     public Optional<System> getSystem(String messagingSystemName) {
         return findSystem(messagingSystemName);
     }
@@ -482,6 +487,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * Returns message type based on message request type.
      * @param messagingSystemName the messaging system
      * @param connectorName the connector name
+     * @param messageRequestType the message request type
      * @return the request type based on message request type.
      */
     public MessageType getMessageType(String messagingSystemName, String connectorName, MessageRequestType messageRequestType) {

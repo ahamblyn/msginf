@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * REST message request
+ */
 @Getter
 @Setter
 @Schema(description = "The Rest Message Request model")

@@ -7,6 +7,9 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * Connectors.
+ */
 @Getter
 @Setter
 @ToString

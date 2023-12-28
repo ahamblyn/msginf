@@ -42,6 +42,7 @@ public class ConsumerMessageRequester {
     /**
      * Handles the request-reply.
      * @param message the message
+     * @param correlationId the correlation id
      * @return the reply message.
      * @throws MessageRequesterException Message requester exception
      */

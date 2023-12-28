@@ -7,6 +7,9 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * JNDI properties.
+ */
 @Getter
 @Setter
 @ToString

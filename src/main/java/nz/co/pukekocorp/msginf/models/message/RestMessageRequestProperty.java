@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * REST message request property
+ */
 @Getter
 @Setter
 @ToString

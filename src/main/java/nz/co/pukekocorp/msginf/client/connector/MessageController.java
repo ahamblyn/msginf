@@ -222,7 +222,13 @@ public class MessageController {
         throw new QueueUnavailableException(e);
     }
    }
-   
+
+	/**
+	 * Receive messages
+	 * @param timeout time to wait in ms
+	 * @return list of messages
+	 * @throws MessageException message exception
+	 */
    public synchronized List<MessageResponse> receiveMessages(long timeout) throws MessageException {
 	    List<MessageResponse> messages = new ArrayList<>();
  	    Instant start = Instant.now();

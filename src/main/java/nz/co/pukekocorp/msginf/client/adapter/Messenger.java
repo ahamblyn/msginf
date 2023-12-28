@@ -20,6 +20,9 @@ import java.util.concurrent.ConcurrentMap;
 public class Messenger {
     private final ConcurrentMap<String, QueueManager> queueManagers = new ConcurrentHashMap<>();
 
+    /**
+     * Default constructor.
+     */
     public Messenger() {
         // create a queue manager for each messaging system and put into map
         try {
@@ -40,11 +43,26 @@ public class Messenger {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
     }
 
+    /**
+     * Send the message.
+     * @param messagingSystem messagging system
+     * @param messageRequest message request
+     * @return the message response
+     * @throws MessageException message exception
+     */
     public MessageResponse sendMessage(String messagingSystem, MessageRequest messageRequest) throws MessageException {
         QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
         return queueManager.sendMessage(messageRequest);
     }
 
+    /**
+     * Recieve the message
+     * @param messagingSystem the messaging system
+     * @param messageConnector the message connector
+     * @param timeout timeout to wait in ms
+     * @return a list of message responses
+     * @throws MessageException message exception
+     */
     public List<MessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout) throws MessageException {
         QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
         return queueManager.receiveMessages(messageConnector, timeout);

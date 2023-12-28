@@ -60,6 +60,9 @@ public class QueueChannelPoolFactory {
     /**
      * Gets the queue channel pool for the queue connection factory.
      *
+     * @param parser the properties file parser.
+     * @param jmsContext the JMS context.
+     * @param messagingSystem the messaging system.
      * @param queueConnectionFactoryName the queue connection factory name.
      * @return the queue channel pool.
      * @throws MessageException Message exception

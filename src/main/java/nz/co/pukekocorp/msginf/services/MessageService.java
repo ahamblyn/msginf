@@ -13,17 +13,29 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+/**
+ * The Message Service implementation.
+ */
 @Service
 @Slf4j
 public class MessageService implements IMessageService {
 
     private final Messenger messenger;
 
+    /**
+     * Constructor
+     * @param messenger messenger
+     */
     @Autowired
     public MessageService(Messenger messenger) {
         this.messenger = messenger;
     }
 
+    /**
+     * Submit an asynchronous message
+     * @param payload the message
+     * @return the message response
+     */
     @Override
     public Optional<RestMessageResponse> submit(RestMessageRequest payload) {
         String transactionId = UUID.randomUUID().toString();
@@ -44,6 +56,13 @@ public class MessageService implements IMessageService {
         }
     }
 
+    /**
+     * Receive (read) messages off a queue
+     * @param messagingSystem the messaging system
+     * @param messageConnector the connector to use
+     * @param timeout the timeout in ms to wait
+     * @return the messages read
+     */
     @Override
     public List<RestMessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout) {
         try {
@@ -57,6 +76,11 @@ public class MessageService implements IMessageService {
         }
     }
 
+    /**
+     * Submit a synchronous message
+     * @param payload the message
+     * @return the message response
+     */
     @Override
     public Optional<RestMessageResponse> requestReply(RestMessageRequest payload) {
         String transactionId = UUID.randomUUID().toString();

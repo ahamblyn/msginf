@@ -7,6 +7,9 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * Request reply connection
+ */
 @Getter
 @Setter
 @ToString

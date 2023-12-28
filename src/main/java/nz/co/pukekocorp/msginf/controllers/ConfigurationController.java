@@ -45,7 +45,7 @@ public class ConfigurationController {
     @GetMapping("/all")
     public Configuration all() {
         Optional<Configuration> configuration = configurationService.allConfiguration();
-        return configuration.orElseGet(Configuration::new);
+        return configuration.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No System Configuration found"));
     }
 
     /**

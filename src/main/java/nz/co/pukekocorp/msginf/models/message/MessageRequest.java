@@ -8,6 +8,9 @@ import nz.co.pukekocorp.msginf.models.configuration.MessageProperty;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Message request.
+ */
 @Getter
 @Setter
 @Schema(description = "The Message Request model")
@@ -27,12 +30,23 @@ public class MessageRequest {
     @Schema(description = "Correlation id")
     private String correlationId;
 
+    /**
+     * Message request constructor
+     * @param messageRequestType message request type
+     * @param connectorName connector name
+     * @param correlationId correlation id
+     */
     public MessageRequest(MessageRequestType messageRequestType, String connectorName, String correlationId) {
         this.messageRequestType = messageRequestType;
         this.connectorName = connectorName;
         this.correlationId = correlationId;
     }
 
+    /**
+     * Message request constructor
+     * @param messageRequestType message request type
+     * @param connectorName connector name
+     */
     public MessageRequest(MessageRequestType messageRequestType, String connectorName) {
         this.messageRequestType = messageRequestType;
         this.connectorName = connectorName;

@@ -3,6 +3,9 @@ package nz.co.pukekocorp.msginf.models.configuration;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+/**
+ * Vendor JNDI property
+ */
 @Getter
 @Setter
 @ToString
