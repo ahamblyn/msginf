@@ -2,33 +2,24 @@ package nz.co.pukekocorp.msginf.models.message;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
 
 /**
  * REST message response
+ * @param responseMessage The response message
+ * @param textMessage The text message response
+ * @param binaryMessage The binary message response (base64 encoded)
+ * @param transactionId The transaction id
+ * @param transactionStatus The transaction status
+ * @param responseTimeInMilliseconds The response time in ms
  */
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
 @Schema(description = "The Rest Message Response model")
-public class RestMessageResponse {
-    @Schema(description = "The response message")
-    private String responseMessage;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "The text message response")
-    private String textMessage;
-    // base64 encoded
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "The binary message response (base64 encoded)")
-    private String binaryMessage;
-    @Schema(description = "The transaction id")
-    private String transactionId;
-    @Schema(description = "The transaction status")
-    private TransactionStatus transactionStatus;
-    @Schema(description = "The response time in ms")
-    private Long responseTimeInMilliseconds;
+public record RestMessageResponse(@Schema(description = "The response message") String responseMessage,
+                                  @JsonInclude(JsonInclude.Include.NON_NULL) @Schema(description = "The text message response") String textMessage,
+                                  @JsonInclude(JsonInclude.Include.NON_NULL) @Schema(description = "The binary message response (base64 encoded)") String binaryMessage,
+                                  @Schema(description = "The transaction id") String transactionId,
+                                  @Schema(description = "The transaction status") TransactionStatus transactionStatus,
+                                  @Schema(description = "The response time in ms") Long responseTimeInMilliseconds) {
+
 
     /**
      * RestMessageResponse constructor
@@ -37,10 +28,7 @@ public class RestMessageResponse {
      * @param transactionStatus Transaction status
      */
     public RestMessageResponse(String responseMessage, String transactionId, TransactionStatus transactionStatus) {
-        this.responseMessage = responseMessage;
-        this.transactionId = transactionId;
-        this.transactionStatus = transactionStatus;
-        this.responseTimeInMilliseconds = 0L;
+        this(responseMessage, null, null, transactionId, transactionStatus, 0L);
     }
 
     /**
@@ -51,9 +39,6 @@ public class RestMessageResponse {
      * @param responseTimeInMilliseconds Response time
      */
     public RestMessageResponse(String responseMessage, String transactionId, TransactionStatus transactionStatus, long responseTimeInMilliseconds) {
-        this.responseMessage = responseMessage;
-        this.transactionId = transactionId;
-        this.transactionStatus = transactionStatus;
-        this.responseTimeInMilliseconds = responseTimeInMilliseconds;
+        this(responseMessage, null, null, transactionId, transactionStatus, responseTimeInMilliseconds);
     }
 }

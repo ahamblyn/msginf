@@ -41,12 +41,12 @@ public class MessageService implements IMessageService {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.getMessageConnector(), transactionId);
-            if (payload.getBinaryMessage() != null && !payload.getBinaryMessage().isEmpty()) {
-                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.getBinaryMessage()));
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.messageConnector(), transactionId);
+            if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
+                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
             }
-            messageRequest.setTextMessage(payload.getTextMessage());
-            messenger.sendMessage(payload.getMessageSystem(), messageRequest);
+            messageRequest.setTextMessage(payload.textMessage());
+            messenger.sendMessage(payload.messageSystem(), messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
             return Optional.of(new RestMessageResponse("Message submitted successfully", transactionId, TransactionStatus.SUCCESS, duration));
@@ -86,13 +86,13 @@ public class MessageService implements IMessageService {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, payload.getMessageConnector(), transactionId);
-            if (payload.getBinaryMessage() != null && !payload.getBinaryMessage().isEmpty()) {
-                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.getBinaryMessage()));
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, payload.messageConnector(), transactionId);
+            if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
+                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
             }
-            messageRequest.setTextMessage(payload.getTextMessage());
+            messageRequest.setTextMessage(payload.textMessage());
             messageRequest.setMessageProperties(createMessageProperties(payload));
-            MessageResponse reply = messenger.sendMessage(payload.getMessageSystem(), messageRequest);
+            MessageResponse reply = messenger.sendMessage(payload.messageSystem(), messageRequest);
             Instant finish = Instant.now();
             long duration = Duration.between(start, finish).toMillis();
             RestMessageResponse restMessageResponse = new RestMessageResponse("Response", reply.getTextResponse(),
@@ -107,9 +107,9 @@ public class MessageService implements IMessageService {
 
     private List<MessageProperty> createMessageProperties(RestMessageRequest payload) {
         List<MessageProperty> messageProperties = new ArrayList<>();
-        if (payload.getMessageProperties() != null) {
-            messageProperties = payload.getMessageProperties().stream().map(property ->
-                    new MessageProperty(property.getName(), property.getValue())).toList();
+        if (payload.messageProperties() != null) {
+            messageProperties = payload.messageProperties().stream().map(property ->
+                    new MessageProperty(property.name(), property.value())).toList();
         }
         return messageProperties;
     }

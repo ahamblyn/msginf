@@ -45,7 +45,7 @@ public class MessageController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<RestMessageResponse> submit(@Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
         Optional<RestMessageResponse> messageResponse = messageService.submit(payload);
-        return ResponseEntity.of(Optional.of(messageResponse.orElseGet(RestMessageResponse::new)));
+        return ResponseEntity.of(messageResponse);
     }
 
     /**
@@ -79,6 +79,6 @@ public class MessageController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<RestMessageResponse> request(@Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
         Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload);
-        return ResponseEntity.of(Optional.of(messageResponse.orElseGet(RestMessageResponse::new)));
+        return ResponseEntity.of(messageResponse);
     }
 }
