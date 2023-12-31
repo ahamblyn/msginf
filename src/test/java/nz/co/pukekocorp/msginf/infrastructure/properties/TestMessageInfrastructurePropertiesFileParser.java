@@ -83,7 +83,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         try {
             assertNotNull(parser.getConfiguration());
             assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
-            Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().getName());
+            Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
             validateActiveMQParser(parser);
         } catch (Exception e) {
             fail("Exception thrown on valid messaging system");
@@ -96,7 +96,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         try {
             assertNotNull(parser.getConfiguration());
             assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
-            Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().getName());
+            Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
             validateRabbitMQParser(parser);
         } catch (Exception e) {
             fail("Exception thrown on valid messaging system");
@@ -118,7 +118,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
             // set system property and validate
             java.lang.System.setProperty("msginf.propertiesfile", tempConfigFile.getAbsolutePath());
             MessageInfrastructurePropertiesFileParser tempFileParser = new MessageInfrastructurePropertiesFileParser();
-            Assertions.assertEquals(messagingSystem, tempFileParser.getSystem(messagingSystem).orElseThrow().getName());
+            Assertions.assertEquals(messagingSystem, tempFileParser.getSystem(messagingSystem).orElseThrow().name());
             validateActiveMQParser(tempFileParser);
             java.lang.System.setProperty("msginf.propertiesfile", "");
         } catch (Exception e) {
@@ -145,7 +145,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
     private void validateActiveMQParser(MessageInfrastructurePropertiesFileParser parser) {
         String messagingSystem = "activemq";
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
-        Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().getName());
+        Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
         assertEquals("tcp://localhost:61616", parser.getSystemUrl(messagingSystem));
         assertTrue(parser.getAvailableMessagingSystems().stream().anyMatch(s -> s.equals("activemq")));
@@ -174,7 +174,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
     private void validateRabbitMQParser(MessageInfrastructurePropertiesFileParser parser) {
         String messagingSystem = "rabbitmq";
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
-        Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().getName());
+        Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
         assertEquals("com.sun.jndi.fscontext.RefFSContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
         assertEquals("resource://rabbitmq-bindings", parser.getSystemUrl(messagingSystem));
         assertTrue(parser.getAvailableMessagingSystems().stream().anyMatch(s -> s.equals("activemq")));
@@ -203,19 +203,19 @@ public class TestMessageInfrastructurePropertiesFileParser {
     }
 
     private boolean validateQueueJNDIName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiName) {
-        return parser.getQueues(messagingSystem).stream().anyMatch(q -> q.getJndiName().equals(jndiName));
+        return parser.getQueues(messagingSystem).stream().anyMatch(q -> q.jndiName().equals(jndiName));
     }
 
     private boolean validateQueuePhysicalName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String physicalName) {
-        return parser.getQueues(messagingSystem).stream().anyMatch(q -> q.getPhysicalName().equals(physicalName));
+        return parser.getQueues(messagingSystem).stream().anyMatch(q -> q.physicalName().equals(physicalName));
     }
 
     private boolean validateRequestReplyMessagePropertyName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String propertyName) {
-        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).stream().anyMatch(property -> property.getName().equals(propertyName));
+        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).stream().anyMatch(property -> property.name().equals(propertyName));
     }
 
     private boolean validateRequestReplyMessagePropertyValue(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String propertyValue) {
-        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).stream().anyMatch(property -> property.getValue().equals(propertyValue));
+        return parser.getRequestReplyConnectionMessageProperties(messagingSystem, connector).stream().anyMatch(property -> property.value().equals(propertyValue));
     }
 
     private void assertActiveMQSubmitConnector(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connectorName) {

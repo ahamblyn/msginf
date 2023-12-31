@@ -1,28 +1,21 @@
 package nz.co.pukekocorp.msginf.models.configuration;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
 /**
  * System
+ * @param jarFiles List of jar file paths
+ * @param queues List of queues
+ * @param connectors The connectors
+ * @param name Name of the messaging system
+ * @param jndiProperties The JNDI properties
  */
-@Getter
-@Setter
-@ToString
 @Schema(description = "System model")
-public class System {
-    @Schema(description = "List of jar file paths")
-    private List<String> jarFiles;
-    @Schema(description = "List of queues")
-    private List<Queue> queues;
-    @Schema(description = "The connectors")
-    private Connectors connectors;
-    @Schema(description = "Name of the messaging system")
-    private String name;
-    @Schema(description = "The JNDI properties")
-    private JNDIProperties jndiProperties;
+public record System(@Schema(description = "List of jar file paths") List<String> jarFiles,
+                     @Schema(description = "List of queues") List<Queue> queues,
+                     @Schema(description = "The connectors") Connectors connectors,
+                     @Schema(description = "Name of the messaging system") String name,
+                     @Schema(description = "The JNDI properties") JNDIProperties jndiProperties) {
 }

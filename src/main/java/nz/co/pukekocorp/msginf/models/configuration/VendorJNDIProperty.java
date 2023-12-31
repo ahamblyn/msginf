@@ -1,20 +1,13 @@
 package nz.co.pukekocorp.msginf.models.configuration;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
 
 /**
  * Vendor JNDI property
+ * @param name Vendor JNDI property name
+ * @param value Vendor JNDI property value
  */
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
 @Schema(description = "Vendor JNDI properties model")
-public class VendorJNDIProperty {
-    @Schema(description = "Property name")
-    private String name;
-    @Schema(description = "Property value")
-    private String value;
+public record VendorJNDIProperty(@Schema(description = "Property name") String name,
+                                 @Schema(description = "Property value") String value) {
 }

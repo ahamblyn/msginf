@@ -344,7 +344,7 @@ public class MessageController {
 		}
 		combinedMessageProperties.forEach(property -> {
 			try {
-				jmsMessage.setStringProperty(property.getName(), property.getValue());
+				jmsMessage.setStringProperty(property.name(), property.value());
 			} catch (JMSException e) {
 				throw new RuntimeException(e);
 			}

@@ -1,26 +1,19 @@
 package nz.co.pukekocorp.msginf.models.configuration;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
 /**
  * JNDI properties.
+ * @param initialContextFactory Initial Context Factory
+ * @param url Connection url
+ * @param namingFactoryUrlPkgs Naming Factory Url Packages
+ * @param vendorJNDIProperties Vendor specific JNDI properties
  */
-@Getter
-@Setter
-@ToString
 @Schema(description = "JNDI properties model")
-public class JNDIProperties {
-    @Schema(description = "Initial Context Factory")
-    private String initialContextFactory;
-    @Schema(description = "Connection url")
-    private String url;
-    @Schema(description = "Naming Factory Url Packages")
-    private String namingFactoryUrlPkgs;
-    @Schema(description = "Vendor specific JNDI properties")
-    private List<VendorJNDIProperty> vendorJNDIProperties;
+public record JNDIProperties(@Schema(description = "Initial Context Factory") String initialContextFactory,
+                             @Schema(description = "Connection url") String url,
+                             @Schema(description = "Naming Factory Url Packages") String namingFactoryUrlPkgs,
+                             @Schema(description = "Vendor specific JNDI properties") List<VendorJNDIProperty> vendorJNDIProperties) {
 }

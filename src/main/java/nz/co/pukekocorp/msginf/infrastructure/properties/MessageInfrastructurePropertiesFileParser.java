@@ -90,8 +90,8 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public List<String> getAvailableMessagingSystems() {
         List<String> availableMessagingSystems = new ArrayList<>();
-        Optional.ofNullable(configuration).ifPresent(config -> availableMessagingSystems.addAll(config.getSystems().getSystem().stream()
-                .map(System::getName).toList()));
+        Optional.ofNullable(configuration).ifPresent(config -> availableMessagingSystems.addAll(config.systems().system().stream()
+                .map(System::name).toList()));
         return availableMessagingSystems;
     }
 
@@ -106,14 +106,14 @@ public class MessageInfrastructurePropertiesFileParser {
 
     private Optional<System> findSystem(String messagingSystemName) {
         return Optional.ofNullable(configuration)
-                .flatMap(config -> Optional.ofNullable(config.getSystems())
-                        .flatMap(systems -> systems.getSystem().stream()
-                                .filter(sys -> sys.getName().equals(messagingSystemName)).findFirst()));
+                .flatMap(config -> Optional.ofNullable(config.systems())
+                        .flatMap(systems -> systems.system().stream()
+                                .filter(sys -> sys.name().equals(messagingSystemName)).findFirst()));
     }
 
     private Optional<Connectors> findConnectors(String messagingSystemName) {
         Optional<System> system = findSystem(messagingSystemName);
-        return system.flatMap(sys -> Optional.ofNullable(sys.getConnectors()));
+        return system.flatMap(sys -> Optional.ofNullable(sys.connectors()));
     }
 
     private Optional<Submit> findSubmit(String messagingSystemName, String connectorName) {
@@ -123,13 +123,13 @@ public class MessageInfrastructurePropertiesFileParser {
 
     private Optional<Submit> findSubmit(Connectors connectors, String connectorName) {
         return Optional.ofNullable(connectors)
-                .flatMap(conns -> conns.getSubmit().stream().filter(sub ->
-                        sub.getConnectorName().equals(connectorName)).findFirst());
+                .flatMap(conns -> conns.submit().stream().filter(sub ->
+                        sub.connectorName().equals(connectorName)).findFirst());
     }
 
     private Optional<SubmitConnection> findSubmitConnection(String messagingSystemName, String connectorName) {
         Optional<Submit> submit = findSubmit(messagingSystemName, connectorName);
-        return submit.flatMap(sub -> Optional.ofNullable(sub.getSubmitConnection()));
+        return submit.flatMap(sub -> Optional.ofNullable(sub.submitConnection()));
     }
 
     private Optional<RequestReply> findRequestReply(String messagingSystemName, String connectorName) {
@@ -139,13 +139,13 @@ public class MessageInfrastructurePropertiesFileParser {
 
     private Optional<RequestReply> findRequestReply(Connectors connectors, String connectorName) {
         return Optional.ofNullable(connectors)
-                .flatMap(conns -> conns.getRequestReply().stream().filter(rr ->
-                        rr.getConnectorName().equals(connectorName)).findFirst());
+                .flatMap(conns -> conns.requestReply().stream().filter(rr ->
+                        rr.connectorName().equals(connectorName)).findFirst());
     }
 
     private Optional<RequestReplyConnection> findRequestReplyConnection(String messagingSystemName, String connectorName) {
         Optional<RequestReply> requestReply = findRequestReply(messagingSystemName, connectorName);
-        return requestReply.flatMap(rr -> Optional.ofNullable(rr.getRequestReplyConnection()));
+        return requestReply.flatMap(rr -> Optional.ofNullable(rr.requestReplyConnection()));
     }
 
     /**
@@ -154,7 +154,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the initial context factory name for the messaging system.
      */
     public String getSystemInitialContextFactory(String messagingSystemName) {
-        Optional<String> contextFactory = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getInitialContextFactory()));
+        Optional<String> contextFactory = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.jndiProperties().initialContextFactory()));
         return contextFactory.orElse("");
     }
 
@@ -164,7 +164,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the url for the messaging system.
      */
     public String getSystemUrl(String messagingSystemName) {
-        Optional<String> url = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getUrl()));
+        Optional<String> url = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.jndiProperties().url()));
         return url.orElse("");
     }
 
@@ -174,7 +174,7 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the naming factory url packages for the messaging system.
      */
     public String getSystemNamingFactoryUrlPkgs(String messagingSystemName) {
-        Optional<String> namingFactoryUrlPkgs = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.getJndiProperties().getNamingFactoryUrlPkgs()));
+        Optional<String> namingFactoryUrlPkgs = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.jndiProperties().namingFactoryUrlPkgs()));
         return namingFactoryUrlPkgs.orElse("");
     }
 
@@ -186,7 +186,7 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<String> getJarFileNames(String messagingSystemName) {
         List<String> jarFileNamesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system ->
-                jarFileNamesList.addAll(system.getJarFiles()));
+                jarFileNamesList.addAll(system.jarFiles()));
         return jarFileNamesList;
     }
 
@@ -198,8 +198,8 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<PropertiesQueue> getQueues(String messagingSystemName) {
         List<PropertiesQueue> queuesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system -> {
-            List<PropertiesQueue> props = system.getQueues().stream()
-                    .map(queue -> new PropertiesQueue(queue.getJndiName(), queue.getPhysicalName())).toList();
+            List<PropertiesQueue> props = system.queues().stream()
+                    .map(queue -> new PropertiesQueue(queue.jndiName(), queue.physicalName())).toList();
             queuesList.addAll(props);
         });
         return queuesList;
@@ -213,9 +213,9 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<VendorJNDIProperty> getVendorJNDIProperties(String messagingSystemName) {
         List<VendorJNDIProperty> propertiesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system -> {
-            Optional.ofNullable(system.getJndiProperties().getVendorJNDIProperties()).ifPresent(vendorJNDIProperties -> {
-                List<VendorJNDIProperty> props = system.getJndiProperties().getVendorJNDIProperties().stream()
-                        .map(property -> new VendorJNDIProperty(property.getName(), property.getValue())).toList();
+            Optional.ofNullable(system.jndiProperties().vendorJNDIProperties()).ifPresent(vendorJNDIProperties -> {
+                List<VendorJNDIProperty> props = system.jndiProperties().vendorJNDIProperties().stream()
+                        .map(property -> new VendorJNDIProperty(property.name(), property.value())).toList();
                 propertiesList.addAll(props);
             });
         });
@@ -229,7 +229,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public boolean getUseConnectionPooling(String messagingSystemName) {
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
-        Optional<Boolean> b = connectors.flatMap(conns -> Optional.ofNullable(conns.getUseConnectionPooling()));
+        Optional<Boolean> b = connectors.flatMap(conns -> Optional.ofNullable(conns.useConnectionPooling()));
         return b.orElse(false);
     }
 
@@ -240,7 +240,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public int getMaxConnections(String messagingSystemName) {
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
-        Optional<Integer> res = connectors.flatMap(conns -> Optional.ofNullable(conns.getMaxConnections()));
+        Optional<Integer> res = connectors.flatMap(conns -> Optional.ofNullable(conns.maxConnections()));
         return res.orElse(0);
     }
 
@@ -251,7 +251,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public int getMinConnections(String messagingSystemName) {
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
-        Optional<Integer> res = connectors.flatMap(conns -> Optional.ofNullable(conns.getMinConnections()));
+        Optional<Integer> res = connectors.flatMap(conns -> Optional.ofNullable(conns.minConnections()));
         return res.orElse(0);
     }
 
@@ -263,7 +263,7 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<String> getSubmitConnectorNames(String messagingSystemName) {
         List<String> names = new ArrayList<>();
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
-        connectors.ifPresent(conns -> names.addAll(conns.getSubmit().stream().map(Submit::getConnectorName).toList()));
+        connectors.ifPresent(conns -> names.addAll(conns.submit().stream().map(Submit::connectorName).toList()));
         return names;
     }
 
@@ -275,8 +275,8 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public boolean doesSubmitExist(String messagingSystemName, String connectorName) {
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
-        return connectors.stream().anyMatch(conns -> conns.getSubmit().stream().anyMatch(sub ->
-                        sub.getConnectorName().equals(connectorName)));
+        return connectors.stream().anyMatch(conns -> conns.submit().stream().anyMatch(sub ->
+                        sub.connectorName().equals(connectorName)));
     }
 
     /**
@@ -287,7 +287,7 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<String> getRequestReplyConnectorNames(String messagingSystemName) {
         List<String> names = new ArrayList<>();
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
-        connectors.ifPresent(conns -> names.addAll(conns.getRequestReply().stream().map(RequestReply::getConnectorName).toList()));
+        connectors.ifPresent(conns -> names.addAll(conns.requestReply().stream().map(RequestReply::connectorName).toList()));
         return names;
     }
 
@@ -299,8 +299,8 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public boolean doesRequestReplyExist(String messagingSystemName, String connectorName) {
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
-        return connectors.stream().anyMatch(conns -> conns.getRequestReply().stream().anyMatch(rr ->
-                rr.getConnectorName().equals(connectorName)));
+        return connectors.stream().anyMatch(conns -> conns.requestReply().stream().anyMatch(rr ->
+                rr.connectorName().equals(connectorName)));
     }
 
     /**
@@ -311,7 +311,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public boolean getSubmitCompressBinaryMessages(String messagingSystemName, String connectorName) {
         Optional<Submit> submit = findSubmit(messagingSystemName, connectorName);
-        Optional<Boolean> b = submit.flatMap(sub -> Optional.ofNullable(sub.getCompressBinaryMessages()));
+        Optional<Boolean> b = submit.flatMap(sub -> Optional.ofNullable(sub.compressBinaryMessages()));
         return b.orElse(false);
     }
 
@@ -323,7 +323,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getSubmitConnectionSubmitQueueName(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<String> queueName = connection.flatMap(sub -> Optional.ofNullable(sub.getSubmitQueueName()));
+        Optional<String> queueName = connection.flatMap(sub -> Optional.ofNullable(sub.submitQueueName()));
         return queueName.orElse("");
     }
 
@@ -335,7 +335,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getSubmitConnectionSubmitQueueConnFactoryName(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<String> queueNameConnFactory = connection.flatMap(sub -> Optional.ofNullable(sub.getSubmitQueueConnFactoryName()));
+        Optional<String> queueNameConnFactory = connection.flatMap(sub -> Optional.ofNullable(sub.submitQueueConnFactoryName()));
         return queueNameConnFactory.orElse("");
     }
 
@@ -347,7 +347,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getSubmitConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<RequestType> requestType = connection.flatMap(sub -> Optional.ofNullable(sub.getRequestType()));
+        Optional<RequestType> requestType = connection.flatMap(sub -> Optional.ofNullable(sub.requestType()));
         return requestType.orElse(RequestType.TEXT).name(); // default to text
     }
 
@@ -359,7 +359,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public int getSubmitConnectionMessageTimeToLive(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<Integer> messageTimeToLive = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageTimeToLive()));
+        Optional<Integer> messageTimeToLive = connection.flatMap(sub -> Optional.ofNullable(sub.messageTimeToLive()));
         return messageTimeToLive.orElse(0);
     }
 
@@ -371,7 +371,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public List<MessageProperty> getSubmitConnectionMessageProperties(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
-        Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(sub -> Optional.ofNullable(sub.getMessageProperties()));
+        Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(sub -> Optional.ofNullable(sub.messageProperties()));
         return parserMessageProperties.orElse(new ArrayList<>());
     }
 
@@ -383,7 +383,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public boolean getRequestReplyCompressBinaryMessages(String messagingSystemName, String connectorName) {
         Optional<RequestReply> requestReply = findRequestReply(messagingSystemName, connectorName);
-        Optional<Boolean> b = requestReply.flatMap(rr -> Optional.ofNullable(rr.getCompressBinaryMessages()));
+        Optional<Boolean> b = requestReply.flatMap(rr -> Optional.ofNullable(rr.compressBinaryMessages()));
         return b.orElse(false);
     }
 
@@ -395,7 +395,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getRequestReplyConnectionRequestQueueName(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<String> queueName = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestQueueName()));
+        Optional<String> queueName = connection.flatMap(rr -> Optional.ofNullable(rr.requestQueueName()));
         return queueName.orElse("");
     }
 
@@ -407,7 +407,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getRequestReplyConnectionReplyQueueName(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<String> queueName = connection.flatMap(rr -> Optional.ofNullable(rr.getReplyQueueName()));
+        Optional<String> queueName = connection.flatMap(rr -> Optional.ofNullable(rr.replyQueueName()));
         return queueName.orElse("");
     }
 
@@ -419,7 +419,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getRequestReplyConnectionRequestQueueConnFactoryName(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<String> queueNameConnFactory = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestQueueConnFactoryName()));
+        Optional<String> queueNameConnFactory = connection.flatMap(rr -> Optional.ofNullable(rr.requestQueueConnFactoryName()));
         return queueNameConnFactory.orElse("");
     }
 
@@ -431,7 +431,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public String getRequestReplyConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<RequestType> requestType = connection.flatMap(rr -> Optional.ofNullable(rr.getRequestType()));
+        Optional<RequestType> requestType = connection.flatMap(rr -> Optional.ofNullable(rr.requestType()));
         return requestType.orElse(RequestType.TEXT).name(); // default to text
     }
 
@@ -443,7 +443,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public int getRequestReplyConnectionMessageTimeToLive(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<Integer> messageTimeToLive = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageTimeToLive()));
+        Optional<Integer> messageTimeToLive = connection.flatMap(rr -> Optional.ofNullable(rr.messageTimeToLive()));
         return messageTimeToLive.orElse(0);
     }
 
@@ -455,7 +455,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public List<MessageProperty> getRequestReplyConnectionMessageProperties(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(rr -> Optional.ofNullable(rr.getMessageProperties()));
+        Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(rr -> Optional.ofNullable(rr.messageProperties()));
         return parserMessageProperties.orElse(new ArrayList<>());
     }
 
@@ -467,7 +467,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public int getRequestReplyConnectionReplyWaitTime(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<Integer> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.getReplyWaitTime()));
+        Optional<Integer> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.replyWaitTime()));
         return replyWaitTime.orElse(0);
     }
 
@@ -479,7 +479,7 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public boolean getRequestReplyConnectionUseMessageSelector(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
-        Optional<Boolean> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.getUseMessageSelector()));
+        Optional<Boolean> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.useMessageSelector()));
         return replyWaitTime.orElse(true);
     }
 

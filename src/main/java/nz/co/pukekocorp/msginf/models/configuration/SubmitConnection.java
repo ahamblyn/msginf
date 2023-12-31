@@ -1,28 +1,21 @@
 package nz.co.pukekocorp.msginf.models.configuration;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
 /**
  * Submit connection
+ * @param submitQueueName the queue to submit the messages t
+ * @param submitQueueConnFactoryName the queue connection factory
+ * @param requestType the request type: text or binary
+ * @param messageTimeToLive the time in ms for the message to live
+ * @param messageProperties the properties of the message
  */
-@Getter
-@Setter
-@ToString
 @Schema(description = "Submit connection model")
-public class SubmitConnection {
-    @Schema(description = "The queue to submit the messages to")
-    private String submitQueueName;
-    @Schema(description = "The queue connection factory")
-    private String submitQueueConnFactoryName;
-    @Schema(description = "The request type: text or binary")
-    private RequestType requestType;
-    @Schema(description = "The time in ms for the message to live")
-    private Integer messageTimeToLive;
-    @Schema(description = "The properties of the message")
-    private List<MessageProperty> messageProperties;
+public record SubmitConnection(@Schema(description = "The queue to submit the messages to") String submitQueueName,
+                               @Schema(description = "The queue connection factory") String submitQueueConnFactoryName,
+                               @Schema(description = "The request type: text or binary") RequestType requestType,
+                               @Schema(description = "The time in ms for the message to live") Integer messageTimeToLive,
+                               @Schema(description = "The properties of the message") List<MessageProperty> messageProperties) {
 }

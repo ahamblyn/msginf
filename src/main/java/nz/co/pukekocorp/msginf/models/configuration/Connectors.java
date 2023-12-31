@@ -1,28 +1,21 @@
 package nz.co.pukekocorp.msginf.models.configuration;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 
 /**
  * Connectors.
+ * @param submit List of submit connectors
+ * @param requestReply List of request-reply connectors
+ * @param useConnectionPooling Whether to use queue connection pooling or not
+ * @param minConnections The minimum number of queue connections in the pool
+ * @param maxConnections The maximum number of queue connections in the pool
  */
-@Getter
-@Setter
-@ToString
 @Schema(description = "Connectors model")
-public class Connectors {
-    @Schema(description = "List of submit connectors")
-    private List<Submit> submit = null;
-    @Schema(description = "List of request-reply connectors")
-    private List<RequestReply> requestReply = null;
-    @Schema(description = "Whether to use queue connection pooling or not")
-    private Boolean useConnectionPooling;
-    @Schema(description = "The minimum number of queue connections in the pool")
-    private Integer minConnections;
-    @Schema(description = "The maximum number of queue connections in the pool")
-    private Integer maxConnections;
+public record Connectors(@Schema(description = "List of submit connectors") List<Submit> submit,
+                         @Schema(description = "List of request-reply connectors") List<RequestReply> requestReply,
+                         @Schema(description = "Whether to use queue connection pooling or not") Boolean useConnectionPooling,
+                         @Schema(description = "The minimum number of queue connections in the pool") Integer minConnections,
+                         @Schema(description = "The maximum number of queue connections in the pool") Integer maxConnections) {
 }

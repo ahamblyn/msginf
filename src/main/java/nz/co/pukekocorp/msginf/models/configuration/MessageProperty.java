@@ -1,20 +1,13 @@
 package nz.co.pukekocorp.msginf.models.configuration;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
 
 /**
  * Message property.
+ * @param name message property name
+ * @param value message property value
  */
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
 @Schema(description = "Message properties model")
-public class MessageProperty {
-    @Schema(description = "Property name")
-    private String name;
-    @Schema(description = "Property value")
-    private String value;
+public record MessageProperty(@Schema(description = "Property name") String name,
+                              @Schema(description = "Property value") String value) {
 }

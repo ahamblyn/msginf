@@ -133,11 +133,11 @@ public class Util {
 				// add vendor specific JNDI properties
 				List<VendorJNDIProperty> vendorJNDIProperties = parser.getVendorJNDIProperties(messagingSystem);
 				for (VendorJNDIProperty vendorJNDIProperty : vendorJNDIProperties) {
-					props.setProperty(vendorJNDIProperty.getName(), vendorJNDIProperty.getValue());
+					props.setProperty(vendorJNDIProperty.name(), vendorJNDIProperty.value());
 				}
 				// add queue info
 				for (PropertiesQueue queue : queues) {
-					props.setProperty("queue." + queue.getJndiName(), queue.getPhysicalName());
+					props.setProperty("queue." + queue.jndiName(), queue.physicalName());
 				}
 				jmsCtx = new InitialContext(props);
 			}
