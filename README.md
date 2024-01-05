@@ -150,6 +150,21 @@ Connectors are one of two types: submit and requestReply. Submit connectors send
 ## Spring Boot
 The messaging infrastructure is a maven project containing a Spring Boot application which exposes a series of REST endpoints to send and receive messages.
 
+JWT tokens are required to call the API endpoints.
+
+Use http://localhost:8080/msginf/v1/auth/authenticate to create a new JWT token by passing the following username and password in the request body:
+
+```
+{
+  "username": "msginf",
+  "password": "password123"
+}
+```
+
+To the API endpoint request, add a Bearer Authorization header:
+
+e.g. `Bearer eyJhbGciOiJIUzUx...`
+
 See the Swagger UI at http://localhost:8080/msginf/swagger-ui/index.html
 
 ### Calling the messaging code directly
