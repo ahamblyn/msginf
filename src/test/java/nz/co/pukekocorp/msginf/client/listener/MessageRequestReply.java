@@ -37,13 +37,11 @@ public class MessageRequestReply implements MessageListener {
 							   String queueConnectionFactoryName, String requestQueueName,
 							   String replyQueueName) {
 		try {
-			// load the runtime jar files
-			Util.loadRuntimeJarFiles(parser);
 			Context context = Util.createContext(parser, messagingSystem);
          	queueConnectionFactory = (QueueConnectionFactory) context.lookup(queueConnectionFactoryName);
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
-		} catch (MessageException | NamingException e) {
+		} catch (NamingException e) {
 			log.error(e.getMessage(), e);
 			System.exit(1);
 		}

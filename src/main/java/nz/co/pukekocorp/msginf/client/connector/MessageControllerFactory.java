@@ -86,8 +86,6 @@ public class MessageControllerFactory {
 	}
 
 	private void initialise(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
-		// load the runtime jar files
-		Util.loadRuntimeJarFiles(parser);
 		jmsContexts = new ConcurrentHashMap<>();
 		//Initialise a jndi context for each system in the properties file
 		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();

@@ -9,11 +9,10 @@ import nz.co.pukekocorp.msginf.models.configuration.*;
 import nz.co.pukekocorp.msginf.models.configuration.System;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,22 +38,22 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     private void parseFile() throws PropertiesFileException {
-        File file;
         // get the properties file name from the system properties: -Dmsginf.propertiesfile
         String fileName = java.lang.System.getProperty("msginf.propertiesfile");
         try {
-            if (fileName == null || fileName.equals("")) {
-                // set the default
-                Resource resource = new ClassPathResource("msginf-config.json");
-                file = resource.getFile();
-                log.info("msginf config file: " + file.getAbsolutePath());
+            if (fileName == null || fileName.isEmpty()) {
+                // load the default
+                InputStream is = MessageInfrastructurePropertiesFileParser.class.getResourceAsStream("/msginf-config.json");
+                ObjectMapper objectMapper = new ObjectMapper();
+                configuration = objectMapper.readValue(is, Configuration.class);
+                log.info("Default msginf config file loaded");
             } else {
                 // load the file directly
-                file = new File(fileName);
+                File file = new File(fileName);
                 log.info("msginf config file: " + file.getAbsolutePath());
+                ObjectMapper objectMapper = new ObjectMapper();
+                configuration = objectMapper.readValue(file, Configuration.class);
             }
-            ObjectMapper objectMapper = new ObjectMapper();
-            configuration = objectMapper.readValue(file, Configuration.class);
         } catch (IOException e) {
             throw new PropertiesFileException(e);
         }
@@ -176,18 +175,6 @@ public class MessageInfrastructurePropertiesFileParser {
     public String getSystemNamingFactoryUrlPkgs(String messagingSystemName) {
         Optional<String> namingFactoryUrlPkgs = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.jndiProperties().namingFactoryUrlPkgs()));
         return namingFactoryUrlPkgs.orElse("");
-    }
-
-    /**
-     * Returns a list of the jar file names for the messaging system.
-     * @param messagingSystemName the messaging system
-     * @return a list of the jar file names for the messaging system.
-     */
-    public List<String> getJarFileNames(String messagingSystemName) {
-        List<String> jarFileNamesList = new ArrayList<>();
-        findSystem(messagingSystemName).ifPresent(system ->
-                jarFileNamesList.addAll(system.jarFiles()));
-        return jarFileNamesList;
     }
 
     /**

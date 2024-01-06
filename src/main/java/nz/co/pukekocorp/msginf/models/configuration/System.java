@@ -6,15 +6,13 @@ import java.util.List;
 
 /**
  * System
- * @param jarFiles List of jar file paths
  * @param queues List of queues
  * @param connectors The connectors
  * @param name Name of the messaging system
  * @param jndiProperties The JNDI properties
  */
 @Schema(description = "System model")
-public record System(@Schema(description = "List of jar file paths") List<String> jarFiles,
-                     @Schema(description = "List of queues") List<Queue> queues,
+public record System(@Schema(description = "List of queues") List<Queue> queues,
                      @Schema(description = "The connectors") Connectors connectors,
                      @Schema(description = "Name of the messaging system") String name,
                      @Schema(description = "The JNDI properties") JNDIProperties jndiProperties) {

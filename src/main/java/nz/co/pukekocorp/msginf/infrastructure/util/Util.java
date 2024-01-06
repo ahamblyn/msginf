@@ -74,27 +74,6 @@ public class Util {
 	}
 
 	/**
-	 * Loads the jar files in the properties file.
-	 * @param parser the properties file parser
-	 * @throws MessageException Message exception
-	 */
-	public static void loadRuntimeJarFiles(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
-		// load the runtime jar files
-		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
-		for (String messagingSystem : availableMessagingSystems) {
-			// load system specific jar files into classpath
-			List<String> jarFileNames = parser.getJarFileNames(messagingSystem);
-			try {
-				for (String jarFileName : jarFileNames) {
-					ClassPathHacker.addFile(jarFileName);
-				}
-			} catch (IOException ioe) {
-				throw new MessageException(ioe);
-			}
-		}
-	}
-
-	/**
 	 * Create the context.
 	 * @param parser the properties file parser
 	 * @param messagingSystem the messaging system.

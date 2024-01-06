@@ -3,10 +3,8 @@ The messaging infrastructure is a framework written in Java used to communicate 
 
 It is a maven project containing a Spring Boot application which exposes a series of REST endpoints to send and receive messages.
 
-The messaging infrastructure supports the following messaging systems:
+The messaging infrastructure supports the following messaging systems out of the box:
  - [ActiveMQ](https://activemq.apache.org/)
- - [RabbitMQ](https://www.rabbitmq.com/)
- - [Kafka](https://kafka.apache.org/)
 
 Other messaging systems can be added using the configuration file.
 
@@ -79,7 +77,6 @@ The system attribute represents the configuration of a messaging system and has 
 |------------------|----------------------------------------------------------------------------------------------------------------------|
 | name             | The name of the messaging system. This is the name used when constructing the QueueManager object as outlined below. |
 | jndiProperties   | The [JNDI properties](#jndiProperties) used to connect to the messaging system.                                      |
-| jarFiles         | An array of paths to external jar files required by the messaging system.                                            |
 | queues           | An array of [queues](#queues) used by the messaging system.                                                          |
 | connectors       | The [connectors](#connectors) used by the messaging system.                                                          |
 
