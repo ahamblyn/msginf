@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  msginf-svc:
+    container_name: msginf-svc
+    image: msginf:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - activemq-svc
+    restart: on-failure
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - msginf
+  activemq-svc:
+    container_name: activemq-svc
+    image: islandora/activemq:3.1.1-amd64
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    restart: on-failure
+    networks:
+      - msginf
+networks:
+  msginf:

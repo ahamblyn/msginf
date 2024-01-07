@@ -35,9 +35,9 @@ public class MessageRequestReply implements MessageListener {
 
 	public MessageRequestReply(MessageInfrastructurePropertiesFileParser parser, String messagingSystem,
 							   String queueConnectionFactoryName, String requestQueueName,
-							   String replyQueueName) {
+							   String replyQueueName, String jndiUrl) {
 		try {
-			Context context = Util.createContext(parser, messagingSystem);
+			Context context = Util.createContext(parser, messagingSystem, jndiUrl);
          	queueConnectionFactory = (QueueConnectionFactory) context.lookup(queueConnectionFactoryName);
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
@@ -48,17 +48,18 @@ public class MessageRequestReply implements MessageListener {
 	}
 
 	public static void main(String[] args) {
-		if (args.length != 4) {
-			System.out.println("Usage: java nz.co.pukekocorp.msginf.client.listener.MessageRequestReply <messaging system> <queue connection factory name> <request queue name> <reply queue name>");
+		if (args.length != 5) {
+			System.out.println("Usage: java nz.co.pukekocorp.msginf.client.listener.MessageRequestReply <messaging system> <queue connection factory name> <request queue name> <reply queue name> <jndi url>");
 			System.exit(1);
 		}
 		String messagingSystem = args[0];
 		String queueConnectionFactoryName = args[1];
 		String requestQueueName = args[2];
 		String replyQueueName = args[3];
+		String jndiUrl = args[4];
 		try {
 			MessageRequestReply mrr = new MessageRequestReply(new MessageInfrastructurePropertiesFileParser(), messagingSystem, queueConnectionFactoryName, requestQueueName,
-					replyQueueName);
+					replyQueueName, jndiUrl);
 			mrr.run();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

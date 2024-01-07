@@ -1,6 +1,7 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -8,6 +9,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.QueueControllerNotFoundException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -41,23 +43,25 @@ public class MessageControllerFactory {
 	/**
 	 * The MessageControllerFactory constructor.
 	 * @param parser the properties file parser
+	 * @param jndiUrlMap the urls to connect to each messaging system.
 	 * @throws MessageException Message exception
 	 */
-	protected MessageControllerFactory(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
+	protected MessageControllerFactory(MessageInfrastructurePropertiesFileParser parser, Map<String, String> jndiUrlMap) throws MessageException {
 		this.parser = parser;
-		initialise(parser);
+		initialise(parser, jndiUrlMap);
 	}
 
 	/**
 	 * Gets the singleton MessageControllerFactory instance.
 	 * Used by the QueueManager.
 	 * @param parser the properties file parser
+	 * @param jndiUrlMap the urls to connect to each messaging system.
 	 * @return the singleton MessageControllerFactory instance.
 	 */
-	public synchronized static MessageControllerFactory getInstance(MessageInfrastructurePropertiesFileParser parser)  {
+	public synchronized static MessageControllerFactory getInstance(MessageInfrastructurePropertiesFileParser parser, Map<String, String> jndiUrlMap)  {
 		return Optional.ofNullable(messageControllerFactory).orElseGet(() -> {
 			try {
-				messageControllerFactory = new MessageControllerFactory(parser);
+				messageControllerFactory = new MessageControllerFactory(parser, jndiUrlMap);
 			} catch (MessageException e) {
 				log.error("Unable to create MessageControllerFactory", e);
 				throw new RuntimeException(e);
@@ -85,12 +89,14 @@ public class MessageControllerFactory {
 		return new MessageController(parser, messagingSystem, connectorName, jmsCtx);
 	}
 
-	private void initialise(MessageInfrastructurePropertiesFileParser parser) throws MessageException {
+	private void initialise(MessageInfrastructurePropertiesFileParser parser, Map<String, String> jndiUrlMap) throws ConfigurationException {
 		jmsContexts = new ConcurrentHashMap<>();
 		//Initialise a jndi context for each system in the properties file
 		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
         for (String messagingSystem : availableMessagingSystems) {
-            Context context = Util.createContext(parser, messagingSystem);
+			String jndiUrl = Optional.ofNullable(jndiUrlMap.get(messagingSystem))
+					.orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the jndi.url.map property in the application.properties file."));
+            Context context = Util.createContext(parser, messagingSystem, jndiUrl);
             if (context != null) {
                 jmsContexts.put(messagingSystem, context);
             }

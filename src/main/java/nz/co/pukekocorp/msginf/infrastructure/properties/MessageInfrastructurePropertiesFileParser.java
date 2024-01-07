@@ -158,16 +158,6 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
-     * Returns the url for the messaging system.
-     * @param messagingSystemName the messaging system
-     * @return the url for the messaging system.
-     */
-    public String getSystemUrl(String messagingSystemName) {
-        Optional<String> url = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.jndiProperties().url()));
-        return url.orElse("");
-    }
-
-    /**
      * Returns the naming factory url packages for the messaging system.
      * @param messagingSystemName the messaging system
      * @return the naming factory url packages for the messaging system.

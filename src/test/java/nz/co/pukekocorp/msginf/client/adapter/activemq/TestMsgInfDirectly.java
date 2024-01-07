@@ -13,6 +13,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,8 +29,8 @@ public class TestMsgInfDirectly {
 			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
 					"QueueConnectionFactory", "RequestQueue",
-					"ReplyQueue");
-			queueManager = new QueueManager(parser, "activemq");
+					"ReplyQueue", "tcp://localhost:61616");
+			queueManager = new QueueManager(parser, "activemq", Map.of("activemq", "tcp://localhost:61616"));
 			messageRequestReply.run();
 		} catch (MessageException e) {
 			log.error("Unable to setup TestMsgInfDirectly test", e);

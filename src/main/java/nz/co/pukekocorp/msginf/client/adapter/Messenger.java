@@ -5,9 +5,12 @@ import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,15 +25,17 @@ public class Messenger {
 
     /**
      * Default constructor.
+     * @param jndiUrlMap the urls to connect to each messaging system.
      */
-    public Messenger() {
+    @Autowired
+    public Messenger(@Value("#{${jndi.url.map}}") Map<String, String> jndiUrlMap) {
         // create a queue manager for each messaging system and put into map
         try {
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             parser.getAvailableMessagingSystems().forEach(messagingSystem -> {
                 Optional<QueueManager> queueManager = getQueueManager(messagingSystem);
                 if (queueManager.isEmpty()) {
-                    queueManagers.put(messagingSystem, new QueueManager(parser, messagingSystem));
+                    queueManagers.put(messagingSystem, new QueueManager(parser, messagingSystem, jndiUrlMap));
                 }
             });
         } catch (MessageException me) {

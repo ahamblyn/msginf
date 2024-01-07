@@ -108,7 +108,6 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
         Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
-        assertEquals("tcp://localhost:61616", parser.getSystemUrl(messagingSystem));
         assertTrue(parser.getAvailableMessagingSystems().stream().anyMatch(s -> s.equals("activemq")));
         assertTrue(validateQueueJNDIName(parser, messagingSystem, "TestQueue"));
         assertTrue(validateQueueJNDIName(parser, messagingSystem, "RequestQueue"));

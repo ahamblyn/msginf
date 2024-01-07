@@ -77,24 +77,24 @@ public class Util {
 	 * Create the context.
 	 * @param parser the properties file parser
 	 * @param messagingSystem the messaging system.
+	 * @param jndiUrl the url to connect to the messaging system.
 	 * @return the context.
 	 */
-	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) {
+	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) {
 		InitialContext jmsCtx = null;
 		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
-		String url = parser.getSystemUrl(messagingSystem);
 		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
 		// if url is a resource then look in class path
-		if (url.startsWith("resource://")) {
-			url = StringUtils.removeStart(url, "resource://");
-			Resource resource = new ClassPathResource(url);
+		if (jndiUrl.startsWith("resource://")) {
+			jndiUrl = StringUtils.removeStart(jndiUrl, "resource://");
+			Resource resource = new ClassPathResource(jndiUrl);
 			try {
-				url = resource.getURL().toString();
+				jndiUrl = resource.getURL().toString();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		log.info(messagingSystem + " System URL: " + url);
+		log.info(messagingSystem + " System URL: " + jndiUrl);
 		List<PropertiesQueue> queues = parser.getQueues(messagingSystem);
 		try {
 			if (initialContextFactory.equals("")) {
@@ -103,8 +103,8 @@ public class Util {
 			} else {
 				Properties props = new Properties();
 				props.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
-				if (!url.equals("")) {
-					props.setProperty(Context.PROVIDER_URL, url);
+				if (!jndiUrl.equals("")) {
+					props.setProperty(Context.PROVIDER_URL, jndiUrl);
 				}
 				if (!namingFactoryUrlPkgs.equals("")) {
 					props.setProperty(Context.URL_PKG_PREFIXES, namingFactoryUrlPkgs);

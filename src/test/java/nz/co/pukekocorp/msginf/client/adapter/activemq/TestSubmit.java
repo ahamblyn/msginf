@@ -11,6 +11,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +24,7 @@ public class TestSubmit {
 
     @BeforeAll
     public static void setUp() {
-        messenger = new Messenger();
+        messenger = new Messenger(Map.of("activemq", "tcp://localhost:61616"));
     }
 
     @AfterAll

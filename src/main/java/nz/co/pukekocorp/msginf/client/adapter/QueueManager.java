@@ -1,6 +1,7 @@
 package nz.co.pukekocorp.msginf.client.adapter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.DataFormatException;
@@ -52,22 +53,24 @@ public class QueueManager {
 	 * Constructs the QueueManager instance.
 	 * @param  parser the messaging infrastructure file parser
 	 * @param messagingSystem messaging system
+	 * @param jndiUrlMap the urls to connect to each messaging system.
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem) {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Map<String, String> jndiUrlMap) {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
 		if (messageConnFactory == null) {
-			messageConnFactory = MessageControllerFactory.getInstance(parser);
+			messageConnFactory = MessageControllerFactory.getInstance(parser, jndiUrlMap);
 		}
 	}
 
 	/**
 	 * Constructs the QueueManager instance.
 	 * @param messagingSystem messaging system
+	 * @param jndiUrlMap the urls to connect to each messaging system.
 	 * @throws PropertiesFileException if an error occurs.
 	 */
-	public QueueManager(String messagingSystem) throws PropertiesFileException {
-		this(new MessageInfrastructurePropertiesFileParser(), messagingSystem);
+	public QueueManager(String messagingSystem, Map<String, String> jndiUrlMap) throws PropertiesFileException {
+		this(new MessageInfrastructurePropertiesFileParser(), messagingSystem, jndiUrlMap);
 	}
 
     /**

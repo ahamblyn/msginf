@@ -14,6 +14,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,12 +33,12 @@ public class TestTextRequestTextReply {
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             messageRequestReply = new MessageRequestReply(parser, "activemq",
                     "QueueConnectionFactory", "RequestQueue",
-                    "ReplyQueue");
+                    "ReplyQueue", "tcp://localhost:61616");
             messageRequestReply.run();
         } catch (MessageException e) {
             log.error("Unable to setup TestTextRequestTextReply test", e);
         }
-        messenger = new Messenger();
+        messenger = new Messenger(Map.of("activemq", "tcp://localhost:61616"));
     }
 
     @AfterAll

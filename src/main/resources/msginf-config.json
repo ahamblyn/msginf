@@ -123,8 +123,7 @@
         },
         "name": "activemq",
         "jndiProperties": {
-          "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-          "url": "tcp://localhost:61616"
+          "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
         }
       }
     ]
