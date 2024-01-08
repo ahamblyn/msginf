@@ -21,7 +21,7 @@ import nz.co.pukekocorp.msginf.infrastructure.exception.QueueChannelException;
  */
 
 @Slf4j
-public class QueueChannelPool implements Runnable {
+public class QueueChannelPool {
 
     /**
      * The maximum number of queue channels per queue manager. Limited to 100
@@ -38,12 +38,6 @@ public class QueueChannelPool implements Runnable {
      * A collection to hold the queue channels currently being used.
      */
    private Vector<QueueChannel> busyQueueChannels;
-
-    /**
-     * A flag to say whether a queue channel is being created in the background.
-     * i.e. by another thread.
-     */
-   private boolean queueChannelPending = false;
 
     /**
      * The JMS queue connection factory.
@@ -86,38 +80,13 @@ public class QueueChannelPool implements Runnable {
          busyQueueChannels.addElement(existingQueueChannel);
          return existingQueueChannel;
       } else {
-         if ((totalChannels() < queueChannelLimit) && !queueChannelPending) {
-            makeBackgroundQueueChannel();
-         }
          try {
-            wait();
-         } catch(InterruptedException ie) {
+            QueueChannel queueChannel = makeNewQueueChannel();
+            busyQueueChannels.add(queueChannel);
+            return queueChannel;
+         } catch (MessageException e) {
+            throw new RuntimeException(e);
          }
-         // a queue channel was released
-         return getQueueChannel();
-      }
-   }
-
-   private void makeBackgroundQueueChannel() {
-      queueChannelPending = true;
-      Thread queueChannelThread = new Thread(this);
-      queueChannelThread.start();
-   }
-
-   /**
-    * This method makes another queue channel in the background (that is another
-    * thread).
-    */
-   public void run() {
-      try {
-         QueueChannel queueChannel = makeNewQueueChannel();
-         synchronized(this) {
-            availableQueueChannels.addElement(queueChannel);
-            queueChannelPending = false;
-            notifyAll();
-         }
-      } catch (MessageException me) {
-         log.error(me.getMessage(), me);
       }
    }
 
@@ -140,16 +109,6 @@ public class QueueChannelPool implements Runnable {
    public synchronized void free(QueueChannel queueChannel) {
       busyQueueChannels.removeElement(queueChannel);
       availableQueueChannels.addElement(queueChannel);
-      // wake up threads
-      notifyAll();
-   }
-
-    /**
-     * This method returns the total number of queue channels.
-     * @return the total number of queue channels.
-     */
-   public synchronized int totalChannels() {
-      return availableQueueChannels.size() + busyQueueChannels.size();
    }
 
    /**
