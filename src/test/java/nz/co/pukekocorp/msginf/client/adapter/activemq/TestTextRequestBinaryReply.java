@@ -1,6 +1,7 @@
 package nz.co.pukekocorp.msginf.client.adapter.activemq;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
 import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
@@ -11,6 +12,9 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +23,16 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(
+        classes = MessageInfrastructureApplication.class)
+@TestPropertySource(
+        locations = "classpath:application-dev.properties")
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestTextRequestBinaryReply {
 
-    private static Messenger messenger;
+    @Autowired
+    private Messenger messenger;
     private static MessageRequestReply messageRequestReply;
 
     @BeforeAll
@@ -37,7 +46,6 @@ public class TestTextRequestBinaryReply {
         } catch (MessageException e) {
             log.error("Unable to setup TestTextRequestBinaryReply test", e);
         }
-        messenger = new Messenger(Map.of("activemq", "tcp://localhost:61616"));
     }
 
     @AfterAll

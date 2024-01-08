@@ -1,6 +1,7 @@
 package nz.co.pukekocorp.msginf.client.adapter.activemq;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
 import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
@@ -8,6 +9,9 @@ import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +20,16 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(
+        classes = MessageInfrastructureApplication.class)
+@TestPropertySource(
+        locations = "classpath:application-dev.properties")
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestSubmit {
 
-    private static Messenger messenger;
-
-    @BeforeAll
-    public static void setUp() {
-        messenger = new Messenger(Map.of("activemq", "tcp://localhost:61616"));
-    }
+    @Autowired
+    private Messenger messenger;
 
     @AfterAll
     public static void tearDown() {
