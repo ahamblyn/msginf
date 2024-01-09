@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.jms.QueueConnectionFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import jakarta.jms.QueueConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.QueueChannelException;
