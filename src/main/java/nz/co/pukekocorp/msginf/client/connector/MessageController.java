@@ -4,11 +4,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import javax.jms.*;
-import javax.jms.Queue;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import jakarta.jms.*;
+import jakarta.jms.Queue;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;

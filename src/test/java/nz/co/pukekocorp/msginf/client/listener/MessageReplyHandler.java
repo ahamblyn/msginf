@@ -2,13 +2,7 @@ package nz.co.pukekocorp.msginf.client.listener;
 
 import java.util.Date;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
+import jakarta.jms.*;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.apache.commons.lang3.RandomStringUtils;
 

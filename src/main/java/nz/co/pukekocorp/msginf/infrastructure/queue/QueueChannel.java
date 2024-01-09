@@ -1,7 +1,6 @@
 package nz.co.pukekocorp.msginf.infrastructure.queue;
 
-import javax.jms.*;
-
+import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
 
 /**

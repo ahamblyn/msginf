@@ -1,7 +1,6 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
-import javax.jms.*;
-
+import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageRequesterException;
 import nz.co.pukekocorp.msginf.infrastructure.queue.QueueChannel;
