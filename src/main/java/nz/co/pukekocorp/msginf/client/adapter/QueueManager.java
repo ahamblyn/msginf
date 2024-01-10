@@ -29,6 +29,9 @@ import nz.co.pukekocorp.msginf.models.message.MessageType;
 @Slf4j
 public class QueueManager {
 
+	//TODO inject something here...
+	private Map<String, String> testMap;
+
 	/**
 	 * The message controller factory instance.
 	 */
@@ -50,27 +53,33 @@ public class QueueManager {
 	private final String messagingSystem;
 
 	/**
+	 * The JNDI url.
+	 */
+	private final String jndiUrl;
+
+	/**
 	 * Constructs the QueueManager instance.
 	 * @param  parser the messaging infrastructure file parser
 	 * @param messagingSystem messaging system
-	 * @param jndiUrlMap the urls to connect to each messaging system.
+	 * @param jndiUrl the url to connect to the messaging system.
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Map<String, String> jndiUrlMap) {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
+		this.jndiUrl = jndiUrl;
 		if (messageConnFactory == null) {
-			messageConnFactory = MessageControllerFactory.getInstance(parser, jndiUrlMap);
+			messageConnFactory = MessageControllerFactory.getInstance(parser, jndiUrl);
 		}
 	}
 
 	/**
 	 * Constructs the QueueManager instance.
 	 * @param messagingSystem messaging system
-	 * @param jndiUrlMap the urls to connect to each messaging system.
+	 * @param jndiUrl the url to connect to the messaging system.
 	 * @throws PropertiesFileException if an error occurs.
 	 */
-	public QueueManager(String messagingSystem, Map<String, String> jndiUrlMap) throws PropertiesFileException {
-		this(new MessageInfrastructurePropertiesFileParser(), messagingSystem, jndiUrlMap);
+	public QueueManager(String messagingSystem, String jndiUrl) throws PropertiesFileException {
+		this(new MessageInfrastructurePropertiesFileParser(), messagingSystem, jndiUrl);
 	}
 
     /**
