@@ -43,25 +43,25 @@ public class MessageControllerFactory {
 	/**
 	 * The MessageControllerFactory constructor.
 	 * @param parser the properties file parser
-	 * @param jndiUrlMap the urls to connect to each messaging system.
+	 * @param jndiUrl the url to connect to the messaging system.
 	 * @throws MessageException Message exception
 	 */
-	protected MessageControllerFactory(MessageInfrastructurePropertiesFileParser parser, Map<String, String> jndiUrlMap) throws MessageException {
+	protected MessageControllerFactory(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) throws MessageException {
 		this.parser = parser;
-		initialise(parser, jndiUrlMap);
+		initialise(parser, jndiUrl);
 	}
 
 	/**
 	 * Gets the singleton MessageControllerFactory instance.
 	 * Used by the QueueManager.
 	 * @param parser the properties file parser
-	 * @param jndiUrlMap the urls to connect to each messaging system.
+	 * @param jndiUrl the url to connect to the messaging system.
 	 * @return the singleton MessageControllerFactory instance.
 	 */
-	public synchronized static MessageControllerFactory getInstance(MessageInfrastructurePropertiesFileParser parser, Map<String, String> jndiUrlMap)  {
+	public synchronized static MessageControllerFactory getInstance(MessageInfrastructurePropertiesFileParser parser, String jndiUrl)  {
 		return Optional.ofNullable(messageControllerFactory).orElseGet(() -> {
 			try {
-				messageControllerFactory = new MessageControllerFactory(parser, jndiUrlMap);
+				messageControllerFactory = new MessageControllerFactory(parser, jndiUrl);
 			} catch (MessageException e) {
 				log.error("Unable to create MessageControllerFactory", e);
 				throw new RuntimeException(e);
@@ -89,13 +89,11 @@ public class MessageControllerFactory {
 		return new MessageController(parser, messagingSystem, connectorName, jmsCtx);
 	}
 
-	private void initialise(MessageInfrastructurePropertiesFileParser parser, Map<String, String> jndiUrlMap) throws ConfigurationException {
+	private void initialise(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) {
 		jmsContexts = new ConcurrentHashMap<>();
 		//Initialise a jndi context for each system in the properties file
 		List<String> availableMessagingSystems = parser.getAvailableMessagingSystems();
         for (String messagingSystem : availableMessagingSystems) {
-			String jndiUrl = Optional.ofNullable(jndiUrlMap.get(messagingSystem))
-					.orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the jndi.url.map property in the application.properties file."));
             Context context = Util.createContext(parser, messagingSystem, jndiUrl);
             if (context != null) {
                 jmsContexts.put(messagingSystem, context);

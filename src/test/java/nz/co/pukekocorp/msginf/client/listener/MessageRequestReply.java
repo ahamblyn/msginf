@@ -5,7 +5,6 @@ import javax.naming.NamingException;
 
 import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.Constants;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.infrastructure.util.Util;
