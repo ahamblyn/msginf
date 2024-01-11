@@ -25,19 +25,13 @@ public class QueueChannel {
    private final QueueConnection queueConnection;
 
     /**
-     * Use connection pooling.
-     */
-   private boolean useConnectionPooling;
-
-    /**
      * The QueueChannel constructor.
      * @param queueConnection the queue connection.
      * @param session the session.
      */
-   public QueueChannel(QueueConnection queueConnection, Session session, boolean useConnectionPooling) {
+   public QueueChannel(QueueConnection queueConnection, Session session) {
       this.session = session;
       this.queueConnection = queueConnection;
-      this.useConnectionPooling = useConnectionPooling;
    }
 
    /**
@@ -100,15 +94,6 @@ public class QueueChannel {
      * @return the JMS session.
      */
    public Session getSession() {
-       if (useConnectionPooling) {
-           // close the session first as specified in API docs
-           // https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jms/connection/CachingConnectionFactory.html
-           try {
-               this.session.close();
-           } catch (JMSException e) {
-               throw new RuntimeException(e);
-           }
-       }
       return this.session;
    }
 

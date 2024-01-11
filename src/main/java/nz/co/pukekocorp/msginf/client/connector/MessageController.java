@@ -19,7 +19,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
-import org.springframework.jms.connection.CachingConnectionFactory;
+import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
 /**
  * The MessageController puts messages onto the queues defined in the properties file.
@@ -281,21 +281,20 @@ public class MessageController {
 
 	private QueueChannel makeNewQueueChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
+			QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
 			QueueConnection queueConnection;
 			if (useConnectionPooling) {
 				int maxConnections = parser.getMaxConnections(messagingSystem);
-				var cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
-				cachingConnectionFactory.setSessionCacheSize(maxConnections);
-				cachingConnectionFactory.setCacheConsumers(false);
-				cachingConnectionFactory.setCacheProducers(false);
-				queueConnection = cachingConnectionFactory.createQueueConnection();
+				var jmsPoolConnectionFactory = new JmsPoolConnectionFactory();
+				jmsPoolConnectionFactory.setConnectionFactory(queueConnectionFactory);
+				jmsPoolConnectionFactory.setMaxConnections(maxConnections);
+				queueConnection = jmsPoolConnectionFactory.createQueueConnection();
 			} else {
-				queueConnection = connectionFactory.createQueueConnection();
+				queueConnection = queueConnectionFactory.createQueueConnection();
 			}
 			queueConnection.start();
 			Session session = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			return new QueueChannel(queueConnection, session, useConnectionPooling);
+			return new QueueChannel(queueConnection, session);
 		} catch (JMSException | NamingException e) {
 			throw new QueueChannelException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
 		}
