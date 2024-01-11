@@ -1,7 +1,6 @@
 package nz.co.pukekocorp.msginf.client.adapter;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.DataFormatException;
@@ -9,7 +8,6 @@ import java.util.zip.Deflater;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.MessageController;
-import nz.co.pukekocorp.msginf.client.connector.MessageControllerFactory;
 import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
@@ -20,6 +18,8 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 
+import javax.naming.Context;
+
 /**
  * The QueueManager is used by client applications to send and receive messages.
  * The clients use the sendMessage methods to send text or binary messages.
@@ -29,18 +29,15 @@ import nz.co.pukekocorp.msginf.models.message.MessageType;
 @Slf4j
 public class QueueManager {
 
-	//TODO inject something here...
-	private Map<String, String> testMap;
-
-	/**
-	 * The message controller factory instance.
-	 */
-	private static MessageControllerFactory messageConnFactory;
-	
 	/**
 	 * The message controllers.
 	 */
 	private final ConcurrentMap<String, MessageController> messageControllers = new ConcurrentHashMap<>();
+
+	/**
+	 * The JNDI context.
+	 */
+	private Context jndiContext;
 
 	/**
 	 * The properties file parser.
@@ -53,11 +50,6 @@ public class QueueManager {
 	private final String messagingSystem;
 
 	/**
-	 * The JNDI url.
-	 */
-	private final String jndiUrl;
-
-	/**
 	 * Constructs the QueueManager instance.
 	 * @param  parser the messaging infrastructure file parser
 	 * @param messagingSystem messaging system
@@ -66,10 +58,7 @@ public class QueueManager {
 	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
-		this.jndiUrl = jndiUrl;
-		if (messageConnFactory == null) {
-			messageConnFactory = MessageControllerFactory.getInstance(parser, jndiUrl);
-		}
+		initialiseJMSContext(parser, jndiUrl);
 	}
 
 	/**
@@ -158,15 +147,15 @@ public class QueueManager {
 	private MessageController getMessageConnector(String connector) throws MessageException {
 		MessageController mc = messageControllers.get(connector);
 		if (mc == null) {
-			mc = messageConnFactory.getNewMessageControllerInstance(messagingSystem, connector);
-			if (mc == null) {
-				// No MessageController exists for the messaging systems and connector.
-				throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");
-			} else {
-				messageControllers.put(connector, mc);
-			}
+			mc = new MessageController(parser, messagingSystem, connector, jndiContext);
+			messageControllers.put(connector, mc);
 		}
 		return mc;
+	}
+
+	private void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) {
+		this.jndiContext = Util.createContext(parser, messagingSystem, jndiUrl);
+		log.info("JNDI context created for " + messagingSystem + " messaging system");
 	}
 
 	/**
