@@ -18,7 +18,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,16 +33,20 @@ public class TestTextRequestTextReply {
 
     @Autowired
     private Messenger messenger;
-    private static MessageRequestReply messageRequestReply;
+    private static List<MessageRequestReply> messageRequestReplyList;
 
     @BeforeAll
     public static void setUp() {
         try {
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            messageRequestReply = new MessageRequestReply(parser, "activemq",
-                    "QueueConnectionFactory", "RequestQueue",
-                    "ReplyQueue", "tcp://localhost:61616");
-            messageRequestReply.run();
+            messageRequestReplyList = new ArrayList<>();
+            for (int i = 0; i < 20; i++) {
+                var messageRequestReply = new MessageRequestReply(parser, "activemq",
+                        "QueueConnectionFactory", "RequestQueue",
+                        "ReplyQueue", "tcp://localhost:61616");
+                messageRequestReply.run();
+                messageRequestReplyList.add(messageRequestReply);
+            }
         } catch (MessageException e) {
             log.error("Unable to setup TestTextRequestTextReply test", e);
         }
@@ -56,7 +59,7 @@ public class TestTextRequestTextReply {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        messageRequestReply.shutdown();
+        messageRequestReplyList.forEach(MessageRequestReply::shutdown);
     }
 
     @Test
