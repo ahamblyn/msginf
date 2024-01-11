@@ -24,4 +24,14 @@ public class QueueChannelException extends MessageException {
    public QueueChannelException(Exception e) {
       super(e);
    }
+
+   /**
+    * Constructs a QueueChannelException object.
+    * @param message the exception message.
+    * @param e the exception caught.
+    */
+   public QueueChannelException(String message, Exception e) {
+      super(message, e);
+   }
+
 }
