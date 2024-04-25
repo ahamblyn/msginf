@@ -11,9 +11,9 @@ import jakarta.jms.*;
 import jakarta.jms.Queue;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import nz.co.pukekocorp.msginf.infrastructure.queue.QueueChannel;
 import nz.co.pukekocorp.msginf.models.configuration.MessageProperty;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
@@ -96,9 +96,9 @@ public class MessageController {
 	private final List<MessageProperty> configMessageProperties;
 
    /**
-    * The messaging queue channel.
+    * The messaging destination channel.
     */
-   private QueueChannel queueChannel;
+   private DestinationChannel destinationChannel;
 
 	/**
 	 * The queue statistics collector.
@@ -194,7 +194,7 @@ public class MessageController {
     } catch (JMSException | MessageException e) {
     	// increment failed message count
 		collector.incrementFailedMessageCount(connector);
-        throw new QueueUnavailableException(e);
+        throw new DestinationUnavailableException(e);
     }
    }
 
@@ -209,7 +209,7 @@ public class MessageController {
  	    Instant start = Instant.now();
 	    try {
 		    // create a consumer based on the request queue
-		    MessageConsumer messageConsumer = queueChannel.getSession().createConsumer(queue);
+		    MessageConsumer messageConsumer = destinationChannel.getSession().createConsumer(queue);
 			while (true) {
 				MessageResponse messageResponse = new MessageResponse();
 				Message m = messageConsumer.receive(timeout);
@@ -234,7 +234,7 @@ public class MessageController {
 	    } catch (JMSException e) {
 	    	// increment failed message count
 			collector.incrementFailedMessageCount(connector);
-	        throw new QueueUnavailableException(e);
+	        throw new DestinationUnavailableException(e);
 	    }
 	   return messages;
    }
@@ -257,29 +257,29 @@ public class MessageController {
 	}
 
     private BytesMessage createBytesMessage() throws JMSException {
-        return queueChannel.getSession().createBytesMessage();
+        return destinationChannel.getSession().createBytesMessage();
     }
 
     private TextMessage createTextMessage() throws JMSException {
-        return queueChannel.getSession().createTextMessage();
+        return destinationChannel.getSession().createTextMessage();
     }
 
     private void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
-	    queueChannel = makeNewQueueChannel(parser, messagingSystem, jndiContext);
-		submitMessageProducer = queueChannel.createMessageProducer(this.queue);
-		requestReplyMessageProducer = queueChannel.createMessageProducer(this.queue);
+		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
+		submitMessageProducer = destinationChannel.createMessageProducer(this.queue);
+		requestReplyMessageProducer = destinationChannel.createMessageProducer(this.queue);
 		if (messageTimeToLive > 0) {
 			submitMessageProducer.setTimeToLive(messageTimeToLive);
 			requestReplyMessageProducer.setTimeToLive(messageTimeToLive);
 		}
 		// only create a requester for request-reply message controllers.
 		if (replyExpected) {
-			messageRequester = new ConsumerMessageRequester(queueChannel, requestReplyMessageProducer, replyQueue,
+			messageRequester = new ConsumerMessageRequester(destinationChannel, requestReplyMessageProducer, replyQueue,
 					replyWaitTime, useMessageSelector);
 		}
 	}
 
-	private QueueChannel makeNewQueueChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
+	private DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
 			QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
 			QueueConnection queueConnection;
@@ -294,9 +294,9 @@ public class MessageController {
 			}
 			queueConnection.start();
 			Session session = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			return new QueueChannel(queueConnection, session);
+			return new DestinationChannel(queueConnection, session);
 		} catch (JMSException | NamingException e) {
-			throw new QueueChannelException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
+			throw new DestinationChannelException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
 		}
 	}
 
@@ -352,7 +352,7 @@ public class MessageController {
         	if (requestReplyMessageProducer != null) {
         		requestReplyMessageProducer.close();
         	}
-			queueChannel.close();
+			destinationChannel.close();
         } catch (JMSException e) {
         	log.error(e.getMessage(), e);
         }

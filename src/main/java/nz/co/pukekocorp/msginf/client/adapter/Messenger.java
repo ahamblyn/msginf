@@ -56,6 +56,31 @@ public class Messenger {
         return queueManager.receiveMessages(messageConnector, timeout);
     }
 
+    /**
+     * Publish the message.
+     * @param messagingSystem messaging system
+     * @param messageRequest message request
+     * @return the message response
+     * @throws MessageException message exception
+     */
+    public MessageResponse publish(String messagingSystem, MessageRequest messageRequest) throws MessageException {
+        QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
+        return queueManager.sendMessage(messageRequest);
+    }
+
+    /**
+     * Recieve the message of a topic
+     * @param messagingSystem the messaging system
+     * @param messageConnector the message connector
+     * @param timeout timeout to wait in ms
+     * @return a list of message responses
+     * @throws MessageException message exception
+     */
+    public List<MessageResponse> subscribe(String messagingSystem, String messageConnector, long timeout) throws MessageException {
+        QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
+        return queueManager.receiveMessages(messageConnector, timeout);
+    }
+
     @Override
     public String toString() {
         return "Messenger{" +

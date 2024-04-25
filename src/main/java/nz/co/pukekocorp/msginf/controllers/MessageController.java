@@ -81,4 +81,39 @@ public class MessageController {
         Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload);
         return ResponseEntity.of(messageResponse);
     }
+
+    /**
+     * Publish a message
+     * @param payload the message
+     * @return the message response
+     */
+    @Operation(
+            summary = "Publish a message to a topic",
+            description = "Publish a message to a topic",
+            tags = {"message"})
+    @PostMapping(path = "/publish", consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<RestMessageResponse> publish(@Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
+        Optional<RestMessageResponse> messageResponse = messageService.publish(payload);
+        return ResponseEntity.of(messageResponse);
+    }
+
+    /**
+     * Receive (read) messages off a topic
+     * @param messageSystem the messaging system
+     * @param messageConnector the connector to use
+     * @param timeout the timeout in ms to wait
+     * @return the messages read
+     */
+    @Operation(
+            summary = "Receive (read) messages off a topic",
+            description = "Receive (read) messages off a topic",
+            tags = {"message"})
+    @GetMapping("/subscribe")
+    public ResponseEntity<List<RestMessageResponse>> subscribe(@Parameter(description = "The messaging system") @RequestHeader(name="x-message-system") String messageSystem,
+                                                                     @Parameter(description = "The message connector") @RequestHeader(name="x-message-connector") String messageConnector,
+                                                                     @Parameter(description = "The message timeout (ms)") @RequestHeader(name="x-timeout") Long timeout) {
+        return ResponseEntity.of(Optional.of(messageService.subscribe(messageSystem, messageConnector, timeout)));
+    }
+
 }
