@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukekocorp.msginf.models.configuration.MessagingModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ public class AdapterConfiguration {
         Map<String, QueueManager> queueManagerMap = new ConcurrentHashMap<>();
         try {
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            parser.getAvailableMessagingSystems().forEach(messagingSystem -> {
+            parser.getAvailableMessagingSystems(MessagingModel.POINT_TO_POINT).forEach(messagingSystem -> {
                 try {
                     String jndiUrl = Optional.ofNullable(jndiUrlMap.get(messagingSystem))
                             .orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the jndi.url.map property in the application.properties file."));

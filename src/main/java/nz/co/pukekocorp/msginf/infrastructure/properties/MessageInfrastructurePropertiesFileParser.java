@@ -87,9 +87,10 @@ public class MessageInfrastructurePropertiesFileParser {
      * Returns a list of the names of the available messaging systems in the properties file.
      * @return a list of the names of the available messaging systems in the properties file.
      */
-    public List<String> getAvailableMessagingSystems() {
+    public List<String> getAvailableMessagingSystems(MessagingModel messagingModel) {
         List<String> availableMessagingSystems = new ArrayList<>();
         Optional.ofNullable(configuration).ifPresent(config -> availableMessagingSystems.addAll(config.systems().system().stream()
+                .filter(system -> system.messagingModel() == messagingModel)
                 .map(System::name).toList()));
         return availableMessagingSystems;
     }
@@ -155,6 +156,16 @@ public class MessageInfrastructurePropertiesFileParser {
     public String getSystemInitialContextFactory(String messagingSystemName) {
         Optional<String> contextFactory = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.jndiProperties().initialContextFactory()));
         return contextFactory.orElse("");
+    }
+
+    /**
+     * Returns the messaging model for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the messaging model for the messaging system.
+     */
+    public MessagingModel getMessagingModel(String messagingSystemName) {
+        Optional<MessagingModel> messagingModel = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.messagingModel()));
+        return messagingModel.orElse(MessagingModel.POINT_TO_POINT);
     }
 
     /**
@@ -322,10 +333,10 @@ public class MessageInfrastructurePropertiesFileParser {
      * @param connectorName the connector name
      * @return the submit connection request type for the request-reply connector.
      */
-    public String getSubmitConnectionRequestType(String messagingSystemName, String connectorName) {
+    public RequestType getSubmitConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<SubmitConnection> connection = findSubmitConnection(messagingSystemName, connectorName);
         Optional<RequestType> requestType = connection.flatMap(sub -> Optional.ofNullable(sub.requestType()));
-        return requestType.orElse(RequestType.TEXT).name(); // default to text
+        return requestType.orElse(RequestType.TEXT); // default to text
     }
 
     /**
@@ -406,10 +417,10 @@ public class MessageInfrastructurePropertiesFileParser {
      * @param connectorName the connector name
      * @return the request-reply connection request type for the request-reply connector.
      */
-    public String getRequestReplyConnectionRequestType(String messagingSystemName, String connectorName) {
+    public RequestType getRequestReplyConnectionRequestType(String messagingSystemName, String connectorName) {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<RequestType> requestType = connection.flatMap(rr -> Optional.ofNullable(rr.requestType()));
-        return requestType.orElse(RequestType.TEXT).name(); // default to text
+        return requestType.orElse(RequestType.TEXT); // default to text
     }
 
     /**
@@ -469,10 +480,10 @@ public class MessageInfrastructurePropertiesFileParser {
      */
     public MessageType getMessageType(String messagingSystemName, String connectorName, MessageRequestType messageRequestType) {
         if (messageRequestType == MessageRequestType.SUBMIT) {
-            String requestType = getSubmitConnectionRequestType(messagingSystemName, connectorName).toUpperCase();
+            String requestType = getSubmitConnectionRequestType(messagingSystemName, connectorName).name();
             return MessageType.valueOf(requestType);
         } else if (messageRequestType == MessageRequestType.REQUEST_RESPONSE) {
-            String requestType = getRequestReplyConnectionRequestType(messagingSystemName, connectorName).toUpperCase();
+            String requestType = getRequestReplyConnectionRequestType(messagingSystemName, connectorName).name();
             return MessageType.valueOf(requestType);
         } else {
             return MessageType.TEXT;

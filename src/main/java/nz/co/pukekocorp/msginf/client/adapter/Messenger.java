@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,13 +17,13 @@ import java.util.Optional;
 @Slf4j
 public class Messenger {
 
-    @Autowired
-    private Map<String, QueueManager> queueManagers;
+    private final Map<String, QueueManager> queueManagers;
 
     /**
      * Default constructor.
      */
-    public Messenger() {
+    public Messenger(Map<String, QueueManager> queueManagers) {
+        this.queueManagers = queueManagers;
     }
 
     private Optional<QueueManager> getQueueManager(String messagingSystem) {

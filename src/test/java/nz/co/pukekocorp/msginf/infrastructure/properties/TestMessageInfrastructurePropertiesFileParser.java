@@ -1,6 +1,8 @@
 package nz.co.pukekocorp.msginf.infrastructure.properties;
 
 import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
+import nz.co.pukekocorp.msginf.models.configuration.MessagingModel;
+import nz.co.pukekocorp.msginf.models.configuration.RequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +31,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqSubmitTextExpectedData.compressBinaryMessages = false;
         activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
         activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqSubmitTextExpectedData.requestType = "TEXT";
+        activemqSubmitTextExpectedData.requestType = RequestType.TEXT;
         activemqSubmitTextExpectedData.messageTimeToLive = 0;
         activemqSubmitTextExpectedData.replyWaitTime = 20000;
         expectedActiveMQConnectorDataMap.put("submit_text", activemqSubmitTextExpectedData);
@@ -39,7 +41,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
         activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
         activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqRequestReplyTextExpectedData.requestType = "TEXT";
+        activemqRequestReplyTextExpectedData.requestType = RequestType.TEXT;
         activemqRequestReplyTextExpectedData.messageTimeToLive = 0;
         activemqRequestReplyTextExpectedData.replyWaitTime = 20000;
         activemqRequestReplyTextExpectedData.useMessageSelector = true;
@@ -107,8 +109,9 @@ public class TestMessageInfrastructurePropertiesFileParser {
         String messagingSystem = "activemq";
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
         Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
+        assertEquals(MessagingModel.POINT_TO_POINT, parser.getMessagingModel(messagingSystem));
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
-        assertTrue(parser.getAvailableMessagingSystems().stream().anyMatch(s -> s.equals("activemq")));
+        assertTrue(parser.getAvailableMessagingSystems(MessagingModel.POINT_TO_POINT).stream().anyMatch(s -> s.equals("activemq")));
         assertTrue(validateQueueJNDIName(parser, messagingSystem, "TestQueue"));
         assertTrue(validateQueueJNDIName(parser, messagingSystem, "RequestQueue"));
         assertTrue(validateQueueJNDIName(parser, messagingSystem,"ReplyQueue"));
@@ -175,7 +178,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         public String requestQueueName;
         public String replyQueueName;
         public String queueConnFactoryName;
-        public String requestType;
+        public RequestType requestType;
         public int messageTimeToLive;
         public int replyWaitTime;
         public boolean useMessageSelector;

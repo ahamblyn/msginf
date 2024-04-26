@@ -122,6 +122,7 @@
           "maxConnections": 20
         },
         "name": "activemq",
+        "messagingModel": "point-to-point",
         "jndiProperties": {
           "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
         }
