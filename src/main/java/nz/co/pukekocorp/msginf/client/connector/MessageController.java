@@ -1,6 +1,5 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -10,11 +9,9 @@ import javax.naming.NamingException;
 import jakarta.jms.*;
 import jakarta.jms.Queue;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import nz.co.pukekocorp.msginf.models.configuration.MessageProperty;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
@@ -28,17 +25,7 @@ import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
  */
 
 @Slf4j
-public class MessageController {
-
-   /**
-    * The application JMS submit message producer.
-    */
-   private MessageProducer submitMessageProducer;
-
-   /**
-    * The application JMS request-reply message producer.
-    */
-   private MessageProducer requestReplyMessageProducer;
+public class MessageController extends AbstractMessageController {
 
    /**
     * The application JMS queue.
@@ -49,11 +36,6 @@ public class MessageController {
     * The application JMS reply queue.
     */
    private Queue replyQueue;
-
-   /**
-    * The connector name.
-    */
-   private final String connector;
 
    /**
     * The queue connection factory name.
@@ -89,21 +71,6 @@ public class MessageController {
 	 * Whether to use a message selector to find the response messages.
 	 */
 	private boolean useMessageSelector = true;
-
-	/**
-	 * The message properties from the configuration
-	 */
-	private final List<MessageProperty> configMessageProperties;
-
-   /**
-    * The messaging destination channel.
-    */
-   private DestinationChannel destinationChannel;
-
-	/**
-	 * The queue statistics collector.
-	 */
-	private final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
 
 	/**
 	 * Whether to use connection pooling or not.
@@ -239,32 +206,7 @@ public class MessageController {
 	   return messages;
    }
 
-	private void collateStats(String connector, Instant start) {
-		Instant finish = Instant.now();
-		long duration = Duration.between(start, finish).toMillis();
-		collector.incrementMessageCount(connector);
-		collector.addMessageTime(connector, duration);
-	}
-
-	private void getMessageProperties(Message replyMsg, List<MessageProperty> messageProperties) throws JMSException {
-		if (messageProperties != null) {
-			Enumeration propertyNames = replyMsg.getPropertyNames();
-			while (propertyNames.hasMoreElements()) {
-				String propertyName = (String) propertyNames.nextElement();
-				messageProperties.add(new MessageProperty(propertyName, replyMsg.getStringProperty(propertyName)));
-			}
-		}
-	}
-
-    private BytesMessage createBytesMessage() throws JMSException {
-        return destinationChannel.getSession().createBytesMessage();
-    }
-
-    private TextMessage createTextMessage() throws JMSException {
-        return destinationChannel.getSession().createTextMessage();
-    }
-
-    private void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
+    public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
 		submitMessageProducer = destinationChannel.createMessageProducer(this.queue);
 		requestReplyMessageProducer = destinationChannel.createMessageProducer(this.queue);
@@ -279,7 +221,7 @@ public class MessageController {
 		}
 	}
 
-	private DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
+	public DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
 			QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
 			QueueConnection queueConnection;
@@ -300,35 +242,6 @@ public class MessageController {
 		}
 	}
 
-	private Optional<Message> createMessage(MessageRequest messageRequest) throws JMSException {
-		if (messageRequest.getMessageType() == MessageType.TEXT) {
-			TextMessage message = createTextMessage();
-			message.setText(messageRequest.getTextMessage());
-			return Optional.of(message);
-		}
-		if (messageRequest.getMessageType() == MessageType.BINARY) {
-			BytesMessage message = createBytesMessage();
-			message.writeBytes(messageRequest.getBinaryMessage());
-			return Optional.of(message);
-		}
-		return Optional.empty();
-	}
-
-	private void setMessageProperties(Message jmsMessage, List<MessageProperty> requestMessageProperties) {
-		// Apply header properties from message request and properties from config. Request properties have priority.
-		List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
-		if (requestMessageProperties != null) {
-			combinedMessageProperties.addAll(requestMessageProperties);
-		}
-		combinedMessageProperties.forEach(property -> {
-			try {
-				jmsMessage.setStringProperty(property.name(), property.value());
-			} catch (JMSException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-	
     /**
      * Gets this object as a String.
      * @return this object as a String.
