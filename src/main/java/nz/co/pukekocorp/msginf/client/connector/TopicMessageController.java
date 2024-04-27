@@ -3,6 +3,7 @@ package nz.co.pukekocorp.msginf.client.connector;
 import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
+import nz.co.pukekocorp.msginf.infrastructure.destination.TopicChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
@@ -82,7 +83,7 @@ public class TopicMessageController extends AbstractMessageController {
 			throw new RuntimeException("Unable to create JMS message.");
 		});
 		setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
-		messageProducer.send(jmsMessage);
+		((TopicPublisher)messageProducer).publish(jmsMessage);
 		collateStats(connector, start);
         return messageResponse;
     } catch (JMSException e) {
@@ -96,14 +97,27 @@ public class TopicMessageController extends AbstractMessageController {
 		return topic;
 	}
 
+	/**
+	 * Set up the JMS Objects
+	 * @param parser the properties file parser
+	 * @param messagingSystem the messaging system
+	 * @param jndiContext the JNDI context
+	 * @throws MessageException Message exception
+	 * @throws JMSException JMS exception
+	 */
     public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
-		messageProducer = destinationChannel.createMessageProducer(this.topic);
-		if (messageTimeToLive > 0) {
-			messageProducer.setTimeToLive(messageTimeToLive);
-		}
+		messageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.topic);
 	}
 
+	/**
+	 * Create the destination channel
+	 * @param parser the properties file parser
+	 * @param messagingSystem the messaging system
+	 * @param jndiContext the JNDI context
+	 * @return the destination channel
+	 * @throws MessageException Message exception
+	 */
 	public DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
 			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) jndiContext.lookup(topicConnFactoryName);
@@ -119,7 +133,7 @@ public class TopicMessageController extends AbstractMessageController {
 			}
 			topicConnection.start();
 			Session session = topicConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			return new DestinationChannel(topicConnection, session);
+			return new TopicChannel(topicConnection, session);
 		} catch (JMSException | NamingException e) {
 			throw new DestinationChannelException("Unable to lookup the topic connection factory: " + topicConnFactoryName, e);
 		}

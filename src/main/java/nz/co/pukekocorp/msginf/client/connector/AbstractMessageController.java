@@ -142,10 +142,24 @@ public abstract class AbstractMessageController {
         return destinationChannel.getSession().createTextMessage();
     }
 
-    protected void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
-        destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
-    }
+    /**
+     * Set up the JMS Objects
+     * @param parser the properties file parser
+     * @param messagingSystem the messaging system
+     * @param jndiContext the JNDI context
+     * @throws MessageException Message exception
+     * @throws JMSException JMS exception
+     */
+    public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException;
 
+    /**
+     * Create the destination channel
+     * @param parser the properties file parser
+     * @param messagingSystem the messaging system
+     * @param jndiContext the JNDI context
+     * @return the destination channel
+     * @throws MessageException Message exception
+     */
     public abstract DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser,
                                                                  String messagingSystem, Context jndiContext) throws MessageException;
 

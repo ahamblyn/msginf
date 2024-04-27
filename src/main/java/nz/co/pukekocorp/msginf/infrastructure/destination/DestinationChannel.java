@@ -15,12 +15,12 @@ public class DestinationChannel {
     /**
      * The JMS session.
      */
-    private final Session session;
+    protected final Session session;
 
     /**
      * The JMS queue connection.
      */
-    private final Connection connection;
+    protected final Connection connection;
 
     /**
      * The DestinationChannel constructor.

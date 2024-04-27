@@ -172,6 +172,14 @@ public class QueueMessageController extends AbstractMessageController {
 	   return queue;
 	}
 
+	/**
+	 * Set up the JMS Objects
+	 * @param parser the properties file parser
+	 * @param messagingSystem the messaging system
+	 * @param jndiContext the JNDI context
+	 * @throws MessageException Message exception
+	 * @throws JMSException JMS exception
+	 */
 	public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
 		messageProducer = destinationChannel.createMessageProducer(this.queue);
@@ -187,6 +195,14 @@ public class QueueMessageController extends AbstractMessageController {
 		}
 	}
 
+	/**
+	 * Create the destination channel
+	 * @param parser the properties file parser
+	 * @param messagingSystem the messaging system
+	 * @param jndiContext the JNDI context
+	 * @return the destination channel
+	 * @throws MessageException Message exception
+	 */
 	public DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
 			QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
