@@ -41,12 +41,4 @@ public interface IMessageService {
      */
     Optional<RestMessageResponse> publish(RestMessageRequest payload);
 
-    /**
-     * Receive (read) messages off a topic
-     * @param messagingSystem the messaging system
-     * @param messageConnector the connector to use
-     * @param timeout the timeout in ms to wait
-     * @return the messages read
-     */
-    List<RestMessageResponse> subscribe(String messagingSystem, String messageConnector, long timeout);
 }

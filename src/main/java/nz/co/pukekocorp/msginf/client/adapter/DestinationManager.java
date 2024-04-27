@@ -97,18 +97,6 @@ public abstract class DestinationManager {
         return result;
     }
 
-    /**
-     * Receives all the messages.
-     * @param connector the name of the connector as defined in the properties file.
-     * @param timeout the timeout in milliseconds.
-     * @return a list containing all the messages found.
-     * @throws MessageException if an error occurs receiving the message.
-     */
-    public synchronized List<MessageResponse> receiveMessages(String connector, long timeout) throws MessageException {
-        AbstractMessageController mc = getMessageConnector(connector);
-        return mc.receiveMessages(timeout);
-    }
-
     protected void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) {
         this.jndiContext = Util.createContext(parser, messagingSystem, jndiUrl);
         log.info("JNDI context created for " + messagingSystem + " messaging system");

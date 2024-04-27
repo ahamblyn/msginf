@@ -115,7 +115,7 @@ public class MessageService implements IMessageService {
         String transactionId = UUID.randomUUID().toString();
         try {
             Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.messageConnector(), transactionId);
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE, payload.messageConnector(), transactionId);
             if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
                 messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
             }
@@ -127,26 +127,6 @@ public class MessageService implements IMessageService {
         } catch (MessageException e) {
             log.error("Unable to publish the message", e);
             return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.FAILURE));
-        }
-    }
-
-    /**
-     * Receive (read) messages off a topic
-     * @param messagingSystem the messaging system
-     * @param messageConnector the connector to use
-     * @param timeout the timeout in ms to wait
-     * @return the messages read
-     */
-    @Override
-    public List<RestMessageResponse> subscribe(String messagingSystem, String messageConnector, long timeout) {
-        try {
-            List<MessageResponse> messages = messenger.subscribe(messagingSystem, messageConnector, timeout);
-            return messages.stream().map(m -> new RestMessageResponse("Received message", m.getTextResponse(),
-                    Util.encodeBinaryMessage(m.getBinaryResponse()), UUID.randomUUID().toString(),
-                    TransactionStatus.SUCCESS, 0L)).toList();
-        } catch (MessageException e) {
-            log.error("Unable to receive the messages", e);
-            return Collections.singletonList(new RestMessageResponse(e.getMessage(), UUID.randomUUID().toString(), TransactionStatus.FAILURE));
         }
     }
 

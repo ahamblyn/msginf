@@ -616,6 +616,9 @@ public class MessageInfrastructurePropertiesFileParser {
         } else if (messageRequestType == MessageRequestType.REQUEST_RESPONSE) {
             String requestType = getRequestReplyConnectionRequestType(messagingSystemName, connectorName).name();
             return MessageType.valueOf(requestType);
+        } else if (messageRequestType == MessageRequestType.PUBLISH_SUBSCRIBE) {
+            String requestType = getPublishSubscribeConnectionRequestType(messagingSystemName, connectorName).name();
+            return MessageType.valueOf(requestType);
         } else {
             return MessageType.TEXT;
         }

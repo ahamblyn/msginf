@@ -5,6 +5,9 @@ import nz.co.pukekocorp.msginf.client.connector.AbstractMessageController;
 import nz.co.pukekocorp.msginf.client.connector.QueueMessageController;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukekocorp.msginf.models.message.MessageResponse;
+
+import java.util.List;
 
 /**
  * The QueueManager is used by client applications to send and receive messages.
@@ -34,6 +37,18 @@ public class QueueManager extends DestinationManager {
 			messageControllers.put(connector, mc);
 		}
 		return mc;
+	}
+
+	/**
+	 * Receives all the messages.
+	 * @param connector the name of the connector as defined in the properties file.
+	 * @param timeout the timeout in milliseconds.
+	 * @return a list containing all the messages found.
+	 * @throws MessageException if an error occurs receiving the message.
+	 */
+	public synchronized List<MessageResponse> receiveMessages(String connector, long timeout) throws MessageException {
+		AbstractMessageController mc = getMessageConnector(connector);
+		return mc.receiveMessages(timeout);
 	}
 
 	/**

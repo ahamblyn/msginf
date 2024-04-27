@@ -98,22 +98,4 @@ public class MessageController {
         return ResponseEntity.of(messageResponse);
     }
 
-    /**
-     * Receive (read) messages off a topic
-     * @param messageSystem the messaging system
-     * @param messageConnector the connector to use
-     * @param timeout the timeout in ms to wait
-     * @return the messages read
-     */
-    @Operation(
-            summary = "Receive (read) messages off a topic",
-            description = "Receive (read) messages off a topic",
-            tags = {"message"})
-    @GetMapping("/subscribe")
-    public ResponseEntity<List<RestMessageResponse>> subscribe(@Parameter(description = "The messaging system") @RequestHeader(name="x-message-system") String messageSystem,
-                                                                     @Parameter(description = "The message connector") @RequestHeader(name="x-message-connector") String messageConnector,
-                                                                     @Parameter(description = "The message timeout (ms)") @RequestHeader(name="x-timeout") Long timeout) {
-        return ResponseEntity.of(Optional.of(messageService.subscribe(messageSystem, messageConnector, timeout)));
-    }
-
 }
