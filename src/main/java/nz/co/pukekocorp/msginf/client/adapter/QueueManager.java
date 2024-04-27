@@ -7,7 +7,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.client.connector.MessageController;
+import nz.co.pukekocorp.msginf.client.connector.QueueMessageController;
 import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
@@ -32,7 +32,7 @@ public class QueueManager {
 	/**
 	 * The message controllers.
 	 */
-	private final ConcurrentMap<String, MessageController> messageControllers = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, QueueMessageController> messageControllers = new ConcurrentHashMap<>();
 
 	/**
 	 * The JNDI context.
@@ -91,14 +91,14 @@ public class QueueManager {
 	}
 
 	private MessageResponse sendTextMessage(MessageRequest messageRequest) throws MessageException {
-		MessageController mc = getMessageConnector(messageRequest.getConnectorName());
+		QueueMessageController mc = getMessageConnector(messageRequest.getConnectorName());
 		return mc.sendMessage(messageRequest);
 	}
 
 	private MessageResponse sendBinaryMessage(MessageRequest messageRequest) throws MessageException {
 		MessageResponse result;
 		if (messageRequest.getBinaryMessage() != null) {
-			MessageController mc = getMessageConnector(messageRequest.getConnectorName());
+			QueueMessageController mc = getMessageConnector(messageRequest.getConnectorName());
 			boolean compressBinaryMessages = false;
 			if (messageRequest.getMessageRequestType() == MessageRequestType.SUBMIT) {
 				compressBinaryMessages = parser.getSubmitCompressBinaryMessages(messagingSystem, messageRequest.getConnectorName());
@@ -132,7 +132,7 @@ public class QueueManager {
 	 * @throws MessageException if an error occurs receiving the message.
 	 */
 	public synchronized List<MessageResponse> receiveMessages(String connector, long timeout) throws MessageException {
-		MessageController mc = getMessageConnector(connector);
+		QueueMessageController mc = getMessageConnector(connector);
 		return mc.receiveMessages(timeout);
 	}
 	
@@ -140,14 +140,14 @@ public class QueueManager {
 	 * Close the resources.
 	 */
 	public synchronized void close() {
-		messageControllers.values().forEach(MessageController::release);
+		messageControllers.values().forEach(QueueMessageController::release);
 		messageControllers.clear();
 	}
 
-	private MessageController getMessageConnector(String connector) throws MessageException {
-		MessageController mc = messageControllers.get(connector);
+	private QueueMessageController getMessageConnector(String connector) throws MessageException {
+		QueueMessageController mc = messageControllers.get(connector);
 		if (mc == null) {
-			mc = new MessageController(parser, messagingSystem, connector, jndiContext);
+			mc = new QueueMessageController(parser, messagingSystem, connector, jndiContext);
 			messageControllers.put(connector, mc);
 		}
 		return mc;

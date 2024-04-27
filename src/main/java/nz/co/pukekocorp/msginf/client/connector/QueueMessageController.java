@@ -19,13 +19,13 @@ import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
 /**
- * The MessageController puts messages onto the queues defined in the properties file.
+ * The QueueMessageController puts messages onto the queues defined in the properties file.
  * 
  * @author Alisdair Hamblyn
  */
 
 @Slf4j
-public class MessageController extends AbstractMessageController {
+public class QueueMessageController extends AbstractMessageController {
 
    /**
     * The application JMS queue.
@@ -78,15 +78,15 @@ public class MessageController extends AbstractMessageController {
 	private final boolean useConnectionPooling;
 
     /**
-     * Constructs the MessageController instance.
+     * Constructs the QueueMessageController instance.
 	 * @param parser the properties file parser.
      * @param messagingSystem the messaging system in the properties file to use.
      * @param connector the name of the connector as defined in the properties file.
      * @param jndiContext the JNDI context.
      * @throws MessageException Message exception
      */
-	public MessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
-							 Context jndiContext) throws MessageException {
+	public QueueMessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
+								  Context jndiContext) throws MessageException {
 	  this.connector = connector;
 	  this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
   	  String replyQueueName = null;

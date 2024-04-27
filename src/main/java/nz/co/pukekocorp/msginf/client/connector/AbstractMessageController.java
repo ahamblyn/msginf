@@ -53,6 +53,16 @@ public abstract class AbstractMessageController {
     protected DestinationChannel destinationChannel;
 
     /**
+     * The time in milliseconds the message is to live. 0 means forever.
+     */
+    protected int messageTimeToLive;
+
+    /**
+     * Whether to use connection pooling or not.
+     */
+    protected boolean useConnectionPooling;
+
+    /**
      * The queue statistics collector.
      */
     protected final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();

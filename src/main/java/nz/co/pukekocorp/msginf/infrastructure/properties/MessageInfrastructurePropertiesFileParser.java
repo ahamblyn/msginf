@@ -148,6 +148,22 @@ public class MessageInfrastructurePropertiesFileParser {
         return requestReply.flatMap(rr -> Optional.ofNullable(rr.requestReplyConnection()));
     }
 
+    private Optional<PublishSubscribe> findPublishSubscribe(String messagingSystemName, String connectorName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
+        return connectors.flatMap(conns -> findPublishSubscribe(conns, connectorName));
+    }
+
+    private Optional<PublishSubscribe> findPublishSubscribe(Connectors connectors, String connectorName) {
+        return Optional.ofNullable(connectors)
+                .flatMap(conns -> conns.publishSubscribe().stream().filter(pubsub ->
+                        pubsub.connectorName().equals(connectorName)).findFirst());
+    }
+
+    private Optional<PublishSubscribeConnection> findPublishSubscribeConnection(String messagingSystemName, String connectorName) {
+        Optional<PublishSubscribe> publishSubscribe = findPublishSubscribe(messagingSystemName, connectorName);
+        return publishSubscribe.flatMap(pubsub -> Optional.ofNullable(pubsub.publishSubscribeConnection()));
+    }
+
     /**
      * Returns the initial context factory name for the messaging system.
      * @param messagingSystemName the messaging system
@@ -183,11 +199,26 @@ public class MessageInfrastructurePropertiesFileParser {
      * @param messagingSystemName the messaging system
      * @return a list of the configured queues for the messaging system.
      */
-    public List<PropertiesQueue> getQueues(String messagingSystemName) {
-        List<PropertiesQueue> queuesList = new ArrayList<>();
+    public List<PropertiesDestination> getQueues(String messagingSystemName) {
+        List<PropertiesDestination> queuesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system -> {
-            List<PropertiesQueue> props = system.queues().stream()
-                    .map(queue -> new PropertiesQueue(queue.jndiName(), queue.physicalName())).toList();
+            List<PropertiesDestination> props = system.queues().stream()
+                    .map(queue -> new PropertiesDestination(queue.jndiName(), queue.physicalName())).toList();
+            queuesList.addAll(props);
+        });
+        return queuesList;
+    }
+
+    /**
+     * Returns a list of the configured topics for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return a list of the configured topics for the messaging system.
+     */
+    public List<PropertiesDestination> getTopics(String messagingSystemName) {
+        List<PropertiesDestination> queuesList = new ArrayList<>();
+        findSystem(messagingSystemName).ifPresent(system -> {
+            List<PropertiesDestination> props = system.topics().stream()
+                    .map(queue -> new PropertiesDestination(queue.jndiName(), queue.physicalName())).toList();
             queuesList.addAll(props);
         });
         return queuesList;
@@ -289,6 +320,30 @@ public class MessageInfrastructurePropertiesFileParser {
         Optional<Connectors> connectors = findConnectors(messagingSystemName);
         return connectors.stream().anyMatch(conns -> conns.requestReply().stream().anyMatch(rr ->
                 rr.connectorName().equals(connectorName)));
+    }
+
+    /**
+     * Returns a list of the names of the PublishSubscribe connectors for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return a list of the names of the PublishSubscribe connectors for the messaging system.
+     */
+    public List<String> getPublishSubscribeConnectorNames(String messagingSystemName) {
+        List<String> names = new ArrayList<>();
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
+        connectors.ifPresent(conns -> names.addAll(conns.publishSubscribe().stream().map(PublishSubscribe::connectorName).toList()));
+        return names;
+    }
+
+    /**
+     * Returns whether the PublishSubscribe connector exists for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return whether the PublishSubscribe connector exists for the messaging system.
+     */
+    public boolean doesPublishSubscribeExist(String messagingSystemName, String connectorName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
+        return connectors.stream().anyMatch(conns -> conns.publishSubscribe().stream().anyMatch(pubsub ->
+                pubsub.connectorName().equals(connectorName)));
     }
 
     /**
@@ -469,6 +524,78 @@ public class MessageInfrastructurePropertiesFileParser {
         Optional<RequestReplyConnection> connection = findRequestReplyConnection(messagingSystemName, connectorName);
         Optional<Boolean> replyWaitTime = connection.flatMap(rr -> Optional.ofNullable(rr.useMessageSelector()));
         return replyWaitTime.orElse(true);
+    }
+
+    /**
+     * Returns whether to compress binary messages for the PublishSubscribe connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return whether to compress binary messages for the PublishSubscribe connector.
+     */
+    public boolean getPublishSubscribeCompressBinaryMessages(String messagingSystemName, String connectorName) {
+        Optional<PublishSubscribe> publishSubscribe = findPublishSubscribe(messagingSystemName, connectorName);
+        Optional<Boolean> b = publishSubscribe.flatMap(pubsub -> Optional.ofNullable(pubsub.compressBinaryMessages()));
+        return b.orElse(false);
+    }
+
+    /**
+     * Returns the PublishSubscribe connection PublishSubscribe topic name for the PublishSubscribe connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the submit connection PublishSubscribe topic name for the PublishSubscribe connector.
+     */
+    public String getPublishSubscribeConnectionPublishSubscribeTopicName(String messagingSystemName, String connectorName) {
+        Optional<PublishSubscribeConnection> connection = findPublishSubscribeConnection(messagingSystemName, connectorName);
+        Optional<String> topicName = connection.flatMap(pubsub -> Optional.ofNullable(pubsub.publishSubscribeTopicName()));
+        return topicName.orElse("");
+    }
+
+    /**
+     * Returns the PublishSubscribe connection PublishSubscribe topic connection factory name for the PublishSubscribe connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the PublishSubscribe connection PublishSubscribe topic connection factory name for the PublishSubscribe connector.
+     */
+    public String getPublishSubscribeConnectionPublishSubscribeTopicConnFactoryName(String messagingSystemName, String connectorName) {
+        Optional<PublishSubscribeConnection> connection = findPublishSubscribeConnection(messagingSystemName, connectorName);
+        Optional<String> topicNameConnFactory = connection.flatMap(pubsub -> Optional.ofNullable(pubsub.publishSubscribeTopicConnFactoryName()));
+        return topicNameConnFactory.orElse("");
+    }
+
+    /**
+     * Returns the PublishSubscribe connection request type for the PublishSubscribe connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the PublishSubscribe connection request type for the PublishSubscribe connector.
+     */
+    public RequestType getPublishSubscribeConnectionRequestType(String messagingSystemName, String connectorName) {
+        Optional<PublishSubscribeConnection> connection = findPublishSubscribeConnection(messagingSystemName, connectorName);
+        Optional<RequestType> requestType = connection.flatMap(pubsub -> Optional.ofNullable(pubsub.requestType()));
+        return requestType.orElse(RequestType.TEXT); // default to text
+    }
+
+    /**
+     * Returns the PublishSubscribe connection message time to live for the PublishSubscribe connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the PublishSubscribe connection message time to live for the PublishSubscribe connector.
+     */
+    public int getPublishSubscribeConnectionMessageTimeToLive(String messagingSystemName, String connectorName) {
+        Optional<PublishSubscribeConnection> connection = findPublishSubscribeConnection(messagingSystemName, connectorName);
+        Optional<Integer> messageTimeToLive = connection.flatMap(pubsub -> Optional.ofNullable(pubsub.messageTimeToLive()));
+        return messageTimeToLive.orElse(0);
+    }
+
+    /**
+     * Returns the PublishSubscribe connection message properties for the PublishSubscribe connector.
+     * @param messagingSystemName the messaging system
+     * @param connectorName the connector name
+     * @return the PublishSubscribe connection message properties for the PublishSubscribe connector.
+     */
+    public List<MessageProperty> getPublishSubscribeConnectionMessageProperties(String messagingSystemName, String connectorName) {
+        Optional<PublishSubscribeConnection> connection = findPublishSubscribeConnection(messagingSystemName, connectorName);
+        Optional<List<MessageProperty>> parserMessageProperties = connection.flatMap(pubsub -> Optional.ofNullable(pubsub.messageProperties()));
+        return parserMessageProperties.orElse(new ArrayList<>());
     }
 
     /**
