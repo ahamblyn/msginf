@@ -18,16 +18,22 @@ import java.util.Optional;
 public class Messenger {
 
     private final Map<String, QueueManager> queueManagers;
+    private final Map<String, TopicManager> topicManagers;
 
     /**
      * Default constructor.
      */
-    public Messenger(Map<String, QueueManager> queueManagers) {
+    public Messenger(Map<String, QueueManager> queueManagers, Map<String, TopicManager> topicManagers) {
         this.queueManagers = queueManagers;
+        this.topicManagers = topicManagers;
     }
 
     private Optional<QueueManager> getQueueManager(String messagingSystem) {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
+    }
+
+    private Optional<TopicManager> getTopicManager(String messagingSystem) {
+        return Optional.ofNullable(topicManagers.get(messagingSystem));
     }
 
     /**
@@ -63,8 +69,8 @@ public class Messenger {
      * @throws MessageException message exception
      */
     public MessageResponse publish(String messagingSystem, MessageRequest messageRequest) throws MessageException {
-        QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
-        return queueManager.sendMessage(messageRequest);
+        TopicManager topicManager = getTopicManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
+        return topicManager.sendMessage(messageRequest);
     }
 
     /**
@@ -76,14 +82,15 @@ public class Messenger {
      * @throws MessageException message exception
      */
     public List<MessageResponse> subscribe(String messagingSystem, String messageConnector, long timeout) throws MessageException {
-        QueueManager queueManager = getQueueManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
-        return queueManager.receiveMessages(messageConnector, timeout);
+        TopicManager topicManager = getTopicManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
+        return topicManager.receiveMessages(messageConnector, timeout);
     }
 
     @Override
     public String toString() {
         return "Messenger{" +
                 "queueManagers=" + queueManagers +
+                "topicManagers=" + topicManagers +
                 '}';
     }
 }

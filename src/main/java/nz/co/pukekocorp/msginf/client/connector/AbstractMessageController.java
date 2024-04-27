@@ -28,14 +28,9 @@ import java.util.Optional;
 public abstract class AbstractMessageController {
 
     /**
-     * The application JMS submit message producer.
+     * The application JMS message producer.
      */
-    protected MessageProducer submitMessageProducer;
-
-    /**
-     * The application JMS request-reply message producer.
-     */
-    protected MessageProducer requestReplyMessageProducer;
+    protected MessageProducer messageProducer;
 
     /**
      * The connector name.
@@ -76,12 +71,51 @@ public abstract class AbstractMessageController {
     public abstract MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException;
 
     /**
+     * Returns the destination being used.
+     * @return the destination being used.
+     */
+    public abstract Destination getDestination();
+
+    /**
      * Receive messages
      * @param timeout time to wait in ms
      * @return list of messages
      * @throws MessageException message exception
      */
-    public abstract List<MessageResponse> receiveMessages(long timeout) throws MessageException;
+    public synchronized List<MessageResponse> receiveMessages(long timeout) throws MessageException {
+        List<MessageResponse> messages = new ArrayList<>();
+        Instant start = Instant.now();
+        try {
+            // create a consumer based on the request queue
+            MessageConsumer messageConsumer = destinationChannel.getSession().createConsumer(getDestination());
+            while (true) {
+                MessageResponse messageResponse = new MessageResponse();
+                Message m = messageConsumer.receive(timeout);
+                if (m == null) {
+                    break;
+                }
+                if (m instanceof TextMessage textMessage) {
+                    messageResponse.setMessageType(MessageType.TEXT);
+                    messageResponse.setTextResponse(textMessage.getText());
+                }
+                if (m instanceof BytesMessage binaryMessage) {
+                    messageResponse.setMessageType(MessageType.BINARY);
+                    long messageLength = binaryMessage.getBodyLength();
+                    byte[] messageData = new byte[(int)messageLength];
+                    binaryMessage.readBytes(messageData);
+                    messageResponse.setBinaryResponse(messageData);
+                }
+                messages.add(messageResponse);
+            }
+            collateStats(connector, start);
+            messageConsumer.close();
+        } catch (JMSException e) {
+            // increment failed message count
+            collector.incrementFailedMessageCount(connector);
+            throw new DestinationUnavailableException(e);
+        }
+        return messages;
+    }
 
     protected void collateStats(String connector, Instant start) {
         Instant finish = Instant.now();

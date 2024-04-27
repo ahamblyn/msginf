@@ -1,7 +1,6 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
 import java.time.Instant;
-import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -23,7 +22,6 @@ import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
  * 
  * @author Alisdair Hamblyn
  */
-
 @Slf4j
 public class QueueMessageController extends AbstractMessageController {
 
@@ -46,6 +44,11 @@ public class QueueMessageController extends AbstractMessageController {
     * The application queue name.
     */
    private final String queueName;
+
+	/**
+	 * The application JMS request-reply message producer.
+	 */
+	private MessageProducer requestReplyMessageProducer;
 
    /**
     * The JMS message requester.
@@ -154,7 +157,7 @@ public class QueueMessageController extends AbstractMessageController {
             collateStats(connector, start);
         } else {
         	// submit
-            submitMessageProducer.send(jmsMessage);
+            messageProducer.send(jmsMessage);
             collateStats(connector, start);
         }
         return messageResponse;
@@ -165,53 +168,16 @@ public class QueueMessageController extends AbstractMessageController {
     }
    }
 
-	/**
-	 * Receive messages
-	 * @param timeout time to wait in ms
-	 * @return list of messages
-	 * @throws MessageException message exception
-	 */
-   public synchronized List<MessageResponse> receiveMessages(long timeout) throws MessageException {
-	    List<MessageResponse> messages = new ArrayList<>();
- 	    Instant start = Instant.now();
-	    try {
-		    // create a consumer based on the request queue
-		    MessageConsumer messageConsumer = destinationChannel.getSession().createConsumer(queue);
-			while (true) {
-				MessageResponse messageResponse = new MessageResponse();
-				Message m = messageConsumer.receive(timeout);
-				if (m == null) {
-					break;
-				}
-				if (m instanceof TextMessage textMessage) {
-					messageResponse.setMessageType(MessageType.TEXT);
-					messageResponse.setTextResponse(textMessage.getText());
-				}
-				if (m instanceof BytesMessage binaryMessage) {
-					messageResponse.setMessageType(MessageType.BINARY);
-					long messageLength = binaryMessage.getBodyLength();
-					byte[] messageData = new byte[(int)messageLength];
-					binaryMessage.readBytes(messageData);
-					messageResponse.setBinaryResponse(messageData);
-				}
-				messages.add(messageResponse);
-			}
-            collateStats(connector, start);
-			messageConsumer.close();
-	    } catch (JMSException e) {
-	    	// increment failed message count
-			collector.incrementFailedMessageCount(connector);
-	        throw new DestinationUnavailableException(e);
-	    }
-	   return messages;
-   }
+	public Destination getDestination() {
+	   return queue;
+	}
 
-    public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
+	public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
-		submitMessageProducer = destinationChannel.createMessageProducer(this.queue);
+		messageProducer = destinationChannel.createMessageProducer(this.queue);
 		requestReplyMessageProducer = destinationChannel.createMessageProducer(this.queue);
 		if (messageTimeToLive > 0) {
-			submitMessageProducer.setTimeToLive(messageTimeToLive);
+			messageProducer.setTimeToLive(messageTimeToLive);
 			requestReplyMessageProducer.setTimeToLive(messageTimeToLive);
 		}
 		// only create a requester for request-reply message controllers.
@@ -259,8 +225,8 @@ public class QueueMessageController extends AbstractMessageController {
         	if (messageRequester != null) {
             	messageRequester.close();
         	}
-        	if (submitMessageProducer != null) {
-        		submitMessageProducer.close();
+        	if (messageProducer != null) {
+				messageProducer.close();
         	}
         	if (requestReplyMessageProducer != null) {
         		requestReplyMessageProducer.close();
