@@ -17,6 +17,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,7 +63,7 @@ public class TestPublishSubscribe {
 
     @Test
     @Order(1)
-    public void publishTextMessages() throws MessageException {
+    public void publish() throws MessageException {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
                     "pubsub_text", "Message[" + (i + 1) + "]"));
@@ -71,4 +72,48 @@ public class TestPublishSubscribe {
         log.info(StatisticsCollector.getInstance().toString());
     }
 
+    @Test
+    @Order(2)
+    public void publishThreads() throws Exception {
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Thread newThread = new Thread(() -> {
+                try {
+                    for (int j = 0; j < 10; j++) {
+                        MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                                "pubsub_text", "Message from a thread"));
+                        assertNotNull(response);
+                    }
+                } catch (MessageException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            threads.add(newThread);
+            newThread.start();
+        }
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        log.info(StatisticsCollector.getInstance().toString());
+    }
+
+    @Test
+    @Order(3)
+    public void publishAsync() {
+        List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            futureList.add(CompletableFuture.supplyAsync(()-> {
+                try {
+                    MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                            "pubsub_text", "Message Async"));
+                    assertNotNull(response);
+                    return response;
+                } catch (MessageException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+        }
+        futureList.forEach(CompletableFuture::join);
+        log.info(StatisticsCollector.getInstance().toString());
+    }
 }
