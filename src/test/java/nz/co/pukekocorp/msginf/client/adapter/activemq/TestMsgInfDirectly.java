@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.adapter.QueueManager;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
 import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
@@ -13,7 +13,6 @@ import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,7 +57,7 @@ public class TestMsgInfDirectly {
 			assertNotNull(response.getTextResponse());
 			assertEquals(MessageType.TEXT, response.getMessageType());
 		}
-		log.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(StatisticsCollector.getInstance().toString());
 	}
 	
 	@Test
@@ -69,7 +68,7 @@ public class TestMsgInfDirectly {
 					"submit_text", "Message[" + (i + 1) + "]"));
 			assertNotNull(response);
 		}
-		log.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(StatisticsCollector.getInstance().toString());
 	}
 
 	@Test
@@ -78,6 +77,6 @@ public class TestMsgInfDirectly {
 		List<MessageResponse> messages = queueManager.receiveMessages("submit_text", 2000);
 		assertNotNull(messages);
 		assertEquals(10, messages.size());
-		log.info(QueueStatisticsCollector.getInstance().toString());
+		log.info(StatisticsCollector.getInstance().toString());
 	}
 }

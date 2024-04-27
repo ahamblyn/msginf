@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,17 +17,23 @@ import java.util.Optional;
 @Slf4j
 public class Messenger {
 
-    @Autowired
-    private Map<String, QueueManager> queueManagers;
+    private final Map<String, QueueManager> queueManagers;
+    private final Map<String, TopicManager> topicManagers;
 
     /**
      * Default constructor.
      */
-    public Messenger() {
+    public Messenger(Map<String, QueueManager> queueManagers, Map<String, TopicManager> topicManagers) {
+        this.queueManagers = queueManagers;
+        this.topicManagers = topicManagers;
     }
 
     private Optional<QueueManager> getQueueManager(String messagingSystem) {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
+    }
+
+    private Optional<TopicManager> getTopicManager(String messagingSystem) {
+        return Optional.ofNullable(topicManagers.get(messagingSystem));
     }
 
     /**
@@ -56,10 +61,23 @@ public class Messenger {
         return queueManager.receiveMessages(messageConnector, timeout);
     }
 
+    /**
+     * Publish the message.
+     * @param messagingSystem messaging system
+     * @param messageRequest message request
+     * @return the message response
+     * @throws MessageException message exception
+     */
+    public MessageResponse publish(String messagingSystem, MessageRequest messageRequest) throws MessageException {
+        TopicManager topicManager = getTopicManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
+        return topicManager.sendMessage(messageRequest);
+    }
+
     @Override
     public String toString() {
         return "Messenger{" +
                 "queueManagers=" + queueManagers +
+                "topicManagers=" + topicManagers +
                 '}';
     }
 }

@@ -33,4 +33,12 @@ public interface IMessageService {
      * @return the message response
      */
     Optional<RestMessageResponse> requestReply(RestMessageRequest payload);
+
+    /**
+     * Publish a message to a topic
+     * @param payload the message
+     * @return the message response
+     */
+    Optional<RestMessageResponse> publish(RestMessageRequest payload);
+
 }

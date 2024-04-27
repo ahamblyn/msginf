@@ -16,7 +16,7 @@ import javax.naming.NamingException;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import nz.co.pukekocorp.msginf.infrastructure.properties.PropertiesQueue;
+import nz.co.pukekocorp.msginf.infrastructure.properties.PropertiesDestination;
 import nz.co.pukekocorp.msginf.models.configuration.VendorJNDIProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
@@ -95,7 +95,8 @@ public class Util {
 			}
 		}
 		log.info(messagingSystem + " System URL: " + jndiUrl);
-		List<PropertiesQueue> queues = parser.getQueues(messagingSystem);
+		List<PropertiesDestination> queues = parser.getQueues(messagingSystem);
+		List<PropertiesDestination> topics = parser.getTopics(messagingSystem);
 		try {
 			if (initialContextFactory.equals("")) {
 				// no properties required to initialise context
@@ -115,8 +116,12 @@ public class Util {
 					props.setProperty(vendorJNDIProperty.name(), vendorJNDIProperty.value());
 				}
 				// add queue info
-				for (PropertiesQueue queue : queues) {
+				for (PropertiesDestination queue : queues) {
 					props.setProperty("queue." + queue.jndiName(), queue.physicalName());
+				}
+				// add topic info
+				for (PropertiesDestination topic : topics) {
+					props.setProperty("topic." + topic.jndiName(), topic.physicalName());
 				}
 				jmsCtx = new InitialContext(props);
 			}

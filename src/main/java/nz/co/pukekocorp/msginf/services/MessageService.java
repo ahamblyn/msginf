@@ -105,6 +105,31 @@ public class MessageService implements IMessageService {
         }
     }
 
+    /**
+     * Publish a message to a topic
+     * @param payload the message
+     * @return the message response
+     */
+    @Override
+    public Optional<RestMessageResponse> publish(RestMessageRequest payload) {
+        String transactionId = UUID.randomUUID().toString();
+        try {
+            Instant start = Instant.now();
+            MessageRequest messageRequest = new MessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE, payload.messageConnector(), transactionId);
+            if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
+                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
+            }
+            messageRequest.setTextMessage(payload.textMessage());
+            messenger.publish(payload.messageSystem(), messageRequest);
+            Instant finish = Instant.now();
+            long duration = Duration.between(start, finish).toMillis();
+            return Optional.of(new RestMessageResponse("Message published successfully", transactionId, TransactionStatus.SUCCESS, duration));
+        } catch (MessageException e) {
+            log.error("Unable to publish the message", e);
+            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.FAILURE));
+        }
+    }
+
     private List<MessageProperty> createMessageProperties(RestMessageRequest payload) {
         List<MessageProperty> messageProperties = new ArrayList<>();
         if (payload.messageProperties() != null) {

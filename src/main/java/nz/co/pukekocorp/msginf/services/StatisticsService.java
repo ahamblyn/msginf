@@ -1,8 +1,8 @@
 package nz.co.pukekocorp.msginf.services;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatistics;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.data.Statistics;
+import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
 import nz.co.pukekocorp.msginf.models.message.TransactionStatus;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class StatisticsService implements IStatisticsService {
      */
     @Override
     public String getConnectorStatistics(String connectorName) {
-        QueueStatistics stats = QueueStatisticsCollector.getInstance().getQueueStats(connectorName);
+        Statistics stats = StatisticsCollector.getInstance().getQueueStats(connectorName);
         return stats.toString();
     }
 
@@ -33,9 +33,9 @@ public class StatisticsService implements IStatisticsService {
      */
     @Override
     public String allStatistics() {
-        String stats = QueueStatisticsCollector.getInstance().toString();
+        String stats = StatisticsCollector.getInstance().toString();
         if (stats.equals("")) {
-            stats = new QueueStatistics().toString();
+            stats = new Statistics().toString();
         }
         return stats;
     }
@@ -46,7 +46,7 @@ public class StatisticsService implements IStatisticsService {
      */
     @Override
     public RestMessageResponse resetStatistics() {
-        QueueStatisticsCollector.getInstance().resetQueueStatistics();
+        StatisticsCollector.getInstance().resetQueueStatistics();
         String transactionId = UUID.randomUUID().toString();
         return new RestMessageResponse("Statistics reset successfully", transactionId, TransactionStatus.SUCCESS);
     }

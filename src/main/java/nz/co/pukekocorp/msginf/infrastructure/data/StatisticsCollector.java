@@ -8,38 +8,38 @@ import java.util.concurrent.ConcurrentMap;
  * Singleton class to collect timing statistics. This class will collect timings based on the collection name String passed in.
  * @author alisdairh
  */
-public class QueueStatisticsCollector {
+public class StatisticsCollector {
 	/**
 	 * The singleton instance.
 	 */
-	private static QueueStatisticsCollector queueStatisticsCollector = null;
+	private static StatisticsCollector queueStatisticsCollector = null;
 	
 	/**
 	 * A Hashtable to store the statistics for each collection.
 	 */
-	private final ConcurrentMap<String,QueueStatistics> queueStatsTable = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, Statistics> queueStatsTable = new ConcurrentHashMap<>();
 
 	/**
 	 * The QueueStatisticsCollector constructor.
 	 */
-	private QueueStatisticsCollector() {
+	private StatisticsCollector() {
 	}
 
 	/**
 	 * Gets the singleton QueueStatisticsCollector instance.
 	 * @return the singleton QueueStatisticsCollector instance.
 	 */
-	public synchronized static QueueStatisticsCollector getInstance() {
+	public synchronized static StatisticsCollector getInstance() {
 		return Optional.ofNullable(queueStatisticsCollector).orElseGet(() -> {
-			queueStatisticsCollector = new QueueStatisticsCollector();
+			queueStatisticsCollector = new StatisticsCollector();
 			return queueStatisticsCollector;
 		});
 	}
 
-	private QueueStatistics getQueueStatistics(String collectionName) {
-		Optional<QueueStatistics> queueStats = Optional.ofNullable(queueStatsTable.get(collectionName));
+	private Statistics getQueueStatistics(String collectionName) {
+		Optional<Statistics> queueStats = Optional.ofNullable(queueStatsTable.get(collectionName));
 		return queueStats.orElseGet(() -> {
-			QueueStatistics qs = new QueueStatistics();
+			Statistics qs = new Statistics();
 			queueStatsTable.put(collectionName, qs);
 			return qs;
 		});
@@ -50,7 +50,7 @@ public class QueueStatisticsCollector {
 	 * @param collectionName the collection name.
 	 */
 	public synchronized void incrementMessageCount(String collectionName) {
-		QueueStatistics queueStats = getQueueStatistics(collectionName);
+		Statistics queueStats = getQueueStatistics(collectionName);
 		queueStats.incrementMessageCount();
 	}
 
@@ -59,7 +59,7 @@ public class QueueStatisticsCollector {
 	 * @param collectionName the collection name.
 	 */
 	public synchronized void incrementFailedMessageCount(String collectionName) {
-		QueueStatistics queueStats = getQueueStatistics(collectionName);
+		Statistics queueStats = getQueueStatistics(collectionName);
 		queueStats.incrementFailedMessageCount();
 	}
 
@@ -69,7 +69,7 @@ public class QueueStatisticsCollector {
 	 * @param messageTime the message time.
 	 */
 	public synchronized void addMessageTime(String collectionName, long messageTime) {
-		QueueStatistics queueStats = getQueueStatistics(collectionName);
+		Statistics queueStats = getQueueStatistics(collectionName);
 		queueStats.addMessageTime(messageTime);
 	}
 
@@ -78,7 +78,7 @@ public class QueueStatisticsCollector {
 	 */
 	public synchronized void resetQueueStatistics() {
 		queueStatsTable.keySet().forEach(collectionName -> {
-			QueueStatistics queueStats = getQueueStatistics(collectionName);
+			Statistics queueStats = getQueueStatistics(collectionName);
 			queueStats.reset();
 		});
 		queueStatsTable.clear();
@@ -89,7 +89,7 @@ public class QueueStatisticsCollector {
 	 * @param collectionName the collection name.
 	 * @return the statistics
 	 */
-	public QueueStatistics getQueueStats(String collectionName) {
+	public Statistics getQueueStats(String collectionName) {
 		return getQueueStatistics(collectionName);
 	}
 	
@@ -100,7 +100,7 @@ public class QueueStatisticsCollector {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		queueStatsTable.keySet().stream().sorted().forEach(key -> {
-			QueueStatistics qstats = queueStatsTable.get(key);
+			Statistics qstats = queueStatsTable.get(key);
 			sb.append("Queue Statistics for ");
 			sb.append(key);
 			sb.append(": ");

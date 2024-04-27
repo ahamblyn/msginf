@@ -4,13 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
+import nz.co.pukekocorp.msginf.client.listener.Subscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,26 +27,27 @@ import static org.junit.jupiter.api.Assertions.*;
         locations = "classpath:application-dev.properties")
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestTextRequestBinaryReply {
+public class TestPublishSubscribe {
 
     @Autowired
     private Messenger messenger;
-    private static List<MessageRequestReply> messageRequestReplyList;
+
+    private static List<Subscriber> subscriberList;
 
     @BeforeAll
     public static void setUp() {
         try {
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            messageRequestReplyList = new ArrayList<>();
-            for (int i = 0; i < 20; i++) {
-                var messageRequestReply = new MessageRequestReply(parser, "activemq",
-                        "QueueConnectionFactory", "RequestQueue",
-                        "ReplyQueue", "tcp://localhost:61616");
-                messageRequestReply.run();
-                messageRequestReplyList.add(messageRequestReply);
+            subscriberList = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                var subscriber = new Subscriber((i + 1), parser, "activemq_pubsub",
+                        "TopicConnectionFactory", "TestTopic",
+                         "tcp://localhost:61616");
+                subscriber.run();
+                subscriberList.add(subscriber);
             }
         } catch (MessageException e) {
-            log.error("Unable to setup TestTextRequestBinaryReply test", e);
+            log.error("Unable to setup TestPublishSubscribe test", e);
         }
     }
 
@@ -58,35 +58,31 @@ public class TestTextRequestBinaryReply {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        messageRequestReplyList.forEach(MessageRequestReply::shutdown);
+        subscriberList.forEach(Subscriber::shutdown);
     }
 
     @Test
     @Order(1)
-    public void reply() throws MessageException {
+    public void publish() throws MessageException {
         for (int i = 0; i < 10; i++) {
-            MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    "text_request_binary_reply", "Message[" + (i + 1) + "]"));
+            MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                    "pubsub_text", "Message[" + (i + 1) + "]"));
             assertNotNull(response);
-            assertNotEquals(0, response.getBinaryResponse().length);
-            assertEquals(MessageType.BINARY, response.getMessageType());
         }
         log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
     @Order(2)
-    public void replyThreads() throws Exception {
+    public void publishThreads() throws Exception {
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Thread newThread = new Thread(() -> {
                 try {
                     for (int j = 0; j < 10; j++) {
-                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                "text_request_binary_reply", "MessageZZZZ"));
+                        MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                                "pubsub_text", "Message from a thread"));
                         assertNotNull(response);
-                        assertNotEquals(0, response.getBinaryResponse().length);
-                        assertEquals(MessageType.BINARY, response.getMessageType());
                     }
                 } catch (MessageException e) {
                     throw new RuntimeException(e);
@@ -103,16 +99,14 @@ public class TestTextRequestBinaryReply {
 
     @Test
     @Order(3)
-    public void replyAsync() {
+    public void publishAsync() {
         List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
-                    MessageResponse response = messenger.sendMessage("activemq", TestUtil.createTextMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            "text_request_binary_reply", "MessageZZZZ"));
+                    MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                            "pubsub_text", "Message Async"));
                     assertNotNull(response);
-                    assertNotEquals(0, response.getBinaryResponse().length);
-                    assertEquals(MessageType.BINARY, response.getMessageType());
                     return response;
                 } catch (MessageException e) {
                     throw new RuntimeException(e);

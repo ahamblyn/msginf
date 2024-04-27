@@ -8,5 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "The Message Request type model")
 public enum MessageRequestType {
     SUBMIT,
-    REQUEST_RESPONSE
+    REQUEST_RESPONSE,
+    PUBLISH_SUBSCRIBE
 }

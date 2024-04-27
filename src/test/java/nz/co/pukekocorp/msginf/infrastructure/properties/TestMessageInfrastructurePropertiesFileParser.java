@@ -1,6 +1,8 @@
 package nz.co.pukekocorp.msginf.infrastructure.properties;
 
 import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
+import nz.co.pukekocorp.msginf.models.configuration.MessagingModel;
+import nz.co.pukekocorp.msginf.models.configuration.RequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +31,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqSubmitTextExpectedData.compressBinaryMessages = false;
         activemqSubmitTextExpectedData.submitQueueName = "TestQueue";
         activemqSubmitTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqSubmitTextExpectedData.requestType = "TEXT";
+        activemqSubmitTextExpectedData.requestType = RequestType.TEXT;
         activemqSubmitTextExpectedData.messageTimeToLive = 0;
         activemqSubmitTextExpectedData.replyWaitTime = 20000;
         expectedActiveMQConnectorDataMap.put("submit_text", activemqSubmitTextExpectedData);
@@ -39,11 +41,21 @@ public class TestMessageInfrastructurePropertiesFileParser {
         activemqRequestReplyTextExpectedData.requestQueueName = "RequestQueue";
         activemqRequestReplyTextExpectedData.replyQueueName = "ReplyQueue";
         activemqRequestReplyTextExpectedData.queueConnFactoryName = "QueueConnectionFactory";
-        activemqRequestReplyTextExpectedData.requestType = "TEXT";
+        activemqRequestReplyTextExpectedData.requestType = RequestType.TEXT;
         activemqRequestReplyTextExpectedData.messageTimeToLive = 0;
         activemqRequestReplyTextExpectedData.replyWaitTime = 20000;
         activemqRequestReplyTextExpectedData.useMessageSelector = true;
         expectedActiveMQConnectorDataMap.put("text_request_text_reply", activemqRequestReplyTextExpectedData);
+
+        ExpectedConnectorData activemqPubSubExpectedData = new ExpectedConnectorData();
+        activemqPubSubExpectedData.compressBinaryMessages = false;
+        activemqPubSubExpectedData.publishSubscribeTopicName = "TestTopic";
+        activemqPubSubExpectedData.topicConnFactoryName = "TopicConnectionFactory";
+        activemqPubSubExpectedData.requestType = RequestType.TEXT;
+        activemqPubSubExpectedData.messageTimeToLive = 0;
+        activemqPubSubExpectedData.replyWaitTime = 20000;
+        activemqPubSubExpectedData.useMessageSelector = true;
+        expectedActiveMQConnectorDataMap.put("pubsub_text", activemqPubSubExpectedData);
     }
 
     @BeforeAll
@@ -63,6 +75,19 @@ public class TestMessageInfrastructurePropertiesFileParser {
             assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
             Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
             validateActiveMQParser(parser);
+        } catch (Exception e) {
+            fail("Exception thrown on valid messaging system");
+        }
+    }
+
+    @Test
+    public void validActiveMQPubSubMessagingSystem() {
+        String messagingSystem = "activemq_pubsub";
+        try {
+            assertNotNull(parser.getConfiguration());
+            assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
+            Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
+            validateActiveMQPubSubParser(parser);
         } catch (Exception e) {
             fail("Exception thrown on valid messaging system");
         }
@@ -107,8 +132,9 @@ public class TestMessageInfrastructurePropertiesFileParser {
         String messagingSystem = "activemq";
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
         Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
+        assertEquals(MessagingModel.POINT_TO_POINT, parser.getMessagingModel(messagingSystem));
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
-        assertTrue(parser.getAvailableMessagingSystems().stream().anyMatch(s -> s.equals("activemq")));
+        assertTrue(parser.getAvailableMessagingSystems(MessagingModel.POINT_TO_POINT).stream().anyMatch(s -> s.equals("activemq")));
         assertTrue(validateQueueJNDIName(parser, messagingSystem, "TestQueue"));
         assertTrue(validateQueueJNDIName(parser, messagingSystem, "RequestQueue"));
         assertTrue(validateQueueJNDIName(parser, messagingSystem,"ReplyQueue"));
@@ -130,12 +156,40 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertActiveMQRequestReplyConnector(parser, messagingSystem, "text_request_text_reply");
     }
 
+    private void validateActiveMQPubSubParser(MessageInfrastructurePropertiesFileParser parser) {
+        String messagingSystem = "activemq_pubsub";
+        assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
+        Assertions.assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
+        assertEquals(MessagingModel.PUBLISH_SUBSCRIBE, parser.getMessagingModel(messagingSystem));
+        assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
+        assertTrue(parser.getAvailableMessagingSystems(MessagingModel.PUBLISH_SUBSCRIBE).stream().anyMatch(s -> s.equals("activemq_pubsub")));
+        assertTrue(validateTopicJNDIName(parser, messagingSystem, "TestTopic"));
+        assertFalse(validateTopicJNDIName(parser, messagingSystem, "XXXXXXXX"));
+        assertTrue(validateTopicPhysicalName(parser, messagingSystem, "TEST.TOPIC"));
+        assertFalse(validateTopicPhysicalName(parser, messagingSystem, "XXXXXXXX"));
+        assertTrue(parser.getUseConnectionPooling(messagingSystem));
+        assertEquals(20, parser.getMaxConnections(messagingSystem));
+        assertEquals(5, parser.getMinConnections(messagingSystem));
+        assertTrue(parser.getPublishSubscribeConnectorNames(messagingSystem).stream().anyMatch(s -> s.equals("pubsub_text")));
+        assertTrue(parser.doesPublishSubscribeExist(messagingSystem, "pubsub_text"));
+        assertFalse(parser.doesPublishSubscribeExist(messagingSystem, "XXXXXXXXXX"));
+        assertActiveMPublishSubscribeConnector(parser, messagingSystem, "pubsub_text");
+    }
+
     private boolean validateQueueJNDIName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiName) {
         return parser.getQueues(messagingSystem).stream().anyMatch(q -> q.jndiName().equals(jndiName));
     }
 
+    private boolean validateTopicJNDIName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiName) {
+        return parser.getTopics(messagingSystem).stream().anyMatch(q -> q.jndiName().equals(jndiName));
+    }
+
     private boolean validateQueuePhysicalName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String physicalName) {
         return parser.getQueues(messagingSystem).stream().anyMatch(q -> q.physicalName().equals(physicalName));
+    }
+
+    private boolean validateTopicPhysicalName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String physicalName) {
+        return parser.getTopics(messagingSystem).stream().anyMatch(q -> q.physicalName().equals(physicalName));
     }
 
     private boolean validateRequestReplyMessagePropertyName(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector, String propertyName) {
@@ -169,13 +223,24 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertTrue(validateRequestReplyMessagePropertyValue(parser, messagingSystem, connectorName, "text"));
     }
 
+    private void assertActiveMPublishSubscribeConnector(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connectorName) {
+        ExpectedConnectorData expectedData = expectedActiveMQConnectorDataMap.get(connectorName);
+        assertEquals(expectedData.compressBinaryMessages, parser.getPublishSubscribeCompressBinaryMessages(messagingSystem, connectorName));
+        assertEquals(expectedData.publishSubscribeTopicName, parser.getPublishSubscribeConnectionPublishSubscribeTopicName(messagingSystem, connectorName));
+        assertEquals(expectedData.topicConnFactoryName, parser.getPublishSubscribeConnectionPublishSubscribeTopicConnFactoryName(messagingSystem, connectorName));
+        assertEquals(expectedData.requestType, parser.getPublishSubscribeConnectionRequestType(messagingSystem, connectorName));
+        assertEquals(expectedData.messageTimeToLive, parser.getPublishSubscribeConnectionMessageTimeToLive(messagingSystem, connectorName));
+    }
+
     private static class ExpectedConnectorData {
         public boolean compressBinaryMessages;
         public String submitQueueName;
         public String requestQueueName;
         public String replyQueueName;
+        public String publishSubscribeTopicName;
         public String queueConnFactoryName;
-        public String requestType;
+        public String topicConnFactoryName;
+        public RequestType requestType;
         public int messageTimeToLive;
         public int replyWaitTime;
         public boolean useMessageSelector;

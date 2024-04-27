@@ -2,8 +2,8 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageRequesterException;
-import nz.co.pukekocorp.msginf.infrastructure.queue.QueueChannel;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class ConsumerMessageRequester {
-	private final QueueChannel queueChannel;
+	private final DestinationChannel destinationChannel;
 	private final MessageProducer producer;
 	private final Queue replyQueue;
 	private final int replyWaitTime;
@@ -23,15 +23,15 @@ public class ConsumerMessageRequester {
 
 	/**
 	 * Constructs the ConsumerMessageRequester instance.
-	 * @param queueChannel the JMS queue channel.
+	 * @param destinationChannel the JMS destination channel.
 	 * @param producer the JMS producer.
 	 * @param replyQueue the reply queue.
 	 * @param replyWaitTime the reply wait timeout.
 	 * @param useMessageSelector whether to use a message selector or not.
 	 */
-	public ConsumerMessageRequester(QueueChannel queueChannel, MessageProducer producer, Queue replyQueue,
+	public ConsumerMessageRequester(DestinationChannel destinationChannel, MessageProducer producer, Queue replyQueue,
 									int replyWaitTime, boolean useMessageSelector) {
-		this.queueChannel = queueChannel;
+		this.destinationChannel = destinationChannel;
 		this.producer = producer;
 		this.replyQueue = replyQueue;
 		this.replyWaitTime = replyWaitTime;
@@ -73,14 +73,14 @@ public class ConsumerMessageRequester {
 		String messageSelector = "JMSCorrelationID='" + correlationId + "'";
 		// set up the queue receiver here as it needs to have the message id of the current message,
 		// and it doesn't exist in the setupQueues method.
-		MessageConsumer consumer = queueChannel.createMessageConsumer(this.replyQueue, messageSelector);
+		MessageConsumer consumer = destinationChannel.createMessageConsumer(this.replyQueue, messageSelector);
 		Message replyMsg = consumer.receive(replyWaitTime);
 		consumer.close();
 		return replyMsg;
 	}
 
 	private Message processRequestWithoutMessageSelector(Message message, String correlationId) throws JMSException, InterruptedException {
-		MessageConsumer consumer = queueChannel.createMessageConsumer(replyQueue);
+		MessageConsumer consumer = destinationChannel.createMessageConsumer(replyQueue);
 		BlockingQueue<Message> queue = new ArrayBlockingQueue<>(1);
 		consumer.setMessageListener(msg -> {
 			try {
@@ -104,6 +104,6 @@ public class ConsumerMessageRequester {
     public void close() throws JMSException {
 		log.debug("Closing the ConsumerMessageRequester");
 		producer.close();
-		queueChannel.close();
+		destinationChannel.close();
 	}
 }

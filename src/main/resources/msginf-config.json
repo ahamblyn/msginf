@@ -122,6 +122,47 @@
           "maxConnections": 20
         },
         "name": "activemq",
+        "messagingModel": "point-to-point",
+        "jndiProperties": {
+          "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
+        }
+      },
+      {
+        "topics": [
+          {
+            "jndiName": "TestTopic",
+            "physicalName": "TEST.TOPIC"
+          }
+        ],
+        "connectors": {
+          "publishSubscribe": [
+            {
+              "publishSubscribeConnection": {
+                "publishSubscribeTopicName": "TestTopic",
+                "publishSubscribeTopicConnFactoryName": "TopicConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "pubsub_text",
+              "compressBinaryMessages": false
+            },
+            {
+              "publishSubscribeConnection": {
+                "publishSubscribeTopicName": "TestTopic",
+                "publishSubscribeTopicConnFactoryName": "TopicConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "pubsub_binary",
+              "compressBinaryMessages": false
+            }
+          ],
+          "useConnectionPooling": true,
+          "minConnections": 5,
+          "maxConnections": 20
+        },
+        "name": "activemq_pubsub",
+        "messagingModel": "publish-subscribe",
         "jndiProperties": {
           "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
         }

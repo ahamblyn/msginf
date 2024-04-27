@@ -81,4 +81,21 @@ public class MessageController {
         Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload);
         return ResponseEntity.of(messageResponse);
     }
+
+    /**
+     * Publish a message
+     * @param payload the message
+     * @return the message response
+     */
+    @Operation(
+            summary = "Publish a message to a topic",
+            description = "Publish a message to a topic",
+            tags = {"message"})
+    @PostMapping(path = "/publish", consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<RestMessageResponse> publish(@Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
+        Optional<RestMessageResponse> messageResponse = messageService.publish(payload);
+        return ResponseEntity.of(messageResponse);
+    }
+
 }
