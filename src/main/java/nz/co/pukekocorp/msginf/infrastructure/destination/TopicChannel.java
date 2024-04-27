@@ -14,7 +14,23 @@ public class TopicChannel extends DestinationChannel {
         super(connection, session);
     }
 
+    /**
+     * Create a topic publisher for a topic.
+     * @param topic the topic
+     * @return the topic publisher
+     * @throws JMSException the JMS exception
+     */
     public MessageProducer createTopicPublisher(Topic topic) throws JMSException {
         return ((TopicSession) session).createPublisher(topic);
+    }
+
+    /**
+     * Create a topic subscriber for a topic.
+     * @param topic the topic
+     * @return the topic subscriber
+     * @throws JMSException the JMS exception
+     */
+    public MessageConsumer createTopicSubscriber(Topic topic) throws JMSException {
+        return ((TopicSession) session).createSubscriber(topic);
     }
 }
