@@ -202,9 +202,11 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<PropertiesDestination> getQueues(String messagingSystemName) {
         List<PropertiesDestination> queuesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system -> {
-            List<PropertiesDestination> props = system.queues().stream()
-                    .map(queue -> new PropertiesDestination(queue.jndiName(), queue.physicalName())).toList();
-            queuesList.addAll(props);
+            if (system.queues() != null) {
+                List<PropertiesDestination> props = system.queues().stream()
+                        .map(queue -> new PropertiesDestination(queue.jndiName(), queue.physicalName())).toList();
+                queuesList.addAll(props);
+            }
         });
         return queuesList;
     }
@@ -217,9 +219,11 @@ public class MessageInfrastructurePropertiesFileParser {
     public List<PropertiesDestination> getTopics(String messagingSystemName) {
         List<PropertiesDestination> queuesList = new ArrayList<>();
         findSystem(messagingSystemName).ifPresent(system -> {
-            List<PropertiesDestination> props = system.topics().stream()
-                    .map(queue -> new PropertiesDestination(queue.jndiName(), queue.physicalName())).toList();
-            queuesList.addAll(props);
+            if (system.topics() != null) {
+                List<PropertiesDestination> props = system.topics().stream()
+                        .map(queue -> new PropertiesDestination(queue.jndiName(), queue.physicalName())).toList();
+                queuesList.addAll(props);
+            }
         });
         return queuesList;
     }
