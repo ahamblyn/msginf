@@ -2,7 +2,7 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -60,7 +60,7 @@ public abstract class AbstractMessageController {
     /**
      * The queue statistics collector.
      */
-    protected final QueueStatisticsCollector collector = QueueStatisticsCollector.getInstance();
+    protected final StatisticsCollector collector = StatisticsCollector.getInstance();
 
     /**
      * This method sends the message to the JMS objects.

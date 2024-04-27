@@ -7,7 +7,7 @@ import java.util.Vector;
  * 
  * @author Alisdair Hamblyn
  */
-public class QueueStatistics {
+public class Statistics {
 	
 	/**
 	 * The message count.
@@ -27,7 +27,7 @@ public class QueueStatistics {
 	/**
 	 * Constructs the QueueStatistics object.
 	 */
-	public QueueStatistics() {
+	public Statistics() {
 		messageTimes = new Vector<>();
 	}
 

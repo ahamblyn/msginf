@@ -5,7 +5,7 @@ import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
 import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
@@ -71,7 +71,7 @@ public class TestTextRequestBinaryReply {
             assertNotEquals(0, response.getBinaryResponse().length);
             assertEquals(MessageType.BINARY, response.getMessageType());
         }
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class TestTextRequestBinaryReply {
         for (Thread thread : threads) {
             thread.join();
         }
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -120,6 +120,6 @@ public class TestTextRequestBinaryReply {
             }));
         }
         futureList.forEach(CompletableFuture::join);
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 }

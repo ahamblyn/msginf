@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
@@ -43,7 +43,7 @@ public class TestPublishSubscribe {
                     "pubsub_text", "Message[" + (i + 1) + "]"));
             assertNotNull(response);
         }
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
 }

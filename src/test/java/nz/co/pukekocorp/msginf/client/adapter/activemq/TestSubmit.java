@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.infrastructure.data.QueueStatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
@@ -15,7 +15,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +47,7 @@ public class TestSubmit {
                     "submit_text", "Message[" + (i + 1) + "]"));
             assertNotNull(response);
         }
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -57,7 +56,7 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -86,7 +85,7 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -110,7 +109,7 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -121,7 +120,7 @@ public class TestSubmit {
                     "submit_binary", "data/905727.pdf"));
             assertNotNull(response);
         }
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -130,7 +129,7 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -159,7 +158,7 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -183,6 +182,6 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
-        log.info(QueueStatisticsCollector.getInstance().toString());
+        log.info(StatisticsCollector.getInstance().toString());
     }
 }
