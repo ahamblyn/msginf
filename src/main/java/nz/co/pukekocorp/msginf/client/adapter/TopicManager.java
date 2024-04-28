@@ -1,8 +1,6 @@
 package nz.co.pukekocorp.msginf.client.adapter;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.client.connector.AbstractMessageController;
-import nz.co.pukekocorp.msginf.client.connector.TopicMessageController;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 
@@ -17,9 +15,9 @@ public class TopicManager extends DestinationManager {
 
     /**
      * Constructs the TopicManager instance.
-     * @param  parser the messaging infrastructure file parser
+     * @param parser the messaging infrastructure file parser
      * @param messagingSystem messaging system
-     * @param jndiUrl the url to connect to the messaging system.
+     * @param jndiUrl the JNDI url
      */
     public TopicManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) {
         this.parser = parser;
@@ -27,11 +25,34 @@ public class TopicManager extends DestinationManager {
         initialiseJMSContext(parser, jndiUrl);
     }
 
-    public AbstractMessageController getMessageConnector(String connector) throws MessageException {
-        TopicMessageController mc = (TopicMessageController) messageControllers.get(connector);
+    /**
+     * Get the javax message connector
+     * @param connector the connector name
+     * @return the message connector
+     * @throws MessageException
+     */
+    public nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController getJavaxMessageConnector(String connector) throws MessageException {
+        nz.co.pukekocorp.msginf.client.connector.javax_jms.TopicMessageController mc =
+                (nz.co.pukekocorp.msginf.client.connector.javax_jms.TopicMessageController) javaxMessageControllers.get(connector);
         if (mc == null) {
-            mc = new TopicMessageController(parser, messagingSystem, connector, jndiContext);
-            messageControllers.put(connector, mc);
+            mc = new nz.co.pukekocorp.msginf.client.connector.javax_jms.TopicMessageController(parser, messagingSystem, connector, jndiContext);
+            javaxMessageControllers.put(connector, mc);
+        }
+        return mc;
+    }
+
+    /**
+     * Get the jakarta message connector
+     * @param connector the connector name
+     * @return the message connector
+     * @throws MessageException
+     */
+    public nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController getJakartaMessageConnector(String connector) throws MessageException {
+        nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageController mc =
+                (nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageController) jakartaMessageControllers.get(connector);
+        if (mc == null) {
+            mc = new nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageController(parser, messagingSystem, connector, jndiContext);
+            jakartaMessageControllers.put(connector, mc);
         }
         return mc;
     }
