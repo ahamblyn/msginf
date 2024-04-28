@@ -85,6 +85,7 @@ public class MessageInfrastructurePropertiesFileParser {
 
     /**
      * Returns a list of the names of the available messaging systems in the properties file.
+     * @param messagingModel the messaging model
      * @return a list of the names of the available messaging systems in the properties file.
      */
     public List<String> getAvailableMessagingSystems(MessagingModel messagingModel) {
@@ -182,6 +183,16 @@ public class MessageInfrastructurePropertiesFileParser {
     public MessagingModel getMessagingModel(String messagingSystemName) {
         Optional<MessagingModel> messagingModel = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.messagingModel()));
         return messagingModel.orElse(MessagingModel.POINT_TO_POINT);
+    }
+
+    /**
+     * Returns the JMS implementation for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return the JMS implementation for the messaging system.
+     */
+    public JmsImplementation getJmsImplementation(String messagingSystemName) {
+        Optional<JmsImplementation> jmsImplementation = findSystem(messagingSystemName).flatMap(sys -> Optional.ofNullable(sys.jmsImplementation()));
+        return jmsImplementation.orElse(JmsImplementation.JAKARTA_JMS);
     }
 
     /**

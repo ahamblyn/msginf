@@ -1,9 +1,7 @@
-package nz.co.pukekocorp.msginf.client.connector;
+package nz.co.pukekocorp.msginf.client.connector.jakarta_jms;
 
 import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
-import nz.co.pukekocorp.msginf.infrastructure.destination.TopicChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;

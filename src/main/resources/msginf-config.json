@@ -123,6 +123,7 @@
         },
         "name": "activemq",
         "messagingModel": "point-to-point",
+        "jmsImplementation": "jakarta-jms",
         "jndiProperties": {
           "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
         }
@@ -163,8 +164,60 @@
         },
         "name": "activemq_pubsub",
         "messagingModel": "publish-subscribe",
+        "jmsImplementation": "jakarta-jms",
         "jndiProperties": {
           "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
+        }
+      },
+      {
+        "topics": [
+          {
+            "jndiName": "randomTopic",
+            "physicalName": "randomTopic"
+          }
+        ],
+        "connectors": {
+          "publishSubscribe": [
+            {
+              "publishSubscribeConnection": {
+                "publishSubscribeTopicName": "randomTopic",
+                "publishSubscribeTopicConnFactoryName": "TopicConnectionFactory",
+                "requestType": "text",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "pubsub_text",
+              "compressBinaryMessages": false
+            },
+            {
+              "publishSubscribeConnection": {
+                "publishSubscribeTopicName": "TestTopic",
+                "publishSubscribeTopicConnFactoryName": "TopicConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "pubsub_binary",
+              "compressBinaryMessages": false
+            }
+          ],
+          "useConnectionPooling": false,
+          "minConnections": 5,
+          "maxConnections": 20
+        },
+        "name": "kafka_pubsub",
+        "messagingModel": "publish-subscribe",
+        "jmsImplementation": "javax-jms",
+        "jndiProperties": {
+          "initialContextFactory": "io.confluent.kafka.jms.KafkaInitialContextFactory",
+          "vendorJNDIProperties": [
+            {
+              "name": "client.id",
+              "value": "msginf-test"
+            },
+            {
+              "name": "bootstrap.servers",
+              "value": "localhost:29092,localhost:29093,localhost:29094"
+            }
+          ]
         }
       }
     ]

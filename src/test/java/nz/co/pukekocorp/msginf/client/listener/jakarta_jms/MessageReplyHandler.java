@@ -1,4 +1,4 @@
-package nz.co.pukekocorp.msginf.client.listener;
+package nz.co.pukekocorp.msginf.client.listener.jakarta_jms;
 
 import java.util.Date;
 

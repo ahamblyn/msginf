@@ -1,21 +1,17 @@
-package nz.co.pukekocorp.msginf.client.connector;
+package nz.co.pukekocorp.msginf.client.connector.javax_jms;
 
-import java.time.Instant;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import jakarta.jms.*;
-import jakarta.jms.Queue;
+import javax.jms.*;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
-import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import java.time.Instant;
 
 /**
  * The QueueMessageController puts messages onto the queues defined in the properties file.
@@ -75,11 +71,6 @@ public class QueueMessageController extends AbstractMessageController {
 	 */
 	private boolean useMessageSelector = true;
 
-	/**
-	 * Whether to use connection pooling or not.
-	 */
-	private final boolean useConnectionPooling;
-
     /**
      * Constructs the QueueMessageController instance.
 	 * @param parser the properties file parser.
@@ -91,7 +82,6 @@ public class QueueMessageController extends AbstractMessageController {
 	public QueueMessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
 								  Context jndiContext) throws MessageException {
 	  this.connector = connector;
-	  this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
   	  String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
 			this.replyExpected = false;
@@ -118,7 +108,6 @@ public class QueueMessageController extends AbstractMessageController {
          if (replyQueueName != null) {
              replyQueue = (Queue)jndiContext.lookup(replyQueueName);
          }
-		  log.info("Use connection pooling: " + useConnectionPooling);
 		  setupJMSObjects(parser, messagingSystem, jndiContext);
       } catch (JMSException | NamingException e) {
           throw new MessageControllerException(e);
@@ -207,15 +196,7 @@ public class QueueMessageController extends AbstractMessageController {
 		try {
 			QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
 			QueueConnection queueConnection;
-			if (useConnectionPooling) {
-				int maxConnections = parser.getMaxConnections(messagingSystem);
-				var jmsPoolConnectionFactory = new JmsPoolConnectionFactory();
-				jmsPoolConnectionFactory.setConnectionFactory(queueConnectionFactory);
-				jmsPoolConnectionFactory.setMaxConnections(maxConnections);
-				queueConnection = jmsPoolConnectionFactory.createQueueConnection();
-			} else {
-				queueConnection = queueConnectionFactory.createQueueConnection();
-			}
+			queueConnection = queueConnectionFactory.createQueueConnection();
 			queueConnection.start();
 			Session session = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			return new DestinationChannel(queueConnection, session);

@@ -18,6 +18,7 @@ public record System(@Schema(description = "List of queues") List<Destination> q
                      @Schema(description = "List of topics") List<Destination> topics,
                      @Schema(description = "The connectors") Connectors connectors,
                      @Schema(description = "Name of the messaging system") String name,
-                     @Schema(description = "Name of the messaging system") MessagingModel messagingModel,
+                     @Schema(description = "The messaging model") MessagingModel messagingModel,
+                     @Schema(description = "The JMS Implementation") JmsImplementation jmsImplementation,
                      @Schema(description = "The JNDI properties") JNDIProperties jndiProperties) {
 }

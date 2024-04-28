@@ -1,15 +1,14 @@
-package nz.co.pukekocorp.msginf.client.listener;
+package nz.co.pukekocorp.msginf.client.listener.javax_jms;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import jakarta.jms.*;
+import javax.jms.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.properties.Constants;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.infrastructure.util.Util;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
 import java.util.Optional;
 
 /**
@@ -40,7 +39,7 @@ public class MessageRequestReply implements MessageListener {
 
 	public static void main(String[] args) {
 		if (args.length != 5) {
-			System.out.println("Usage: java nz.co.pukekocorp.msginf.client.listener.MessageRequestReply <messaging system> <queue connection factory name> <request queue name> <reply queue name> <jndi url>");
+			System.out.println("Usage: java nz.co.pukekocorp.msginf.client.listener.jakarta_jms.MessageRequestReply <messaging system> <queue connection factory name> <request queue name> <reply queue name> <jndi url>");
 			System.exit(1);
 		}
 		String messagingSystem = args[0];

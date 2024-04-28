@@ -1,4 +1,4 @@
-package nz.co.pukekocorp.msginf.infrastructure.destination;
+package nz.co.pukekocorp.msginf.client.connector.jakarta_jms;
 
 import jakarta.jms.*;
 

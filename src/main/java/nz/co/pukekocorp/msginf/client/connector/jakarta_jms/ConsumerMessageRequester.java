@@ -1,8 +1,7 @@
-package nz.co.pukekocorp.msginf.client.connector;
+package nz.co.pukekocorp.msginf.client.connector.jakarta_jms;
 
 import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.destination.DestinationChannel;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageRequesterException;
 
 import java.util.concurrent.ArrayBlockingQueue;
