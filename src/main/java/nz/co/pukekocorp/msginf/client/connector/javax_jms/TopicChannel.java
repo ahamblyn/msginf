@@ -27,10 +27,11 @@ public class TopicChannel extends DestinationChannel {
     /**
      * Create a topic subscriber for a topic.
      * @param topic the topic
+     * @param subscriptionName the subscription name
      * @return the topic subscriber
      * @throws JMSException the JMS exception
      */
-    public MessageConsumer createTopicSubscriber(Topic topic) throws JMSException {
-        return ((TopicSession) session).createSubscriber(topic);
+    public TopicSubscriber createTopicSubscriber(Topic topic, String subscriptionName) throws JMSException {
+        return session.createDurableSubscriber(topic, subscriptionName);
     }
 }

@@ -126,6 +126,11 @@ public class TopicMessageController extends AbstractMessageController {
 		}
 	}
 
+	public TopicChannel getTopicChannel() {
+		return (TopicChannel) destinationChannel;
+	}
+
+
     /**
      * Gets this object as a String.
      * @return this object as a String.

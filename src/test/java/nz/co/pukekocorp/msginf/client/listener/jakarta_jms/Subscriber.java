@@ -15,11 +15,11 @@ public class Subscriber implements MessageListener {
     private Topic topic;
     private TopicConnection topicConnection;
     private TopicSubscriber topicSubscriber;
-    private int subcriberNumber;
+    private int subscriberNumber;
 
-    public Subscriber(int subcriberNumber, MessageInfrastructurePropertiesFileParser parser, String messagingSystem,
+    public Subscriber(int subscriberNumber, MessageInfrastructurePropertiesFileParser parser, String messagingSystem,
                       String topicConnectionFactoryName, String topicName, String jndiUrl) {
-        this.subcriberNumber = subcriberNumber;
+        this.subscriberNumber = subscriberNumber;
         try {
             Context context = Util.createContext(parser, messagingSystem, jndiUrl);
             topicConnectionFactory = (TopicConnectionFactory) context.lookup(topicConnectionFactoryName);
@@ -45,7 +45,7 @@ public class Subscriber implements MessageListener {
     public void onMessage(Message message) {
         try {
             if (message instanceof TextMessage) {
-                log.info("Subscriber " + subcriberNumber + ": " + ((TextMessage) message).getText());
+                log.info("Subscriber " + subscriberNumber + ": " + ((TextMessage) message).getText());
             }
         } catch (JMSException jmse) {
             log.error(jmse.getMessage(), jmse);

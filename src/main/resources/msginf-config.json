@@ -172,30 +172,20 @@
       {
         "topics": [
           {
-            "jndiName": "randomTopic",
-            "physicalName": "randomTopic"
+            "jndiName": "bar",
+            "physicalName": "bar"
           }
         ],
         "connectors": {
           "publishSubscribe": [
             {
               "publishSubscribeConnection": {
-                "publishSubscribeTopicName": "randomTopic",
-                "publishSubscribeTopicConnFactoryName": "TopicConnectionFactory",
+                "publishSubscribeTopicName": "bar",
+                "publishSubscribeTopicConnFactoryName": "JMSConnectionFactory",
                 "requestType": "text",
                 "messageTimeToLive": 0
               },
               "connectorName": "pubsub_text",
-              "compressBinaryMessages": false
-            },
-            {
-              "publishSubscribeConnection": {
-                "publishSubscribeTopicName": "TestTopic",
-                "publishSubscribeTopicConnFactoryName": "TopicConnectionFactory",
-                "requestType": "binary",
-                "messageTimeToLive": 0
-              },
-              "connectorName": "pubsub_binary",
               "compressBinaryMessages": false
             }
           ],
@@ -207,11 +197,15 @@
         "messagingModel": "publish-subscribe",
         "jmsImplementation": "javax-jms",
         "jndiProperties": {
-          "initialContextFactory": "io.confluent.kafka.jms.KafkaInitialContextFactory",
+          "initialContextFactory": "nz.co.pukekocorp.msginf.kafka.jms.KafkaInitialContextFactory",
           "vendorJNDIProperties": [
             {
               "name": "client.id",
-              "value": "msginf-test"
+              "value": "msginf-01"
+            },
+            {
+              "name": "group.id",
+              "value": "msginf-group-01"
             },
             {
               "name": "bootstrap.servers",
