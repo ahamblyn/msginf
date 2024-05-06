@@ -28,11 +28,11 @@ public class Messenger {
         this.topicManagers = topicManagers;
     }
 
-    private Optional<QueueManager> getQueueManager(String messagingSystem) {
+    public Optional<QueueManager> getQueueManager(String messagingSystem) {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
     }
 
-    private Optional<TopicManager> getTopicManager(String messagingSystem) {
+    public Optional<TopicManager> getTopicManager(String messagingSystem) {
         return Optional.ofNullable(topicManagers.get(messagingSystem));
     }
 
