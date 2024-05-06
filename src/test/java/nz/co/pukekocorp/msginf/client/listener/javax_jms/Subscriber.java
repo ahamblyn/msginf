@@ -4,7 +4,6 @@ import javax.jms.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.infrastructure.util.Util;
-import nz.co.pukekocorp.msginf.kafka.jms.KafkaTopicSubscriber;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -40,7 +39,6 @@ public class Subscriber implements MessageListener {
             topicConnection = topicConnectionFactory.createTopicConnection();
             TopicSession topicSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
             topicSubscriber = topicSession.createDurableSubscriber(topic, "Subscriber-" + subscriberNumber);
-            ((KafkaTopicSubscriber)topicSubscriber).setOverrideMessageListener(true);
             topicSubscriber.setMessageListener(this);
             topicConnection.start();
         } catch (JMSException jmse) {
