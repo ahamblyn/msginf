@@ -3,15 +3,28 @@ package nz.co.pukekocorp.msginf.client.connector.jakarta_jms;
 import jakarta.jms.*;
 
 public class TopicChannel extends DestinationChannel {
+    private boolean useDurableSubscriber;
 
     /**
-     * The DestinationChannel constructor.
+     * The TopicChannel constructor.
      *
      * @param connection the connection.
      * @param session    the session.
      */
     public TopicChannel(Connection connection, Session session) {
+        this(connection, session, false);
+    }
+
+    /**
+     * The TopicChannel constructor.
+     *
+     * @param connection the connection.
+     * @param session    the session.
+     * @param useDurableSubscriber whether to use a durable subscriber or not.
+     */
+    public TopicChannel(Connection connection, Session session, boolean useDurableSubscriber) {
         super(connection, session);
+        this.useDurableSubscriber = useDurableSubscriber;
     }
 
     /**
@@ -27,10 +40,11 @@ public class TopicChannel extends DestinationChannel {
     /**
      * Create a topic subscriber for a topic.
      * @param topic the topic
+     * @param subscriptionName the subscription name
      * @return the topic subscriber
      * @throws JMSException the JMS exception
      */
-    public MessageConsumer createTopicSubscriber(Topic topic) throws JMSException {
-        return ((TopicSession) session).createSubscriber(topic);
+    public TopicSubscriber createTopicSubscriber(Topic topic, String subscriptionName) throws JMSException {
+        return useDurableSubscriber ? session.createDurableSubscriber(topic, subscriptionName) : ((TopicSession) session).createSubscriber(topic);
     }
 }

@@ -19,5 +19,6 @@ public record Connectors(@Schema(description = "List of submit connectors") List
                          @Schema(description = "List of publish-subscribe connectors") List<PublishSubscribe> publishSubscribe,
                          @Schema(description = "Whether to use queue connection pooling or not") Boolean useConnectionPooling,
                          @Schema(description = "The minimum number of queue connections in the pool") Integer minConnections,
-                         @Schema(description = "The maximum number of queue connections in the pool") Integer maxConnections) {
+                         @Schema(description = "The maximum number of queue connections in the pool") Integer maxConnections,
+                         @Schema(description = "Whether to use a durable subscriber or not") Boolean useDurableSubscriber) {
 }

@@ -1,4 +1,4 @@
-package nz.co.pukekocorp.msginf.client.adapter.kafka;
+package nz.co.pukekocorp.msginf.client.listener.javax_jms;
 
 import nz.co.pukekocorp.msginf.client.connector.javax_jms.TopicMessageController;
 import org.slf4j.Logger;
