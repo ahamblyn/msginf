@@ -158,9 +158,10 @@
               "compressBinaryMessages": false
             }
           ],
-          "useConnectionPooling": true,
+          "useConnectionPooling": false,
           "minConnections": 5,
-          "maxConnections": 20
+          "maxConnections": 20,
+          "useDurableSubscriber" : false
         },
         "name": "activemq_pubsub",
         "messagingModel": "publish-subscribe",
@@ -191,7 +192,8 @@
           ],
           "useConnectionPooling": false,
           "minConnections": 5,
-          "maxConnections": 20
+          "maxConnections": 20,
+          "useDurableSubscriber" : true
         },
         "name": "kafka_pubsub",
         "messagingModel": "publish-subscribe",

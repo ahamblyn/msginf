@@ -290,6 +290,17 @@ public class MessageInfrastructurePropertiesFileParser {
     }
 
     /**
+     * Returns whether the use of a durable subscriber is configured for the messaging system.
+     * @param messagingSystemName the messaging system
+     * @return whether the use of a durable subscriber is configured for the messaging system.
+     */
+    public boolean getUseDurableSubscriber(String messagingSystemName) {
+        Optional<Connectors> connectors = findConnectors(messagingSystemName);
+        Optional<Boolean> b = connectors.flatMap(conns -> Optional.ofNullable(conns.useDurableSubscriber()));
+        return b.orElse(false);
+    }
+
+    /**
      * Returns a list of the names of the submit connectors for the messaging system.
      * @param messagingSystemName the messaging system
      * @return a list of the names of the submit connectors for the messaging system.

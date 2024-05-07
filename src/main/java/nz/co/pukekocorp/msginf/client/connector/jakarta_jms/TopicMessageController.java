@@ -131,10 +131,14 @@ public class TopicMessageController extends AbstractMessageController {
 			}
 			topicConnection.start();
 			Session session = topicConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			return new TopicChannel(topicConnection, session);
+			return new TopicChannel(topicConnection, session, parser.getUseDurableSubscriber(messagingSystem));
 		} catch (JMSException | NamingException e) {
 			throw new DestinationChannelException("Unable to lookup the topic connection factory: " + topicConnFactoryName, e);
 		}
+	}
+
+	public TopicChannel getTopicChannel() {
+		return (TopicChannel) destinationChannel;
 	}
 
     /**
