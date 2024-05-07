@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 import javax.jms.JMSException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,14 +34,16 @@ public class TestPublishSubscribe {
 
     @Autowired
     private Messenger messenger;
-    private TestSubscriber testSubscriber;
+    private List<TestSubscriber> testSubscribers = new ArrayList<>();
 
     @BeforeEach
     public void setup() {
         try {
             var topicManagerOpt = messenger.getTopicManager("kafka_pubsub");
             var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJavaxMessageConnector("pubsub_text");
-            testSubscriber = new TestSubscriber(topicMessageController);
+            for (int i = 0; i < 3; i++) {
+                testSubscribers.add(new TestSubscriber(topicMessageController));
+            }
         } catch (MessageException | JMSException e) {
             log.error("Unable to setup test", e);
             throw new RuntimeException(e);
@@ -49,13 +52,20 @@ public class TestPublishSubscribe {
 
     @AfterEach
     public void teardown() {
-        try {
-            testSubscriber.clearResponses();
-            testSubscriber.getTopicSubscriber().close();
-        } catch (JMSException e) {
-            log.error("Unable to teardown test", e);
-            throw new RuntimeException(e);
-        }
+        testSubscribers.forEach(TestSubscriber::clearResponses);
+        testSubscribers.forEach(testSubscriber -> {
+            try {
+                testSubscriber.getTopicSubscriber().close();
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        testSubscribers.clear();
+    }
+
+    private List<String> getSubscriberResponses() {
+        return testSubscribers.stream().map(TestSubscriber::getResponses)
+                .flatMap(Collection::stream).toList();
     }
 
     @Test
@@ -73,7 +83,7 @@ public class TestPublishSubscribe {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertTrue(CollectionUtils.isEqualCollection(messages, testSubscriber.getResponses()));
+        assertTrue(CollectionUtils.isEqualCollection(messages, getSubscriberResponses()));
         log.info(StatisticsCollector.getInstance().toString());
     }
 
@@ -106,7 +116,7 @@ public class TestPublishSubscribe {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertTrue(CollectionUtils.isEqualCollection(messages, testSubscriber.getResponses()));
+        assertTrue(CollectionUtils.isEqualCollection(messages, getSubscriberResponses()));
         log.info(StatisticsCollector.getInstance().toString());
     }
 
@@ -134,7 +144,7 @@ public class TestPublishSubscribe {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertTrue(CollectionUtils.isEqualCollection(messages, testSubscriber.getResponses()));
+        assertTrue(CollectionUtils.isEqualCollection(messages, getSubscriberResponses()));
         log.info(StatisticsCollector.getInstance().toString());
     }
 }
