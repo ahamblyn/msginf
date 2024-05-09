@@ -9,7 +9,6 @@ import nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageControll
 import nz.co.pukekocorp.msginf.client.listener.jakarta_jms.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
-import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import org.junit.jupiter.api.*;
@@ -40,7 +39,6 @@ public class TestPublishSubscribe {
     @BeforeEach
     public void setUp() {
         try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             var topicManagerOpt = messenger.getTopicManager("activemq_pubsub");
             var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJakartaMessageConnector("pubsub_text");
             for (int i = 0; i < 3; i++) {
