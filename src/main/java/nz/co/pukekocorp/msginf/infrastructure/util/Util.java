@@ -113,7 +113,14 @@ public class Util {
 				// add vendor specific JNDI properties
 				List<VendorJNDIProperty> vendorJNDIProperties = parser.getVendorJNDIProperties(messagingSystem);
 				for (VendorJNDIProperty vendorJNDIProperty : vendorJNDIProperties) {
-					props.setProperty(vendorJNDIProperty.name(), vendorJNDIProperty.value());
+					// override bootstrap.servers with the jndiUrl if it exists
+					if (vendorJNDIProperty.name().equals("bootstrap.servers")) {
+						log.info("bootstrap.servers property was: " + vendorJNDIProperty.value());
+						props.setProperty(vendorJNDIProperty.name(), jndiUrl);
+						log.info("bootstrap.servers property overridden by: " + jndiUrl);
+					} else {
+						props.setProperty(vendorJNDIProperty.name(), vendorJNDIProperty.value());
+					}
 				}
 				// add queue info
 				for (PropertiesDestination queue : queues) {
@@ -122,6 +129,11 @@ public class Util {
 				// add topic info
 				for (PropertiesDestination topic : topics) {
 					props.setProperty("topic." + topic.jndiName(), topic.physicalName());
+				}
+				// log properties
+				if (!props.isEmpty()) {
+					log.info("Context properties for " + messagingSystem);
+					props.forEach((k, v) -> log.info("    " + k + " -> " + v));
 				}
 				jmsCtx = new InitialContext(props);
 			}
