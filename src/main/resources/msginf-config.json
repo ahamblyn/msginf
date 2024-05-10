@@ -188,6 +188,16 @@
               },
               "connectorName": "pubsub_text",
               "compressBinaryMessages": false
+            },
+            {
+              "publishSubscribeConnection": {
+                "publishSubscribeTopicName": "bar",
+                "publishSubscribeTopicConnFactoryName": "JMSConnectionFactory",
+                "requestType": "binary",
+                "messageTimeToLive": 0
+              },
+              "connectorName": "pubsub_binary",
+              "compressBinaryMessages": false
             }
           ],
           "useConnectionPooling": false,

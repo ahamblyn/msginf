@@ -31,6 +31,7 @@ public class MessageReplyHandler {
 	 */
 	public void reply(Message requestMessage, String replyType) throws JMSException {
     	if (requestMessage instanceof TextMessage requestTextMessage) {
+			System.out.println("Text message received. Replying with " + replyType + " message.");
 			// Add the time
 			String requestMessageText = requestTextMessage.getText() + " : Replied at " + new Date();
 			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 1
@@ -46,6 +47,7 @@ public class MessageReplyHandler {
 			}
     	}
     	if (requestMessage instanceof BytesMessage requestBinaryMessage) {
+			System.out.println("Binary message received. Replying with " + replyType + " message.");
 			if (replyType.toUpperCase().equals(MessageType.TEXT.name())) { // scenario 3
 				TextMessage replyMessage = session.createTextMessage();
 				replyMessage.setText("Binary message processed at: " + new Date());

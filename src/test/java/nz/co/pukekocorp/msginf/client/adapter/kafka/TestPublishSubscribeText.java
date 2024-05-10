@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
         locations = "classpath:application-dev.properties")
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestPublishSubscribe {
+public class TestPublishSubscribeText {
 
     @Autowired
     private Messenger messenger;
@@ -84,7 +84,9 @@ public class TestPublishSubscribe {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertTrue(CollectionUtils.isEqualCollection(messages, getSubscriberResponses()));
+        var subscriberResponses = getSubscriberResponses();
+        assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
         log.info(StatisticsCollector.getInstance().toString());
     }
 
@@ -117,7 +119,9 @@ public class TestPublishSubscribe {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertTrue(CollectionUtils.isEqualCollection(messages, getSubscriberResponses()));
+        var subscriberResponses = getSubscriberResponses();
+        assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
         log.info(StatisticsCollector.getInstance().toString());
     }
 
@@ -145,7 +149,9 @@ public class TestPublishSubscribe {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertTrue(CollectionUtils.isEqualCollection(messages, getSubscriberResponses()));
+        var subscriberResponses = getSubscriberResponses();
+        assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
         log.info(StatisticsCollector.getInstance().toString());
     }
 }

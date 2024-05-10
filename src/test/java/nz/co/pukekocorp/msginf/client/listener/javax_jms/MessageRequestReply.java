@@ -64,6 +64,7 @@ public class MessageRequestReply implements MessageListener {
 			MessageConsumer consumer = session.createConsumer(requestQueue);
 			MessageProducer replyMessageProducer = session.createProducer(replyQueue);
             consumer.setMessageListener(this);
+			System.out.println("MessageRequestReply started...");
             queueConnection.start();
      		mrh = new MessageReplyHandler(session, replyMessageProducer);
         } catch (JMSException jmse) {

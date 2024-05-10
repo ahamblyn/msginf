@@ -5,6 +5,7 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses( { TestSubmit.class, TestTextRequestTextReply.class, TestTextRequestBinaryReply.class,
-        TestBinaryRequestTextReply.class, TestBinaryRequestBinaryReply.class, TestPublishSubscribe.class} )
+        TestBinaryRequestTextReply.class, TestBinaryRequestBinaryReply.class, TestPublishSubscribeText.class,
+        TestPublishSubscribeBinary.class})
 public class TestSuite {
 }

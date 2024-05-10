@@ -22,7 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(
         classes = MessageInfrastructureApplication.class)
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
         locations = "classpath:application-dev.properties")
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestPublishSubscribeText {
+public class TestPublishSubscribeBinary {
 
     @Autowired
     private Messenger messenger;
@@ -40,7 +41,7 @@ public class TestPublishSubscribeText {
     public void setUp() {
         try {
             var topicManagerOpt = messenger.getTopicManager("activemq_pubsub");
-            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJakartaMessageConnector("pubsub_text");
+            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJakartaMessageConnector("pubsub_binary");
             for (int i = 0; i < 3; i++) {
                 testSubscribers.add(new TestSubscriber(topicMessageController));
             }
@@ -70,13 +71,13 @@ public class TestPublishSubscribeText {
 
     @Test
     @Order(1)
-    public void publish() throws MessageException {
+    public void publish() throws Exception {
         List<String> messages = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             String textMessage = "Current time is " + Instant.now().toString();
             messages.add(textMessage);
-            MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
-                    "pubsub_text", textMessage));
+            MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createBinaryMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                    "pubsub_binary", "data/test.bin"));
             assertNotNull(response);
         }
         try {
@@ -98,11 +99,11 @@ public class TestPublishSubscribeText {
                     for (int j = 0; j < 10; j++) {
                         String textMessage = "Current time is " + Instant.now().toString();
                         messages.add(textMessage);
-                        MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
-                                "pubsub_text", textMessage));
+                        MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createBinaryMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                                "pubsub_binary", "data/test.bin"));
                         assertNotNull(response);
                     }
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -130,11 +131,11 @@ public class TestPublishSubscribeText {
                 try {
                     String textMessage = "Current time is " + Instant.now().toString();
                     messages.add(textMessage);
-                    MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
-                            "pubsub_text", textMessage));
+                    MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createBinaryMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                            "pubsub_binary", "data/test.bin"));
                     assertNotNull(response);
                     return response;
-                } catch (MessageException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }));
