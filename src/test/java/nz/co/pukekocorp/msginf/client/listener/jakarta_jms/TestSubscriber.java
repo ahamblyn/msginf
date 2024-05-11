@@ -38,6 +38,10 @@ public class TestSubscriber implements MessageListener {
                 String response = ((TextMessage) message).getText();
                 responses.add(response);
             }
+            if (message instanceof BytesMessage) {
+                String response = "Binary message received";
+                responses.add(response);
+            }
         } catch (JMSException e) {
             log.error("TestSubscriber onMessage error", e);
         }

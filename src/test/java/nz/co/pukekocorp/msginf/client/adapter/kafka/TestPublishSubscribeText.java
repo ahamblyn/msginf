@@ -1,21 +1,22 @@
-package nz.co.pukekocorp.msginf.client.adapter.activemq;
+package nz.co.pukekocorp.msginf.client.adapter.kafka;
 
-import jakarta.jms.JMSException;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageController;
-import nz.co.pukekocorp.msginf.client.listener.jakarta_jms.TestSubscriber;
+import nz.co.pukekocorp.msginf.client.connector.javax_jms.TopicMessageController;
+import nz.co.pukekocorp.msginf.client.listener.javax_jms.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
+import javax.jms.JMSException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,17 +31,17 @@ import static org.junit.jupiter.api.Assertions.*;
         locations = "classpath:application-dev.properties")
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestPublishSubscribe {
+public class TestPublishSubscribeText {
 
     @Autowired
     private Messenger messenger;
     private List<TestSubscriber> testSubscribers = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         try {
-            var topicManagerOpt = messenger.getTopicManager("activemq_pubsub");
-            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJakartaMessageConnector("pubsub_text");
+            var topicManagerOpt = messenger.getTopicManager("kafka_pubsub");
+            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJavaxMessageConnector("pubsub_text");
             for (int i = 0; i < 3; i++) {
                 testSubscribers.add(new TestSubscriber(topicMessageController));
             }
@@ -51,7 +52,7 @@ public class TestPublishSubscribe {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void teardown() {
         testSubscribers.forEach(TestSubscriber::clearResponses);
         testSubscribers.forEach(testSubscriber -> {
             try {
@@ -70,26 +71,28 @@ public class TestPublishSubscribe {
 
     @Test
     @Order(1)
-    public void publish() throws MessageException {
+    public void publishSubscribe() throws MessageException {
         List<String> messages = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             String textMessage = "Current time is " + Instant.now().toString();
             messages.add(textMessage);
-            MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+            MessageResponse response = messenger.publish("kafka_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
                     "pubsub_text", textMessage));
             assertNotNull(response);
         }
         try {
-            Thread.sleep(2000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertEquals(30, getSubscriberResponses().size());
+        var subscriberResponses = getSubscriberResponses();
+        assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
         log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
     @Order(2)
-    public void publishThreads() throws Exception {
+    public void publishSubscribeThreads() throws Exception {
         List<String> messages = new ArrayList<>();
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -98,7 +101,7 @@ public class TestPublishSubscribe {
                     for (int j = 0; j < 10; j++) {
                         String textMessage = "Current time is " + Instant.now().toString();
                         messages.add(textMessage);
-                        MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                        MessageResponse response = messenger.publish("kafka_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
                                 "pubsub_text", textMessage));
                         assertNotNull(response);
                     }
@@ -113,10 +116,12 @@ public class TestPublishSubscribe {
             thread.join();
         }
         try {
-            Thread.sleep(2000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertEquals(150, getSubscriberResponses().size());
+        var subscriberResponses = getSubscriberResponses();
+        assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
         log.info(StatisticsCollector.getInstance().toString());
     }
 
@@ -130,7 +135,7 @@ public class TestPublishSubscribe {
                 try {
                     String textMessage = "Current time is " + Instant.now().toString();
                     messages.add(textMessage);
-                    MessageResponse response = messenger.publish("activemq_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                    MessageResponse response = messenger.publish("kafka_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
                             "pubsub_text", textMessage));
                     assertNotNull(response);
                     return response;
@@ -141,10 +146,12 @@ public class TestPublishSubscribe {
         }
         futureList.forEach(CompletableFuture::join);
         try {
-            Thread.sleep(2000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
         }
-        assertEquals(60, getSubscriberResponses().size());
+        var subscriberResponses = getSubscriberResponses();
+        assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
         log.info(StatisticsCollector.getInstance().toString());
     }
 }
