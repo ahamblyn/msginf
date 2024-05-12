@@ -5,7 +5,6 @@ import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePr
 import nz.co.pukekocorp.msginf.infrastructure.util.Util;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 
 public class MessageSubscriber implements MessageListener {
     private TopicConnectionFactory topicConnectionFactory;
@@ -20,7 +19,7 @@ public class MessageSubscriber implements MessageListener {
             topicConnectionFactory = (TopicConnectionFactory) context.lookup(topicConnectionFactoryName);
             topic = (Topic) context.lookup(topicName);
             this.useDurableSubscriber = useDurableSubscriber;
-        } catch (NamingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }

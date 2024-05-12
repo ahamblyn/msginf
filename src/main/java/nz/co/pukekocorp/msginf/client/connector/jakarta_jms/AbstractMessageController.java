@@ -86,7 +86,7 @@ public abstract class AbstractMessageController {
         Instant start = Instant.now();
         try {
             // create a consumer based on the request queue
-            MessageConsumer messageConsumer = destinationChannel.getSession().createConsumer(getDestination());
+            MessageConsumer messageConsumer = destinationChannel.createConsumer(getDestination());
             while (true) {
                 MessageResponse messageResponse = new MessageResponse();
                 Message m = messageConsumer.receive(timeout);
@@ -111,7 +111,7 @@ public abstract class AbstractMessageController {
         } catch (JMSException e) {
             // increment failed message count
             collector.incrementFailedMessageCount(connector);
-            throw new DestinationUnavailableException(e);
+            throw new DestinationUnavailableException(String.format("%s destination is unavailable", getDestination().toString()), e);
         }
         return messages;
     }
@@ -134,11 +134,11 @@ public abstract class AbstractMessageController {
     }
 
     protected BytesMessage createBytesMessage() throws JMSException {
-        return destinationChannel.getSession().createBytesMessage();
+        return destinationChannel.createBytesMessage();
     }
 
     protected TextMessage createTextMessage() throws JMSException {
-        return destinationChannel.getSession().createTextMessage();
+        return destinationChannel.createTextMessage();
     }
 
     /**

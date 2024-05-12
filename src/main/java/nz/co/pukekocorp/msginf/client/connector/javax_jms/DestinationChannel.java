@@ -64,6 +64,34 @@ public class DestinationChannel {
     }
 
     /**
+     * Create a message consumer for the destination.
+     * @param destination the destination.
+     * @return the message consumer.
+     * @throws JMSException the JMS exception.
+     */
+    public MessageConsumer createConsumer(Destination destination) throws JMSException {
+        return this.session.createConsumer(destination);
+    }
+
+    /**
+     * Create a bytes message.
+     * @return the bytes message.
+     * @throws JMSException the JMS exception.
+     */
+    public BytesMessage createBytesMessage() throws JMSException {
+        return this.session.createBytesMessage();
+    }
+
+    /**
+     * Create a text message.
+     * @return the text message.
+     * @throws JMSException the JMS exception.
+     */
+    public TextMessage createTextMessage() throws JMSException {
+        return this.session.createTextMessage();
+    }
+
+    /**
      * Closes the JMS queue session and connections.
      */
     public void close() {
@@ -76,14 +104,6 @@ public class DestinationChannel {
         } catch (JMSException jmse) {
             // swallow this
         }
-    }
-
-    /**
-     * Gets the JMS session.
-     * @return the JMS session.
-     */
-    public Session getSession() {
-        return this.session;
     }
 
 }

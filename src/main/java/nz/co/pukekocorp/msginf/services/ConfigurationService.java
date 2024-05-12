@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.configuration.Configuration;
 import nz.co.pukekocorp.msginf.models.configuration.System;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,6 +16,9 @@ import java.util.Optional;
 @Slf4j
 public class ConfigurationService implements IConfigurationService {
 
+    @Autowired
+    private MessageInfrastructurePropertiesFileParser propertiesFileParser;
+
     /**
      * Returns the configuration for all the messaging systems
      * @return the configuration for all the messaging systems
@@ -22,8 +26,7 @@ public class ConfigurationService implements IConfigurationService {
     @Override
     public Optional<Configuration> allConfiguration() {
         try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            return Optional.ofNullable(parser.getConfiguration());
+            return Optional.ofNullable(propertiesFileParser.getConfiguration());
         } catch (Exception e) {
             log.error("Unable to retrieve the configuration", e);
         }
@@ -38,8 +41,7 @@ public class ConfigurationService implements IConfigurationService {
     @Override
     public Optional<System> getSystem(String name) {
         try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            return parser.getSystem(name);
+            return propertiesFileParser.getSystem(name);
         } catch (Exception e) {
             log.error("Unable to retrieve the configuration", e);
         }

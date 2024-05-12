@@ -1,6 +1,7 @@
 package nz.co.pukekocorp.msginf.client.adapter;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
@@ -22,8 +23,9 @@ public class QueueManager extends DestinationManager {
 	 * @param parser the messaging infrastructure file parser
 	 * @param messagingSystem messaging system
 	 * @param jndiUrl the JNDI url
+	 * @throws ConfigurationException the configuration exception
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) throws ConfigurationException {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
 		initialiseJMSContext(parser, jndiUrl);

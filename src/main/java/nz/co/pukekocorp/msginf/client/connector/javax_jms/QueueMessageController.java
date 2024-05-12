@@ -153,7 +153,7 @@ public class QueueMessageController extends AbstractMessageController {
     } catch (JMSException | MessageException e) {
     	// increment failed message count
 		collector.incrementFailedMessageCount(connector);
-        throw new DestinationUnavailableException(e);
+		throw new DestinationUnavailableException(String.format("%s destination is unavailable", getDestination().toString()), e);
     }
    }
 

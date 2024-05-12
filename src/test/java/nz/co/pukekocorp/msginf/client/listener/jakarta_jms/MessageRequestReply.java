@@ -1,7 +1,6 @@
 package nz.co.pukekocorp.msginf.client.listener.jakarta_jms;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 
 import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,7 @@ public class MessageRequestReply implements MessageListener {
          	queueConnectionFactory = (QueueConnectionFactory) context.lookup(queueConnectionFactoryName);
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
-		} catch (NamingException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			System.exit(1);
 		}
@@ -77,6 +76,7 @@ public class MessageRequestReply implements MessageListener {
 		try {
 			queueConnection.stop();
 			queueConnection.close();
+			System.out.println("MessageRequestReply stopped...");
 		} catch (JMSException jmse) {
 			log.error(jmse.getMessage(), jmse);
 		}

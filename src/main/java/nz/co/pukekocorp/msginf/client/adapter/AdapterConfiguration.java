@@ -17,24 +17,26 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class AdapterConfiguration {
 
+    private MessageInfrastructurePropertiesFileParser propertiesFileParser;
+
     @Bean
     public Map<String, QueueManager> queueManagers(@Value("#{${jndi.url.map}}") Map<String, String> jndiUrlMap) {
         Map<String, QueueManager> queueManagerMap = new ConcurrentHashMap<>();
         try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            parser.getAvailableMessagingSystems(MessagingModel.POINT_TO_POINT).forEach(messagingSystem -> {
+            propertiesFileParser = propertiesFileParser();
+            propertiesFileParser.getAvailableMessagingSystems(MessagingModel.POINT_TO_POINT).forEach(messagingSystem -> {
                 try {
                     String jndiUrl = Optional.ofNullable(jndiUrlMap.get(messagingSystem))
                             .orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the jndi.url.map property in the application.properties file."));
-                    queueManagerMap.put(messagingSystem, new QueueManager(parser, messagingSystem, jndiUrl));
+                    queueManagerMap.put(messagingSystem, new QueueManager(propertiesFileParser, messagingSystem, jndiUrl));
                 } catch (ConfigurationException e) {
                     log.error("QueueManager unable to be created for " + messagingSystem, e);
                     throw new RuntimeException(e);
                 }
             });
-        } catch (PropertiesFileException e) {
+        } catch (RuntimeException e) {
             log.error("QueueManagers bean unable to be created", e);
-            throw new RuntimeException(e);
+            throw e;
         }
         return queueManagerMap;
     }
@@ -43,21 +45,34 @@ public class AdapterConfiguration {
     public Map<String, TopicManager> topicManagers(@Value("#{${jndi.url.map}}") Map<String, String> jndiUrlMap) {
         Map<String, TopicManager> topicManagerMap = new ConcurrentHashMap<>();
         try {
-            MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-            parser.getAvailableMessagingSystems(MessagingModel.PUBLISH_SUBSCRIBE).forEach(messagingSystem -> {
+            propertiesFileParser = propertiesFileParser();
+            propertiesFileParser.getAvailableMessagingSystems(MessagingModel.PUBLISH_SUBSCRIBE).forEach(messagingSystem -> {
                 try {
                     String jndiUrl = Optional.ofNullable(jndiUrlMap.get(messagingSystem))
                             .orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the jndi.url.map property in the application.properties file."));
-                    topicManagerMap.put(messagingSystem, new TopicManager(parser, messagingSystem, jndiUrl));
+                    topicManagerMap.put(messagingSystem, new TopicManager(propertiesFileParser, messagingSystem, jndiUrl));
                 } catch (ConfigurationException e) {
                     log.error("TopicManager unable to be created for " + messagingSystem, e);
                     throw new RuntimeException(e);
                 }
             });
-        } catch (PropertiesFileException e) {
+        } catch (RuntimeException e) {
             log.error("TopicManagers bean unable to be created", e);
-            throw new RuntimeException(e);
+            throw e;
         }
         return topicManagerMap;
+    }
+
+    @Bean
+    public MessageInfrastructurePropertiesFileParser propertiesFileParser() {
+        try {
+            if (propertiesFileParser == null) {
+                propertiesFileParser = new MessageInfrastructurePropertiesFileParser();
+            }
+        } catch (PropertiesFileException e) {
+            log.error("Unable to create the MessageInfrastructurePropertiesFileParser", e);
+            throw new RuntimeException(e);
+        }
+        return propertiesFileParser;
     }
 }

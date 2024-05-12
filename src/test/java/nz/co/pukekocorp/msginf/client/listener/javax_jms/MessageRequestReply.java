@@ -8,7 +8,6 @@ import nz.co.pukekocorp.msginf.infrastructure.util.Util;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import java.util.Optional;
 
 /**
@@ -31,7 +30,7 @@ public class MessageRequestReply implements MessageListener {
          	queueConnectionFactory = (QueueConnectionFactory) context.lookup(queueConnectionFactoryName);
          	requestQueue = (Queue) context.lookup(requestQueueName);
          	replyQueue = (Queue) context.lookup(replyQueueName);
-		} catch (NamingException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			System.exit(1);
 		}
@@ -76,6 +75,7 @@ public class MessageRequestReply implements MessageListener {
 		try {
 			queueConnection.stop();
 			queueConnection.close();
+			System.out.println("MessageRequestReply stopped...");
 		} catch (JMSException jmse) {
 			log.error(jmse.getMessage(), jmse);
 		}

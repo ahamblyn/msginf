@@ -24,6 +24,9 @@ public class MessageService implements IMessageService {
 
     private final Messenger messenger;
 
+    @Autowired
+    private MessageInfrastructurePropertiesFileParser propertiesFileParser;
+
     /**
      * Constructor
      * @param messenger messenger
@@ -153,8 +156,7 @@ public class MessageService implements IMessageService {
      * @throws MessageException if the service method and messaging model are not valid.
      */
     private void validateMessagingModel(String serviceMethod, String messagingSystem) throws MessageException {
-        MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
-        MessagingModel messagingModel = parser.getMessagingModel(messagingSystem);
+        MessagingModel messagingModel = propertiesFileParser.getMessagingModel(messagingSystem);
         if (messagingModel == MessagingModel.POINT_TO_POINT) {
             if (serviceMethod.equals("publish")) {
                 throw new MessageException("Point-to-point messages cannot use the publish method.");

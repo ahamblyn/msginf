@@ -14,6 +14,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.infrastructure.properties.PropertiesDestination;
@@ -79,8 +80,9 @@ public class Util {
 	 * @param messagingSystem the messaging system.
 	 * @param jndiUrl the url to connect to the messaging system.
 	 * @return the context.
+	 * @throws ConfigurationException the configuration exception
 	 */
-	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) {
+	public static Context createContext(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) throws ConfigurationException {
 		InitialContext jmsCtx = null;
 		String initialContextFactory = parser.getSystemInitialContextFactory(messagingSystem);
 		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
@@ -91,7 +93,8 @@ public class Util {
 			try {
 				jndiUrl = resource.getURL().toString();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				log.error("Unable to get resource url", e);
+				throw new ConfigurationException("Unable to get resource url", e);
 			}
 		}
 		log.info(messagingSystem + " System URL: " + jndiUrl);
@@ -137,8 +140,9 @@ public class Util {
 				}
 				jmsCtx = new InitialContext(props);
 			}
-		} catch (NamingException ne) {
-			log.error("Cannot initialise " + messagingSystem, ne);
+		} catch (NamingException e) {
+			log.error("Cannot initialise " + messagingSystem, e);
+			throw new ConfigurationException("Cannot initialise " + messagingSystem, e);
 		}
 		return jmsCtx;
 	}

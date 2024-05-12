@@ -113,7 +113,7 @@ public abstract class DestinationManager {
         return result;
     }
 
-    protected void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) {
+    protected void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) throws ConfigurationException{
         this.jndiContext = Util.createContext(parser, messagingSystem, jndiUrl);
         log.info("JNDI context created for " + messagingSystem + " messaging system");
     }
