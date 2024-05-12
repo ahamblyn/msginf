@@ -81,7 +81,7 @@ public class TopicMessageController extends AbstractMessageController {
 		((TopicPublisher)messageProducer).publish(jmsMessage);
 		collateStats(connector, start);
         return messageResponse;
-    } catch (JMSException e) {
+    } catch (Exception e) {
     	// increment failed message count
 		collector.incrementFailedMessageCount(connector);
 		throw new DestinationUnavailableException(String.format("%s destination is unavailable", getDestination().toString()), e);

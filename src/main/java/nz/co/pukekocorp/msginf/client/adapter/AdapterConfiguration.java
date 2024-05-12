@@ -35,7 +35,6 @@ public class AdapterConfiguration {
                 }
             });
         } catch (RuntimeException e) {
-            log.error("QueueManagers bean unable to be created", e);
             throw e;
         }
         return queueManagerMap;
@@ -57,7 +56,6 @@ public class AdapterConfiguration {
                 }
             });
         } catch (RuntimeException e) {
-            log.error("TopicManagers bean unable to be created", e);
             throw e;
         }
         return topicManagerMap;

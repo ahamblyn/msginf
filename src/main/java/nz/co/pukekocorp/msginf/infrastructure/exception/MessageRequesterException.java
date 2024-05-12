@@ -23,4 +23,13 @@ public class MessageRequesterException extends MessageException {
     public MessageRequesterException(Exception e) {
     	super(e);
     }
+
+    /**
+     * Constructs a MessageRequesterException object.
+     * @param message the exception message.
+     * @param e the exception caught.
+     */
+    public MessageRequesterException(String message, Exception e) {
+        super(message, e);
+    }
 }

@@ -62,8 +62,8 @@ public class ConsumerMessageRequester {
 				throw new MessageRequesterException(e);
 			}
 			return replyMsg;
-		} catch (JMSException | InterruptedException e) {
-			throw new MessageRequesterException(e);
+		} catch (Exception e) {
+			throw new MessageRequesterException("Exception handling the request-reply", e);
 		}
 	}
 

@@ -69,7 +69,7 @@ public class MessageInfrastructurePropertiesFileParser {
             try {
                 return Optional.ofNullable(objectMapper.writeValueAsString(config));
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                return Optional.empty();
             }
         });
         return s.orElse("");
