@@ -1,12 +1,11 @@
-package nz.co.pukekocorp.msginf.client.connector.jakarta_jms;
+package nz.co.pukekocorp.msginf.client.connector;
 
-import jakarta.jms.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
+import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -20,19 +19,9 @@ import java.time.Instant;
 @Slf4j
 public class TopicMessageController extends AbstractMessageController {
 
-   /**
-    * The application JMS topic.
-    */
-   private final Topic topic;
-
-   /**
-    * The topic connection factory name.
-    */
+   private javax.jms.Topic javaxTopic;
+   private jakarta.jms.Topic jakartaTopic;
    private final String topicConnFactoryName;
-
-   /**
-    * The application topic name.
-    */
    private final String topicName;
 
     /**
@@ -45,8 +34,8 @@ public class TopicMessageController extends AbstractMessageController {
      */
 	public TopicMessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
                                   Context jndiContext) throws MessageException {
-	  this.connector = connector;
-	  this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
+	    this.connector = connector;
+		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
 		if (parser.doesPublishSubscribeExist(messagingSystem, connector)) {
 			this.topicName = parser.getPublishSubscribeConnectionPublishSubscribeTopicName(messagingSystem, connector);
 			this.topicConnFactoryName = parser.getPublishSubscribeConnectionPublishSubscribeTopicConnFactoryName(messagingSystem, connector);
@@ -58,10 +47,14 @@ public class TopicMessageController extends AbstractMessageController {
 		}
 
       try {
-         topic = (Topic) jndiContext.lookup(this.topicName);
-		  log.info("Use connection pooling: " + useConnectionPooling);
+		  if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
+			  javaxTopic = (javax.jms.Topic) jndiContext.lookup(this.topicName);
+		  }
+		  if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
+			  jakartaTopic = (jakarta.jms.Topic) jndiContext.lookup(this.topicName);
+		  }
 		  setupJMSObjects(parser, messagingSystem, jndiContext);
-      } catch (JMSException | NamingException e) {
+      } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
           throw new MessageControllerException(e);
       }
 	}
@@ -77,22 +70,44 @@ public class TopicMessageController extends AbstractMessageController {
 	MessageResponse messageResponse = new MessageResponse();
     messageResponse.setMessageRequest(messageRequest);
     try {
-        Message jmsMessage = createMessage(messageRequest).orElseThrow(() -> {
-			throw new RuntimeException("Unable to create JMS message.");
-		});
-		setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
-		((TopicPublisher)messageProducer).publish(jmsMessage);
-		collateStats(connector, start);
-        return messageResponse;
+		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
+			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest).orElseThrow(() -> {
+				throw new RuntimeException("Unable to create JMS message.");
+			});
+			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
+			((javax.jms.TopicPublisher)javaxMessageProducer).publish(jmsMessage);
+			collateStats(connector, start);
+			return messageResponse;
+		}
+		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
+			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest).orElseThrow(() -> {
+				throw new RuntimeException("Unable to create JMS message.");
+			});
+			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
+			((jakarta.jms.TopicPublisher)jakartaMessageProducer).publish(jmsMessage);
+			collateStats(connector, start);
+			return messageResponse;
+		}
     } catch (Exception e) {
     	// increment failed message count
 		collector.incrementFailedMessageCount(connector);
-		throw new DestinationUnavailableException(String.format("%s destination is unavailable", getDestination().toString()), e);
+		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
+			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
+		}
+		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
+			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJakartaDestination().toString()), e);
+		}
     }
+	// TODO fix
+	   return null;
    }
 
-	public Destination getDestination() {
-		return topic;
+	public javax.jms.Destination getJavaxDestination() {
+		return javaxTopic;
+	}
+
+	public jakarta.jms.Destination getJakartaDestination() {
+		return jakartaTopic;
 	}
 
 	/**
@@ -101,11 +116,18 @@ public class TopicMessageController extends AbstractMessageController {
 	 * @param messagingSystem the messaging system
 	 * @param jndiContext the JNDI context
 	 * @throws MessageException Message exception
-	 * @throws JMSException JMS exception
+	 * @throws javax.jms.JMSException JMS exception
+	 * @throws jakarta.jms.JMSException JMS exception
 	 */
-    public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, JMSException {
+    public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext)
+			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
-		messageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.topic);
+		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
+			javaxMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.javaxTopic);
+		}
+		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
+			jakartaMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.jakartaTopic);
+		}
 	}
 
 	/**
@@ -118,23 +140,27 @@ public class TopicMessageController extends AbstractMessageController {
 	 */
 	public DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
-			TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) jndiContext.lookup(topicConnFactoryName);
-			TopicConnection topicConnection;
-			if (useConnectionPooling) {
-				int maxConnections = parser.getMaxConnections(messagingSystem);
-				var jmsPoolConnectionFactory = new JmsPoolConnectionFactory();
-				jmsPoolConnectionFactory.setConnectionFactory(topicConnectionFactory);
-				jmsPoolConnectionFactory.setMaxConnections(maxConnections);
-				topicConnection = jmsPoolConnectionFactory.createTopicConnection();
-			} else {
+			if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
+				javax.jms.TopicConnectionFactory topicConnectionFactory = (javax.jms.TopicConnectionFactory) jndiContext.lookup(topicConnFactoryName);
+				javax.jms.TopicConnection topicConnection;
 				topicConnection = topicConnectionFactory.createTopicConnection();
+				topicConnection.start();
+				javax.jms.Session session = topicConnection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+				return new TopicChannel(topicConnection, session, parser.getUseDurableSubscriber(messagingSystem));
 			}
-			topicConnection.start();
-			Session session = topicConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			return new TopicChannel(topicConnection, session, parser.getUseDurableSubscriber(messagingSystem));
-		} catch (JMSException | NamingException e) {
+			if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
+				jakarta.jms.TopicConnectionFactory topicConnectionFactory = (jakarta.jms.TopicConnectionFactory) jndiContext.lookup(topicConnFactoryName);
+				jakarta.jms.TopicConnection topicConnection;
+				topicConnection = topicConnectionFactory.createTopicConnection();
+				topicConnection.start();
+				jakarta.jms.Session session = topicConnection.createSession(false, jakarta.jms.Session.AUTO_ACKNOWLEDGE);
+				return new TopicChannel(topicConnection, session, parser.getUseDurableSubscriber(messagingSystem));
+			}
+		} catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
 			throw new DestinationChannelException("Unable to lookup the topic connection factory: " + topicConnFactoryName, e);
 		}
+		// TODO fix
+		return null;
 	}
 
 	public TopicChannel getTopicChannel() {
@@ -155,11 +181,14 @@ public class TopicMessageController extends AbstractMessageController {
     public void release() {
     	log.debug("Release the message controller.");
         try {
-        	if (messageProducer != null) {
-				messageProducer.close();
+        	if (javaxMessageProducer != null) {
+				javaxMessageProducer.close();
         	}
+			if (jakartaMessageProducer != null) {
+				jakartaMessageProducer.close();
+			}
 			destinationChannel.close();
-        } catch (JMSException e) {
+        } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
         	log.error(e.getMessage(), e);
         }
     }

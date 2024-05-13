@@ -1,5 +1,7 @@
 package nz.co.pukekocorp.msginf.client.listener;
 
+import nz.co.pukekocorp.msginf.client.connector.TopicMessageController;
+import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,16 +14,17 @@ public class TestSubscriber implements javax.jms.MessageListener, jakarta.jms.Me
     private jakarta.jms.TopicSubscriber jakartaTopicSubscriber;
     private static final Logger log = LoggerFactory.getLogger(TestSubscriber.class);
 
-    public TestSubscriber(nz.co.pukekocorp.msginf.client.connector.javax_jms.TopicMessageController topicMessageController) throws javax.jms.JMSException {
-        javaxTopicSubscriber = topicMessageController.getTopicChannel()
-                .createTopicSubscriber((javax.jms.Topic)topicMessageController.getDestination(), "test");
-        javaxTopicSubscriber.setMessageListener(this);
-    }
-
-    public TestSubscriber(nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageController topicMessageController) throws jakarta.jms.JMSException {
-        jakartaTopicSubscriber = topicMessageController.getTopicChannel()
-                .createTopicSubscriber((jakarta.jms.Topic)topicMessageController.getDestination(), "test");
-        jakartaTopicSubscriber.setMessageListener(this);
+    public TestSubscriber(TopicMessageController topicMessageController) throws javax.jms.JMSException, jakarta.jms.JMSException {
+        if (topicMessageController.getJmsImplementation() == JmsImplementation.JAVAX_JMS) {
+            javaxTopicSubscriber = topicMessageController.getTopicChannel()
+                    .createTopicSubscriber((javax.jms.Topic)topicMessageController.getJavaxDestination(), "test");
+            javaxTopicSubscriber.setMessageListener(this);
+        }
+        if (topicMessageController.getJmsImplementation() == JmsImplementation.JAKARTA_JMS) {
+            jakartaTopicSubscriber = topicMessageController.getTopicChannel()
+                    .createTopicSubscriber((jakarta.jms.Topic)topicMessageController.getJakartaDestination(), "test");
+            jakartaTopicSubscriber.setMessageListener(this);
+        }
     }
 
     public List<String> getResponses() {
