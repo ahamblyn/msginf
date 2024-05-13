@@ -3,7 +3,7 @@ package nz.co.pukekocorp.msginf.client.adapter.activemq;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.adapter.QueueManager;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.client.listener.jakarta_jms.MessageRequestReply;
+import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -27,10 +27,10 @@ public class TestMsgInfDirectly {
 		try {
 			MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
 			messageRequestReply = new MessageRequestReply(parser, "activemq",
-					"QueueConnectionFactory", "RequestQueue",
-					"ReplyQueue", "tcp://localhost:61616");
+					"tcp://localhost:61616", "jakarta-jms");
 			queueManager = new QueueManager(parser, "activemq", "tcp://localhost:61616");
-			messageRequestReply.run();
+			messageRequestReply.run("QueueConnectionFactory", "RequestQueue",
+					"ReplyQueue");
 		} catch (MessageException e) {
 			log.error("Unable to setup TestMsgInfDirectly test", e);
 		}

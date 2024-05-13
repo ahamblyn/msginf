@@ -6,7 +6,7 @@ import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
 import nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageController;
-import nz.co.pukekocorp.msginf.client.listener.jakarta_jms.TestSubscriber;
+import nz.co.pukekocorp.msginf.client.listener.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
@@ -53,13 +53,7 @@ public class TestPublishSubscribeText {
     @AfterEach
     public void tearDown() {
         testSubscribers.forEach(TestSubscriber::clearResponses);
-        testSubscribers.forEach(testSubscriber -> {
-            try {
-                testSubscriber.getTopicSubscriber().close();
-            } catch (JMSException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        testSubscribers.forEach(TestSubscriber::close);
         testSubscribers.clear();
     }
 
