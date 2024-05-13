@@ -24,4 +24,14 @@ public class DestinationUnavailableException extends MessageException {
    public DestinationUnavailableException(Exception e) {
       super(e);
    }
+
+   /**
+    * Constructs a DestinationUnavailableException object.
+    * @param message the exception message.
+    * @param e the exception caught.
+    */
+   public DestinationUnavailableException(String message, Exception e) {
+      super(message, e);
+   }
+
 }

@@ -1,11 +1,11 @@
 package nz.co.pukekocorp.msginf.client.adapter;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.client.connector.AbstractMessageController;
 import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.infrastructure.util.Util;
-import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
@@ -23,29 +23,9 @@ import java.util.zip.Deflater;
 @Slf4j
 public abstract class DestinationManager {
 
-    /**
-     * The javax message controllers.
-     */
-    protected ConcurrentMap<String, nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController> javaxMessageControllers = new ConcurrentHashMap<>();
-
-    /**
-     * The jakarta message controllers.
-     */
-    protected ConcurrentMap<String, nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController> jakartaMessageControllers = new ConcurrentHashMap<>();
-
-    /**
-     * The JNDI context.
-     */
+    protected ConcurrentMap<String, AbstractMessageController> messageControllers = new ConcurrentHashMap<>();
     protected Context jndiContext;
-
-    /**
-     * The properties file parser.
-     */
     protected MessageInfrastructurePropertiesFileParser parser;
-
-    /**
-     * The Messaging System.
-     */
     protected String messagingSystem;
 
     /**
@@ -68,14 +48,8 @@ public abstract class DestinationManager {
     }
 
     private MessageResponse sendTextMessage(MessageRequest messageRequest) throws MessageException {
-        JmsImplementation jmsImplementation = parser.getJmsImplementation(messagingSystem);
-        if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-            nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController mc = getJavaxMessageConnector(messageRequest.getConnectorName());
-            return mc.sendMessage(messageRequest);
-        } else {
-            nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController mc = getJakartaMessageConnector(messageRequest.getConnectorName());
-            return mc.sendMessage(messageRequest);
-        }
+        AbstractMessageController mc = getMessageController(messageRequest.getConnectorName());
+        return mc.sendMessage(messageRequest);
     }
 
     private MessageResponse sendBinaryMessage(MessageRequest messageRequest) throws MessageException {
@@ -90,14 +64,8 @@ public abstract class DestinationManager {
             if (compressBinaryMessages) {
                 messageRequest.setBinaryMessage(Util.compress(messageRequest.getBinaryMessage(), Deflater.BEST_COMPRESSION));
             }
-            JmsImplementation jmsImplementation = parser.getJmsImplementation(messagingSystem);
-            if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-                nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController mc = getJavaxMessageConnector(messageRequest.getConnectorName());
-                result = mc.sendMessage(messageRequest);
-            } else {
-                nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController mc = getJakartaMessageConnector(messageRequest.getConnectorName());
-                result = mc.sendMessage(messageRequest);
-            }
+            AbstractMessageController mc = getMessageController(messageRequest.getConnectorName());
+            result = mc.sendMessage(messageRequest);
             if (compressBinaryMessages && result.getMessageType() == MessageType.BINARY) {
                 // decompress request and result binary messages
                 try {
@@ -113,34 +81,24 @@ public abstract class DestinationManager {
         return result;
     }
 
-    protected void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) {
+    protected void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) throws ConfigurationException{
         this.jndiContext = Util.createContext(parser, messagingSystem, jndiUrl);
         log.info("JNDI context created for " + messagingSystem + " messaging system");
     }
 
     /**
-     * Get the javax message connector
+     * Get the message controller for the connector
      * @param connector the connector name
      * @return the message connector
      * @throws MessageException
      */
-    public abstract nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController getJavaxMessageConnector(String connector) throws MessageException;
-
-    /**
-     * Get the jakarta message connector
-     * @param connector the connector name
-     * @return the message connector
-     * @throws MessageException
-     */
-    public abstract nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController getJakartaMessageConnector(String connector) throws MessageException;
+    public abstract AbstractMessageController getMessageController(String connector) throws MessageException;
 
     /**
      * Close the resources.
      */
     public synchronized void close() {
-        javaxMessageControllers.values().forEach(nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController::release);
-        javaxMessageControllers.clear();
-        jakartaMessageControllers.values().forEach(nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController::release);
-        jakartaMessageControllers.clear();
+        messageControllers.values().forEach(nz.co.pukekocorp.msginf.client.connector.AbstractMessageController::release);
+        messageControllers.clear();
     }
 }

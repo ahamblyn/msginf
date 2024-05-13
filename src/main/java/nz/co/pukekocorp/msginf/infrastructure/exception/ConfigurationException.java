@@ -23,4 +23,14 @@ public class ConfigurationException extends MessageException {
     public ConfigurationException(Exception e) {
     	super(e);
     }
+
+    /**
+     * Constructs a ConfigurationException object.
+     * @param message the exception message.
+     * @param e the exception caught.
+     */
+    public ConfigurationException(String message, Exception e) {
+        super(message, e);
+    }
+
 }

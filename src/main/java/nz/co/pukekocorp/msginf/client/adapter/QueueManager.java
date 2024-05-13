@@ -1,9 +1,11 @@
 package nz.co.pukekocorp.msginf.client.adapter;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.client.connector.AbstractMessageController;
+import nz.co.pukekocorp.msginf.client.connector.QueueMessageController;
+import nz.co.pukekocorp.msginf.infrastructure.exception.ConfigurationException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
 import java.util.List;
@@ -22,41 +24,25 @@ public class QueueManager extends DestinationManager {
 	 * @param parser the messaging infrastructure file parser
 	 * @param messagingSystem messaging system
 	 * @param jndiUrl the JNDI url
+	 * @throws ConfigurationException the configuration exception
 	 */
-	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) {
+	public QueueManager(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String jndiUrl) throws ConfigurationException {
 		this.parser = parser;
 		this.messagingSystem = messagingSystem;
 		initialiseJMSContext(parser, jndiUrl);
 	}
 
 	/**
-	 * Get the javax message connector
+	 * Get the message controller for the connector
 	 * @param connector the connector name
 	 * @return the message connector
 	 * @throws MessageException
 	 */
-	public nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController getJavaxMessageConnector(String connector) throws MessageException {
-		nz.co.pukekocorp.msginf.client.connector.javax_jms.QueueMessageController mc =
-				(nz.co.pukekocorp.msginf.client.connector.javax_jms.QueueMessageController) javaxMessageControllers.get(connector);
+	public AbstractMessageController getMessageController(String connector) throws MessageException {
+		QueueMessageController mc = (QueueMessageController) messageControllers.get(connector);
 		if (mc == null) {
-			mc = new nz.co.pukekocorp.msginf.client.connector.javax_jms.QueueMessageController(parser, messagingSystem, connector, jndiContext);
-			javaxMessageControllers.put(connector, mc);
-		}
-		return mc;
-	}
-
-	/**
-	 * Get the jakarta message connector
-	 * @param connector the connector name
-	 * @return the message connector
-	 * @throws MessageException
-	 */
-	public nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController getJakartaMessageConnector(String connector) throws MessageException {
-		nz.co.pukekocorp.msginf.client.connector.jakarta_jms.QueueMessageController mc =
-				(nz.co.pukekocorp.msginf.client.connector.jakarta_jms.QueueMessageController) jakartaMessageControllers.get(connector);
-		if (mc == null) {
-			mc = new nz.co.pukekocorp.msginf.client.connector.jakarta_jms.QueueMessageController(parser, messagingSystem, connector, jndiContext);
-			jakartaMessageControllers.put(connector, mc);
+			mc = new QueueMessageController(parser, messagingSystem, connector, jndiContext);
+			messageControllers.put(connector, mc);
 		}
 		return mc;
 	}
@@ -69,14 +55,8 @@ public class QueueManager extends DestinationManager {
 	 * @throws MessageException if an error occurs receiving the message.
 	 */
 	public synchronized List<MessageResponse> receiveMessages(String connector, long timeout) throws MessageException {
-		JmsImplementation jmsImplementation = parser.getJmsImplementation(messagingSystem);
-		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			nz.co.pukekocorp.msginf.client.connector.javax_jms.AbstractMessageController mc = getJavaxMessageConnector(connector);
-			return mc.receiveMessages(timeout);
-		} else {
-			nz.co.pukekocorp.msginf.client.connector.jakarta_jms.AbstractMessageController mc = getJakartaMessageConnector(connector);
-			return mc.receiveMessages(timeout);
-		}
+		AbstractMessageController mc = getMessageController(connector);
+		return mc.receiveMessages(timeout);
 	}
 
 	/**

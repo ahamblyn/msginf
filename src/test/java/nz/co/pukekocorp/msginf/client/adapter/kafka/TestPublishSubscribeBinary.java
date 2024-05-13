@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.client.connector.javax_jms.TopicMessageController;
-import nz.co.pukekocorp.msginf.client.listener.javax_jms.TestSubscriber;
+import nz.co.pukekocorp.msginf.client.connector.TopicMessageController;
+import nz.co.pukekocorp.msginf.client.listener.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import javax.jms.JMSException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,11 +39,11 @@ public class TestPublishSubscribeBinary {
     public void setup() {
         try {
             var topicManagerOpt = messenger.getTopicManager("kafka_pubsub");
-            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJavaxMessageConnector("pubsub_binary");
+            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getMessageController("pubsub_binary");
             for (int i = 0; i < 3; i++) {
                 testSubscribers.add(new TestSubscriber(topicMessageController));
             }
-        } catch (MessageException | JMSException e) {
+        } catch (MessageException | javax.jms.JMSException | jakarta.jms.JMSException e) {
             log.error("Unable to setup test", e);
             throw new RuntimeException(e);
         }
@@ -53,13 +52,7 @@ public class TestPublishSubscribeBinary {
     @AfterEach
     public void teardown() {
         testSubscribers.forEach(TestSubscriber::clearResponses);
-        testSubscribers.forEach(testSubscriber -> {
-            try {
-                testSubscriber.getTopicSubscriber().close();
-            } catch (JMSException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        testSubscribers.forEach(TestSubscriber::close);
         testSubscribers.clear();
     }
 

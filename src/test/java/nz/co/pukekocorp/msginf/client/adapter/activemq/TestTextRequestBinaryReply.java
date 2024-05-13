@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.client.listener.jakarta_jms.MessageRequestReply;
+import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -41,9 +41,9 @@ public class TestTextRequestBinaryReply {
             messageRequestReplyList = new ArrayList<>();
             for (int i = 0; i < 20; i++) {
                 var messageRequestReply = new MessageRequestReply(parser, "activemq",
-                        "QueueConnectionFactory", "RequestQueue",
-                        "ReplyQueue", "tcp://localhost:61616");
-                messageRequestReply.run();
+                        "tcp://localhost:61616", "jakarta-jms");
+                messageRequestReply.run("QueueConnectionFactory", "RequestQueue",
+                        "ReplyQueue");
                 messageRequestReplyList.add(messageRequestReply);
             }
         } catch (MessageException e) {

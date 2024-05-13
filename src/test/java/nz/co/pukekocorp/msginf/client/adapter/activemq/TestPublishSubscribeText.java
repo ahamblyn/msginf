@@ -1,12 +1,11 @@
 package nz.co.pukekocorp.msginf.client.adapter.activemq;
 
-import jakarta.jms.JMSException;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
-import nz.co.pukekocorp.msginf.client.connector.jakarta_jms.TopicMessageController;
-import nz.co.pukekocorp.msginf.client.listener.jakarta_jms.TestSubscriber;
+import nz.co.pukekocorp.msginf.client.connector.TopicMessageController;
+import nz.co.pukekocorp.msginf.client.listener.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
@@ -40,11 +39,11 @@ public class TestPublishSubscribeText {
     public void setUp() {
         try {
             var topicManagerOpt = messenger.getTopicManager("activemq_pubsub");
-            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getJakartaMessageConnector("pubsub_text");
+            var topicMessageController = (TopicMessageController) topicManagerOpt.get().getMessageController("pubsub_text");
             for (int i = 0; i < 3; i++) {
                 testSubscribers.add(new TestSubscriber(topicMessageController));
             }
-        } catch (MessageException | JMSException e) {
+        } catch (MessageException | javax.jms.JMSException | jakarta.jms.JMSException e) {
             log.error("Unable to setup test", e);
             throw new RuntimeException(e);
         }
@@ -53,13 +52,7 @@ public class TestPublishSubscribeText {
     @AfterEach
     public void tearDown() {
         testSubscribers.forEach(TestSubscriber::clearResponses);
-        testSubscribers.forEach(testSubscriber -> {
-            try {
-                testSubscriber.getTopicSubscriber().close();
-            } catch (JMSException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        testSubscribers.forEach(TestSubscriber::close);
         testSubscribers.clear();
     }
 
