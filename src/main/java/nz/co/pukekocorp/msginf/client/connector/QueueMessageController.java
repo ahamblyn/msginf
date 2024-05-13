@@ -12,6 +12,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageType;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * The QueueMessageController puts messages onto the queues defined in the properties file.
@@ -163,8 +164,7 @@ public class QueueMessageController extends AbstractMessageController {
 			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJakartaDestination().toString()), e);
 		}
     }
-	// TODO fix
-	return null;
+	return messageResponse;
    }
 
 	public javax.jms.Destination getJavaxDestination() {
@@ -186,7 +186,9 @@ public class QueueMessageController extends AbstractMessageController {
 	 */
 	public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext)
 			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException {
-		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext);
+		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext).orElseThrow(() -> {
+			throw new RuntimeException("The destination channel cannot be created for " + messagingSystem);
+		});
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
 			javaxMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
 			javaxRequestReplyMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
@@ -223,7 +225,7 @@ public class QueueMessageController extends AbstractMessageController {
 	 * @return the destination channel
 	 * @throws MessageException Message exception
 	 */
-	public DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
+	public Optional<DestinationChannel> makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
 			if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
 				javax.jms.QueueConnectionFactory queueConnectionFactory = (javax.jms.QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
@@ -231,7 +233,8 @@ public class QueueMessageController extends AbstractMessageController {
 				queueConnection = queueConnectionFactory.createQueueConnection();
 				queueConnection.start();
 				javax.jms.Session session = queueConnection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
-				return new DestinationChannel(queueConnection, session);
+				var destinationChannel = new DestinationChannel(queueConnection, session);
+				return Optional.of(destinationChannel);
 			}
 			if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
 				jakarta.jms.QueueConnectionFactory queueConnectionFactory = (jakarta.jms.QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
@@ -239,13 +242,13 @@ public class QueueMessageController extends AbstractMessageController {
 				queueConnection = queueConnectionFactory.createQueueConnection();
 				queueConnection.start();
 				jakarta.jms.Session session = queueConnection.createSession(false, jakarta.jms.Session.AUTO_ACKNOWLEDGE);
-				return new DestinationChannel(queueConnection, session);
+				var destinationChannel = new DestinationChannel(queueConnection, session);
+				return Optional.of(destinationChannel);
 			}
 		} catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
 			throw new DestinationChannelException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
 		}
-		// TODO fix
-		return null;
+		return Optional.empty();
 	}
 
     /**

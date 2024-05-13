@@ -199,7 +199,7 @@ public abstract class AbstractMessageController {
      * @return the destination channel
      * @throws MessageException Message exception
      */
-    public abstract DestinationChannel makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser,
+    public abstract Optional<DestinationChannel> makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser,
                                                                  String messagingSystem, Context jndiContext) throws MessageException;
 
     protected Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest) throws javax.jms.JMSException {
