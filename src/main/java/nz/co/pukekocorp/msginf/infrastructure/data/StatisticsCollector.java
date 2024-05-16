@@ -1,5 +1,10 @@
 package nz.co.pukekocorp.msginf.infrastructure.data;
 
+import nz.co.pukekocorp.msginf.models.statistics.Stats;
+import nz.co.pukekocorp.msginf.models.statistics.SystemStats;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -81,15 +86,24 @@ public class StatisticsCollector {
 	}
 
 	/**
-	 * Gets the statistics for the system and connector.
+	 * Gets the connector statistics for the system and connector.
 	 * @param systemName the system name.
 	 * @param connectorName the connector name.
-	 * @return the statistics
+	 * @return the connector statistics
 	 */
-	public ConnectorStatistics getStatistics(String systemName, String connectorName) {
-		return getSystemStatistics(systemName, connectorName).getStatistics(connectorName);
+	public Optional<ConnectorStatistics> getConnectorStatistics(String systemName, String connectorName) {
+		return Optional.ofNullable(getSystemStatistics(systemName, connectorName).getStatistics(connectorName));
 	}
-	
+
+	/**
+	 * Gets the system statistics for the system.
+	 * @param systemName the system name.
+	 * @return the system statistics
+	 */
+	public Optional<SystemStatistics> getSystemStatistics(String systemName) {
+		return Optional.ofNullable(systemStatisticsTable.get(systemName));
+	}
+
 	/**
 	 * Returns the collected statistics. 
 	 * @return the collected statistics.
@@ -105,5 +119,17 @@ public class StatisticsCollector {
 			sb.append("\n");
 		});
         return sb.toString();
+	}
+
+	/**
+	 * Convert the statistics to a model.
+	 * @return the statistics model.
+	 */
+	public Stats toModel() {
+		List<SystemStats> systemStatsList = new ArrayList<>();
+		systemStatisticsTable.forEach((k, v) -> {
+			systemStatsList.add(v.toModel(k));
+		});
+		return new Stats(systemStatsList);
 	}
 }

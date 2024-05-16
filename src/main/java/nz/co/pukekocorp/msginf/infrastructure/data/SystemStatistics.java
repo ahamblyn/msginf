@@ -1,5 +1,10 @@
 package nz.co.pukekocorp.msginf.infrastructure.data;
 
+import nz.co.pukekocorp.msginf.models.statistics.ConnectorStats;
+import nz.co.pukekocorp.msginf.models.statistics.SystemStats;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -58,6 +63,18 @@ public class SystemStatistics {
         return sb.toString();
     }
 
-
+    /**
+     * Convert the system statistics to a model.
+     * @param messagingSystem the messaging system name.
+     * @return the system statistics model.
+     */
+    public SystemStats toModel(String messagingSystem) {
+        List<ConnectorStats> connectorStatsList = new ArrayList<>();
+        connectorStatisticsTable.forEach((k, v) -> {
+            connectorStatsList.add(v.toModel(k));
+        });
+        SystemStats model = new SystemStats(messagingSystem, connectorStatsList);
+        return model;
+    }
 
 }

@@ -1,6 +1,11 @@
 package nz.co.pukekocorp.msginf.services;
 
 import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
+import nz.co.pukekocorp.msginf.models.statistics.ConnectorStats;
+import nz.co.pukekocorp.msginf.models.statistics.Stats;
+import nz.co.pukekocorp.msginf.models.statistics.SystemStats;
+
+import java.util.Optional;
 
 /**
  * The Statistics Service interface.
@@ -8,22 +13,29 @@ import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
 public interface IStatisticsService {
 
     /**
-     * Returns the statistics for a sytem and connector
+     * Returns the connector statistics for a system and connector
      * @param systemName the name of a system
      * @param connectorName the name of a connector
-     * @return the statistics
+     * @return the connector statistics
      */
-    String getStatistics(String systemName, String connectorName);
+    Optional<ConnectorStats> getStatisticsForConnector(String systemName, String connectorName);
+
+    /**
+     * Returns the system statistics for a system
+     * @param systemName the name of a system
+     * @return the system statistics
+     */
+    Optional<SystemStats> getStatisticsForSystem(String systemName);
 
     /**
      * Returns the statistics for all the messaging systems
      * @return the statistics for all the messaging systems
      */
-    String allStatistics();
+    Optional<Stats> allStatistics();
 
     /**
      * Reset the statistics
      * @return the result of the reset
      */
-    RestMessageResponse resetStatistics();
+    Optional<RestMessageResponse> resetStatistics();
 }

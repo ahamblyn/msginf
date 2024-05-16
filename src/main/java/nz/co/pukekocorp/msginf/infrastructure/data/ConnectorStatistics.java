@@ -1,5 +1,6 @@
 package nz.co.pukekocorp.msginf.infrastructure.data;
 
+import nz.co.pukekocorp.msginf.models.statistics.ConnectorStats;
 import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatistics;
 
 /**
@@ -97,5 +98,17 @@ public class ConnectorStatistics {
 		sb.append("\nMin Message Time (ms):                ").append(getMinMessageTime());
 		sb.append("\nStandard Deviation Message Time (ms): ").append(getStandardDeviationMessageTime());
 		return sb.toString();
+	}
+
+	/**
+	 * Convert the connector statistics to a model.
+	 * @param connectorName the connector name.
+	 * @return the connector statistics model.
+	 */
+	public ConnectorStats toModel(String connectorName) {
+		ConnectorStats model = new ConnectorStats(connectorName, getMessageCount(), getFailedMessageCount(),
+				getAverageMessageTime(), getMedianMessageTime(), getMaxMessageTime(), getMinMessageTime(),
+				getStandardDeviationMessageTime());
+		return model;
 	}
 }

@@ -3,10 +3,15 @@ package nz.co.pukekocorp.msginf.services;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.data.ConnectorStatistics;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
+import nz.co.pukekocorp.msginf.infrastructure.data.SystemStatistics;
 import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
 import nz.co.pukekocorp.msginf.models.message.TransactionStatus;
+import nz.co.pukekocorp.msginf.models.statistics.ConnectorStats;
+import nz.co.pukekocorp.msginf.models.statistics.Stats;
+import nz.co.pukekocorp.msginf.models.statistics.SystemStats;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -17,15 +22,27 @@ import java.util.UUID;
 public class StatisticsService implements IStatisticsService {
 
     /**
-     * Returns the statistics for a sytem and connector
+     * Returns the connector statistics for a system and connector
      * @param systemName the name of a system
      * @param connectorName the name of a connector
-     * @return the statistics
+     * @return the connector statistics
      */
     @Override
-    public String getStatistics(String systemName, String connectorName) {
-        ConnectorStatistics stats = StatisticsCollector.getInstance().getStatistics(systemName, connectorName);
-        return stats.toString();
+    public Optional<ConnectorStats> getStatisticsForConnector(String systemName, String connectorName) {
+        Optional<ConnectorStatistics> stats = StatisticsCollector.getInstance()
+                .getConnectorStatistics(systemName, connectorName);
+        return stats.stream().map(s -> s.toModel(connectorName)).findFirst();
+    }
+
+    /**
+     * Returns the system statistics for a system and connector
+     * @param systemName the name of a system
+     * @return the system statistics
+     */
+    @Override
+    public Optional<SystemStats> getStatisticsForSystem(String systemName) {
+        Optional<SystemStatistics> stats = StatisticsCollector.getInstance().getSystemStatistics(systemName);
+        return stats.stream().map(s -> s.toModel(systemName)).findFirst();
     }
 
     /**
@@ -33,12 +50,8 @@ public class StatisticsService implements IStatisticsService {
      * @return the statistics for all the messaging systems
      */
     @Override
-    public String allStatistics() {
-        String stats = StatisticsCollector.getInstance().toString();
-        if (stats.equals("")) {
-            stats = new ConnectorStatistics().toString();
-        }
-        return stats;
+    public Optional<Stats> allStatistics() {
+        return Optional.of(StatisticsCollector.getInstance().toModel());
     }
 
     /**
@@ -46,9 +59,9 @@ public class StatisticsService implements IStatisticsService {
      * @return the result of the reset
      */
     @Override
-    public RestMessageResponse resetStatistics() {
+    public Optional<RestMessageResponse> resetStatistics() {
         StatisticsCollector.getInstance().resetStatistics();
         String transactionId = UUID.randomUUID().toString();
-        return new RestMessageResponse("Statistics reset successfully", transactionId, TransactionStatus.SUCCESS);
+        return Optional.of(new RestMessageResponse("Statistics reset successfully", transactionId, TransactionStatus.SUCCESS));
     }
 }
