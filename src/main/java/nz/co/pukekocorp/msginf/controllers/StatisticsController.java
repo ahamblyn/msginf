@@ -56,16 +56,18 @@ public class StatisticsController {
     }
 
     /**
-     * Returns the statistics for a connector
-     * @param name the name of a connector
+     * Returns the statistics for a system and connector
+     * @param systemName the name of a system
+     * @param connectorName the name of a connector
      * @return the statistics
      */
     @Operation(
-            summary = "Retrieve the statistics for a connector",
-            description = "Retrieve the statistics for a connector",
+            summary = "Retrieve the statistics for a system and connector",
+            description = "Retrieve the statistics for a system and connector",
             tags = {"statistics"})
-    @GetMapping("/connector/{connectorName}")
-    public String system(@Parameter(description = "The connector name") @PathVariable("connectorName") String name) {
-        return statisticsService.getConnectorStatistics(name);
+    @GetMapping("/system/{systemName}/connector/{connectorName}")
+    public String statistics(@Parameter(description = "The connector name") @PathVariable("connectorName") String connectorName,
+                         @Parameter(description = "The system name") @PathVariable("systemName") String systemName) {
+        return statisticsService.getStatistics(systemName, connectorName);
     }
 }

@@ -8,11 +8,12 @@ import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
 public interface IStatisticsService {
 
     /**
-     * Returns the statistics for a connector
+     * Returns the statistics for a sytem and connector
+     * @param systemName the name of a system
      * @param connectorName the name of a connector
      * @return the statistics
      */
-    String getConnectorStatistics(String connectorName);
+    String getStatistics(String systemName, String connectorName);
 
     /**
      * Returns the statistics for all the messaging systems

@@ -5,92 +5,89 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Singleton class to collect timing statistics. This class will collect timings based on the collection name String passed in.
+ * Singleton class to collect timing statistics. This class will collect timings based on the messaging system and connector.
  * @author alisdairh
  */
 public class StatisticsCollector {
-	/**
-	 * The singleton instance.
-	 */
-	private static StatisticsCollector queueStatisticsCollector = null;
-	
-	/**
-	 * A Hashtable to store the statistics for each collection.
-	 */
-	private final ConcurrentMap<String, Statistics> queueStatsTable = new ConcurrentHashMap<>();
+	private static StatisticsCollector statisticsCollector = null;
+	private final ConcurrentMap<String, SystemStatistics> systemStatisticsTable = new ConcurrentHashMap<>();
 
-	/**
-	 * The QueueStatisticsCollector constructor.
-	 */
 	private StatisticsCollector() {
 	}
 
 	/**
-	 * Gets the singleton QueueStatisticsCollector instance.
-	 * @return the singleton QueueStatisticsCollector instance.
+	 * Gets the singleton StatisticsCollector instance.
+	 * @return the singleton StatisticsCollector instance.
 	 */
 	public synchronized static StatisticsCollector getInstance() {
-		return Optional.ofNullable(queueStatisticsCollector).orElseGet(() -> {
-			queueStatisticsCollector = new StatisticsCollector();
-			return queueStatisticsCollector;
+		return Optional.ofNullable(statisticsCollector).orElseGet(() -> {
+			statisticsCollector = new StatisticsCollector();
+			return statisticsCollector;
 		});
 	}
 
-	private Statistics getQueueStatistics(String collectionName) {
-		Optional<Statistics> queueStats = Optional.ofNullable(queueStatsTable.get(collectionName));
-		return queueStats.orElseGet(() -> {
-			Statistics qs = new Statistics();
-			queueStatsTable.put(collectionName, qs);
-			return qs;
+	private SystemStatistics getSystemStatistics(String systemName, String connectorName) {
+		Optional<SystemStatistics> stats = Optional.ofNullable(systemStatisticsTable.get(systemName));
+		return stats.orElseGet(() -> {
+			SystemStatistics systemStatistics = new SystemStatistics(connectorName);
+			systemStatisticsTable.put(systemName, systemStatistics);
+			return systemStatistics;
 		});
 	}
 
 	/**
-	 * Increment the message count for the collection.
-	 * @param collectionName the collection name.
+	 * Increment the message count for the Show history for selection.
+	 * @param systemName the system name.
+	 * @param connectorName the connector name.
 	 */
-	public synchronized void incrementMessageCount(String collectionName) {
-		Statistics queueStats = getQueueStatistics(collectionName);
-		queueStats.incrementMessageCount();
+	public synchronized void incrementMessageCount(String systemName, String connectorName) {
+		SystemStatistics stats = getSystemStatistics(systemName, connectorName);
+		ConnectorStatistics connectorStatistics = stats.getStatistics(connectorName);
+		connectorStatistics.incrementMessageCount();
 	}
 
 	/**
-	 * Increment the failed message count for the collection.
-	 * @param collectionName the collection name.
+	 * Increment the failed message count for the system and connector.
+	 * @param systemName the system name.
+	 * @param connectorName the connector name.
 	 */
-	public synchronized void incrementFailedMessageCount(String collectionName) {
-		Statistics queueStats = getQueueStatistics(collectionName);
-		queueStats.incrementFailedMessageCount();
+	public synchronized void incrementFailedMessageCount(String systemName, String connectorName) {
+		SystemStatistics stats = getSystemStatistics(systemName, connectorName);
+		ConnectorStatistics connectorStatistics = stats.getStatistics(connectorName);
+		connectorStatistics.incrementFailedMessageCount();
 	}
 
 	/**
-	 * Add the message time to the statistics for the collection.
-	 * @param collectionName the collection name.
+	 * Add the message time to the statistics for the system and connector.
+	 * @param systemName the system name.
+	 * @param connectorName the connector name.
 	 * @param messageTime the message time.
 	 */
-	public synchronized void addMessageTime(String collectionName, long messageTime) {
-		Statistics queueStats = getQueueStatistics(collectionName);
-		queueStats.addMessageTime(messageTime);
+	public synchronized void addMessageTime(String systemName, String connectorName, long messageTime) {
+		SystemStatistics stats = getSystemStatistics(systemName, connectorName);
+		ConnectorStatistics connectorStatistics = stats.getStatistics(connectorName);
+		connectorStatistics.addMessageTime(messageTime);
 	}
 
 	/**
-	 * Reset the statistics for each collection.
+	 * Reset the statistics for each system and connector.
 	 */
-	public synchronized void resetQueueStatistics() {
-		queueStatsTable.keySet().forEach(collectionName -> {
-			Statistics queueStats = getQueueStatistics(collectionName);
-			queueStats.reset();
+	public synchronized void resetStatistics() {
+		systemStatisticsTable.keySet().forEach(systemName -> {
+			SystemStatistics stats = systemStatisticsTable.get(systemName);
+			stats.resetStatistics();
 		});
-		queueStatsTable.clear();
+		systemStatisticsTable.clear();
 	}
 
 	/**
-	 * Gets the statistics for the collection.
-	 * @param collectionName the collection name.
+	 * Gets the statistics for the system and connector.
+	 * @param systemName the system name.
+	 * @param connectorName the connector name.
 	 * @return the statistics
 	 */
-	public Statistics getQueueStats(String collectionName) {
-		return getQueueStatistics(collectionName);
+	public ConnectorStatistics getStatistics(String systemName, String connectorName) {
+		return getSystemStatistics(systemName, connectorName).getStatistics(connectorName);
 	}
 	
 	/**
@@ -99,12 +96,12 @@ public class StatisticsCollector {
 	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		queueStatsTable.keySet().stream().sorted().forEach(key -> {
-			Statistics qstats = queueStatsTable.get(key);
-			sb.append("Queue Statistics for ");
-			sb.append(key);
+		systemStatisticsTable.keySet().stream().sorted().forEach(systemName -> {
+			SystemStatistics stats = systemStatisticsTable.get(systemName);
+			sb.append("Statistics for ");
+			sb.append(systemName);
 			sb.append(": ");
-			sb.append(qstats);
+			sb.append(stats);
 			sb.append("\n");
 		});
         return sb.toString();

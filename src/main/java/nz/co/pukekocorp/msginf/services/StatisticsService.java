@@ -1,7 +1,7 @@
 package nz.co.pukekocorp.msginf.services;
 
 import lombok.extern.slf4j.Slf4j;
-import nz.co.pukekocorp.msginf.infrastructure.data.Statistics;
+import nz.co.pukekocorp.msginf.infrastructure.data.ConnectorStatistics;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
 import nz.co.pukekocorp.msginf.models.message.TransactionStatus;
@@ -17,13 +17,14 @@ import java.util.UUID;
 public class StatisticsService implements IStatisticsService {
 
     /**
-     * Returns the statistics for a connector
+     * Returns the statistics for a sytem and connector
+     * @param systemName the name of a system
      * @param connectorName the name of a connector
      * @return the statistics
      */
     @Override
-    public String getConnectorStatistics(String connectorName) {
-        Statistics stats = StatisticsCollector.getInstance().getQueueStats(connectorName);
+    public String getStatistics(String systemName, String connectorName) {
+        ConnectorStatistics stats = StatisticsCollector.getInstance().getStatistics(systemName, connectorName);
         return stats.toString();
     }
 
@@ -35,7 +36,7 @@ public class StatisticsService implements IStatisticsService {
     public String allStatistics() {
         String stats = StatisticsCollector.getInstance().toString();
         if (stats.equals("")) {
-            stats = new Statistics().toString();
+            stats = new ConnectorStatistics().toString();
         }
         return stats;
     }
@@ -46,7 +47,7 @@ public class StatisticsService implements IStatisticsService {
      */
     @Override
     public RestMessageResponse resetStatistics() {
-        StatisticsCollector.getInstance().resetQueueStatistics();
+        StatisticsCollector.getInstance().resetStatistics();
         String transactionId = UUID.randomUUID().toString();
         return new RestMessageResponse("Statistics reset successfully", transactionId, TransactionStatus.SUCCESS);
     }
