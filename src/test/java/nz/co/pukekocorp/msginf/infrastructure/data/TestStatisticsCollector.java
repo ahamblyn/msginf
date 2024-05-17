@@ -1,15 +1,11 @@
 package nz.co.pukekocorp.msginf.infrastructure.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import nz.co.pukekocorp.msginf.models.statistics.ConnectorStats;
 import nz.co.pukekocorp.msginf.models.statistics.Stats;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,22 +80,8 @@ public class TestStatisticsCollector {
         assertEquals(0.0, submitBinaryConnectorStatistics.minimumMessageTime());
         assertEquals(800.0, submitBinaryConnectorStatistics.maximumMessageTime());
         assertEquals(287.51811537130436, submitBinaryConnectorStatistics.standardDeviationMessageTime());
-        System.out.println(convertStatsModeltoJSON(stats));
         statisticsCollector.resetStatistics();
     }
-
-    private String convertStatsModeltoJSON(Stats stats) {
-        ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        Optional<String> s = Optional.ofNullable(stats).flatMap(stats1 -> {
-            try {
-                return Optional.ofNullable(objectMapper.writeValueAsString(stats1));
-            } catch (JsonProcessingException e) {
-                return Optional.empty();
-            }
-        });
-        return s.orElse("");
-    }
-
 
     private void addMessageTimes(StatisticsCollector statisticsCollector, String systemName, String connectorName, List<Integer> messageTimes) {
         messageTimes.forEach(time -> statisticsCollector.addMessageTime(systemName, connectorName, time));
