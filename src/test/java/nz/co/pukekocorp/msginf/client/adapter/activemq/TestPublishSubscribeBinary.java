@@ -5,6 +5,7 @@ import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
 import nz.co.pukekocorp.msginf.client.connector.TopicMessageController;
+import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
 import nz.co.pukekocorp.msginf.client.listener.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
@@ -35,6 +36,11 @@ public class TestPublishSubscribeBinary {
     @Autowired
     private Messenger messenger;
     private List<TestSubscriber> testSubscribers = new ArrayList<>();
+
+    @AfterAll
+    public static void resetStats() {
+        StatisticsCollector.getInstance().resetStatistics();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -78,7 +84,6 @@ public class TestPublishSubscribeBinary {
         } catch (InterruptedException e) {
         }
         assertEquals(30, getSubscriberResponses().size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -111,7 +116,6 @@ public class TestPublishSubscribeBinary {
         } catch (InterruptedException e) {
         }
         assertEquals(150, getSubscriberResponses().size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -139,6 +143,13 @@ public class TestPublishSubscribeBinary {
         } catch (InterruptedException e) {
         }
         assertEquals(60, getSubscriberResponses().size());
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq_pubsub",
+                "pubsub_binary", new TestUtil.ExpectedStats(80, 0));
     }
 }

@@ -53,6 +53,7 @@ public class TestTextRequestBinaryReply {
 
     @AfterAll
     public static void tearDown() {
+        StatisticsCollector.getInstance().resetStatistics();
         // Sleep so messages finish processing before shutdown
         try {
             Thread.sleep(1000);
@@ -71,7 +72,6 @@ public class TestTextRequestBinaryReply {
             assertNotEquals(0, response.getBinaryResponse().length);
             assertEquals(MessageType.BINARY, response.getMessageType());
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -98,7 +98,6 @@ public class TestTextRequestBinaryReply {
         for (Thread thread : threads) {
             thread.join();
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -120,6 +119,13 @@ public class TestTextRequestBinaryReply {
             }));
         }
         futureList.forEach(CompletableFuture::join);
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
+                "text_request_binary_reply", new TestUtil.ExpectedStats(80, 0));
     }
 }

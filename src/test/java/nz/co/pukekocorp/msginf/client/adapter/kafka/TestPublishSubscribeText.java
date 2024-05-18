@@ -36,6 +36,11 @@ public class TestPublishSubscribeText {
     private Messenger messenger;
     private List<TestSubscriber> testSubscribers = new ArrayList<>();
 
+    @AfterAll
+    public static void resetStats() {
+        StatisticsCollector.getInstance().resetStatistics();
+    }
+
     @BeforeEach
     public void setup() {
         try {
@@ -80,7 +85,6 @@ public class TestPublishSubscribeText {
         var subscriberResponses = getSubscriberResponses();
         assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
                 messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -115,7 +119,6 @@ public class TestPublishSubscribeText {
         var subscriberResponses = getSubscriberResponses();
         assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
                 messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -145,6 +148,11 @@ public class TestPublishSubscribeText {
         var subscriberResponses = getSubscriberResponses();
         assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
                 messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
     }
 }

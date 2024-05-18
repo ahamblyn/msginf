@@ -54,6 +54,7 @@ public class TestTextRequestTextReply {
 
     @AfterAll
     public static void tearDown() {
+        StatisticsCollector.getInstance().resetStatistics();
         // Sleep so messages finish processing before shutdown
         try {
             Thread.sleep(1000);
@@ -72,7 +73,6 @@ public class TestTextRequestTextReply {
             assertNotNull(response.getTextResponse());
             Assertions.assertEquals(MessageType.TEXT, response.getMessageType());
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -99,7 +99,6 @@ public class TestTextRequestTextReply {
         for (Thread thread : threads) {
             thread.join();
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -121,6 +120,13 @@ public class TestTextRequestTextReply {
             }));
         }
         futureList.forEach(CompletableFuture::join);
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
+                "text_request_text_reply", new TestUtil.ExpectedStats(80, 0));
     }
 }

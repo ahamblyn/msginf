@@ -53,6 +53,7 @@ public class TestBinaryRequestBinaryReply {
 
     @AfterAll
     public static void tearDown() {
+        StatisticsCollector.getInstance().resetStatistics();
         // Sleep so messages finish processing before shutdown
         try {
             Thread.sleep(1000);
@@ -66,12 +67,11 @@ public class TestBinaryRequestBinaryReply {
     public void reply() throws Exception {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                    "binary_request_binary_reply", "data/905727.pdf"));
+                    "binary_request_binary_reply", "data/test.bin"));
             assertNotNull(response);
             assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
             assertEquals(MessageType.BINARY, response.getMessageType());
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -83,7 +83,7 @@ public class TestBinaryRequestBinaryReply {
                 try {
                     for (int j = 0; j < 10; j++) {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                                "binary_request_binary_reply", "data/905727.pdf"));
+                                "binary_request_binary_reply", "data/test.bin"));
                         assertNotNull(response);
                         assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
                         assertEquals(MessageType.BINARY, response.getMessageType());
@@ -98,7 +98,6 @@ public class TestBinaryRequestBinaryReply {
         for (Thread thread : threads) {
             thread.join();
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -109,7 +108,7 @@ public class TestBinaryRequestBinaryReply {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
-                            "binary_request_binary_reply", "data/905727.pdf"));
+                            "binary_request_binary_reply", "data/test.bin"));
                     assertNotNull(response);
                     assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
                     assertEquals(MessageType.BINARY, response.getMessageType());
@@ -120,6 +119,14 @@ public class TestBinaryRequestBinaryReply {
             }));
         }
         futureList.forEach(CompletableFuture::join);
-        log.info(StatisticsCollector.getInstance().toString());
     }
+
+    @Test
+    @Order(4)
+    public void stats() {
+        log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
+                "binary_request_binary_reply", new TestUtil.ExpectedStats(80, 0));
+    }
+
 }
