@@ -38,6 +38,7 @@ public class TestTextRequestTextReply {
     @BeforeAll
     public static void setUp() {
         try {
+            StatisticsCollector.getInstance().resetStatistics();
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             messageRequestReplyList = new ArrayList<>();
             for (int i = 0; i < 20; i++) {
@@ -54,7 +55,6 @@ public class TestTextRequestTextReply {
 
     @AfterAll
     public static void tearDown() {
-        StatisticsCollector.getInstance().resetStatistics();
         // Sleep so messages finish processing before shutdown
         try {
             Thread.sleep(1000);

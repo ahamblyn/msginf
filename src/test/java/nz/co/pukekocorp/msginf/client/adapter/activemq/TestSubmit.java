@@ -30,9 +30,13 @@ public class TestSubmit {
     @Autowired
     private Messenger messenger;
 
+    @BeforeAll
+    public static void resetStats() {
+        StatisticsCollector.getInstance().resetStatistics();
+    }
+
     @AfterAll
     public static void tearDown() {
-        StatisticsCollector.getInstance().resetStatistics();
         // Sleep so messages finish processing before shutdown
         try {
             Thread.sleep(1000);

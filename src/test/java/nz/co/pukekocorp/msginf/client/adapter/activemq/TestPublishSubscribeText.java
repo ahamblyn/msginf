@@ -35,7 +35,7 @@ public class TestPublishSubscribeText {
     private Messenger messenger;
     private List<TestSubscriber> testSubscribers = new ArrayList<>();
 
-    @AfterAll
+    @BeforeAll
     public static void resetStats() {
         StatisticsCollector.getInstance().resetStatistics();
     }

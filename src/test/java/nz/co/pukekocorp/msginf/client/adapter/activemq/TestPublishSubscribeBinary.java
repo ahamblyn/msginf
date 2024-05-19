@@ -5,7 +5,6 @@ import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
 import nz.co.pukekocorp.msginf.client.connector.TopicMessageController;
-import nz.co.pukekocorp.msginf.client.listener.MessageRequestReply;
 import nz.co.pukekocorp.msginf.client.listener.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
@@ -37,7 +36,7 @@ public class TestPublishSubscribeBinary {
     private Messenger messenger;
     private List<TestSubscriber> testSubscribers = new ArrayList<>();
 
-    @AfterAll
+    @BeforeAll
     public static void resetStats() {
         StatisticsCollector.getInstance().resetStatistics();
     }
