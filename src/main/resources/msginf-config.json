@@ -221,7 +221,7 @@
             },
             {
               "name": "bootstrap.servers",
-              "value": "localhost:29092,localhost:29093,localhost:29094"
+              "value": "localhost:9092"
             },
             {
               "name": "metadata.max.age.ms",

@@ -153,5 +153,7 @@ public class TestPublishSubscribeBinary {
     @Order(4)
     public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "kafka_pubsub",
+                "pubsub_binary", new TestUtil.ExpectedStats(80, 0));
     }
 }

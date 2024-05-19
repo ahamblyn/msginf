@@ -154,5 +154,7 @@ public class TestPublishSubscribeText {
     @Order(4)
     public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "kafka_pubsub",
+                "pubsub_text", new TestUtil.ExpectedStats(80, 0));
     }
 }
