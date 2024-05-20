@@ -139,6 +139,22 @@ public class MessageService implements IMessageService {
         }
     }
 
+    /**
+     * Restart the messaging infrastructure.
+     * @return the message response
+     */
+    @Override
+    public Optional<RestMessageResponse> restartMessagingInfrastructure() {
+        String transactionId = UUID.randomUUID().toString();
+        Instant start = Instant.now();
+        // destroy messenger and recreate
+
+        messenger.restartMessagingInfrastructure();
+        Instant finish = Instant.now();
+        long duration = Duration.between(start, finish).toMillis();
+        return Optional.of(new RestMessageResponse("Messaging Infrastructure restarted successfully", transactionId, TransactionStatus.SUCCESS, duration));
+    }
+
     private List<MessageProperty> createMessageProperties(RestMessageRequest payload) {
         List<MessageProperty> messageProperties = new ArrayList<>();
         if (payload.messageProperties() != null) {

@@ -2,6 +2,7 @@ package nz.co.pukekocorp.msginf.client.adapter;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
+import nz.co.pukekocorp.msginf.infrastructure.util.ApplicationContextUtil;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,8 @@ import java.util.Optional;
 @Slf4j
 public class Messenger {
 
-    private final Map<String, QueueManager> queueManagers;
-    private final Map<String, TopicManager> topicManagers;
+    private Map<String, QueueManager> queueManagers;
+    private Map<String, TopicManager> topicManagers;
 
     /**
      * Default constructor.
@@ -26,6 +27,19 @@ public class Messenger {
     public Messenger(Map<String, QueueManager> queueManagers, Map<String, TopicManager> topicManagers) {
         this.queueManagers = queueManagers;
         this.topicManagers = topicManagers;
+    }
+
+    /**
+     * Recreate the queue and topic managers.
+     */
+    public void restartMessagingInfrastructure() {
+        log.info("Restarting the messaging infrastructure.");
+        AdapterConfiguration adapterConfiguration = ApplicationContextUtil.getBean(AdapterConfiguration.class);
+        queueManagers.clear();
+        topicManagers.clear();
+        queueManagers = adapterConfiguration.createQueueManagers();
+        topicManagers = adapterConfiguration.createTopicManagers();
+        log.info("Messaging infrastructure restarted successfully.");
     }
 
     public Optional<QueueManager> getQueueManager(String messagingSystem) {

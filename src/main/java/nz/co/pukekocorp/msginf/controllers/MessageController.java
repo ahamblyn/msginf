@@ -98,4 +98,18 @@ public class MessageController {
         return ResponseEntity.of(messageResponse);
     }
 
+    /**
+     * Restart the messaging infrastructure.
+     * @return the message response
+     */
+    @Operation(
+            summary = "Restart the messaging infrastructure",
+            description = "Restart the messaging infrastructure",
+            tags = {"message"})
+    @GetMapping("/restart")
+    public ResponseEntity<RestMessageResponse> restartMessagingInfrastructure() {
+        Optional<RestMessageResponse> messageResponse = messageService.restartMessagingInfrastructure();
+        return ResponseEntity.of(messageResponse);
+    }
+
 }
