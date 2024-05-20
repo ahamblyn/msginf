@@ -41,4 +41,9 @@ public interface IMessageService {
      */
     Optional<RestMessageResponse> publish(RestMessageRequest payload);
 
+    /**
+     * Restart the messaging infrastructure.
+     * @return the message response
+     */
+    Optional<RestMessageResponse> restartMessagingInfrastructure();
 }

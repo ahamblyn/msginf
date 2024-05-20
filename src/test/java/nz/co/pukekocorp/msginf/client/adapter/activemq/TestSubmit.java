@@ -30,6 +30,11 @@ public class TestSubmit {
     @Autowired
     private Messenger messenger;
 
+    @BeforeAll
+    public static void resetStats() {
+        StatisticsCollector.getInstance().resetStatistics();
+    }
+
     @AfterAll
     public static void tearDown() {
         // Sleep so messages finish processing before shutdown
@@ -47,7 +52,6 @@ public class TestSubmit {
                     "submit_text", "Message[" + (i + 1) + "]"));
             assertNotNull(response);
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -56,7 +60,6 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -85,7 +88,6 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -109,7 +111,6 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_text", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -117,10 +118,9 @@ public class TestSubmit {
     public void submitBinaryMessages() throws Exception {
         for (int i = 0; i < 10; i++) {
             MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
-                    "submit_binary", "data/905727.pdf"));
+                    "submit_binary", "data/test.bin"));
             assertNotNull(response);
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -129,7 +129,6 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(10, messages.size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -141,7 +140,7 @@ public class TestSubmit {
                 try {
                     for (int j = 0; j < 10; j++) {
                         MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
-                                "submit_binary", "data/905727.pdf"));
+                                "submit_binary", "data/test.bin"));
                         assertNotNull(response);
                     }
                 } catch (Exception e) {
@@ -158,7 +157,6 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(50, messages.size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -169,7 +167,7 @@ public class TestSubmit {
             futureList.add(CompletableFuture.supplyAsync(()-> {
                 try {
                     MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.SUBMIT,
-                            "submit_binary", "data/905727.pdf"));
+                            "submit_binary", "data/test.bin"));
                     assertNotNull(response);
                     return response;
                 } catch (Exception e) {
@@ -182,6 +180,15 @@ public class TestSubmit {
         List<MessageResponse> messages = messenger.receiveMessages("activemq", "submit_binary", 2000);
         assertNotNull(messages);
         assertEquals(20, messages.size());
+    }
+
+    @Test
+    @Order(9)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
+                "submit_text", new TestUtil.ExpectedStats(83, 0));
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
+                "submit_binary", new TestUtil.ExpectedStats(83, 0));
     }
 }

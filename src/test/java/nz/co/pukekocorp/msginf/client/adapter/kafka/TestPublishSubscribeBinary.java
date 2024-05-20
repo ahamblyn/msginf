@@ -35,6 +35,11 @@ public class TestPublishSubscribeBinary {
     private Messenger messenger;
     private List<TestSubscriber> testSubscribers = new ArrayList<>();
 
+    @BeforeAll
+    public static void resetStats() {
+        StatisticsCollector.getInstance().resetStatistics();
+    }
+
     @BeforeEach
     public void setup() {
         try {
@@ -79,7 +84,6 @@ public class TestPublishSubscribeBinary {
         var subscriberResponses = getSubscriberResponses();
         assertEquals(messages.size(), subscriberResponses.size(),
                 messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -114,7 +118,6 @@ public class TestPublishSubscribeBinary {
         var subscriberResponses = getSubscriberResponses();
         assertEquals(messages.size(), subscriberResponses.size(),
                 messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -144,6 +147,13 @@ public class TestPublishSubscribeBinary {
         var subscriberResponses = getSubscriberResponses();
         assertEquals(messages.size(), subscriberResponses.size(),
                 messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "kafka_pubsub",
+                "pubsub_binary", new TestUtil.ExpectedStats(80, 0));
     }
 }

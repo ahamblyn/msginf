@@ -36,6 +36,11 @@ public class TestPublishSubscribeBinary {
     private Messenger messenger;
     private List<TestSubscriber> testSubscribers = new ArrayList<>();
 
+    @BeforeAll
+    public static void resetStats() {
+        StatisticsCollector.getInstance().resetStatistics();
+    }
+
     @BeforeEach
     public void setUp() {
         try {
@@ -78,7 +83,6 @@ public class TestPublishSubscribeBinary {
         } catch (InterruptedException e) {
         }
         assertEquals(30, getSubscriberResponses().size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -111,7 +115,6 @@ public class TestPublishSubscribeBinary {
         } catch (InterruptedException e) {
         }
         assertEquals(150, getSubscriberResponses().size());
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -139,6 +142,13 @@ public class TestPublishSubscribeBinary {
         } catch (InterruptedException e) {
         }
         assertEquals(60, getSubscriberResponses().size());
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq_pubsub",
+                "pubsub_binary", new TestUtil.ExpectedStats(80, 0));
     }
 }

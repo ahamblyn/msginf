@@ -19,8 +19,15 @@ public class AdapterConfiguration {
 
     private MessageInfrastructurePropertiesFileParser propertiesFileParser;
 
+    @Value("#{${jndi.url.map}}")
+    private Map<String, String> jndiUrlMap;
+
     @Bean
-    public Map<String, QueueManager> queueManagers(@Value("#{${jndi.url.map}}") Map<String, String> jndiUrlMap) {
+    public Map<String, QueueManager> queueManagers() {
+        return createQueueManagers();
+    }
+
+    public Map<String, QueueManager> createQueueManagers() {
         Map<String, QueueManager> queueManagerMap = new ConcurrentHashMap<>();
         try {
             propertiesFileParser = propertiesFileParser();
@@ -41,7 +48,11 @@ public class AdapterConfiguration {
     }
 
     @Bean
-    public Map<String, TopicManager> topicManagers(@Value("#{${jndi.url.map}}") Map<String, String> jndiUrlMap) {
+    public Map<String, TopicManager> topicManagers() {
+        return createTopicManagers();
+    }
+
+    public Map<String, TopicManager> createTopicManagers() {
         Map<String, TopicManager> topicManagerMap = new ConcurrentHashMap<>();
         try {
             propertiesFileParser = propertiesFileParser();

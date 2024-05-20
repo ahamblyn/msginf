@@ -38,6 +38,7 @@ public class TestTextRequestTextReply {
     @BeforeAll
     public static void setUp() {
         try {
+            StatisticsCollector.getInstance().resetStatistics();
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             messageRequestReplyList = new ArrayList<>();
             for (int i = 0; i < 20; i++) {
@@ -72,7 +73,6 @@ public class TestTextRequestTextReply {
             assertNotNull(response.getTextResponse());
             Assertions.assertEquals(MessageType.TEXT, response.getMessageType());
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -99,7 +99,6 @@ public class TestTextRequestTextReply {
         for (Thread thread : threads) {
             thread.join();
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -121,6 +120,13 @@ public class TestTextRequestTextReply {
             }));
         }
         futureList.forEach(CompletableFuture::join);
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
+                "text_request_text_reply", new TestUtil.ExpectedStats(80, 0));
     }
 }

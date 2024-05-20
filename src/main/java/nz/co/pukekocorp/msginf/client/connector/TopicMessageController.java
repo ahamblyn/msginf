@@ -35,6 +35,7 @@ public class TopicMessageController extends AbstractMessageController {
      */
 	public TopicMessageController(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, String connector,
                                   Context jndiContext) throws MessageException {
+		this.messagingSystem = messagingSystem;
 	    this.connector = connector;
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
 		if (parser.doesPublishSubscribeExist(messagingSystem, connector)) {
@@ -91,7 +92,7 @@ public class TopicMessageController extends AbstractMessageController {
 		}
     } catch (Exception e) {
     	// increment failed message count
-		collector.incrementFailedMessageCount(connector);
+		collector.incrementFailedMessageCount(messagingSystem, connector);
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
 			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
 		}

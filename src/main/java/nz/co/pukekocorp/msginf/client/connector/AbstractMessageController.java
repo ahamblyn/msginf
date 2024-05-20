@@ -29,6 +29,7 @@ public abstract class AbstractMessageController {
 
     protected javax.jms.MessageProducer javaxMessageProducer;
     protected jakarta.jms.MessageProducer jakartaMessageProducer;
+    protected String messagingSystem;
     protected String connector;
     protected List<MessageProperty> configMessageProperties;
     protected DestinationChannel destinationChannel;
@@ -127,7 +128,7 @@ public abstract class AbstractMessageController {
             }
         } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
             // increment failed message count
-            collector.incrementFailedMessageCount(connector);
+            collector.incrementFailedMessageCount(messagingSystem, connector);
             if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
                 throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
             }
@@ -141,8 +142,8 @@ public abstract class AbstractMessageController {
     protected void collateStats(String connector, Instant start) {
         Instant finish = Instant.now();
         long duration = Duration.between(start, finish).toMillis();
-        collector.incrementMessageCount(connector);
-        collector.addMessageTime(connector, duration);
+        collector.incrementMessageCount(messagingSystem, connector);
+        collector.addMessageTime(messagingSystem, connector, duration);
     }
 
     protected void getMessageProperties(javax.jms.Message replyMsg, List<MessageProperty> messageProperties) throws javax.jms.JMSException {

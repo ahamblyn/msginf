@@ -37,6 +37,7 @@ public class TestTextRequestBinaryReply {
     @BeforeAll
     public static void setUp() {
         try {
+            StatisticsCollector.getInstance().resetStatistics();
             MessageInfrastructurePropertiesFileParser parser = new MessageInfrastructurePropertiesFileParser();
             messageRequestReplyList = new ArrayList<>();
             for (int i = 0; i < 20; i++) {
@@ -71,7 +72,6 @@ public class TestTextRequestBinaryReply {
             assertNotEquals(0, response.getBinaryResponse().length);
             assertEquals(MessageType.BINARY, response.getMessageType());
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -98,7 +98,6 @@ public class TestTextRequestBinaryReply {
         for (Thread thread : threads) {
             thread.join();
         }
-        log.info(StatisticsCollector.getInstance().toString());
     }
 
     @Test
@@ -120,6 +119,13 @@ public class TestTextRequestBinaryReply {
             }));
         }
         futureList.forEach(CompletableFuture::join);
+    }
+
+    @Test
+    @Order(4)
+    public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
+        TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
+                "text_request_binary_reply", new TestUtil.ExpectedStats(80, 0));
     }
 }
