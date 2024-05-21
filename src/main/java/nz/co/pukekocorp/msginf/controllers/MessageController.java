@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import nz.co.pukekocorp.msginf.models.message.RestMessageRequest;
 import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
+import nz.co.pukekocorp.msginf.models.status.Status;
 import nz.co.pukekocorp.msginf.services.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -112,4 +113,17 @@ public class MessageController {
         return ResponseEntity.of(messageResponse);
     }
 
+    /**
+     * Return the status for the messaging systems.
+     * @return the status for the messaging systems.
+     */
+    @Operation(
+            summary = "Return the status for the messaging systems",
+            description = "Return the status for the messaging systems",
+            tags = {"message"})
+    @GetMapping("/status")
+    public ResponseEntity<Status> getSystemStatus() {
+        Status status = messageService.getSystemStatus();
+        return ResponseEntity.of(Optional.of(status));
+    }
 }

@@ -49,6 +49,7 @@ public class QueueMessageController extends AbstractMessageController {
 	    this.messagingSystem = messagingSystem;
 	    this.connector = connector;
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
+		this.valid = true;
   	    String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
 			this.replyExpected = false;
@@ -86,6 +87,8 @@ public class QueueMessageController extends AbstractMessageController {
 			  setupJMSObjects(parser, messagingSystem, jndiContext);
 		  }
       } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+		  // Invalidate the message controller.
+		  setValid(false);
           throw new MessageControllerException(e);
       }
 	}
@@ -158,6 +161,8 @@ public class QueueMessageController extends AbstractMessageController {
     } catch (Exception e) {
     	// increment failed message count
 		collector.incrementFailedMessageCount(messagingSystem, connector);
+		// Invalidate the message controller.
+		setValid(false);
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
 			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
 		}
@@ -247,6 +252,8 @@ public class QueueMessageController extends AbstractMessageController {
 				return Optional.of(destinationChannel);
 			}
 		} catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+			// Invalidate the message controller.
+			setValid(false);
 			throw new DestinationChannelException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
 		}
 		return Optional.empty();
@@ -283,6 +290,8 @@ public class QueueMessageController extends AbstractMessageController {
 			}
 			destinationChannel.close();
         } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
+			// Invalidate the message controller.
+			setValid(false);
         	log.error(e.getMessage(), e);
         }
     }

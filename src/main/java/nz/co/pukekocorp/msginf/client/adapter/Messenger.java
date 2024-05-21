@@ -5,8 +5,11 @@ import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.util.ApplicationContextUtil;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
+import nz.co.pukekocorp.msginf.models.status.Status;
+import nz.co.pukekocorp.msginf.models.status.SystemStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,6 +88,21 @@ public class Messenger {
     public MessageResponse publish(String messagingSystem, MessageRequest messageRequest) throws MessageException {
         TopicManager topicManager = getTopicManager(messagingSystem).orElseThrow(() -> new MessageException("Unable to find the messaging system: " + messagingSystem));
         return topicManager.sendMessage(messageRequest);
+    }
+
+    /**
+     * Return the status for the messaging systems.
+     * @return the status for the messaging systems.
+     */
+    public Status getSystemStatus() {
+        List<SystemStatus> systemStatuses = new ArrayList<>();
+        queueManagers.forEach((messagingSystemName, queueManager) -> {
+            systemStatuses.add(queueManager.getSystemStatus());
+        });
+        topicManagers.forEach((messagingSystemName, topicManager) -> {
+            systemStatuses.add(topicManager.getSystemStatus());
+        });
+        return new Status(systemStatuses);
     }
 
     @Override

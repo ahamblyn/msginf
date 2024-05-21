@@ -38,6 +38,7 @@ public class TopicMessageController extends AbstractMessageController {
 		this.messagingSystem = messagingSystem;
 	    this.connector = connector;
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
+		this.valid = true;
 		if (parser.doesPublishSubscribeExist(messagingSystem, connector)) {
 			this.topicName = parser.getPublishSubscribeConnectionPublishSubscribeTopicName(messagingSystem, connector);
 			this.topicConnFactoryName = parser.getPublishSubscribeConnectionPublishSubscribeTopicConnFactoryName(messagingSystem, connector);
@@ -57,6 +58,8 @@ public class TopicMessageController extends AbstractMessageController {
 		  }
 		  setupJMSObjects(parser, messagingSystem, jndiContext);
       } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+		  // Invalidate the message controller.
+		  setValid(false);
           throw new MessageControllerException(e);
       }
 	}
@@ -93,6 +96,8 @@ public class TopicMessageController extends AbstractMessageController {
     } catch (Exception e) {
     	// increment failed message count
 		collector.incrementFailedMessageCount(messagingSystem, connector);
+		// Invalidate the message controller.
+		setValid(false);
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
 			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
 		}
@@ -162,6 +167,8 @@ public class TopicMessageController extends AbstractMessageController {
 				return Optional.of(topicChannel);
 			}
 		} catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+			// Invalidate the message controller.
+			setValid(false);
 			throw new DestinationChannelException("Unable to lookup the topic connection factory: " + topicConnFactoryName, e);
 		}
 		return Optional.empty();
@@ -193,6 +200,8 @@ public class TopicMessageController extends AbstractMessageController {
 			}
 			destinationChannel.close();
         } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
+			// Invalidate the message controller.
+			setValid(false);
         	log.error(e.getMessage(), e);
         }
     }

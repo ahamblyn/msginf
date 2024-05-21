@@ -36,6 +36,7 @@ public abstract class AbstractMessageController {
     protected int messageTimeToLive;
     protected boolean useConnectionPooling;
     protected JmsImplementation jmsImplementation;
+    protected boolean valid;
 
     /**
      * The queue statistics collector.
@@ -129,6 +130,8 @@ public abstract class AbstractMessageController {
         } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
             // increment failed message count
             collector.incrementFailedMessageCount(messagingSystem, connector);
+            // Invalidate the message controller.
+            setValid(false);
             if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
                 throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
             }
@@ -241,6 +244,8 @@ public abstract class AbstractMessageController {
             try {
                 jmsMessage.setStringProperty(property.name(), property.value());
             } catch (javax.jms.JMSException e) {
+                // Invalidate the message controller.
+                setValid(false);
                 throw new RuntimeException(e);
             }
         });
@@ -256,9 +261,23 @@ public abstract class AbstractMessageController {
             try {
                 jmsMessage.setStringProperty(property.name(), property.value());
             } catch (jakarta.jms.JMSException e) {
+                // Invalidate the message controller.
+                setValid(false);
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean bValid) {
+        // can't set to true once it is false
+        if (bValid && !this.valid) {
+            throw new IllegalArgumentException("The message controller cannot be set valid once it has been set to invalid.");
+        }
+        this.valid = bValid;
     }
 
     /**
