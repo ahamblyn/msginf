@@ -10,8 +10,12 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
+import nz.co.pukekocorp.msginf.models.status.ConnectorStatus;
+import nz.co.pukekocorp.msginf.models.status.SystemStatus;
 
 import javax.naming.Context;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.DataFormatException;
@@ -84,6 +88,18 @@ public abstract class DestinationManager {
     protected void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) throws ConfigurationException{
         this.jndiContext = Util.createContext(parser, messagingSystem, jndiUrl);
         log.info("JNDI context created for " + messagingSystem + " messaging system");
+    }
+
+    /**
+     * Return the system status for the connectors.
+     * @return the system status for the connectors.
+     */
+    public SystemStatus getSystemStatus() {
+        List<ConnectorStatus> connectorStatuses = new ArrayList<>();
+        messageControllers.forEach((connectorName, controller) -> {
+            connectorStatuses.add(new ConnectorStatus(connectorName, controller.isValid()));
+        });
+        return new SystemStatus(messagingSystem, connectorStatuses);
     }
 
     /**

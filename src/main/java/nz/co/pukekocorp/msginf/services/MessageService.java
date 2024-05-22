@@ -8,6 +8,7 @@ import nz.co.pukekocorp.msginf.infrastructure.util.Util;
 import nz.co.pukekocorp.msginf.models.configuration.MessageProperty;
 import nz.co.pukekocorp.msginf.models.configuration.MessagingModel;
 import nz.co.pukekocorp.msginf.models.message.*;
+import nz.co.pukekocorp.msginf.models.status.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -147,12 +148,19 @@ public class MessageService implements IMessageService {
     public Optional<RestMessageResponse> restartMessagingInfrastructure() {
         String transactionId = UUID.randomUUID().toString();
         Instant start = Instant.now();
-        // destroy messenger and recreate
-
         messenger.restartMessagingInfrastructure();
         Instant finish = Instant.now();
         long duration = Duration.between(start, finish).toMillis();
         return Optional.of(new RestMessageResponse("Messaging Infrastructure restarted successfully", transactionId, TransactionStatus.SUCCESS, duration));
+    }
+
+    /**
+     * Return the status for the messaging systems.
+     * @return the status for the messaging systems.
+     */
+    @Override
+    public Status getSystemStatus() {
+        return messenger.getSystemStatus();
     }
 
     private List<MessageProperty> createMessageProperties(RestMessageRequest payload) {

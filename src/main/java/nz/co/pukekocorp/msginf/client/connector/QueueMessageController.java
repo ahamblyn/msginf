@@ -8,6 +8,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
+import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -48,7 +49,9 @@ public class QueueMessageController extends AbstractMessageController {
                                   Context jndiContext) throws MessageException {
 	    this.messagingSystem = messagingSystem;
 	    this.connector = connector;
+		this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
+		this.valid = true;
   	    String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
 			this.replyExpected = false;
@@ -86,6 +89,8 @@ public class QueueMessageController extends AbstractMessageController {
 			  setupJMSObjects(parser, messagingSystem, jndiContext);
 		  }
       } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+		  // Invalidate the message controller.
+		  setValid(false);
           throw new MessageControllerException(e);
       }
 	}
@@ -158,6 +163,8 @@ public class QueueMessageController extends AbstractMessageController {
     } catch (Exception e) {
     	// increment failed message count
 		collector.incrementFailedMessageCount(messagingSystem, connector);
+		// Invalidate the message controller.
+		setValid(false);
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
 			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
 		}
@@ -240,13 +247,24 @@ public class QueueMessageController extends AbstractMessageController {
 			if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
 				jakarta.jms.QueueConnectionFactory queueConnectionFactory = (jakarta.jms.QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
 				jakarta.jms.QueueConnection queueConnection;
-				queueConnection = queueConnectionFactory.createQueueConnection();
+				if (useConnectionPooling) { // only available for Jakarta JMS
+					log.info("Using JMS Connection Pooling for " + messagingSystem + ":" + connector);
+					int maxConnections = parser.getMaxConnections(messagingSystem);
+					var jmsPoolConnectionFactory = new JmsPoolConnectionFactory();
+					jmsPoolConnectionFactory.setConnectionFactory(queueConnectionFactory);
+					jmsPoolConnectionFactory.setMaxConnections(maxConnections);
+					queueConnection = jmsPoolConnectionFactory.createQueueConnection();
+				} else {
+					queueConnection = queueConnectionFactory.createQueueConnection();
+				}
 				queueConnection.start();
 				jakarta.jms.Session session = queueConnection.createSession(false, jakarta.jms.Session.AUTO_ACKNOWLEDGE);
 				var destinationChannel = new DestinationChannel(queueConnection, session);
 				return Optional.of(destinationChannel);
 			}
 		} catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+			// Invalidate the message controller.
+			setValid(false);
 			throw new DestinationChannelException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
 		}
 		return Optional.empty();
@@ -283,6 +301,8 @@ public class QueueMessageController extends AbstractMessageController {
 			}
 			destinationChannel.close();
         } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
+			// Invalidate the message controller.
+			setValid(false);
         	log.error(e.getMessage(), e);
         }
     }

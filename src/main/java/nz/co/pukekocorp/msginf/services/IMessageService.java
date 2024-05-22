@@ -2,6 +2,7 @@ package nz.co.pukekocorp.msginf.services;
 
 import nz.co.pukekocorp.msginf.models.message.RestMessageRequest;
 import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
+import nz.co.pukekocorp.msginf.models.status.Status;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,4 +47,10 @@ public interface IMessageService {
      * @return the message response
      */
     Optional<RestMessageResponse> restartMessagingInfrastructure();
+
+    /**
+     * Return the status for the messaging systems.
+     * @return the status for the messaging systems.
+     */
+    Status getSystemStatus();
 }
