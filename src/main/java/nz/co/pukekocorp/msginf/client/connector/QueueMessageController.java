@@ -8,6 +8,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
+import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -48,6 +49,7 @@ public class QueueMessageController extends AbstractMessageController {
                                   Context jndiContext) throws MessageException {
 	    this.messagingSystem = messagingSystem;
 	    this.connector = connector;
+		this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
 		this.valid = true;
   	    String replyQueueName = null;
@@ -245,7 +247,16 @@ public class QueueMessageController extends AbstractMessageController {
 			if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
 				jakarta.jms.QueueConnectionFactory queueConnectionFactory = (jakarta.jms.QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
 				jakarta.jms.QueueConnection queueConnection;
-				queueConnection = queueConnectionFactory.createQueueConnection();
+				if (useConnectionPooling) { // only available for Jakarta JMS
+					log.info("Using JMS Connection Pooling for " + messagingSystem + ":" + connector);
+					int maxConnections = parser.getMaxConnections(messagingSystem);
+					var jmsPoolConnectionFactory = new JmsPoolConnectionFactory();
+					jmsPoolConnectionFactory.setConnectionFactory(queueConnectionFactory);
+					jmsPoolConnectionFactory.setMaxConnections(maxConnections);
+					queueConnection = jmsPoolConnectionFactory.createQueueConnection();
+				} else {
+					queueConnection = queueConnectionFactory.createQueueConnection();
+				}
 				queueConnection.start();
 				jakarta.jms.Session session = queueConnection.createSession(false, jakarta.jms.Session.AUTO_ACKNOWLEDGE);
 				var destinationChannel = new DestinationChannel(queueConnection, session);
