@@ -3,16 +3,19 @@ package nz.co.pukekocorp.msginf.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import nz.co.pukekocorp.msginf.infrastructure.security.JwtTokenUtil;
+import nz.co.pukekocorp.msginf.models.jwt.JwtError;
 import nz.co.pukekocorp.msginf.models.jwt.JwtRequest;
 import nz.co.pukekocorp.msginf.models.jwt.JwtResponse;
-import nz.co.pukekocorp.msginf.services.JwtUserDetailsService;
+import nz.co.pukekocorp.msginf.models.user.User;
+import nz.co.pukekocorp.msginf.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,12 +29,10 @@ public class JwtAuthenticationController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-
     @Autowired
-    private JwtUserDetailsService userDetailsService;
+    private UserRepository userRepository;
 
     /**
      * Create a JWT authentication token
@@ -44,11 +45,21 @@ public class JwtAuthenticationController {
             description = "Create a JWT authentication token",
             tags = {"auth"})
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String token = jwtTokenUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
+        try {
+            Authentication authentication = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
+            String userName = authentication.getName();
+            User user = userRepository.findUserByUserName(userName);
+            final String token = jwtTokenUtil.createToken(user);
+            return ResponseEntity.ok(new JwtResponse(token));
+        } catch (BadCredentialsException e) {
+            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtError);
+        } catch (Exception e) {
+            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtError);
+        }
     }
 
     private void authenticate(String username, String password) throws Exception {

@@ -1,29 +1,37 @@
 package nz.co.pukekocorp.msginf.services;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
+import nz.co.pukekocorp.msginf.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * User details service.
+ * JWT User details service.
  */
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (secret.equals(username)) {
-            return new User(secret, "$2a$10$IMTTcjp2GBWjuJ9EbZ7zR.QZFEFPREBSM2RfjzBkonS3BNxP/sHUu", new ArrayList<>());
-        } else {
-            throw new UsernameNotFoundException("User not found with username: " + username);
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        nz.co.pukekocorp.msginf.models.user.User user = userRepository.findUserByUserName(userName);
+        if (user == null) {
+            throw new UsernameNotFoundException("User " + userName + " not found.");
         }
+        List<String> roles = new ArrayList<>();
+        roles.add("USER");
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUserName())
+                .password(user.getPassword())
+                .roles(roles.toArray(new String[0]))
+                .build();
+        return userDetails;
     }
 }

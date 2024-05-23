@@ -9,7 +9,6 @@ import lombok.Setter;
  * JWT Request
  */
 @Getter
-@Setter
 @NoArgsConstructor
 @Schema(description = "The JWT Request model")
 public class JwtRequest {
