@@ -1,5 +1,16 @@
 name: msginf
 services:
+  mysqldb:
+    container_name: mysqldb
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    networks:
+      - msginf_network
+    environment:
+      MYSQL_ROOT_PASSWORD: 'secret'
+      MYSQL_DATABASE: 'msginfdb'
+
   activemq:
     container_name: activemq
     image: islandora/activemq:3.1.1-amd64

@@ -2,13 +2,12 @@ package nz.co.pukekocorp.msginf.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import nz.co.pukekocorp.msginf.entities.User;
 import nz.co.pukekocorp.msginf.infrastructure.security.JwtTokenUtil;
 import nz.co.pukekocorp.msginf.models.jwt.JwtError;
 import nz.co.pukekocorp.msginf.models.jwt.JwtRequest;
 import nz.co.pukekocorp.msginf.models.jwt.JwtResponse;
-import nz.co.pukekocorp.msginf.models.user.User;
 import nz.co.pukekocorp.msginf.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +16,8 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * REST Controller to authenticate users.
@@ -27,12 +28,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/auth")
 public class JwtAuthenticationController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-    @Autowired
-    private UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final UserRepository userRepository;
+
+    public JwtAuthenticationController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, UserRepository userRepository) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Create a JWT authentication token
@@ -50,7 +54,8 @@ public class JwtAuthenticationController {
             Authentication authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
             String userName = authentication.getName();
-            User user = userRepository.findUserByUserName(userName);
+            Optional<User> userOpt = userRepository.findByUserName(userName);
+            User user = userOpt.orElseThrow(() -> new RuntimeException("User " + userName + " not found."));
             final String token = jwtTokenUtil.createToken(user);
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (BadCredentialsException e) {

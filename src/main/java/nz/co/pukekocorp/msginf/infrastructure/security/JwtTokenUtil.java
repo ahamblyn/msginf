@@ -4,12 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
-import nz.co.pukekocorp.msginf.models.user.User;
+import nz.co.pukekocorp.msginf.entities.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * JWT creation and validation
@@ -17,14 +16,12 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JwtTokenUtil {
 
-    /**
-     * Token validity time - 5 hours.
-     */
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+    @Value("${security.jwt.secret-key}")
+    private String secretKey;
+    @Value("${security.jwt.expiration-time}")
+    private long jwtExpiration;
     private static final String TOKEN_HEADER = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
-    @Value("${jwt.secret}")
-    private String secret;
 
     /**
      * Create jwt token for user
@@ -32,16 +29,16 @@ public class JwtTokenUtil {
      * @return jwt token
      */
     public String createToken(User user) {
-        Claims claims = Jwts.claims().setSubject(user.getUserName());
+        Claims claims = Jwts.claims().setSubject(user.getUsername());
         claims.put("firstName", user.getFirstName());
         claims.put("lastName", user.getLastName());
         Date tokenCreateTime = new Date();
-        Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(JWT_TOKEN_VALIDITY * 1000));
+        Date tokenValidity = new Date(tokenCreateTime.getTime() + jwtExpiration);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(tokenValidity)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
@@ -81,7 +78,7 @@ public class JwtTokenUtil {
     }
 
     private Claims parseJwtClaims(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
 }
