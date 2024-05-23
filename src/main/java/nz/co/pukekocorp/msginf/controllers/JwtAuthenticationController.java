@@ -2,18 +2,21 @@ package nz.co.pukekocorp.msginf.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import nz.co.pukekocorp.msginf.entities.User;
 import nz.co.pukekocorp.msginf.infrastructure.security.JwtTokenUtil;
+import nz.co.pukekocorp.msginf.models.jwt.JwtError;
 import nz.co.pukekocorp.msginf.models.jwt.JwtRequest;
 import nz.co.pukekocorp.msginf.models.jwt.JwtResponse;
-import nz.co.pukekocorp.msginf.services.JwtUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import nz.co.pukekocorp.msginf.repositories.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * REST Controller to authenticate users.
@@ -24,14 +27,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/auth")
 public class JwtAuthenticationController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
-    @Autowired
-    private JwtUserDetailsService userDetailsService;
+    public JwtAuthenticationController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, UserRepository userRepository) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Create a JWT authentication token
@@ -44,21 +48,21 @@ public class JwtAuthenticationController {
             description = "Create a JWT authentication token",
             tags = {"auth"})
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String token = jwtTokenUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
-    }
-
-    private void authenticate(String username, String password) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
+            Authentication authentication = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
+            String userName = authentication.getName();
+            Optional<User> userOpt = userRepository.findByUserName(userName);
+            User user = userOpt.orElseThrow(() -> new RuntimeException("User " + userName + " not found."));
+            final String token = jwtTokenUtil.createToken(user);
+            return ResponseEntity.ok(new JwtResponse(token));
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtError);
+        } catch (Exception e) {
+            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtError);
         }
     }
-
 }
