@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Schema(description = "The Register User response model")
-public class RegisterUserResponse {
+public class UserResponse {
     private String userName;
     private String message;
 }
