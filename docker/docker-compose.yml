@@ -49,6 +49,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 'secret'
       MYSQL_DATABASE: 'msginfdb'
+    volumes:
+      - mysql:/var/lib/mysql
 
   activemq:
     container_name: activemq
@@ -108,3 +110,6 @@ services:
 networks:
   msginf_network:
     name: msginf_docker_net
+
+volumes:
+  mysql:
