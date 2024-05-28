@@ -33,7 +33,7 @@ public class TopicManager extends DestinationManager {
      * Get the message controller for the connector
      * @param connector the connector name
      * @return the message connector
-     * @throws MessageException
+     * @throws MessageException the message exception.
      */
     public AbstractMessageController getMessageController(String connector) throws MessageException {
         TopicMessageController mc = (TopicMessageController) messageControllers.get(connector);

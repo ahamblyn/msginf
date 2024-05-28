@@ -9,9 +9,25 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class DestinationChannel {
+
+    /**
+     * The JAVAX_JMS session.
+     */
     protected javax.jms.Session javaxSession;
+
+    /**
+     * The JAVAX_JMS connection.
+     */
     protected javax.jms.Connection javaxConnection;
+
+    /**
+     * The JAKARTA_JMS session.
+     */
     protected jakarta.jms.Session jakartaSession;
+
+    /**
+     * The JAKARTA_JMS connection.
+     */
     protected jakarta.jms.Connection jakartaConnection;
 
     /**

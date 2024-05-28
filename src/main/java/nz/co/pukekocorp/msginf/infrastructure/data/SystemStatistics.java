@@ -9,7 +9,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * The system statistics.
+ */
 public class SystemStatistics {
+
+    /**
+     * Connector statistics table.
+     */
     private final ConcurrentMap<String, ConnectorStatistics> connectorStatisticsTable = new ConcurrentHashMap<>();
 
     private ConnectorStatistics getConnectorStatistics(String connectorName) {
@@ -21,6 +28,10 @@ public class SystemStatistics {
         });
     }
 
+    /**
+     * Create the system statistics for a connector.
+     * @param connectorName the connector name.
+     */
     public SystemStatistics(String connectorName) {
         getConnectorStatistics(connectorName);
     }

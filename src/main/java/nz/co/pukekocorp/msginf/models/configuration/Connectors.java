@@ -12,6 +12,7 @@ import java.util.List;
  * @param useConnectionPooling Whether to use queue connection pooling or not
  * @param minConnections The minimum number of queue connections in the pool
  * @param maxConnections The maximum number of queue connections in the pool
+ * @param useDurableSubscriber Whether to use a durable subscriber or not
  */
 @Schema(description = "Connectors model")
 public record Connectors(@Schema(description = "List of submit connectors") List<Submit> submit,

@@ -7,6 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(description = "The Message type model")
 public enum MessageType {
+
+    /**
+     * Text message type.
+     */
     TEXT,
+
+    /**
+     * Binary message type.
+     */
     BINARY
 }

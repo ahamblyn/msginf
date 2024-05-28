@@ -21,11 +21,20 @@ import java.util.Optional;
 @Slf4j
 public class Messenger {
 
+    /**
+     * The queue managers.
+     */
     private Map<String, QueueManager> queueManagers;
+
+    /**
+     * The topic managers.
+     */
     private Map<String, TopicManager> topicManagers;
 
     /**
-     * Default constructor.
+     * Create a new messenger.
+     * @param queueManagers the queue managers.
+     * @param topicManagers the topic managers.
      */
     public Messenger(Map<String, QueueManager> queueManagers, Map<String, TopicManager> topicManagers) {
         this.queueManagers = queueManagers;
@@ -45,10 +54,20 @@ public class Messenger {
         log.info("Messaging infrastructure restarted successfully.");
     }
 
+    /**
+     * Get the queue manager for the messaging system.
+     * @param messagingSystem the messaging system.
+     * @return the queue manager.
+     */
     public Optional<QueueManager> getQueueManager(String messagingSystem) {
         return Optional.ofNullable(queueManagers.get(messagingSystem));
     }
 
+    /**
+     * Get the topic manager for the messaging system.
+     * @param messagingSystem the messaging system.
+     * @return the topicmanager.
+     */
     public Optional<TopicManager> getTopicManager(String messagingSystem) {
         return Optional.ofNullable(topicManagers.get(messagingSystem));
     }

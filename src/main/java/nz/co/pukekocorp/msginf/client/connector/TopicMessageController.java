@@ -21,10 +21,25 @@ import java.util.Optional;
 @Slf4j
 public class TopicMessageController extends AbstractMessageController {
 
-   private javax.jms.Topic javaxTopic;
-   private jakarta.jms.Topic jakartaTopic;
-   private final String topicConnFactoryName;
-   private final String topicName;
+	/**
+	 * The JAVAX_JMS topic.
+	 */
+	private javax.jms.Topic javaxTopic;
+
+	/**
+	 * The JAKARTA_JMS topic.
+	 */
+	private jakarta.jms.Topic jakartaTopic;
+
+	/**
+	 * The topic connection factory name.
+	 */
+	private final String topicConnFactoryName;
+
+	/**
+	 * The topic name.
+	 */
+	private final String topicName;
 
     /**
      * Constructs the TopicMessageController instance.
@@ -110,10 +125,18 @@ public class TopicMessageController extends AbstractMessageController {
 	   return messageResponse;
    }
 
-	public javax.jms.Destination getJavaxDestination() {
+	/**
+	 * Return the JAVAX_JMS destination.
+	 * @return the JAVAX_JMS destination.
+	 */
+   public javax.jms.Destination getJavaxDestination() {
 		return javaxTopic;
 	}
 
+	/**
+	 * Return the JAKARTA_JMS destination.
+	 * @return the JAKARTA_JMS destination.
+	 */
 	public jakarta.jms.Destination getJakartaDestination() {
 		return jakartaTopic;
 	}
@@ -185,6 +208,10 @@ public class TopicMessageController extends AbstractMessageController {
 		return Optional.empty();
 	}
 
+	/**
+	 * Return the topich channel.
+	 * @return the topich channel.
+	 */
 	public TopicChannel getTopicChannel() {
 		return (TopicChannel) destinationChannel;
 	}

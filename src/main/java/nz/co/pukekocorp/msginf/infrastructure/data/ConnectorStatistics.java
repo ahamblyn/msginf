@@ -9,10 +9,25 @@ import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatisti
  * @author Alisdair Hamblyn
  */
 public class ConnectorStatistics {
+
+	/**
+	 * The message count.
+	 */
 	private long messageCount = 0;
+
+	/**
+	 * The failed message count.
+	 */
 	private long failedMessageCount = 0;
+
+	/**
+	 * The message time statistics.
+	 */
 	private SynchronizedDescriptiveStatistics messageTimeStats;
-	
+
+	/**
+	 * Construct the ConnectorStatistics.
+	 */
 	public ConnectorStatistics() {
 		messageTimeStats = new SynchronizedDescriptiveStatistics();
 	}
@@ -55,22 +70,42 @@ public class ConnectorStatistics {
 		return failedMessageCount;
 	}
 
+	/**
+	 * Gets the average message time (ms).
+	 * @return the average message time.
+	 */
 	public double getAverageMessageTime() {
 		return messageTimeStats.getMean();
 	}
 
+	/**
+	 * Gets the maximum message time (ms).
+	 * @return the maximum message time.
+	 */
 	public double getMaxMessageTime() {
 		return messageTimeStats.getMax();
 	}
 
+	/**
+	 * Gets the minimum message time (ms).
+	 * @return the minimum message time.
+	 */
 	public double getMinMessageTime() {
 		return messageTimeStats.getMin();
 	}
 
+	/**
+	 * Gets the median message time (ms).
+	 * @return the median message time.
+	 */
 	public double getMedianMessageTime() {
 		return messageTimeStats.getPercentile(50);
 	}
 
+	/**
+	 * Gets the standard deviation message time (ms).
+	 * @return the standard deviation message time.
+	 */
 	public double getStandardDeviationMessageTime() {
 		return messageTimeStats.getStandardDeviation();
 	}

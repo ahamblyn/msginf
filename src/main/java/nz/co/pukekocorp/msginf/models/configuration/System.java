@@ -11,6 +11,7 @@ import java.util.List;
  * @param connectors The connectors
  * @param name Name of the messaging system
  * @param messagingModel The messaging model
+ * @param jmsImplementation the JMS implementation: JAVAX_JMS or JAKARTA_JMS
  * @param jndiProperties The JNDI properties
  */
 @Schema(description = "System model")

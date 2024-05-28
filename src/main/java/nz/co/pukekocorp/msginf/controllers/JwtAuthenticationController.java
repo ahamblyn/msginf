@@ -31,6 +31,12 @@ public class JwtAuthenticationController {
     private final JwtTokenUtil jwtTokenUtil;
     private final UserRepository userRepository;
 
+    /**
+     * Create the JwtAuthenticationController
+     * @param authenticationManager the authentication manager.
+     * @param jwtTokenUtil the JWT token util.
+     * @param userRepository the user repository.
+     */
     public JwtAuthenticationController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
@@ -41,7 +47,6 @@ public class JwtAuthenticationController {
      * Create a JWT authentication token
      * @param authenticationRequest JWT request
      * @return JWT response
-     * @throws Exception throws exception if user cannot be authenticated
      */
     @Operation(
             summary = "Create a JWT authentication token",

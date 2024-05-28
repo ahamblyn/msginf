@@ -6,6 +6,9 @@ import nz.co.pukekocorp.msginf.models.user.UserResponse;
 
 import java.util.Optional;
 
+/**
+ * Manage user service.
+ */
 public interface IUserService {
 
     /**
