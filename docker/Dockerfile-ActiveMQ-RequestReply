@@ -1,0 +1,4 @@
+FROM amazoncorretto:21-alpine-jdk
+MAINTAINER pukekocorp.co.nz
+COPY target/MessageListener-msginf-tests.jar MessageListener-msginf-tests.jar
+ENTRYPOINT ["java","-classpath","./MessageListener-msginf-tests.jar", "nz.co.pukekocorp.msginf.client.listener.MessageRequestReply", "activemq", "QueueConnectionFactory", "RequestQueue", "ReplyQueue", "tcp://activemq:61616", "jakarta-jms"]

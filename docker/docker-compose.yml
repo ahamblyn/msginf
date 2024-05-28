@@ -2,14 +2,40 @@ name: msginf
 services:
   msginf:
     container_name: msginf
+    profiles: [ msginf-all ]
     image: msginf:latest
     ports:
       - "8080:8080"
     depends_on:
-      - activemq
+      activemq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     restart: on-failure
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - msginf_network
+
+  activemqrequestreply:
+    container_name: activemqrequestreply
+    profiles: [ msginf-all, msginf-test ]
+    image: activemqrequestreply:latest
+    depends_on:
+      activemq:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - msginf_network
+
+  activemqsubscriber:
+    container_name: activemqsubscriber
+    profiles: [ msginf-all, msginf-test ]
+    image: activemqsubscriber:latest
+    depends_on:
+      activemq:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - msginf_network
 
@@ -31,6 +57,8 @@ services:
       - "61616:61616"
       - "8161:8161"
     restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", " netstat -an | grep -q 61616"]
     networks:
       - msginf_network
 
@@ -38,6 +66,8 @@ services:
     image: apache/kafka:3.7.0
     hostname: kafka
     container_name: kafka
+    healthcheck:
+      test: ["CMD-SHELL", " netstat -an | grep -q 9092"]
     networks:
       - msginf_network
     ports:
@@ -65,7 +95,8 @@ services:
     networks:
       - msginf_network
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     ports:
       - 8081:8080
     environment:

@@ -8,6 +8,8 @@ import javax.naming.Context;
 
 public class MessageSubscriber implements javax.jms.MessageListener, jakarta.jms.MessageListener {
     private Context context;
+    private String messagingSystem;
+    private String jndiUrl;
     private String jmsImplementation;
     private boolean useDurableSubscriber;
     private javax.jms.TopicConnection javaxTopicConnection;
@@ -17,6 +19,8 @@ public class MessageSubscriber implements javax.jms.MessageListener, jakarta.jms
                              String jndiUrl, String jmsImplementation, boolean useDurableSubscriber) {
         try {
             this.context = Util.createContext(parser, messagingSystem, jndiUrl);
+            this.messagingSystem = messagingSystem;
+            this.jndiUrl = jndiUrl;
             this.jmsImplementation = jmsImplementation;
             this.useDurableSubscriber = useDurableSubscriber;
         } catch (ConfigurationException e) {
@@ -56,7 +60,7 @@ public class MessageSubscriber implements javax.jms.MessageListener, jakarta.jms
                 javax.jms.TopicSubscriber topicSubscriber = useDurableSubscriber ?
                         session.createDurableSubscriber(topic, "test") : ((javax.jms.TopicSession) session).createSubscriber(topic);
                 topicSubscriber.setMessageListener(this);
-                System.out.println("Message Subscriber started...");
+                System.out.println("Message Subscriber [" + messagingSystem + ":" + jndiUrl + "] started...");
                 javaxTopicConnection.start();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -71,7 +75,7 @@ public class MessageSubscriber implements javax.jms.MessageListener, jakarta.jms
                 jakarta.jms.TopicSubscriber topicSubscriber = useDurableSubscriber ?
                         session.createDurableSubscriber(topic, "test") : ((jakarta.jms.TopicSession) session).createSubscriber(topic);
                 topicSubscriber.setMessageListener(this);
-                System.out.println("Message Subscriber started...");
+                System.out.println("Message Subscriber [" + messagingSystem + ":" + jndiUrl + "] started...");
                 jakartaTopicConnection.start();
             } catch (Exception e) {
                 e.printStackTrace();
