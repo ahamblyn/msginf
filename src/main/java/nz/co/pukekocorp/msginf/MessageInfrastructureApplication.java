@@ -5,6 +5,7 @@ import nz.co.pukekocorp.msginf.entities.User;
 import nz.co.pukekocorp.msginf.repositories.UserRepository;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -21,6 +22,9 @@ import java.util.Optional;
 @Slf4j
 public class MessageInfrastructureApplication {
 
+    @Value("${msginf.database.autoload-user}")
+    private boolean autoloadUser;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -35,13 +39,18 @@ public class MessageInfrastructureApplication {
     @Bean
     InitializingBean initializeUser() {
         return () -> {
-            Optional<User> userOpt = userRepository.findByUserName("msginf");
-            userOpt.ifPresentOrElse(user -> log.info(user.getUsername() + " user already exists"), () -> {
-                log.info("Creating msginf user");
-                User user = new User("msginf", "$2a$10$IMTTcjp2GBWjuJ9EbZ7zR.QZFEFPREBSM2RfjzBkonS3BNxP/sHUu",
-                        "Fred", "Dagg");
-                userRepository.save(user);
-            });
+            if (autoloadUser) {
+                log.info("Autoload user.");
+                Optional<User> userOpt = userRepository.findByUserName("msginf");
+                userOpt.ifPresentOrElse(user -> log.info(user.getUsername() + " user already exists"), () -> {
+                    log.info("Creating msginf user");
+                    User user = new User("msginf", "$2a$10$IMTTcjp2GBWjuJ9EbZ7zR.QZFEFPREBSM2RfjzBkonS3BNxP/sHUu",
+                            "Fred", "Dagg");
+                    userRepository.save(user);
+                });
+            } else {
+                log.info("User not autoloaded.");
+            }
         };
     }
 

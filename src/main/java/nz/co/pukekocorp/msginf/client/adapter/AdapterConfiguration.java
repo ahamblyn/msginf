@@ -19,7 +19,7 @@ public class AdapterConfiguration {
 
     private MessageInfrastructurePropertiesFileParser propertiesFileParser;
 
-    @Value("#{${jndi.url.map}}")
+    @Value("#{${msginf.jndi.url.map}}")
     private Map<String, String> jndiUrlMap;
 
     @Bean
@@ -34,7 +34,7 @@ public class AdapterConfiguration {
             propertiesFileParser.getAvailableMessagingSystems(MessagingModel.POINT_TO_POINT).forEach(messagingSystem -> {
                 try {
                     String jndiUrl = Optional.ofNullable(jndiUrlMap.get(messagingSystem))
-                            .orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the jndi.url.map property in the application.properties file."));
+                            .orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the msginf.jndi.url.map property in the application.properties file."));
                     queueManagerMap.put(messagingSystem, new QueueManager(propertiesFileParser, messagingSystem, jndiUrl));
                 } catch (ConfigurationException e) {
                     log.error("QueueManager unable to be created for " + messagingSystem, e);
@@ -59,7 +59,7 @@ public class AdapterConfiguration {
             propertiesFileParser.getAvailableMessagingSystems(MessagingModel.PUBLISH_SUBSCRIBE).forEach(messagingSystem -> {
                 try {
                     String jndiUrl = Optional.ofNullable(jndiUrlMap.get(messagingSystem))
-                            .orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the jndi.url.map property in the application.properties file."));
+                            .orElseThrow(() -> new ConfigurationException("The messaging system " + messagingSystem + " has no JNDI url configured. Check the msginf.jndi.url.map property in the application.properties file."));
                     topicManagerMap.put(messagingSystem, new TopicManager(propertiesFileParser, messagingSystem, jndiUrl));
                 } catch (ConfigurationException e) {
                     log.error("TopicManager unable to be created for " + messagingSystem, e);

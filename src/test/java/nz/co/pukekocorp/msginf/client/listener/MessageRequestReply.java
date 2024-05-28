@@ -13,6 +13,8 @@ import java.util.Optional;
 @Slf4j
 public class MessageRequestReply implements javax.jms.MessageListener, jakarta.jms.MessageListener {
     private Context context;
+    private String messagingSystem;
+    private String jndiUrl;
     private String jmsImplementation;
     private javax.jms.QueueConnection javaxQueueConnection;
     private jakarta.jms.QueueConnection jakartaQueueConnection;
@@ -22,6 +24,8 @@ public class MessageRequestReply implements javax.jms.MessageListener, jakarta.j
                                String jndiUrl, String jmsImplementation) {
         try {
             this.context = Util.createContext(parser, messagingSystem, jndiUrl);
+            this.messagingSystem = messagingSystem;
+            this.jndiUrl = jndiUrl;
             this.jmsImplementation = jmsImplementation;
         } catch (ConfigurationException e) {
             e.printStackTrace();
@@ -60,7 +64,7 @@ public class MessageRequestReply implements javax.jms.MessageListener, jakarta.j
                 javax.jms.MessageConsumer consumer = session.createConsumer(requestQueue);
                 javax.jms.MessageProducer replyMessageProducer = session.createProducer(replyQueue);
                 consumer.setMessageListener(this);
-                System.out.println("MessageRequestReply started...");
+                System.out.println("Message Request-Reply [" + messagingSystem + ":" + jndiUrl + "] started...");
                 javaxQueueConnection.start();
                 mrh = new MessageReplyHandler(session, replyMessageProducer);
             } catch (Exception e) {
@@ -77,7 +81,7 @@ public class MessageRequestReply implements javax.jms.MessageListener, jakarta.j
                 jakarta.jms.MessageConsumer consumer = session.createConsumer(requestQueue);
                 jakarta.jms.MessageProducer replyMessageProducer = session.createProducer(replyQueue);
                 consumer.setMessageListener(this);
-                System.out.println("MessageRequestReply started...");
+                System.out.println("Message Request-Reply [" + messagingSystem + ":" + jndiUrl + "] started...");
                 jakartaQueueConnection.start();
                 mrh = new MessageReplyHandler(session, replyMessageProducer);
             } catch (Exception e) {
