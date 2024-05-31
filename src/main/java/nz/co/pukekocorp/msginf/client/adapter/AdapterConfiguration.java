@@ -13,20 +13,38 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Configures the beans required by the adapter.
+ */
 @Configuration
 @Slf4j
 public class AdapterConfiguration {
 
+    /**
+     * The properties file parser.
+     */
     private MessageInfrastructurePropertiesFileParser propertiesFileParser;
 
+    /**
+     * The JNDI url map used to map messaging systems to their JNDI urls.
+     * This is defined in the Spring Boot application.properties file.
+     */
     @Value("#{${msginf.jndi.url.map}}")
     private Map<String, String> jndiUrlMap;
 
+    /**
+     * The map of messaging systems to their respective queue manager.
+     * @return the map of messaging systems and their queue manager.
+     */
     @Bean
     public Map<String, QueueManager> queueManagers() {
         return createQueueManagers();
     }
 
+    /**
+     * Create the messaging systems to queue manager map.
+     * @return the messaging systems to queue manager map.
+     */
     public Map<String, QueueManager> createQueueManagers() {
         Map<String, QueueManager> queueManagerMap = new ConcurrentHashMap<>();
         try {
@@ -47,11 +65,19 @@ public class AdapterConfiguration {
         return queueManagerMap;
     }
 
+    /**
+     * The map of messaging systems to their respective topic manager.
+     * @return the map of messaging systems and their topic manager.
+     */
     @Bean
     public Map<String, TopicManager> topicManagers() {
         return createTopicManagers();
     }
 
+    /**
+     * Create the messaging systems to topic manager map.
+     * @return the messaging systems to topic manager map.
+     */
     public Map<String, TopicManager> createTopicManagers() {
         Map<String, TopicManager> topicManagerMap = new ConcurrentHashMap<>();
         try {
@@ -72,6 +98,10 @@ public class AdapterConfiguration {
         return topicManagerMap;
     }
 
+    /**
+     * The properties file parser bean.
+     * @return the properties file parser bean.
+     */
     @Bean
     public MessageInfrastructurePropertiesFileParser propertiesFileParser() {
         try {

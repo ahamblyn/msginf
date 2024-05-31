@@ -12,38 +12,73 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * User database entity.
+ */
 @Table(name = "users")
 @Entity
 @Getter
 @Setter
 public class User implements UserDetails {
+
+    /**
+     * The primary key.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private Integer id;
 
+    /**
+     * The user name.
+     */
     @Column(unique = true, length = 100, nullable = false)
     private String userName;
 
+    /**
+     * The user's password.
+     */
     @Column(nullable = false, length = 60)
     private String password;
 
+    /**
+     * The user's first name.
+     */
     @Column()
     private String firstName;
 
+    /**
+     * The user's last name.
+     */
     @Column()
     private String lastName;
 
+    /**
+     * The entity creation time.
+     */
     @CreationTimestamp
     @Column(updatable = false, name="created_at")
     private Date createdAt;
 
+    /**
+     * The entity update time.
+     */
     @UpdateTimestamp
     @Column(name="updated_at")
     private Date updatedAt;
 
+    /**
+     * Create a user.
+     */
     public User() {}
 
+    /**
+     * Create a user.
+     * @param userName the user name.
+     * @param password the user's password.
+     * @param firstName the user's first name.
+     * @param lastName the user's last name.
+     */
     public User(String userName, String password, String firstName, String lastName) {
         this.userName = userName;
         this.password = password;
@@ -51,31 +86,55 @@ public class User implements UserDetails {
         this.lastName = lastName;
     }
 
+    /**
+     * The user's granted authorities.
+     * @return the user's granted authorities.
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
+    /**
+     * Gets the user name.
+     * @return the user name.
+     */
     @Override
     public String getUsername() {
         return userName;
     }
 
+    /**
+     * Whether the account is non-expired.
+     * @return whether the account is non-expired.
+     */
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    /**
+     * Whether the account is non-locked.
+     * @return whether the account is non-locked.
+     */
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    /**
+     * Whether the credentials are non-expired.
+     * @return whether the credentials are non-expired.
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    /**
+     * Whether the user is enabled.
+     * @return whether the user is enabled.
+     */
     @Override
     public boolean isEnabled() {
         return true;

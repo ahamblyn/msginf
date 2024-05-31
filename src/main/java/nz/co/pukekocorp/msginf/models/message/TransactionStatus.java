@@ -7,6 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(description = "The Transaction status model")
 public enum TransactionStatus {
+
+    /**
+     * Success transaction status.
+     */
     SUCCESS,
+
+    /**
+     * Error transaction status.
+     */
     ERROR
 }

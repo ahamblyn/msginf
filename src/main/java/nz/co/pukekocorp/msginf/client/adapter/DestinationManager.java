@@ -27,9 +27,24 @@ import java.util.zip.Deflater;
 @Slf4j
 public abstract class DestinationManager {
 
+    /**
+     * Message controller map.
+     */
     protected ConcurrentMap<String, AbstractMessageController> messageControllers = new ConcurrentHashMap<>();
+
+    /**
+     * The JNDI context.
+     */
     protected Context jndiContext;
+
+    /**
+     * The properties file parser.
+     */
     protected MessageInfrastructurePropertiesFileParser parser;
+
+    /**
+     * The messaging system.
+     */
     protected String messagingSystem;
 
     /**
@@ -85,6 +100,12 @@ public abstract class DestinationManager {
         return result;
     }
 
+    /**
+     * Initialise the JNDI context.
+     * @param parser the properties file parser.
+     * @param jndiUrl the JNDI url.
+     * @throws ConfigurationException the configuration exception.
+     */
     protected void initialiseJMSContext(MessageInfrastructurePropertiesFileParser parser, String jndiUrl) throws ConfigurationException{
         this.jndiContext = Util.createContext(parser, messagingSystem, jndiUrl);
         log.info("JNDI context created for " + messagingSystem + " messaging system");
@@ -106,7 +127,7 @@ public abstract class DestinationManager {
      * Get the message controller for the connector
      * @param connector the connector name
      * @return the message connector
-     * @throws MessageException
+     * @throws MessageException the message exception.
      */
     public abstract AbstractMessageController getMessageController(String connector) throws MessageException;
 

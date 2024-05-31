@@ -11,6 +11,10 @@ import lombok.Getter;
 @AllArgsConstructor
 @Schema(description = "The JWT Response model")
 public class JwtResponse {
+
+    /**
+     * The JWT token.
+     */
     @Schema(description = "The JWT token")
     private final String jwttoken;
 }

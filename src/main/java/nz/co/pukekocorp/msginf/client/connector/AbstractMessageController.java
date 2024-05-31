@@ -27,15 +27,55 @@ import java.util.Optional;
 @Slf4j
 public abstract class AbstractMessageController {
 
+    /**
+     * The JAVAX_JMS message producer.
+     */
     protected javax.jms.MessageProducer javaxMessageProducer;
+
+    /**
+     * The JAKARTA_JMS message producer.
+     */
     protected jakarta.jms.MessageProducer jakartaMessageProducer;
+
+    /**
+     * The messaging system name.
+     */
     protected String messagingSystem;
+
+    /**
+     * The connector name.
+     */
     protected String connector;
+
+    /**
+     * The message properties to add to the message.
+     */
     protected List<MessageProperty> configMessageProperties;
+
+    /**
+     * The destination channel used to send the messages.
+     */
     protected DestinationChannel destinationChannel;
+
+    /**
+     * the time for the message to live.
+     */
     protected int messageTimeToLive;
+
+    /**
+     * Whether to use connection pooling or not.
+     */
     protected boolean useConnectionPooling;
+
+    /**
+     * The JMS implementation used by the message controller: JAVAX_JMS or JAKARTA_JMS.
+     */
     protected JmsImplementation jmsImplementation;
+
+    /**
+     * Whether the message controller is valid. If false then the message controller will be
+     * discarded and a new one recreated.
+     */
     protected boolean valid;
 
     /**
@@ -63,6 +103,10 @@ public abstract class AbstractMessageController {
      */
     public abstract jakarta.jms.Destination getJakartaDestination();
 
+    /**
+     * Return the JMS implementation.
+     * @return the JMS implementation.
+     */
     public JmsImplementation getJmsImplementation() {
         return jmsImplementation;
     }
@@ -142,6 +186,11 @@ public abstract class AbstractMessageController {
         return messages;
     }
 
+    /**
+     * Collate the statistics for the connector.
+     * @param connector the connector.
+     * @param start the time to collate.
+     */
     protected void collateStats(String connector, Instant start) {
         Instant finish = Instant.now();
         long duration = Duration.between(start, finish).toMillis();
@@ -149,7 +198,13 @@ public abstract class AbstractMessageController {
         collector.addMessageTime(messagingSystem, connector, duration);
     }
 
-    protected void getMessageProperties(javax.jms.Message replyMsg, List<MessageProperty> messageProperties) throws javax.jms.JMSException {
+    /**
+     * Copy the JAVAX_JMS reply message properties to the message properties.
+     * @param replyMsg the reply message.
+     * @param messageProperties the message properties.
+     * @throws javax.jms.JMSException the JMS Exception.
+     */
+    protected void copyReplyMessageProperties(javax.jms.Message replyMsg, List<MessageProperty> messageProperties) throws javax.jms.JMSException {
         if (messageProperties != null) {
             Enumeration propertyNames = replyMsg.getPropertyNames();
             while (propertyNames.hasMoreElements()) {
@@ -159,7 +214,13 @@ public abstract class AbstractMessageController {
         }
     }
 
-    protected void getMessageProperties(jakarta.jms.Message replyMsg, List<MessageProperty> messageProperties) throws jakarta.jms.JMSException {
+    /**
+     * Copy the JAKARTA_JMS reply message properties to the message properties.
+     * @param replyMsg the reply message.
+     * @param messageProperties the message properties.
+     * @throws jakarta.jms.JMSException the JMS Exception.
+     */
+    protected void copyReplyMessageProperties(jakarta.jms.Message replyMsg, List<MessageProperty> messageProperties) throws jakarta.jms.JMSException {
         if (messageProperties != null) {
             Enumeration propertyNames = replyMsg.getPropertyNames();
             while (propertyNames.hasMoreElements()) {
@@ -169,18 +230,38 @@ public abstract class AbstractMessageController {
         }
     }
 
+    /**
+     * Create a JAVAX_JMS bytes message.
+     * @return the bytes message.
+     * @throws javax.jms.JMSException the JMS exception.
+     */
     protected javax.jms.BytesMessage createJavaxBytesMessage() throws javax.jms.JMSException {
         return destinationChannel.createJavaxBytesMessage();
     }
 
+    /**
+     * Create a JAVAX_JMS text message.
+     * @return the text message.
+     * @throws javax.jms.JMSException the JMS exception.
+     */
     protected javax.jms.TextMessage createJavaxTextMessage() throws javax.jms.JMSException {
         return destinationChannel.createJavaxTextMessage();
     }
 
+    /**
+     * Create a JAKARTA_JMS bytes message.
+     * @return the bytes message.
+     * @throws jakarta.jms.JMSException the JMS exception.
+     */
     protected jakarta.jms.BytesMessage createJakartaBytesMessage() throws jakarta.jms.JMSException {
         return destinationChannel.createJakartaBytesMessage();
     }
 
+    /**
+     * Create a JAKARTA_JMS text message.
+     * @return the text message.
+     * @throws jakarta.jms.JMSException the JMS exception.
+     */
     protected jakarta.jms.TextMessage createJakartaTextMessage() throws jakarta.jms.JMSException {
         return destinationChannel.createJakartaTextMessage();
     }
@@ -191,7 +272,8 @@ public abstract class AbstractMessageController {
      * @param messagingSystem the messaging system
      * @param jndiContext the JNDI context
      * @throws MessageException Message exception
-     * @throws javax.jms.JMSException JMS exception
+     * @throws javax.jms.JMSException JAVAX_JMS exception
+     * @throws jakarta.jms.JMSException JAKARTA_JMS exception
      */
     public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException;
 
@@ -206,6 +288,12 @@ public abstract class AbstractMessageController {
     public abstract Optional<DestinationChannel> makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser,
                                                                  String messagingSystem, Context jndiContext) throws MessageException;
 
+    /**
+     * Create a JAVAX_JMS message.
+     * @param messageRequest the message request.
+     * @return the message
+     * @throws javax.jms.JMSException the JMS exception.
+     */
     protected Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest) throws javax.jms.JMSException {
         if (messageRequest.getMessageType() == MessageType.TEXT) {
             javax.jms.TextMessage message = createJavaxTextMessage();
@@ -220,6 +308,12 @@ public abstract class AbstractMessageController {
         return Optional.empty();
     }
 
+    /**
+     * Create a JAKARTA_JMS message.
+     * @param messageRequest the message request.
+     * @return the message
+     * @throws jakarta.jms.JMSException the JMS exception.
+     */
     protected Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest) throws jakarta.jms.JMSException {
         if (messageRequest.getMessageType() == MessageType.TEXT) {
             jakarta.jms.TextMessage message = createJakartaTextMessage();
@@ -234,6 +328,11 @@ public abstract class AbstractMessageController {
         return Optional.empty();
     }
 
+    /**
+     * Set the properties of a message.
+     * @param jmsMessage the message.
+     * @param requestMessageProperties the message properties.
+     */
     protected void setMessageProperties(javax.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
         // Apply header properties from message request and properties from config. Request properties have priority.
         List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
@@ -251,6 +350,11 @@ public abstract class AbstractMessageController {
         });
     }
 
+    /**
+     * Set the properties of a message.
+     * @param jmsMessage the message.
+     * @param requestMessageProperties the message properties.
+     */
     protected void setMessageProperties(jakarta.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
         // Apply header properties from message request and properties from config. Request properties have priority.
         List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
@@ -268,10 +372,20 @@ public abstract class AbstractMessageController {
         });
     }
 
+    /**
+     * Return the validity of the message controller.
+     * @return the validity of the message controller.
+     */
     public boolean isValid() {
         return valid;
     }
 
+    /**
+     * Set the validity of the message controller.
+     * The message controller cannot be set to valid once it has been set to invalid.
+     * This will throw an IllegalArgumentException.
+     * @param bValid the validity.
+     */
     public void setValid(boolean bValid) {
         // can't set to true once it is false
         if (bValid && !this.valid) {

@@ -23,19 +23,70 @@ import java.util.Optional;
 @Slf4j
 public class QueueMessageController extends AbstractMessageController {
 
-   private javax.jms.Queue javaxQueue;
-   private jakarta.jms.Queue jakartaQueue;
-   private javax.jms.Queue javaxReplyQueue;
-   private jakarta.jms.Queue jakartaReplyQueue;
-   private String queueConnFactoryName;
-   private String queueName;
-   private javax.jms.MessageProducer javaxRequestReplyMessageProducer;
-   private jakarta.jms.MessageProducer jakartaRequestReplyMessageProducer;
-   private ConsumerMessageRequester messageRequester;
-   private final boolean replyExpected;
-   private final int messageTimeToLive;
-   private int replyWaitTime = 0;
-   private boolean useMessageSelector = true;
+	/**
+	 * The JAVAX_JMS queue.
+	 */
+	private javax.jms.Queue javaxQueue;
+
+	/**
+	 * The JAKARTA_JMS queue.
+	 */
+	private jakarta.jms.Queue jakartaQueue;
+
+	/**
+	 * The JAVAX_JMS reply queue.
+	 */
+	private javax.jms.Queue javaxReplyQueue;
+
+	/**
+	 * The JAKARTA_JMS reply queue.
+	 */
+	private jakarta.jms.Queue jakartaReplyQueue;
+
+	/**
+	 * The queue connection factory name.
+	 */
+	private final String queueConnFactoryName;
+
+	/**
+	 * The queue name.
+	 */
+	private final String queueName;
+
+	/**
+	 * The JAVAX_JMS request-reply message producer.
+	 */
+	private javax.jms.MessageProducer javaxRequestReplyMessageProducer;
+
+	/**
+	 * The JAKARTA_JMS request-reply message producer.
+	 */
+	private jakarta.jms.MessageProducer jakartaRequestReplyMessageProducer;
+
+	/**
+	 * The message request consumer.
+	 */
+	private ConsumerMessageRequester messageRequester;
+
+	/**
+	 * Whether a reply is expected.
+	 */
+	private final boolean replyExpected;
+
+	/**
+	 * Message time to live.
+	 */
+	private final int messageTimeToLive;
+
+	/**
+	 * The reply wait time.
+	 */
+	private int replyWaitTime = 0;
+
+	/**
+	 * Whether to use a message selector.
+	 */
+	private boolean useMessageSelector = true;
 
     /**
      * Constructs the QueueMessageController instance.
@@ -113,7 +164,7 @@ public class QueueMessageController extends AbstractMessageController {
 			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
 			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
 				javax.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
-				getMessageProperties(replyMsg, messageRequest.getMessageProperties());
+				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
 				if (replyMsg instanceof javax.jms.TextMessage textMessage) {
 					messageResponse.setMessageType(MessageType.TEXT);
 					messageResponse.setTextResponse(textMessage.getText());
@@ -140,7 +191,7 @@ public class QueueMessageController extends AbstractMessageController {
 			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
 			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
 				jakarta.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
-				getMessageProperties(replyMsg, messageRequest.getMessageProperties());
+				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
 				if (replyMsg instanceof jakarta.jms.TextMessage textMessage) {
 					messageResponse.setMessageType(MessageType.TEXT);
 					messageResponse.setTextResponse(textMessage.getText());
@@ -175,10 +226,18 @@ public class QueueMessageController extends AbstractMessageController {
 	return messageResponse;
    }
 
+	/**
+	 * Return the JAVAX_JMS destination.
+	 * @return the JAVAX_JMS destination.
+	 */
 	public javax.jms.Destination getJavaxDestination() {
 	   return javaxQueue;
 	}
 
+	/**
+	 * Return the JAKARTA_JMS destination.
+	 * @return the JAKARTA_JMS destination.
+	 */
 	public jakarta.jms.Destination getJakartaDestination() {
 		return jakartaQueue;
 	}

@@ -1,5 +1,10 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
+/**
+ * This class is a holder class containing a Session and creates the
+ * Producers and Consumers for a particular topic.
+ * @author Alisdair Hamblyn
+ */
 public class TopicChannel extends DestinationChannel {
     private boolean useDurableSubscriber;
 

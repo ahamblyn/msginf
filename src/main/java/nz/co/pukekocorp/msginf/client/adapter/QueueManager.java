@@ -36,7 +36,7 @@ public class QueueManager extends DestinationManager {
 	 * Get the message controller for the connector
 	 * @param connector the connector name
 	 * @return the message connector
-	 * @throws MessageException
+	 * @throws MessageException the message exception.
 	 */
 	public AbstractMessageController getMessageController(String connector) throws MessageException {
 		QueueMessageController mc = (QueueMessageController) messageControllers.get(connector);

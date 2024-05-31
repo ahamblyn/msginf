@@ -8,6 +8,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(description = "The Request Type model")
 public enum RequestType {
+
+    /**
+     * Text request type.
+     */
     @JsonProperty("text") TEXT,
+
+    /**
+     * Binary request type.
+     */
     @JsonProperty("binary") BINARY
 }

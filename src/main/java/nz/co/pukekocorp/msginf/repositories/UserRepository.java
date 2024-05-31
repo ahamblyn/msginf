@@ -6,7 +6,16 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * The user database repository.
+ */
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {
+
+    /**
+     * Find the user by name.
+     * @param userName the user name.
+     * @return the user found.
+     */
     Optional<User> findByUserName(String userName);
 }
