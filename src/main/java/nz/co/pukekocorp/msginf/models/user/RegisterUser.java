@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * Register user model.
  */
@@ -19,4 +21,6 @@ public class RegisterUser {
     private String firstName;
     @Schema(description = "The last name")
     private String lastName;
+    @Schema(description = "The roles")
+    private List<RegisterRole> roles;
 }
