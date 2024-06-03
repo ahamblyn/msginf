@@ -10,6 +10,7 @@ import nz.co.pukekocorp.msginf.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -30,6 +31,7 @@ public class UserController {
      * @param registerUser user request
      * @return user response
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Create a new user",
             description = "Create a new user",
@@ -52,6 +54,7 @@ public class UserController {
      * @param registerUser user request
      * @return user response
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Delete user",
             description = "Delete user",
@@ -74,6 +77,7 @@ public class UserController {
      * @param userName the user name
      * @return user response
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Delete user",
             description = "Delete user",

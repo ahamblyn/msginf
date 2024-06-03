@@ -10,6 +10,7 @@ import nz.co.pukekocorp.msginf.models.statistics.SystemStats;
 import nz.co.pukekocorp.msginf.services.IStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,7 @@ public class StatisticsController {
      * Returns the statistics for all the messaging systems
      * @return the statistics for all the messaging systems
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Retrieve all the statistics",
             description = "Retrieve all the statistics",
@@ -50,6 +52,7 @@ public class StatisticsController {
      * Reset the statistics
      * @return the result of the reset
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Reset the statistics",
             description = "Reset the statistics",
@@ -65,6 +68,7 @@ public class StatisticsController {
      * @param connectorName the name of a connector
      * @return the connector statistics
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Retrieve the connector statistics for a system and connector",
             description = "Retrieve the connector statistics for a system and connector",
@@ -80,6 +84,7 @@ public class StatisticsController {
      * @param systemName the name of a system
      * @return the system statistics
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Retrieve the system statistics for a system",
             description = "Retrieve the system statistics for a system",

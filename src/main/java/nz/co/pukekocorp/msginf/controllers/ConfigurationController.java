@@ -8,6 +8,7 @@ import nz.co.pukekocorp.msginf.models.configuration.System;
 import nz.co.pukekocorp.msginf.services.IConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +39,7 @@ public class ConfigurationController {
      * Returns the configuration for all the messaging systems
      * @return the configuration for all the messaging systems
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Retrieve all the configuration",
             description = "Retrieve all the configuration",
@@ -53,6 +55,7 @@ public class ConfigurationController {
      * @param name the name of the messaging system
      * @return the System configuration
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Retrieve the configuration for a messaging system",
             description = "Retrieve the configuration for a messaging system",

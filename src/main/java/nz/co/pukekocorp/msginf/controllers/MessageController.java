@@ -10,6 +10,7 @@ import nz.co.pukekocorp.msginf.services.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class MessageController {
      * @param payload the message
      * @return the message response
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Submit a message asynchronously",
             description = "Submit a message asynchronously",
@@ -56,6 +58,7 @@ public class MessageController {
      * @param timeout the timeout in ms to wait
      * @return the messages read
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Receive (read) messages off a queue",
             description = "Receive (read) messages off a queue",
@@ -72,6 +75,7 @@ public class MessageController {
      * @param payload the message
      * @return the message response
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Submit a message synchronously",
             description = "Submit a message synchronously",
@@ -88,6 +92,7 @@ public class MessageController {
      * @param payload the message
      * @return the message response
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Publish a message to a topic",
             description = "Publish a message to a topic",
@@ -103,6 +108,7 @@ public class MessageController {
      * Restart the messaging infrastructure.
      * @return the message response
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Restart the messaging infrastructure",
             description = "Restart the messaging infrastructure",
@@ -117,6 +123,7 @@ public class MessageController {
      * Return the status for the messaging systems.
      * @return the status for the messaging systems.
      */
+    @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Return the status for the messaging systems",
             description = "Return the status for the messaging systems",
