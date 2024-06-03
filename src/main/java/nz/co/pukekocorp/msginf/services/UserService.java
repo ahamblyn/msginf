@@ -3,7 +3,6 @@ package nz.co.pukekocorp.msginf.services;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.entities.Role;
 import nz.co.pukekocorp.msginf.entities.User;
-import nz.co.pukekocorp.msginf.models.user.RegisterRole;
 import nz.co.pukekocorp.msginf.models.user.RegisterUser;
 import nz.co.pukekocorp.msginf.models.user.UserResponse;
 import nz.co.pukekocorp.msginf.repositories.RoleRepository;
@@ -44,21 +43,7 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(registerUser.getPassword()));
             user.setFirstName(registerUser.getFirstName());
             user.setLastName(registerUser.getLastName());
-            // add roles if required
-            List<RegisterRole> rolesToAdd = new ArrayList<>();
-            Optional.ofNullable(registerUser.getRoles()).ifPresent(roles -> {
-                Optional.ofNullable(user.getRoles()).ifPresent(userRoles -> {
-                    roles.forEach(role -> {
-                        if (userRoles.stream().noneMatch(userRole -> userRole.getName().equals(role.getName()))) {
-                            rolesToAdd.add(role);
-                        }
-                    });
-                });
-            });
-            rolesToAdd.forEach(role -> {
-                Optional<Role> optRole = roleRepository.findByName(role.getName());
-                optRole.ifPresent(dbRole -> user.getRoles().add(dbRole));
-            });
+            addRoles(registerUser, user);
             userRepository.save(user);
             response.setUserName(user.getUsername());
             response.setMessage("User updated.");
@@ -66,20 +51,23 @@ public class UserService implements IUserService {
             log.info("Creating new user " + registerUser.getUserName());
             User user = new User(registerUser.getUserName(), passwordEncoder.encode(registerUser.getPassword()),
                     registerUser.getFirstName(), registerUser.getLastName());
-            // add roles
-            Optional.ofNullable(registerUser.getRoles()).ifPresent(roles -> {
-                Set<Role> rolesToAdd = new HashSet<>();
-                roles.forEach(role -> {
-                    Optional<Role> optRole = roleRepository.findByName(role.getName());
-                    optRole.ifPresent(rolesToAdd::add);
-                });
-                user.setRoles(rolesToAdd);
-            });
+            addRoles(registerUser, user);
             userRepository.save(user);
             response.setUserName(user.getUsername());
             response.setMessage("User " + user.getUsername() + " created successfully.");
         });
         return response;
+    }
+
+    private void addRoles(RegisterUser registerUser, User user) {
+        Optional.ofNullable(registerUser.getRoles()).ifPresent(roles -> {
+            Set<Role> rolesToAdd = new HashSet<>();
+            roles.forEach(role -> {
+                Optional<Role> optRole = roleRepository.findByName(role.getName());
+                optRole.ifPresent(rolesToAdd::add);
+            });
+            user.setRoles(rolesToAdd);
+        });
     }
 
     /**
