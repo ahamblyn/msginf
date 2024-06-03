@@ -6,9 +6,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import nz.co.pukekocorp.msginf.entities.User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * JWT creation and validation
@@ -18,6 +24,8 @@ public class JwtTokenUtil {
 
     @Value("${security.jwt.secret-key}")
     private String secretKey;
+    @Value("${security.jwt.authorities.key}")
+    private String authoritiesKey;
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
     private static final String TOKEN_HEADER = "Authorization";
@@ -29,6 +37,9 @@ public class JwtTokenUtil {
      * @return jwt token
      */
     public String createToken(User user) {
+        String authorities = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
         Claims claims = Jwts.claims().setSubject(user.getUsername());
         claims.put("firstName", user.getFirstName());
         claims.put("lastName", user.getLastName());
@@ -36,6 +47,7 @@ public class JwtTokenUtil {
         Date tokenValidity = new Date(tokenCreateTime.getTime() + jwtExpiration);
         return Jwts.builder()
                 .setClaims(claims)
+                .claim(authoritiesKey, authorities)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(tokenValidity)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
@@ -81,4 +93,10 @@ public class JwtTokenUtil {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
-}
+    public UsernamePasswordAuthenticationToken getAuthenticationToken(Claims claims) {
+        final Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(authoritiesKey).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+        return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
+    }}

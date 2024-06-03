@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * The user database repository.
+ * The user table repository.
  */
 @Repository
 public interface UserRepository extends CrudRepository<User, Integer> {

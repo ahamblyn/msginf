@@ -9,14 +9,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,8 +39,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
             Claims claims = jwtTokenUtil.resolveClaims(request);
             if (claims != null && jwtTokenUtil.validateClaims(claims)) {
-                String userName = claims.getSubject();
-                Authentication authentication = new UsernamePasswordAuthenticationToken(userName, "", new ArrayList<>());
+                Authentication authentication = jwtTokenUtil.getAuthenticationToken(claims);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
