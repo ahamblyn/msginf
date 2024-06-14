@@ -3,6 +3,7 @@ package nz.co.pukekocorp.msginf.models.jwt;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import nz.co.pukekocorp.msginf.models.error.ValidationErrors;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -23,5 +24,11 @@ public class JwtError {
      * The JWT error message.
      */
     @Schema(description = "The JWT error message")
-    private String message;
+    private String errorMessage;
+
+    /**
+     * The validation errors.
+     */
+    @Schema(description = "The validation errors")
+    private ValidationErrors validationErrors;
 }

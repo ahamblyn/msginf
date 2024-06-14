@@ -3,18 +3,25 @@ package nz.co.pukekocorp.msginf.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
+import nz.co.pukekocorp.msginf.models.error.ValidationErrors;
 import nz.co.pukekocorp.msginf.models.message.RestMessageRequest;
 import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
+import nz.co.pukekocorp.msginf.models.message.TransactionStatus;
 import nz.co.pukekocorp.msginf.models.status.Status;
 import nz.co.pukekocorp.msginf.services.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * REST Controller to submit and receive messages.
@@ -46,9 +53,13 @@ public class MessageController {
             tags = {"message"})
     @PostMapping(path = "/submit", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<RestMessageResponse> submit(@Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
-        Optional<RestMessageResponse> messageResponse = messageService.submit(payload);
-        return ResponseEntity.of(messageResponse);
+    public ResponseEntity<RestMessageResponse> submit(@Valid @Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
+        try {
+            Optional<RestMessageResponse> messageResponse = messageService.submit(payload);
+            return ResponseEntity.of(messageResponse);
+        } catch (MessageException e) {
+            return createBadRequestErrorResponse(e.getMessage());
+        }
     }
 
     /**
@@ -67,7 +78,11 @@ public class MessageController {
     public ResponseEntity<List<RestMessageResponse>> receiveMessages(@Parameter(description = "The messaging system") @RequestHeader(name="x-message-system") String messageSystem,
                                                                      @Parameter(description = "The message connector") @RequestHeader(name="x-message-connector") String messageConnector,
                                                                      @Parameter(description = "The message timeout (ms)") @RequestHeader(name="x-timeout") Long timeout) {
-        return ResponseEntity.of(Optional.of(messageService.receiveMessages(messageSystem, messageConnector, timeout)));
+        try {
+            return ResponseEntity.of(Optional.of(messageService.receiveMessages(messageSystem, messageConnector, timeout)));
+        } catch (MessageException e) {
+            return ResponseEntity.of(Optional.of(Collections.singletonList(createBadRequestErrorResponse(e.getMessage()).getBody())));
+        }
     }
 
     /**
@@ -82,9 +97,13 @@ public class MessageController {
             tags = {"message"})
     @PostMapping(path = "/request", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<RestMessageResponse> request(@Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
-        Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload);
-        return ResponseEntity.of(messageResponse);
+    public ResponseEntity<RestMessageResponse> request(@Valid @Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
+        try {
+            Optional<RestMessageResponse> messageResponse = messageService.requestReply(payload);
+            return ResponseEntity.of(messageResponse);
+        } catch (MessageException e) {
+            return createBadRequestErrorResponse(e.getMessage());
+        }
     }
 
     /**
@@ -99,9 +118,13 @@ public class MessageController {
             tags = {"message"})
     @PostMapping(path = "/publish", consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<RestMessageResponse> publish(@Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
-        Optional<RestMessageResponse> messageResponse = messageService.publish(payload);
-        return ResponseEntity.of(messageResponse);
+    public ResponseEntity<RestMessageResponse> publish(@Valid @Parameter(description = "The message") @RequestBody RestMessageRequest payload) {
+        try {
+            Optional<RestMessageResponse> messageResponse = messageService.publish(payload);
+            return ResponseEntity.of(messageResponse);
+        } catch (MessageException e) {
+            return createBadRequestErrorResponse(e.getMessage());
+        }
     }
 
     /**
@@ -132,5 +155,13 @@ public class MessageController {
     public ResponseEntity<Status> getSystemStatus() {
         Status status = messageService.getSystemStatus();
         return ResponseEntity.of(Optional.of(status));
+    }
+
+    private ResponseEntity<RestMessageResponse> createBadRequestErrorResponse(String errorMessage) {
+        String transactionId = UUID.randomUUID().toString();
+        ValidationErrors validationErrors = new ValidationErrors();
+        validationErrors.setErrors(List.of(errorMessage));
+        RestMessageResponse messageResponse = new RestMessageResponse("Bad Request", null, null, transactionId, TransactionStatus.ERROR, 0L, validationErrors);
+        return new ResponseEntity<>(messageResponse, HttpStatus.BAD_REQUEST);
     }
 }
