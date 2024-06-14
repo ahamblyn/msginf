@@ -6,6 +6,10 @@
 package nz.co.pukekocorp.msginf.infrastructure.exception;
 
 import nz.co.pukekocorp.msginf.models.error.ValidationErrors;
+import nz.co.pukekocorp.msginf.models.jwt.JwtError;
+import nz.co.pukekocorp.msginf.models.message.RestMessageResponse;
+import nz.co.pukekocorp.msginf.models.message.TransactionStatus;
+import nz.co.pukekocorp.msginf.models.user.RegisterUser;
 import nz.co.pukekocorp.msginf.models.user.UserResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +22,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -30,16 +35,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         // Return different response entities based on url
         String url = request.getDescription(false);
         if (url.contains("message")) {
-            // RestMessageResponse
-            return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
+            String transactionId = UUID.randomUUID().toString();
+            RestMessageResponse response = new RestMessageResponse("Validation Errors", null, null,
+                    transactionId, TransactionStatus.ERROR, 0L, validationErrors);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else if (url.contains("user")) {
-            // UserResponse
             UserResponse response = new UserResponse();
             response.setValidationErrors(validationErrors);
+            var target = ex.getBindingResult().getTarget();
+            if (target instanceof RegisterUser registerUser) {
+                response.setRegisterUser(registerUser);
+            }
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else if (url.contains("auth")) {
-            // JwtError
-            return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
+            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, "Validation errors occurred", validationErrors);
+            return new ResponseEntity<>(jwtError, HttpStatus.BAD_REQUEST);
         } else {
             return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
         }
@@ -52,7 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        validationErrors.setErrors(errors);
+        validationErrors.setValidationErrors(errors);
         return validationErrors;
     }
 }

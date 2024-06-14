@@ -22,5 +22,5 @@ import java.util.List;
 public class ValidationErrors {
 
     @Schema(description = "The list of validation errors")
-    private List<String> errors;
+    private List<String> validationErrors;
 }

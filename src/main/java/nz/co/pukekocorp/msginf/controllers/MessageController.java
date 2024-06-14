@@ -160,7 +160,7 @@ public class MessageController {
     private ResponseEntity<RestMessageResponse> createBadRequestErrorResponse(String errorMessage) {
         String transactionId = UUID.randomUUID().toString();
         ValidationErrors validationErrors = new ValidationErrors();
-        validationErrors.setErrors(List.of(errorMessage));
+        validationErrors.setValidationErrors(List.of(errorMessage));
         RestMessageResponse messageResponse = new RestMessageResponse("Bad Request", null, null, transactionId, TransactionStatus.ERROR, 0L, validationErrors);
         return new ResponseEntity<>(messageResponse, HttpStatus.BAD_REQUEST);
     }

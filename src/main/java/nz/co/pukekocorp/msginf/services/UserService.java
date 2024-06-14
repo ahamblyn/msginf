@@ -47,7 +47,6 @@ public class UserService implements IUserService {
             addRoles(registerUser, user);
             userRepository.save(user);
             response.setUserName(user.getUsername());
-            response.setRegisterUser(registerUser);
             response.setMessage("User updated");
         }, () -> {
             log.info("Creating new user " + registerUser.getUserName());
@@ -56,7 +55,6 @@ public class UserService implements IUserService {
             addRoles(registerUser, user);
             userRepository.save(user);
             response.setUserName(user.getUsername());
-            response.setRegisterUser(registerUser);
             response.setMessage("User " + user.getUsername() + " created successfully");
         });
         return response;
