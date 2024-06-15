@@ -41,26 +41,22 @@ public class MessageService implements IMessageService {
      * Submit an asynchronous message
      * @param payload the message
      * @return the message response
+     * @throws MessageException the message exception.
      */
     @Override
-    public Optional<RestMessageResponse> submit(RestMessageRequest payload) {
+    public Optional<RestMessageResponse> submit(RestMessageRequest payload) throws MessageException {
         String transactionId = UUID.randomUUID().toString();
-        try {
-            validateMessagingModel("submit", payload.messageSystem());
-            Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.messageConnector(), transactionId);
-            if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
-                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
-            }
-            messageRequest.setTextMessage(payload.textMessage());
-            messenger.sendMessage(payload.messageSystem(), messageRequest);
-            Instant finish = Instant.now();
-            long duration = Duration.between(start, finish).toMillis();
-            return Optional.of(new RestMessageResponse("Message submitted successfully", transactionId, TransactionStatus.SUCCESS, duration));
-        } catch (MessageException e) {
-            log.error("Unable to submit the message", e);
-            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.ERROR));
+        validateMessagingModel("submit", payload.messageSystem());
+        Instant start = Instant.now();
+        MessageRequest messageRequest = new MessageRequest(MessageRequestType.SUBMIT, payload.messageConnector(), transactionId);
+        if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
+            messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
         }
+        messageRequest.setTextMessage(payload.textMessage());
+        messenger.sendMessage(payload.messageSystem(), messageRequest);
+        Instant finish = Instant.now();
+        long duration = Duration.between(start, finish).toMillis();
+        return Optional.of(new RestMessageResponse("Message submitted successfully", transactionId, TransactionStatus.SUCCESS, duration));
     }
 
     /**
@@ -69,75 +65,63 @@ public class MessageService implements IMessageService {
      * @param messageConnector the connector to use
      * @param timeout the timeout in ms to wait
      * @return the messages read
+     * @throws MessageException the message exception.
      */
     @Override
-    public List<RestMessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout) {
-        try {
-            validateMessagingModel("receiveMessages", messagingSystem);
-            List<MessageResponse> messages = messenger.receiveMessages(messagingSystem, messageConnector, timeout);
-            return messages.stream().map(m -> new RestMessageResponse("Received message", m.getTextResponse(),
-                    Util.encodeBinaryMessage(m.getBinaryResponse()), UUID.randomUUID().toString(),
-                    TransactionStatus.SUCCESS, 0L)).toList();
-        } catch (MessageException e) {
-            log.error("Unable to receive the messages", e);
-            return Collections.singletonList(new RestMessageResponse(e.getMessage(), UUID.randomUUID().toString(), TransactionStatus.ERROR));
-        }
+    public List<RestMessageResponse> receiveMessages(String messagingSystem, String messageConnector, long timeout) throws MessageException {
+        validateMessagingModel("receiveMessages", messagingSystem);
+        List<MessageResponse> messages = messenger.receiveMessages(messagingSystem, messageConnector, timeout);
+        return messages.stream().map(m -> new RestMessageResponse("Received message", m.getTextResponse(),
+                Util.encodeBinaryMessage(m.getBinaryResponse()), UUID.randomUUID().toString(),
+                TransactionStatus.SUCCESS, 0L, null)).toList();
     }
 
     /**
      * Submit a synchronous message
      * @param payload the message
      * @return the message response
+     * @throws MessageException the message exception.
      */
     @Override
-    public Optional<RestMessageResponse> requestReply(RestMessageRequest payload) {
+    public Optional<RestMessageResponse> requestReply(RestMessageRequest payload) throws MessageException {
         String transactionId = UUID.randomUUID().toString();
-        try {
-            validateMessagingModel("requestReply", payload.messageSystem());
-            Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, payload.messageConnector(), transactionId);
-            if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
-                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
-            }
-            messageRequest.setTextMessage(payload.textMessage());
-            messageRequest.setMessageProperties(createMessageProperties(payload));
-            MessageResponse reply = messenger.sendMessage(payload.messageSystem(), messageRequest);
-            Instant finish = Instant.now();
-            long duration = Duration.between(start, finish).toMillis();
-            RestMessageResponse restMessageResponse = new RestMessageResponse("Response", reply.getTextResponse(),
-                    Util.encodeBinaryMessage(reply.getBinaryResponse()), UUID.randomUUID().toString(),
-                    TransactionStatus.SUCCESS, duration);
-            return Optional.of(restMessageResponse);
-        } catch (MessageException e) {
-            log.error("Unable to run requestReply", e);
-            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.ERROR));
+        validateMessagingModel("requestReply", payload.messageSystem());
+        Instant start = Instant.now();
+        MessageRequest messageRequest = new MessageRequest(MessageRequestType.REQUEST_RESPONSE, payload.messageConnector(), transactionId);
+        if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
+            messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
         }
+        messageRequest.setTextMessage(payload.textMessage());
+        messageRequest.setMessageProperties(createMessageProperties(payload));
+        MessageResponse reply = messenger.sendMessage(payload.messageSystem(), messageRequest);
+        Instant finish = Instant.now();
+        long duration = Duration.between(start, finish).toMillis();
+        RestMessageResponse restMessageResponse = new RestMessageResponse("Response", reply.getTextResponse(),
+                Util.encodeBinaryMessage(reply.getBinaryResponse()), UUID.randomUUID().toString(),
+                TransactionStatus.SUCCESS, duration, null);
+        return Optional.of(restMessageResponse);
     }
 
     /**
      * Publish a message to a topic
      * @param payload the message
      * @return the message response
+     * @throws MessageException the message exception.
      */
     @Override
-    public Optional<RestMessageResponse> publish(RestMessageRequest payload) {
+    public Optional<RestMessageResponse> publish(RestMessageRequest payload) throws MessageException {
         String transactionId = UUID.randomUUID().toString();
-        try {
-            validateMessagingModel("publish", payload.messageSystem());
-            Instant start = Instant.now();
-            MessageRequest messageRequest = new MessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE, payload.messageConnector(), transactionId);
-            if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
-                messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
-            }
-            messageRequest.setTextMessage(payload.textMessage());
-            messenger.publish(payload.messageSystem(), messageRequest);
-            Instant finish = Instant.now();
-            long duration = Duration.between(start, finish).toMillis();
-            return Optional.of(new RestMessageResponse("Message published successfully", transactionId, TransactionStatus.SUCCESS, duration));
-        } catch (MessageException e) {
-            log.error("Unable to publish the message", e);
-            return Optional.of(new RestMessageResponse(e.getMessage(), transactionId, TransactionStatus.ERROR));
+        validateMessagingModel("publish", payload.messageSystem());
+        Instant start = Instant.now();
+        MessageRequest messageRequest = new MessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE, payload.messageConnector(), transactionId);
+        if (payload.binaryMessage() != null && !payload.binaryMessage().isEmpty()) {
+            messageRequest.setBinaryMessage(Util.decodeBinaryMessage(payload.binaryMessage()));
         }
+        messageRequest.setTextMessage(payload.textMessage());
+        messenger.publish(payload.messageSystem(), messageRequest);
+        Instant finish = Instant.now();
+        long duration = Duration.between(start, finish).toMillis();
+        return Optional.of(new RestMessageResponse("Message published successfully", transactionId, TransactionStatus.SUCCESS, duration));
     }
 
     /**

@@ -2,8 +2,8 @@ package nz.co.pukekocorp.msginf.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import nz.co.pukekocorp.msginf.entities.User;
 import nz.co.pukekocorp.msginf.models.user.RegisterUser;
 import nz.co.pukekocorp.msginf.models.user.UserResponse;
 import nz.co.pukekocorp.msginf.services.IUserService;
@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 /**
  * REST Controller to manage users.
@@ -37,7 +35,7 @@ public class UserController {
             description = "Create a new user",
             tags = {"user"})
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> registerUser(@RequestBody RegisterUser registerUser) {
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody RegisterUser registerUser) {
         try {
             UserResponse response = userService.registerUser(registerUser);
             return ResponseEntity.ok(response);
@@ -51,22 +49,22 @@ public class UserController {
 
     /**
      * Delete user
-     * @param registerUser user request
+     * @param userName user name
      * @return user response
      */
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
-            summary = "Delete user",
-            description = "Delete user",
+            summary = "Delete a user",
+            description = "Delete a user",
             tags = {"user"})
-    @RequestMapping(value = "/deregister", method = RequestMethod.POST)
-    public ResponseEntity<?> deregisterUser(@RequestBody RegisterUser registerUser) {
+    @RequestMapping(value = "/deregister/{userName}", method = RequestMethod.POST)
+    public ResponseEntity<UserResponse> deregisterUser(@NotBlank @PathVariable("userName") String userName) {
         try {
-            UserResponse response = userService.deregisterUser(registerUser);
+            UserResponse response = userService.deregisterUser(userName);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             UserResponse response = new UserResponse();
-            response.setUserName(registerUser.getUserName());
+            response.setUserName(userName);
             response.setMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -79,21 +77,12 @@ public class UserController {
      */
     @PreAuthorize("hasRole('USER')")
     @Operation(
-            summary = "Delete user",
-            description = "Delete user",
+            summary = "Get user",
+            description = "Get user",
             tags = {"user"})
     @GetMapping(value = "/{userName}")
-    public ResponseEntity<?> getUser(@NotBlank @PathVariable("userName") String userName) {
-        Optional<User> userOpt = userService.getUserByUserName(userName);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            user.setPassword("******");
-            return ResponseEntity.ok(user);
-        } else {
-            UserResponse response = new UserResponse();
-            response.setUserName(userName);
-            response.setMessage("User not found.");
-            return ResponseEntity.ok(response);
-        }
+    public ResponseEntity<UserResponse> getUser(@NotBlank @PathVariable("userName") String userName) {
+        UserResponse response = userService.getUserByUserName(userName);
+        return ResponseEntity.ok(response);
     }
 }

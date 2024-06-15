@@ -3,6 +3,7 @@ package nz.co.pukekocorp.msginf.services;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.entities.Role;
 import nz.co.pukekocorp.msginf.entities.User;
+import nz.co.pukekocorp.msginf.models.user.RegisterRole;
 import nz.co.pukekocorp.msginf.models.user.RegisterUser;
 import nz.co.pukekocorp.msginf.models.user.UserResponse;
 import nz.co.pukekocorp.msginf.repositories.RoleRepository;
@@ -32,7 +33,7 @@ public class UserService implements IUserService {
     /**
      * Register the new user.
      * @param registerUser the new user
-     * @return the response
+     * @return the user response
      */
     @Override
     public UserResponse registerUser(RegisterUser registerUser) {
@@ -46,7 +47,7 @@ public class UserService implements IUserService {
             addRoles(registerUser, user);
             userRepository.save(user);
             response.setUserName(user.getUsername());
-            response.setMessage("User updated.");
+            response.setMessage("User updated");
         }, () -> {
             log.info("Creating new user " + registerUser.getUserName());
             User user = new User(registerUser.getUserName(), passwordEncoder.encode(registerUser.getPassword()),
@@ -54,7 +55,7 @@ public class UserService implements IUserService {
             addRoles(registerUser, user);
             userRepository.save(user);
             response.setUserName(user.getUsername());
-            response.setMessage("User " + user.getUsername() + " created successfully.");
+            response.setMessage("User " + user.getUsername() + " created successfully");
         });
         return response;
     }
@@ -72,22 +73,21 @@ public class UserService implements IUserService {
 
     /**
      * Delete user.
-     * @param registerUser the user
-     * @return the response
+     * @param userName the user name
+     * @return the user response
      */
     @Override
-    public UserResponse deregisterUser(RegisterUser registerUser) {
+    public UserResponse deregisterUser(String userName) {
         UserResponse response = new UserResponse();
-        Optional<User> userOpt = userRepository.findByUserName(registerUser.getUserName());
+        response.setUserName(userName);
+        Optional<User> userOpt = userRepository.findByUserName(userName);
         userOpt.ifPresentOrElse(user -> {
-            log.info("Deleting user " + registerUser.getUserName());
+            log.info("Deleting user " + userName);
             userRepository.delete(user);
-            response.setUserName(registerUser.getUserName());
-            response.setMessage("User deleted successfully.");
+            response.setMessage("User deregistered successfully");
         }, () -> {
-            log.info(registerUser.getUserName() + " user doesn't exist");
-            response.setUserName(registerUser.getUserName());
-            response.setMessage("User doesn't exists.");
+            log.info(userName + " user not found");
+            response.setMessage("User not found");
         });
         return response;
     }
@@ -95,10 +95,28 @@ public class UserService implements IUserService {
     /**
      * Get the user by the user name
      * @param userName the user name
-     * @return the user
+     * @return the user response
      */
-    public Optional<User> getUserByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+    public UserResponse getUserByUserName(String userName) {
+        Optional<User> userOpt = userRepository.findByUserName(userName);
+        UserResponse response = new UserResponse();
+        response.setUserName(userName);
+        userOpt.ifPresentOrElse(user -> {
+            RegisterUser registerUser = new RegisterUser();
+            registerUser.setUserName(user.getUsername());
+            registerUser.setFirstName(user.getFirstName());
+            registerUser.setLastName(user.getLastName());
+            registerUser.setRoles(user.getRoles().stream().map(role -> {
+                RegisterRole registerRole = new RegisterRole();
+                registerRole.setName(role.getName());
+                return registerRole;
+            }).toList());
+            response.setRegisterUser(registerUser);
+            response.setMessage("User retrieved successfully");
+        }, () -> {
+            response.setMessage("User not found");
+        });
+        return response;
     }
 
 }

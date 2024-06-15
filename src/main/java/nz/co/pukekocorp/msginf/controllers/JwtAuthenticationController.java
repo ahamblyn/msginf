@@ -2,6 +2,7 @@ package nz.co.pukekocorp.msginf.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import nz.co.pukekocorp.msginf.entities.User;
 import nz.co.pukekocorp.msginf.infrastructure.security.JwtTokenUtil;
 import nz.co.pukekocorp.msginf.models.jwt.JwtError;
@@ -53,7 +54,7 @@ public class JwtAuthenticationController {
             description = "Create a JWT authentication token",
             tags = {"auth"})
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody JwtRequest authenticationRequest) {
         try {
             Authentication authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
@@ -63,10 +64,10 @@ public class JwtAuthenticationController {
             final String token = jwtTokenUtil.createToken(user);
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (BadCredentialsException e) {
-            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, "Invalid username or password");
+            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, "Invalid username or password", null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtError);
         } catch (Exception e) {
-            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, e.getMessage());
+            JwtError jwtError = new JwtError(HttpStatus.BAD_REQUEST, e.getMessage(), null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtError);
         }
     }
