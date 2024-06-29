@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.5</version>
+        <version>3.3.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>nz.co.pukekocorp</groupId>
@@ -20,7 +20,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>3.1.5</spring.version>
+        <spring.version>3.3.1</spring.version>
     </properties>
 
     <dependencies>
@@ -75,9 +75,9 @@
             <version>2.11.0</version>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -172,7 +172,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
-            <version>6.0.13</version>
+            <version>6.1.10</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -204,7 +204,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-report-plugin</artifactId>
-            <version>3.2.1</version>
+            <version>${maven-surefire-plugin.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.collections</groupId>
