@@ -84,6 +84,16 @@ public abstract class AbstractMessageController {
     protected final StatisticsCollector collector = StatisticsCollector.getInstance();
 
     /**
+     * Javax message factory.
+     */
+    protected final nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageFactory javaxAbstractMessageFactory = new nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageFactory();
+
+    /**
+     * Jakarta message factory.
+     */
+    protected final nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageFactory jakartaAbstractMessageFactory = new nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageFactory();
+
+    /**
      * This method sends the message to the JMS objects.
      * @param messageRequest the message request.
      * @return the message response.
@@ -235,7 +245,7 @@ public abstract class AbstractMessageController {
      * @return the bytes message.
      * @throws javax.jms.JMSException the JMS exception.
      */
-    protected javax.jms.BytesMessage createJavaxBytesMessage() throws javax.jms.JMSException {
+    public javax.jms.BytesMessage createJavaxBytesMessage() throws javax.jms.JMSException {
         return destinationChannel.createJavaxBytesMessage();
     }
 
@@ -244,7 +254,7 @@ public abstract class AbstractMessageController {
      * @return the text message.
      * @throws javax.jms.JMSException the JMS exception.
      */
-    protected javax.jms.TextMessage createJavaxTextMessage() throws javax.jms.JMSException {
+    public javax.jms.TextMessage createJavaxTextMessage() throws javax.jms.JMSException {
         return destinationChannel.createJavaxTextMessage();
     }
 
@@ -253,7 +263,7 @@ public abstract class AbstractMessageController {
      * @return the bytes message.
      * @throws jakarta.jms.JMSException the JMS exception.
      */
-    protected jakarta.jms.BytesMessage createJakartaBytesMessage() throws jakarta.jms.JMSException {
+    public jakarta.jms.BytesMessage createJakartaBytesMessage() throws jakarta.jms.JMSException {
         return destinationChannel.createJakartaBytesMessage();
     }
 
@@ -262,7 +272,7 @@ public abstract class AbstractMessageController {
      * @return the text message.
      * @throws jakarta.jms.JMSException the JMS exception.
      */
-    protected jakarta.jms.TextMessage createJakartaTextMessage() throws jakarta.jms.JMSException {
+    public jakarta.jms.TextMessage createJakartaTextMessage() throws jakarta.jms.JMSException {
         return destinationChannel.createJakartaTextMessage();
     }
 
@@ -295,17 +305,7 @@ public abstract class AbstractMessageController {
      * @throws javax.jms.JMSException the JMS exception.
      */
     protected Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest) throws javax.jms.JMSException {
-        if (messageRequest.getMessageType() == MessageType.TEXT) {
-            javax.jms.TextMessage message = createJavaxTextMessage();
-            message.setText(messageRequest.getTextMessage());
-            return Optional.of(message);
-        }
-        if (messageRequest.getMessageType() == MessageType.BINARY) {
-            javax.jms.BytesMessage message = createJavaxBytesMessage();
-            message.writeBytes(messageRequest.getBinaryMessage());
-            return Optional.of(message);
-        }
-        return Optional.empty();
+        return javaxAbstractMessageFactory.createMessage(this, messageRequest);
     }
 
     /**
@@ -315,17 +315,7 @@ public abstract class AbstractMessageController {
      * @throws jakarta.jms.JMSException the JMS exception.
      */
     protected Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest) throws jakarta.jms.JMSException {
-        if (messageRequest.getMessageType() == MessageType.TEXT) {
-            jakarta.jms.TextMessage message = createJakartaTextMessage();
-            message.setText(messageRequest.getTextMessage());
-            return Optional.of(message);
-        }
-        if (messageRequest.getMessageType() == MessageType.BINARY) {
-            jakarta.jms.BytesMessage message = createJakartaBytesMessage();
-            message.writeBytes(messageRequest.getBinaryMessage());
-            return Optional.of(message);
-        }
-        return Optional.empty();
+        return jakartaAbstractMessageFactory.createMessage(this, messageRequest);
     }
 
     /**
