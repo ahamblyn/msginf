@@ -18,12 +18,10 @@ public class AbstractMessageFactory implements MessageFactory {
     @Override
     public Optional<Message> createMessage(AbstractMessageController messageController,
                                            MessageRequest messageRequest) throws JMSException {
-        Optional<Message> message;
         MessageType messageType = messageRequest.getMessageType();
-        message = switch (messageType) {
+        return switch (messageType) {
             case TEXT -> new TextMessageFactory().createMessage(messageController, messageRequest);
             case BINARY -> new BinaryMessageFactory().createMessage(messageController, messageRequest);
         };
-        return message;
     }
 }

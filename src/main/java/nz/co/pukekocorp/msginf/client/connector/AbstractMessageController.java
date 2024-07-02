@@ -94,6 +94,16 @@ public abstract class AbstractMessageController {
     protected final nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageFactory jakartaAbstractMessageFactory = new nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageFactory();
 
     /**
+     * Javax message response factory.
+     */
+    protected final nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageResponseFactory javaxAbstractMessageResponseFactory = new nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageResponseFactory();
+
+    /**
+     * Jakarta message response factory.
+     */
+    protected final nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageResponseFactory jakartaAbstractMessageResponseFactory = new nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageResponseFactory();
+
+    /**
      * This method sends the message to the JMS objects.
      * @param messageRequest the message request.
      * @return the message response.

@@ -155,7 +155,6 @@ public class QueueMessageController extends AbstractMessageController {
    public MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
     Instant start = Instant.now();
 	MessageResponse messageResponse = new MessageResponse();
-    messageResponse.setMessageRequest(messageRequest);
     try {
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
 			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest).orElseThrow(() -> {
@@ -165,24 +164,13 @@ public class QueueMessageController extends AbstractMessageController {
 			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
 				javax.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
 				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
-				if (replyMsg instanceof javax.jms.TextMessage textMessage) {
-					messageResponse.setMessageType(MessageType.TEXT);
-					messageResponse.setTextResponse(textMessage.getText());
-				}
-				if (replyMsg instanceof javax.jms.BytesMessage binaryMessage) {
-					long messageLength = binaryMessage.getBodyLength();
-					byte[] messageData = new byte[(int)messageLength];
-					binaryMessage.readBytes(messageData);
-					messageResponse.setMessageType(MessageType.BINARY);
-					messageResponse.setBinaryResponse(messageData);
-				}
+				messageResponse = javaxAbstractMessageResponseFactory.createMessageResponse(replyMsg);
 				collateStats(connector, start);
 			} else {
 				// submit
 				javaxMessageProducer.send(jmsMessage);
 				collateStats(connector, start);
 			}
-			return messageResponse;
 		}
 		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
 			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest).orElseThrow(() -> {
@@ -192,24 +180,13 @@ public class QueueMessageController extends AbstractMessageController {
 			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
 				jakarta.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
 				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
-				if (replyMsg instanceof jakarta.jms.TextMessage textMessage) {
-					messageResponse.setMessageType(MessageType.TEXT);
-					messageResponse.setTextResponse(textMessage.getText());
-				}
-				if (replyMsg instanceof jakarta.jms.BytesMessage binaryMessage) {
-					long messageLength = binaryMessage.getBodyLength();
-					byte[] messageData = new byte[(int)messageLength];
-					binaryMessage.readBytes(messageData);
-					messageResponse.setMessageType(MessageType.BINARY);
-					messageResponse.setBinaryResponse(messageData);
-				}
+				messageResponse = jakartaAbstractMessageResponseFactory.createMessageResponse(replyMsg);
 				collateStats(connector, start);
 			} else {
 				// submit
 				jakartaMessageProducer.send(jmsMessage);
 				collateStats(connector, start);
 			}
-			return messageResponse;
 		}
     } catch (Exception e) {
     	// increment failed message count
@@ -223,6 +200,7 @@ public class QueueMessageController extends AbstractMessageController {
 			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJakartaDestination().toString()), e);
 		}
     }
+    messageResponse.setMessageRequest(messageRequest);
 	return messageResponse;
    }
 
