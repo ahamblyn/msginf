@@ -14,14 +14,16 @@ import javax.jms.Message;
 import java.util.Optional;
 
 public class AbstractMessageFactory implements MessageFactory {
+    private TextMessageFactory textMessageFactory = new TextMessageFactory();
+    private BinaryMessageFactory binaryMessageFactory = new BinaryMessageFactory();
 
     @Override
     public Optional<Message> createMessage(AbstractMessageController messageController,
                                            MessageRequest messageRequest) throws JMSException {
         MessageType messageType = messageRequest.getMessageType();
         return switch (messageType) {
-            case TEXT -> new TextMessageFactory().createMessage(messageController, messageRequest);
-            case BINARY -> new BinaryMessageFactory().createMessage(messageController, messageRequest);
+            case TEXT -> textMessageFactory.createMessage(messageController, messageRequest);
+            case BINARY -> binaryMessageFactory.createMessage(messageController, messageRequest);
         };
     }
 }
