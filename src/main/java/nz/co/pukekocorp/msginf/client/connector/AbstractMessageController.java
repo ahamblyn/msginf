@@ -1,6 +1,8 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.client.connector.message.MessageFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.MessageResponseFactory;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.DestinationUnavailableException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
@@ -84,24 +86,14 @@ public abstract class AbstractMessageController {
     protected final StatisticsCollector collector = StatisticsCollector.getInstance();
 
     /**
-     * Javax message factory.
+     * Message factory.
      */
-    protected final nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageFactory javaxAbstractMessageFactory = new nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageFactory();
+    protected final MessageFactory messageFactory = new MessageFactory(this);
 
     /**
-     * Jakarta message factory.
+     * Message response factory.
      */
-    protected final nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageFactory jakartaAbstractMessageFactory = new nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageFactory();
-
-    /**
-     * Javax message response factory.
-     */
-    protected final nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageResponseFactory javaxAbstractMessageResponseFactory = new nz.co.pukekocorp.msginf.client.connector.javax.AbstractMessageResponseFactory();
-
-    /**
-     * Jakarta message response factory.
-     */
-    protected final nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageResponseFactory jakartaAbstractMessageResponseFactory = new nz.co.pukekocorp.msginf.client.connector.jakarta.AbstractMessageResponseFactory();
+    protected final MessageResponseFactory messageResponseFactory = new MessageResponseFactory();
 
     /**
      * This method sends the message to the JMS objects.
@@ -312,20 +304,20 @@ public abstract class AbstractMessageController {
      * Create a JAVAX_JMS message.
      * @param messageRequest the message request.
      * @return the message
-     * @throws javax.jms.JMSException the JMS exception.
+     * @throws Exception the exception.
      */
-    protected Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest) throws javax.jms.JMSException {
-        return javaxAbstractMessageFactory.createMessage(this, messageRequest);
+    protected Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
+        return Optional.of((javax.jms.Message) messageFactory.createMessage(messageRequest, jmsImplementation));
     }
 
     /**
      * Create a JAKARTA_JMS message.
      * @param messageRequest the message request.
      * @return the message
-     * @throws jakarta.jms.JMSException the JMS exception.
+     * @throws Exception the exception.
      */
-    protected Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest) throws jakarta.jms.JMSException {
-        return jakartaAbstractMessageFactory.createMessage(this, messageRequest);
+    protected Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
+        return Optional.of((jakarta.jms.Message) messageFactory.createMessage(messageRequest, jmsImplementation));
     }
 
     /**

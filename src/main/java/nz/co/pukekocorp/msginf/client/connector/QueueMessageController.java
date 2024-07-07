@@ -7,7 +7,6 @@ import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import nz.co.pukekocorp.msginf.models.message.MessageType;
 import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
 import javax.naming.Context;
@@ -157,14 +156,13 @@ public class QueueMessageController extends AbstractMessageController {
 	MessageResponse messageResponse = new MessageResponse();
     try {
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest).orElseThrow(() -> {
-				throw new RuntimeException("Unable to create JMS message.");
-			});
+			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest, jmsImplementation)
+					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
 			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
 			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
 				javax.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
 				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
-				messageResponse = javaxAbstractMessageResponseFactory.createMessageResponse(replyMsg);
+				messageResponse = messageResponseFactory.createMessageResponse(replyMsg, jmsImplementation);
 				collateStats(connector, start);
 			} else {
 				// submit
@@ -173,14 +171,13 @@ public class QueueMessageController extends AbstractMessageController {
 			}
 		}
 		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest).orElseThrow(() -> {
-				throw new RuntimeException("Unable to create JMS message.");
-			});
+			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest, jmsImplementation)
+					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
 			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
 			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
 				jakarta.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
 				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
-				messageResponse = jakartaAbstractMessageResponseFactory.createMessageResponse(replyMsg);
+				messageResponse = messageResponseFactory.createMessageResponse(replyMsg, jmsImplementation);
 				collateStats(connector, start);
 			} else {
 				// submit

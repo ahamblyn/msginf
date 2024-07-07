@@ -93,18 +93,16 @@ public class TopicMessageController extends AbstractMessageController {
     messageResponse.setMessageRequest(messageRequest);
     try {
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest).orElseThrow(() -> {
-				throw new RuntimeException("Unable to create JMS message.");
-			});
+			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest, jmsImplementation)
+					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
 			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
 			((javax.jms.TopicPublisher)javaxMessageProducer).publish(jmsMessage);
 			collateStats(connector, start);
 			return messageResponse;
 		}
 		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest).orElseThrow(() -> {
-				throw new RuntimeException("Unable to create JMS message.");
-			});
+			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest, jmsImplementation)
+					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
 			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
 			((jakarta.jms.TopicPublisher)jakartaMessageProducer).publish(jmsMessage);
 			collateStats(connector, start);
