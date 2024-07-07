@@ -11,7 +11,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import jakarta.jms.BytesMessage;
 import jakarta.jms.TextMessage;
 
-public class JakartaMessageFactory implements JmsImplementationFactory {
+public class JakartaMessageFactory implements JmsImplementationMessageFactory {
     private AbstractMessageController messageController;
 
     public JakartaMessageFactory(AbstractMessageController messageController) {
