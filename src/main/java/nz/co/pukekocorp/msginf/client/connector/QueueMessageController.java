@@ -1,13 +1,13 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -101,6 +101,7 @@ public class QueueMessageController extends AbstractMessageController {
 	    this.connector = connector;
 		this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
+		this.destinationChannelFactory = new DestinationChannelFactory(this, this.useConnectionPooling, this.connector);
 		this.valid = true;
   	    String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
@@ -269,39 +270,13 @@ public class QueueMessageController extends AbstractMessageController {
 	 */
 	public Optional<DestinationChannel> makeNewDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException {
 		try {
-			if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-				javax.jms.QueueConnectionFactory queueConnectionFactory = (javax.jms.QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
-				javax.jms.QueueConnection queueConnection;
-				queueConnection = queueConnectionFactory.createQueueConnection();
-				queueConnection.start();
-				javax.jms.Session session = queueConnection.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
-				var destinationChannel = new DestinationChannel(queueConnection, session);
-				return Optional.of(destinationChannel);
-			}
-			if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-				jakarta.jms.QueueConnectionFactory queueConnectionFactory = (jakarta.jms.QueueConnectionFactory) jndiContext.lookup(queueConnFactoryName);
-				jakarta.jms.QueueConnection queueConnection;
-				if (useConnectionPooling) { // only available for Jakarta JMS
-					log.info("Using JMS Connection Pooling for " + messagingSystem + ":" + connector);
-					int maxConnections = parser.getMaxConnections(messagingSystem);
-					var jmsPoolConnectionFactory = new JmsPoolConnectionFactory();
-					jmsPoolConnectionFactory.setConnectionFactory(queueConnectionFactory);
-					jmsPoolConnectionFactory.setMaxConnections(maxConnections);
-					queueConnection = jmsPoolConnectionFactory.createQueueConnection();
-				} else {
-					queueConnection = queueConnectionFactory.createQueueConnection();
-				}
-				queueConnection.start();
-				jakarta.jms.Session session = queueConnection.createSession(false, jakarta.jms.Session.AUTO_ACKNOWLEDGE);
-				var destinationChannel = new DestinationChannel(queueConnection, session);
-				return Optional.of(destinationChannel);
-			}
-		} catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+			DestinationChannel destinationChannel = (DestinationChannel) destinationChannelFactory.createDestinationChannel(parser, queueConnFactoryName, messagingSystem, jndiContext, jmsImplementation);
+			return Optional.of(destinationChannel);
+		} catch (Exception e) {
 			// Invalidate the message controller.
 			setValid(false);
 			throw new DestinationChannelException("Unable to lookup the queue connection factory: " + queueConnFactoryName, e);
 		}
-		return Optional.empty();
 	}
 
     /**

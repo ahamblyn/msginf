@@ -20,11 +20,11 @@ public class DestinationChannelFactory {
         this.jakartaDestinationChannelFactory = new JakartaDestinationChannelFactory(messageController, useConnectionPooling, connector);
     }
 
-    public Object createDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String queueConnFactoryName, String messagingSystem,
+    public Object createDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String destinationConnFactoryName, String messagingSystem,
                                            Context jndiContext, JmsImplementation jmsImplementation) throws Exception {
         return switch (jmsImplementation) {
-            case JAVAX_JMS -> javaxDestinationChannelFactory.createDestinationChannel(parser, queueConnFactoryName, messagingSystem, jndiContext);
-            case JAKARTA_JMS -> jakartaDestinationChannelFactory.createDestinationChannel(parser, queueConnFactoryName, messagingSystem, jndiContext);
+            case JAVAX_JMS -> javaxDestinationChannelFactory.createDestinationChannel(parser, destinationConnFactoryName, messagingSystem, jndiContext);
+            case JAKARTA_JMS -> jakartaDestinationChannelFactory.createDestinationChannel(parser, destinationConnFactoryName, messagingSystem, jndiContext);
         };
 
     }

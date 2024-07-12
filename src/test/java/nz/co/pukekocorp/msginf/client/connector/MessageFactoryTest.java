@@ -5,7 +5,6 @@
 
 package nz.co.pukekocorp.msginf.client.connector;
 
-import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.QueueManager;
