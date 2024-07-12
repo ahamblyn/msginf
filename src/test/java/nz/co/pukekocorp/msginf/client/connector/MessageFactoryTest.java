@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.*;
         classes = MessageInfrastructureApplication.class)
 @TestPropertySource(
         locations = "classpath:application-dev.properties")
-@Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MessageFactoryTest {
 
