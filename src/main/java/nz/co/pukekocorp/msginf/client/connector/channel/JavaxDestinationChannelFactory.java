@@ -40,6 +40,7 @@ public class JavaxDestinationChannelFactory implements JmsImplementationDestinat
         return topicChannel;
     }
 
+    @Override
     public Object createDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String connFactoryName, String messagingSystem, Context jndiContext) throws Exception {
         return switch (messageController) {
             case QueueMessageController qmc -> makeQueueDestinationChannel(parser, connFactoryName, messagingSystem, jndiContext);

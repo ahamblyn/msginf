@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-package nz.co.pukekocorp.msginf.client.connector.message;
+package nz.co.pukekocorp.msginf.client.connector.message.create;
 
 import nz.co.pukekocorp.msginf.client.connector.AbstractMessageController;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
@@ -32,7 +32,8 @@ public class JakartaMessageFactory implements JmsImplementationMessageFactory {
         return message;
     }
 
-    Object createMessage(MessageRequest messageRequest) throws Exception {
+    @Override
+    public Object createMessage(MessageRequest messageRequest) throws Exception {
         return switch (messageRequest.getMessageType()) {
             case TEXT -> makeTextMessage(messageRequest);
             case BINARY -> makeBinaryMessage(messageRequest);

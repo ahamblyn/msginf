@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-package nz.co.pukekocorp.msginf.client.connector.message;
+package nz.co.pukekocorp.msginf.client.connector.message.create;
 
 import nz.co.pukekocorp.msginf.client.connector.AbstractMessageController;
 import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;

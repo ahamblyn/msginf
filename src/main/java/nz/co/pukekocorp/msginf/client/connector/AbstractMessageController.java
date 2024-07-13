@@ -2,8 +2,8 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
-import nz.co.pukekocorp.msginf.client.connector.message.MessageFactory;
-import nz.co.pukekocorp.msginf.client.connector.message.MessageResponseFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.create.MessageFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.create.MessageResponseFactory;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.DestinationUnavailableException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
@@ -14,6 +14,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 
+import javax.jms.MessageProducer;
 import javax.naming.Context;
 import java.time.Duration;
 import java.time.Instant;
@@ -209,7 +210,7 @@ public abstract class AbstractMessageController {
      * @param connector the connector.
      * @param start the time to collate.
      */
-    protected void collateStats(String connector, Instant start) {
+    public void collateStats(String connector, Instant start) {
         Instant finish = Instant.now();
         long duration = Duration.between(start, finish).toMillis();
         collector.incrementMessageCount(messagingSystem, connector);
@@ -222,7 +223,7 @@ public abstract class AbstractMessageController {
      * @param messageProperties the message properties.
      * @throws javax.jms.JMSException the JMS Exception.
      */
-    protected void copyReplyMessageProperties(javax.jms.Message replyMsg, List<MessageProperty> messageProperties) throws javax.jms.JMSException {
+    public void copyReplyMessageProperties(javax.jms.Message replyMsg, List<MessageProperty> messageProperties) throws javax.jms.JMSException {
         if (messageProperties != null) {
             Enumeration propertyNames = replyMsg.getPropertyNames();
             while (propertyNames.hasMoreElements()) {
@@ -238,7 +239,7 @@ public abstract class AbstractMessageController {
      * @param messageProperties the message properties.
      * @throws jakarta.jms.JMSException the JMS Exception.
      */
-    protected void copyReplyMessageProperties(jakarta.jms.Message replyMsg, List<MessageProperty> messageProperties) throws jakarta.jms.JMSException {
+    public void copyReplyMessageProperties(jakarta.jms.Message replyMsg, List<MessageProperty> messageProperties) throws jakarta.jms.JMSException {
         if (messageProperties != null) {
             Enumeration propertyNames = replyMsg.getPropertyNames();
             while (propertyNames.hasMoreElements()) {
@@ -312,7 +313,7 @@ public abstract class AbstractMessageController {
      * @return the message
      * @throws Exception the exception.
      */
-    protected Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
+    public Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
         return Optional.of((javax.jms.Message) messageFactory.createMessage(messageRequest, jmsImplementation));
     }
 
@@ -322,7 +323,7 @@ public abstract class AbstractMessageController {
      * @return the message
      * @throws Exception the exception.
      */
-    protected Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
+    public Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
         return Optional.of((jakarta.jms.Message) messageFactory.createMessage(messageRequest, jmsImplementation));
     }
 
@@ -331,7 +332,7 @@ public abstract class AbstractMessageController {
      * @param jmsMessage the message.
      * @param requestMessageProperties the message properties.
      */
-    protected void setMessageProperties(javax.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
+    public void setMessageProperties(javax.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
         // Apply header properties from message request and properties from config. Request properties have priority.
         List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
         if (requestMessageProperties != null) {
@@ -353,7 +354,7 @@ public abstract class AbstractMessageController {
      * @param jmsMessage the message.
      * @param requestMessageProperties the message properties.
      */
-    protected void setMessageProperties(jakarta.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
+    public void setMessageProperties(jakarta.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
         // Apply header properties from message request and properties from config. Request properties have priority.
         List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
         if (requestMessageProperties != null) {
@@ -368,6 +369,22 @@ public abstract class AbstractMessageController {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public MessageResponseFactory getMessageResponseFactory() {
+        return messageResponseFactory;
+    }
+
+    public MessageProducer getJavaxMessageProducer() {
+        return javaxMessageProducer;
+    }
+
+    public jakarta.jms.MessageProducer getJakartaMessageProducer() {
+        return jakartaMessageProducer;
+    }
+
+    public StatisticsCollector getCollector() {
+        return collector;
     }
 
     /**

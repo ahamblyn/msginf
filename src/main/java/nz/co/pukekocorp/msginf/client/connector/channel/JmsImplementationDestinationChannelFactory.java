@@ -14,4 +14,6 @@ public interface JmsImplementationDestinationChannelFactory {
     Object makeQueueDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String queueConnFactoryName, String messagingSystem, Context jndiContext) throws Exception;
 
     Object makeTopicDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String topicConnFactoryName, String messagingSystem, Context jndiContext) throws Exception;
+
+    Object createDestinationChannel(MessageInfrastructurePropertiesFileParser parser, String connFactoryName, String messagingSystem, Context jndiContext) throws Exception;
 }

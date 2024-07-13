@@ -279,7 +279,11 @@ public class QueueMessageController extends AbstractMessageController {
 		}
 	}
 
-    /**
+	public ConsumerMessageRequester getMessageRequester() {
+		return messageRequester;
+	}
+
+	/**
      * Gets this object as a String.
      * @return this object as a String.
      */
