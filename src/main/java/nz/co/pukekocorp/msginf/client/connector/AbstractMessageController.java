@@ -4,16 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageResponseFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
 import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
-import nz.co.pukekocorp.msginf.infrastructure.exception.DestinationUnavailableException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.configuration.MessageProperty;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import nz.co.pukekocorp.msginf.models.message.MessageType;
 
 import javax.jms.MessageProducer;
 import javax.naming.Context;
@@ -109,6 +108,11 @@ public abstract class AbstractMessageController {
     protected MessageSender messageSender;
 
     /**
+     * Message receiver.
+     */
+    protected MessageReceiver messageReceiver;
+
+    /**
      * This method sends the message to the JMS objects.
      * @param messageRequest the message request.
      * @return the message response.
@@ -143,72 +147,7 @@ public abstract class AbstractMessageController {
      * @throws MessageException message exception
      */
     public synchronized List<MessageResponse> receiveMessages(long timeout) throws MessageException {
-        List<MessageResponse> messages = new ArrayList<>();
-        Instant start = Instant.now();
-        try {
-            if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-                // create a consumer based on the request queue
-                javax.jms.MessageConsumer messageConsumer = destinationChannel.createConsumer(getJavaxDestination());
-                while (true) {
-                    MessageResponse messageResponse = new MessageResponse();
-                    javax.jms.Message m = messageConsumer.receive(timeout);
-                    if (m == null) {
-                        break;
-                    }
-                    if (m instanceof javax.jms.TextMessage textMessage) {
-                        messageResponse.setMessageType(MessageType.TEXT);
-                        messageResponse.setTextResponse(textMessage.getText());
-                    }
-                    if (m instanceof javax.jms.BytesMessage binaryMessage) {
-                        messageResponse.setMessageType(MessageType.BINARY);
-                        long messageLength = binaryMessage.getBodyLength();
-                        byte[] messageData = new byte[(int)messageLength];
-                        binaryMessage.readBytes(messageData);
-                        messageResponse.setBinaryResponse(messageData);
-                    }
-                    messages.add(messageResponse);
-                }
-                collateStats(connector, start);
-                messageConsumer.close();
-            }
-            if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-                // create a consumer based on the request queue
-                jakarta.jms.MessageConsumer messageConsumer = destinationChannel.createConsumer(getJakartaDestination());
-                while (true) {
-                    MessageResponse messageResponse = new MessageResponse();
-                    jakarta.jms.Message m = messageConsumer.receive(timeout);
-                    if (m == null) {
-                        break;
-                    }
-                    if (m instanceof javax.jms.TextMessage textMessage) {
-                        messageResponse.setMessageType(MessageType.TEXT);
-                        messageResponse.setTextResponse(textMessage.getText());
-                    }
-                    if (m instanceof javax.jms.BytesMessage binaryMessage) {
-                        messageResponse.setMessageType(MessageType.BINARY);
-                        long messageLength = binaryMessage.getBodyLength();
-                        byte[] messageData = new byte[(int)messageLength];
-                        binaryMessage.readBytes(messageData);
-                        messageResponse.setBinaryResponse(messageData);
-                    }
-                    messages.add(messageResponse);
-                }
-                collateStats(connector, start);
-                messageConsumer.close();
-            }
-        } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
-            // increment failed message count
-            collector.incrementFailedMessageCount(messagingSystem, connector);
-            // Invalidate the message controller.
-            setValid(false);
-            if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-                throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
-            }
-            if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-                throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJakartaDestination().toString()), e);
-            }
-        }
-        return messages;
+        return messageReceiver.receiveMessages(timeout, messagingSystem, connector, jmsImplementation);
     }
 
     /**
@@ -391,6 +330,10 @@ public abstract class AbstractMessageController {
 
     public StatisticsCollector getCollector() {
         return collector;
+    }
+
+    public DestinationChannel getDestinationChannel() {
+        return destinationChannel;
     }
 
     /**

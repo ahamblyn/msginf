@@ -2,6 +2,7 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
 import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -102,6 +103,7 @@ public class QueueMessageController extends AbstractMessageController {
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
 		this.destinationChannelFactory = new DestinationChannelFactory(this, this.useConnectionPooling, this.connector);
 		this.messageSender = new MessageSender(this);
+		this.messageReceiver = new MessageReceiver(this);
 		this.valid = true;
   	    String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
@@ -130,15 +132,14 @@ public class QueueMessageController extends AbstractMessageController {
 			  if (replyQueueName != null) {
 				  javaxReplyQueue = (javax.jms.Queue)jndiContext.lookup(replyQueueName);
 			  }
-			  setupJMSObjects(parser, messagingSystem, jndiContext);
 		  }
 		  if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
 			  jakartaQueue = (jakarta.jms.Queue)jndiContext.lookup(this.queueName);
 			  if (replyQueueName != null) {
 				  jakartaReplyQueue = (jakarta.jms.Queue)jndiContext.lookup(replyQueueName);
 			  }
-			  setupJMSObjects(parser, messagingSystem, jndiContext);
 		  }
+		  setupJMSObjects(parser, messagingSystem, jndiContext);
       } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
 		  // Invalidate the message controller.
 		  setValid(false);

@@ -2,6 +2,7 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
 import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -57,6 +58,7 @@ public class TopicMessageController extends AbstractMessageController {
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
 		this.destinationChannelFactory = new DestinationChannelFactory(this, this.useConnectionPooling, this.connector);
 		this.messageSender = new MessageSender(this);
+		this.messageReceiver = new MessageReceiver(this);
 		this.valid = true;
 		if (parser.doesPublishSubscribeExist(messagingSystem, connector)) {
 			this.topicName = parser.getPublishSubscribeConnectionPublishSubscribeTopicName(messagingSystem, connector);
