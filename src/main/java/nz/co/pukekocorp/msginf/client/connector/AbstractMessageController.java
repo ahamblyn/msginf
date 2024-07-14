@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageResponseFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.DestinationUnavailableException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
@@ -101,6 +102,11 @@ public abstract class AbstractMessageController {
      * Destination channel factory.
      */
     protected DestinationChannelFactory destinationChannelFactory;
+
+    /**
+     * Message sender.
+     */
+    protected MessageSender messageSender;
 
     /**
      * This method sends the message to the JMS objects.

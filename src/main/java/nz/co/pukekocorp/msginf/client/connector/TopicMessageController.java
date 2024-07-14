@@ -2,6 +2,7 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
@@ -10,7 +11,6 @@ import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -56,6 +56,7 @@ public class TopicMessageController extends AbstractMessageController {
 		this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
 		this.destinationChannelFactory = new DestinationChannelFactory(this, this.useConnectionPooling, this.connector);
+		this.messageSender = new MessageSender(this);
 		this.valid = true;
 		if (parser.doesPublishSubscribeExist(messagingSystem, connector)) {
 			this.topicName = parser.getPublishSubscribeConnectionPublishSubscribeTopicName(messagingSystem, connector);
@@ -89,39 +90,7 @@ public class TopicMessageController extends AbstractMessageController {
      * @throws MessageException if the message cannot be sent.
      */
    public MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
-    Instant start = Instant.now();
-	MessageResponse messageResponse = new MessageResponse();
-    messageResponse.setMessageRequest(messageRequest);
-    try {
-		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest, jmsImplementation)
-					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
-			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
-			((javax.jms.TopicPublisher)javaxMessageProducer).publish(jmsMessage);
-			collateStats(connector, start);
-			return messageResponse;
-		}
-		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest, jmsImplementation)
-					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
-			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
-			((jakarta.jms.TopicPublisher)jakartaMessageProducer).publish(jmsMessage);
-			collateStats(connector, start);
-			return messageResponse;
-		}
-    } catch (Exception e) {
-    	// increment failed message count
-		collector.incrementFailedMessageCount(messagingSystem, connector);
-		// Invalidate the message controller.
-		setValid(false);
-		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
-		}
-		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJakartaDestination().toString()), e);
-		}
-    }
-	   return messageResponse;
+	   return messageSender.sendMessage(messageRequest, this.messagingSystem, this.connector, this.jmsImplementation);
    }
 
 	/**

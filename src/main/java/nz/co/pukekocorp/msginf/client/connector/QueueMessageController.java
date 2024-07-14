@@ -2,16 +2,15 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
-import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -102,6 +101,7 @@ public class QueueMessageController extends AbstractMessageController {
 		this.useConnectionPooling = parser.getUseConnectionPooling(messagingSystem);
 		this.jmsImplementation = parser.getJmsImplementation(messagingSystem);
 		this.destinationChannelFactory = new DestinationChannelFactory(this, this.useConnectionPooling, this.connector);
+		this.messageSender = new MessageSender(this);
 		this.valid = true;
   	    String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
@@ -153,53 +153,7 @@ public class QueueMessageController extends AbstractMessageController {
      * @throws MessageException if the message cannot be sent.
      */
    public MessageResponse sendMessage(MessageRequest messageRequest) throws MessageException {
-    Instant start = Instant.now();
-	MessageResponse messageResponse = new MessageResponse();
-    try {
-		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			javax.jms.Message jmsMessage = createJavaxMessage(messageRequest, jmsImplementation)
-					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
-			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
-			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
-				javax.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
-				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
-				messageResponse = messageResponseFactory.createMessageResponse(replyMsg, jmsImplementation);
-				collateStats(connector, start);
-			} else {
-				// submit
-				javaxMessageProducer.send(jmsMessage);
-				collateStats(connector, start);
-			}
-		}
-		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			jakarta.jms.Message jmsMessage = createJakartaMessage(messageRequest, jmsImplementation)
-					.orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
-			setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
-			if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
-				jakarta.jms.Message replyMsg = messageRequester.request(jmsMessage, messageRequest.getCorrelationId());
-				copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
-				messageResponse = messageResponseFactory.createMessageResponse(replyMsg, jmsImplementation);
-				collateStats(connector, start);
-			} else {
-				// submit
-				jakartaMessageProducer.send(jmsMessage);
-				collateStats(connector, start);
-			}
-		}
-    } catch (Exception e) {
-    	// increment failed message count
-		collector.incrementFailedMessageCount(messagingSystem, connector);
-		// Invalidate the message controller.
-		setValid(false);
-		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
-		}
-		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJakartaDestination().toString()), e);
-		}
-    }
-    messageResponse.setMessageRequest(messageRequest);
-	return messageResponse;
+	   return messageSender.sendMessage(messageRequest, this.messagingSystem, this.connector, this.jmsImplementation);
    }
 
 	/**

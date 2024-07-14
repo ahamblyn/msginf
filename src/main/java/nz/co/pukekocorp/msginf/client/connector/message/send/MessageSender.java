@@ -20,7 +20,7 @@ public class MessageSender {
         jakartaMessageSender = new JakartaMessageSender(messageController);
     }
 
-    MessageResponse sendMessage(MessageRequest messageRequest, String messagingSystem, String connector, JmsImplementation jmsImplementation) throws MessageException {
+    public MessageResponse sendMessage(MessageRequest messageRequest, String messagingSystem, String connector, JmsImplementation jmsImplementation) throws MessageException {
         return switch (jmsImplementation) {
             case JAVAX_JMS -> javaxMessageSender.sendMessage(messageRequest, messagingSystem, connector, jmsImplementation);
             case JAKARTA_JMS -> jakartaMessageSender.sendMessage(messageRequest, messagingSystem, connector, jmsImplementation);
