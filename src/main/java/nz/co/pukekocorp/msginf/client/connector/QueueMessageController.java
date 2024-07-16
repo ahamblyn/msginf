@@ -53,6 +53,11 @@ public class QueueMessageController extends AbstractMessageController {
 	private final String queueName;
 
 	/**
+	 * The reply queue name.
+	 */
+	private String replyQueueName;
+
+	/**
 	 * The JAVAX_JMS request-reply message producer.
 	 */
 	private javax.jms.MessageProducer javaxRequestReplyMessageProducer;
@@ -105,7 +110,6 @@ public class QueueMessageController extends AbstractMessageController {
 		this.messageSender = new MessageSender(this);
 		this.messageReceiver = new MessageReceiver(this);
 		this.valid = true;
-  	    String replyQueueName = null;
 		if (parser.doesSubmitExist(messagingSystem, connector)) {
 			this.replyExpected = false;
 			this.queueName = parser.getSubmitConnectionSubmitQueueName(messagingSystem, connector);
@@ -115,7 +119,7 @@ public class QueueMessageController extends AbstractMessageController {
 		} else if (parser.doesRequestReplyExist(messagingSystem, connector)) {
 			this.replyExpected = true;
 			this.queueName = parser.getRequestReplyConnectionRequestQueueName(messagingSystem, connector);
-			replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
+			this.replyQueueName = parser.getRequestReplyConnectionReplyQueueName(messagingSystem, connector);
 			this.queueConnFactoryName = parser.getRequestReplyConnectionRequestQueueConnFactoryName(messagingSystem, connector);
 			this.messageTimeToLive = parser.getRequestReplyConnectionMessageTimeToLive(messagingSystem, connector);
 			this.replyWaitTime = parser.getRequestReplyConnectionReplyWaitTime(messagingSystem, connector);
@@ -125,26 +129,13 @@ public class QueueMessageController extends AbstractMessageController {
 			// No configuration found.
 			throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");
 		}
-
-      try {
-		  if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			  javaxQueue = (javax.jms.Queue)jndiContext.lookup(this.queueName);
-			  if (replyQueueName != null) {
-				  javaxReplyQueue = (javax.jms.Queue)jndiContext.lookup(replyQueueName);
-			  }
-		  }
-		  if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			  jakartaQueue = (jakarta.jms.Queue)jndiContext.lookup(this.queueName);
-			  if (replyQueueName != null) {
-				  jakartaReplyQueue = (jakarta.jms.Queue)jndiContext.lookup(replyQueueName);
-			  }
-		  }
-		  setupJMSObjects(parser, messagingSystem, jndiContext);
-      } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
-		  // Invalidate the message controller.
-		  setValid(false);
-          throw new MessageControllerException(e);
-      }
+        try {
+			setupJMSObjects(parser, messagingSystem, jndiContext);
+        } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+		    // Invalidate the message controller.
+		    setValid(false);
+            throw new MessageControllerException(e);
+        }
 	}
    
     /**
@@ -183,11 +174,15 @@ public class QueueMessageController extends AbstractMessageController {
 	 * @throws jakarta.jms.JMSException JMS exception
 	 */
 	public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext)
-			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException {
+			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException, NamingException {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext).orElseThrow(() -> {
 			throw new RuntimeException("The destination channel cannot be created for " + messagingSystem);
 		});
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
+			javaxQueue = (javax.jms.Queue)jndiContext.lookup(this.queueName);
+			if (replyQueueName != null) {
+				javaxReplyQueue = (javax.jms.Queue)jndiContext.lookup(replyQueueName);
+			}
 			javaxMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
 			javaxRequestReplyMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
 			if (messageTimeToLive > 0) {
@@ -201,6 +196,10 @@ public class QueueMessageController extends AbstractMessageController {
 			}
 		}
 		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
+			jakartaQueue = (jakarta.jms.Queue)jndiContext.lookup(this.queueName);
+			if (replyQueueName != null) {
+				jakartaReplyQueue = (jakarta.jms.Queue)jndiContext.lookup(replyQueueName);
+			}
 			jakartaMessageProducer = destinationChannel.createMessageProducer(this.jakartaQueue);
 			jakartaRequestReplyMessageProducer = destinationChannel.createMessageProducer(this.jakartaQueue);
 			if (messageTimeToLive > 0) {

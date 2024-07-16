@@ -2,6 +2,7 @@ package nz.co.pukekocorp.msginf.models.jwt;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "The JWT Request model")
 public class JwtRequest {
 

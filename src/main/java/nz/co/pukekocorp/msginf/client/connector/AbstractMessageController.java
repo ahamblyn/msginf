@@ -16,6 +16,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
 import javax.jms.MessageProducer;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -239,7 +240,7 @@ public abstract class AbstractMessageController {
      * @throws javax.jms.JMSException JAVAX_JMS exception
      * @throws jakarta.jms.JMSException JAKARTA_JMS exception
      */
-    public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException;
+    public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException, NamingException;
 
     /**
      * Create the destination channel

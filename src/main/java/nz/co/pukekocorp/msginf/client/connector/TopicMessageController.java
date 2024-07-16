@@ -69,20 +69,13 @@ public class TopicMessageController extends AbstractMessageController {
 			// No configuration found.
 			throw new ConfigurationException("The " + connector + " connector does not exist in the configuration file for the " + messagingSystem + " messaging system.");
 		}
-
-      try {
-		  if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			  javaxTopic = (javax.jms.Topic) jndiContext.lookup(this.topicName);
-		  }
-		  if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			  jakartaTopic = (jakarta.jms.Topic) jndiContext.lookup(this.topicName);
-		  }
-		  setupJMSObjects(parser, messagingSystem, jndiContext);
-      } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
-		  // Invalidate the message controller.
-		  setValid(false);
-          throw new MessageControllerException(e);
-      }
+        try {
+			setupJMSObjects(parser, messagingSystem, jndiContext);
+        } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+			// Invalidate the message controller.
+			setValid(false);
+			throw new MessageControllerException(e);
+        }
 	}
    
     /**
@@ -121,14 +114,16 @@ public class TopicMessageController extends AbstractMessageController {
 	 * @throws jakarta.jms.JMSException JMS exception
 	 */
     public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext)
-			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException {
+			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException, NamingException {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext).orElseThrow(() -> {
 			throw new RuntimeException("The destination channel cannot be created for " + messagingSystem);
 		});
 		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
+			javaxTopic = (javax.jms.Topic) jndiContext.lookup(this.topicName);
 			javaxMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.javaxTopic);
 		}
 		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
+			jakartaTopic = (jakarta.jms.Topic) jndiContext.lookup(this.topicName);
 			jakartaMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.jakartaTopic);
 		}
 	}

@@ -89,7 +89,7 @@ public class JwtTokenUtil {
         return claims.getExpiration().after(new Date());
     }
 
-    private Claims parseJwtClaims(String token) {
+    public Claims parseJwtClaims(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
