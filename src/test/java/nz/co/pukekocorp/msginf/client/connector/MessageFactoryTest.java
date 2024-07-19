@@ -8,7 +8,7 @@ package nz.co.pukekocorp.msginf.client.connector;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
 import nz.co.pukekocorp.msginf.client.adapter.QueueManager;
-import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
+import nz.co.pukekocorp.msginf.util.TestUtil;
 import nz.co.pukekocorp.msginf.client.adapter.TopicManager;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageResponseFactory;

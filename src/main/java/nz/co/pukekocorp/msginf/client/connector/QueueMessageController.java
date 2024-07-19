@@ -6,7 +6,6 @@ import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
 import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
@@ -131,7 +130,7 @@ public class QueueMessageController extends AbstractMessageController {
 		}
         try {
 			setupJMSObjects(parser, messagingSystem, jndiContext);
-        } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+        } catch (Exception e) {
 		    // Invalidate the message controller.
 		    setValid(false);
             throw new MessageControllerException(e);
@@ -169,48 +168,61 @@ public class QueueMessageController extends AbstractMessageController {
 	 * @param parser the properties file parser
 	 * @param messagingSystem the messaging system
 	 * @param jndiContext the JNDI context
-	 * @throws MessageException Message exception
-	 * @throws javax.jms.JMSException JMS exception
-	 * @throws jakarta.jms.JMSException JMS exception
+	 * @throws Exception exception
 	 */
 	public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext)
-			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException, NamingException {
+			throws Exception {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext).orElseThrow(() -> {
 			throw new RuntimeException("The destination channel cannot be created for " + messagingSystem);
 		});
-		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			javaxQueue = (javax.jms.Queue)jndiContext.lookup(this.queueName);
-			if (replyQueueName != null) {
-				javaxReplyQueue = (javax.jms.Queue)jndiContext.lookup(replyQueueName);
-			}
-			javaxMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
-			javaxRequestReplyMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
-			if (messageTimeToLive > 0) {
-				javaxMessageProducer.setTimeToLive(messageTimeToLive);
-				javaxRequestReplyMessageProducer.setTimeToLive(messageTimeToLive);
-			}
-			// only create a requester for request-reply message controllers.
-			if (replyExpected) {
-				messageRequester = new ConsumerMessageRequester(destinationChannel, javaxRequestReplyMessageProducer, javaxReplyQueue,
-						replyWaitTime, useMessageSelector);
-			}
+		messageControllerSetupFactory.setupMessageController(jndiContext, jmsImplementation);
+	}
+
+	/**
+	 * Set up the Javax JMS Objects
+	 * @param jndiContext the JNDI context
+	 * @throws javax.jms.JMSException JMS exception
+	 */
+	public void setupJavaxJMSObjects(Context jndiContext)
+			throws javax.jms.JMSException, NamingException {
+		javaxQueue = (javax.jms.Queue)jndiContext.lookup(this.queueName);
+		if (replyQueueName != null) {
+			javaxReplyQueue = (javax.jms.Queue)jndiContext.lookup(replyQueueName);
 		}
-		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			jakartaQueue = (jakarta.jms.Queue)jndiContext.lookup(this.queueName);
-			if (replyQueueName != null) {
-				jakartaReplyQueue = (jakarta.jms.Queue)jndiContext.lookup(replyQueueName);
-			}
-			jakartaMessageProducer = destinationChannel.createMessageProducer(this.jakartaQueue);
-			jakartaRequestReplyMessageProducer = destinationChannel.createMessageProducer(this.jakartaQueue);
-			if (messageTimeToLive > 0) {
-				jakartaMessageProducer.setTimeToLive(messageTimeToLive);
-				jakartaRequestReplyMessageProducer.setTimeToLive(messageTimeToLive);
-			}
-			// only create a requester for request-reply message controllers.
-			if (replyExpected) {
-				messageRequester = new ConsumerMessageRequester(destinationChannel, jakartaRequestReplyMessageProducer, jakartaReplyQueue,
-						replyWaitTime, useMessageSelector);
-			}
+		javaxMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
+		javaxRequestReplyMessageProducer = destinationChannel.createMessageProducer(this.javaxQueue);
+		if (messageTimeToLive > 0) {
+			javaxMessageProducer.setTimeToLive(messageTimeToLive);
+			javaxRequestReplyMessageProducer.setTimeToLive(messageTimeToLive);
+		}
+		// only create a requester for request-reply message controllers.
+		if (replyExpected) {
+			messageRequester = new ConsumerMessageRequester(destinationChannel, javaxRequestReplyMessageProducer, javaxReplyQueue,
+					replyWaitTime, useMessageSelector);
+		}
+	}
+
+	/**
+	 * Set up the Jakarta JMS Objects
+	 * @param jndiContext the JNDI context
+	 * @throws jakarta.jms.JMSException JMS exception
+	 */
+	public void setupJakartaJMSObjects(Context jndiContext)
+			throws jakarta.jms.JMSException, NamingException {
+		jakartaQueue = (jakarta.jms.Queue)jndiContext.lookup(this.queueName);
+		if (replyQueueName != null) {
+			jakartaReplyQueue = (jakarta.jms.Queue)jndiContext.lookup(replyQueueName);
+		}
+		jakartaMessageProducer = destinationChannel.createMessageProducer(this.jakartaQueue);
+		jakartaRequestReplyMessageProducer = destinationChannel.createMessageProducer(this.jakartaQueue);
+		if (messageTimeToLive > 0) {
+			jakartaMessageProducer.setTimeToLive(messageTimeToLive);
+			jakartaRequestReplyMessageProducer.setTimeToLive(messageTimeToLive);
+		}
+		// only create a requester for request-reply message controllers.
+		if (replyExpected) {
+			messageRequester = new ConsumerMessageRequester(destinationChannel, jakartaRequestReplyMessageProducer, jakartaReplyQueue,
+					replyWaitTime, useMessageSelector);
 		}
 	}
 

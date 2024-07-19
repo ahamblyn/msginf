@@ -1,4 +1,9 @@
-package nz.co.pukekocorp.msginf.client.adapter;
+/*
+ * Copyright (c) 2024. Pukeko Corporation Ltd
+ * All rights reserved.
+ */
+
+package nz.co.pukekocorp.msginf.util;
 
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageRequestType;

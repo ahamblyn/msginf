@@ -6,6 +6,7 @@ import nz.co.pukekocorp.msginf.client.connector.message.create.MessageFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageResponseFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
 import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
+import nz.co.pukekocorp.msginf.client.connector.setup.MessageControllerSetupFactory;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -16,7 +17,6 @@ import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
 import javax.jms.MessageProducer;
 import javax.naming.Context;
-import javax.naming.NamingException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -102,6 +102,11 @@ public abstract class AbstractMessageController {
      * Destination channel factory.
      */
     protected DestinationChannelFactory destinationChannelFactory;
+
+    /**
+     * Message controller setup factory.
+     */
+    protected final MessageControllerSetupFactory messageControllerSetupFactory = new MessageControllerSetupFactory(this);
 
     /**
      * Message sender.
@@ -236,11 +241,9 @@ public abstract class AbstractMessageController {
      * @param parser the properties file parser
      * @param messagingSystem the messaging system
      * @param jndiContext the JNDI context
-     * @throws MessageException Message exception
-     * @throws javax.jms.JMSException JAVAX_JMS exception
-     * @throws jakarta.jms.JMSException JAKARTA_JMS exception
+     * @throws Exception exception
      */
-    public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException, NamingException;
+    public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws Exception;
 
     /**
      * Create the destination channel

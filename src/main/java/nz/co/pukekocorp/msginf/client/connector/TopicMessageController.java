@@ -6,7 +6,6 @@ import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
 import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
 import nz.co.pukekocorp.msginf.infrastructure.exception.*;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
-import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
@@ -71,7 +70,7 @@ public class TopicMessageController extends AbstractMessageController {
 		}
         try {
 			setupJMSObjects(parser, messagingSystem, jndiContext);
-        } catch (javax.jms.JMSException | jakarta.jms.JMSException | NamingException e) {
+        } catch (Exception e) {
 			// Invalidate the message controller.
 			setValid(false);
 			throw new MessageControllerException(e);
@@ -109,23 +108,36 @@ public class TopicMessageController extends AbstractMessageController {
 	 * @param parser the properties file parser
 	 * @param messagingSystem the messaging system
 	 * @param jndiContext the JNDI context
-	 * @throws MessageException Message exception
-	 * @throws javax.jms.JMSException JMS exception
-	 * @throws jakarta.jms.JMSException JMS exception
+	 * @throws Exception exception
 	 */
     public void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext)
-			throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException, NamingException {
+			throws Exception {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext).orElseThrow(() -> {
 			throw new RuntimeException("The destination channel cannot be created for " + messagingSystem);
 		});
-		if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-			javaxTopic = (javax.jms.Topic) jndiContext.lookup(this.topicName);
-			javaxMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.javaxTopic);
-		}
-		if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-			jakartaTopic = (jakarta.jms.Topic) jndiContext.lookup(this.topicName);
-			jakartaMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.jakartaTopic);
-		}
+		messageControllerSetupFactory.setupMessageController(jndiContext, jmsImplementation);
+	}
+
+	/**
+	 * Set up the JMS Objects
+	 * @param jndiContext the JNDI context
+	 * @throws javax.jms.JMSException JMS exception
+	 */
+	public void setupJavaxJMSObjects(Context jndiContext)
+			throws javax.jms.JMSException, NamingException {
+		javaxTopic = (javax.jms.Topic) jndiContext.lookup(this.topicName);
+		javaxMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.javaxTopic);
+	}
+
+	/**
+	 * Set up the JMS Objects
+	 * @param jndiContext the JNDI context
+	 * @throws jakarta.jms.JMSException JMS exception
+	 */
+	public void setupJakartaJMSObjects(Context jndiContext)
+			throws jakarta.jms.JMSException, NamingException {
+		jakartaTopic = (jakarta.jms.Topic) jndiContext.lookup(this.topicName);
+		jakartaMessageProducer = ((TopicChannel) destinationChannel).createTopicPublisher(this.jakartaTopic);
 	}
 
 	/**
@@ -148,8 +160,8 @@ public class TopicMessageController extends AbstractMessageController {
 	}
 
 	/**
-	 * Return the topich channel.
-	 * @return the topich channel.
+	 * Return the topic channel.
+	 * @return the topic channel.
 	 */
 	public TopicChannel getTopicChannel() {
 		return (TopicChannel) destinationChannel;
