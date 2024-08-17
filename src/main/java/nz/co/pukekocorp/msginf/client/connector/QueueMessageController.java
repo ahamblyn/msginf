@@ -252,6 +252,28 @@ public class QueueMessageController extends AbstractMessageController {
 	}
 
 	/**
+	 * Handles the request-reply.
+	 * @param message the message
+	 * @param correlationId the correlation id
+	 * @return the reply message.
+	 * @throws MessageRequesterException Message requester exception
+	 */
+	public javax.jms.Message request(javax.jms.Message message, String correlationId) throws MessageRequesterException {
+		return messageRequester.request(message, correlationId);
+	}
+
+	/**
+	 * Handles the request-reply.
+	 * @param message the message
+	 * @param correlationId the correlation id
+	 * @return the reply message.
+	 * @throws MessageRequesterException Message requester exception
+	 */
+	public jakarta.jms.Message request(jakarta.jms.Message message, String correlationId) throws MessageRequesterException {
+		return messageRequester.request(message, correlationId);
+	}
+
+	/**
      * Gets this object as a String.
      * @return this object as a String.
      */

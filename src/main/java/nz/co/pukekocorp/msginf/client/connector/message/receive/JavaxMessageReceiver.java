@@ -47,7 +47,7 @@ public class JavaxMessageReceiver implements JmsImplementationMessageReceiver {
         Instant start = Instant.now();
         try {
             // create a consumer based on the request queue
-            MessageConsumer messageConsumer = messageController.getDestinationChannel().createConsumer(messageController.getJavaxDestination());
+            MessageConsumer messageConsumer = messageController.createJavaxMessageConsumer();
             while (true) {
                 MessageResponse messageResponse = new MessageResponse();
                 Message message = messageConsumer.receive(timeout);
@@ -65,7 +65,7 @@ public class JavaxMessageReceiver implements JmsImplementationMessageReceiver {
             messageConsumer.close();
         } catch (Exception e) {
             // increment failed message count
-            messageController.getCollector().incrementFailedMessageCount(messagingSystem, connector);
+            messageController.incrementFailedMessageCount(messagingSystem, connector);
             // Invalidate the message controller.
             messageController.setValid(false);
             throw new DestinationUnavailableException(String.format("%s destination is unavailable", messageController.getJavaxDestination().toString()), e);

@@ -35,9 +35,9 @@ public class JavaxMessageSender implements JmsImplementationMessageSender {
                     .orElseThrow(() -> new RuntimeException("Unable to create JMS message."));
             messageController.setMessageProperties(jmsMessage, messageRequest.getMessageProperties());
             if (messageRequest.getMessageRequestType() == MessageRequestType.REQUEST_RESPONSE) {
-                Message replyMsg = ((QueueMessageController) messageController).getMessageRequester().request(jmsMessage, messageRequest.getCorrelationId());
+                Message replyMsg = ((QueueMessageController) messageController).request(jmsMessage, messageRequest.getCorrelationId());
                 messageController.copyReplyMessageProperties(replyMsg, messageRequest.getMessageProperties());
-                messageResponse = messageController.getMessageResponseFactory().createMessageResponse(replyMsg, jmsImplementation);
+                messageResponse = messageController.createMessageResponse(replyMsg, jmsImplementation);
                 messageController.collateStats(connector, start);
             } else {
                 // submit
@@ -46,7 +46,7 @@ public class JavaxMessageSender implements JmsImplementationMessageSender {
             }
         } catch (Exception e) {
             // increment failed message count
-            messageController.getCollector().incrementFailedMessageCount(messagingSystem, connector);
+            messageController.incrementFailedMessageCount(messagingSystem, connector);
             // Invalidate the message controller.
             messageController.setValid(false);
             throw new DestinationUnavailableException(String.format("%s destination is unavailable", messageController.getJavaxDestination().toString()), e);

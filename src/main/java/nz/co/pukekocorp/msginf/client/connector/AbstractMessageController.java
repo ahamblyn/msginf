@@ -220,6 +220,15 @@ public abstract class AbstractMessageController {
     }
 
     /**
+     * Create a JAVAX_JMS consumer
+     * @return the JMS Consumer
+     * @throws javax.jms.JMSException
+     */
+    public javax.jms.MessageConsumer createJavaxMessageConsumer() throws javax.jms.JMSException {
+        return destinationChannel.createConsumer(this.getJavaxDestination());
+    }
+
+    /**
      * Create a JAKARTA_JMS bytes message.
      * @return the bytes message.
      * @throws jakarta.jms.JMSException the JMS exception.
@@ -235,6 +244,15 @@ public abstract class AbstractMessageController {
      */
     public jakarta.jms.TextMessage createJakartaTextMessage() throws jakarta.jms.JMSException {
         return destinationChannel.createJakartaTextMessage();
+    }
+
+    /**
+     * Create a JAKARTA_JMS consumer
+     * @return the JMS Consumer
+     * @throws jakarta.jms.JMSException
+     */
+    public jakarta.jms.MessageConsumer createJakartaMessageConsumer() throws jakarta.jms.JMSException {
+        return destinationChannel.createConsumer(this.getJakartaDestination());
     }
 
     /**
@@ -345,6 +363,19 @@ public abstract class AbstractMessageController {
 
     public DestinationChannel getDestinationChannel() {
         return destinationChannel;
+    }
+
+    /**
+     * Increment the failed message count for the system and connector.
+     * @param systemName the system name.
+     * @param connectorName the connector name.
+     */
+    public void incrementFailedMessageCount(String systemName, String connectorName) {
+        collector.incrementFailedMessageCount(systemName, connectorName);
+    }
+
+    public MessageResponse createMessageResponse(Object message, JmsImplementation jmsImplementation) throws Exception {
+        return messageResponseFactory.createMessageResponse(message, jmsImplementation);
     }
 
     /**
