@@ -6,7 +6,7 @@ import nz.co.pukekocorp.msginf.client.connector.message.create.MessageFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.create.MessageResponseFactory;
 import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
 import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
-import nz.co.pukekocorp.msginf.client.connector.setup.MessageControllerSetupFactory;
+import nz.co.pukekocorp.msginf.client.connector.setup.MessageControllerInitializer;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
@@ -17,6 +17,7 @@ import nz.co.pukekocorp.msginf.models.message.MessageResponse;
 
 import javax.jms.MessageProducer;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -104,9 +105,9 @@ public abstract class AbstractMessageController {
     protected DestinationChannelFactory destinationChannelFactory;
 
     /**
-     * Message controller setup factory.
+     * Message controller initializer.
      */
-    protected final MessageControllerSetupFactory messageControllerSetupFactory = new MessageControllerSetupFactory(this);
+    protected final MessageControllerInitializer messageControllerInitializer = new MessageControllerInitializer(this);
 
     /**
      * Message sender.
@@ -244,6 +245,12 @@ public abstract class AbstractMessageController {
      * @throws Exception exception
      */
     public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws Exception;
+
+    public abstract void setupJavaxJMSObjects(Context jndiContext)
+            throws javax.jms.JMSException, NamingException;
+
+    public abstract void setupJakartaJMSObjects(Context jndiContext)
+                    throws jakarta.jms.JMSException, NamingException;
 
     /**
      * Create the destination channel

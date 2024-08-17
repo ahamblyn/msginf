@@ -175,7 +175,7 @@ public class QueueMessageController extends AbstractMessageController {
 		destinationChannel = makeNewDestinationChannel(parser, messagingSystem, jndiContext).orElseThrow(() -> {
 			throw new RuntimeException("The destination channel cannot be created for " + messagingSystem);
 		});
-		messageControllerSetupFactory.setupMessageController(jndiContext, jmsImplementation);
+		messageControllerInitializer.setupMessageController(jndiContext, jmsImplementation);
 	}
 
 	/**
@@ -183,6 +183,7 @@ public class QueueMessageController extends AbstractMessageController {
 	 * @param jndiContext the JNDI context
 	 * @throws javax.jms.JMSException JMS exception
 	 */
+	@Override
 	public void setupJavaxJMSObjects(Context jndiContext)
 			throws javax.jms.JMSException, NamingException {
 		javaxQueue = (javax.jms.Queue)jndiContext.lookup(this.queueName);
@@ -207,6 +208,7 @@ public class QueueMessageController extends AbstractMessageController {
 	 * @param jndiContext the JNDI context
 	 * @throws jakarta.jms.JMSException JMS exception
 	 */
+	@Override
 	public void setupJakartaJMSObjects(Context jndiContext)
 			throws jakarta.jms.JMSException, NamingException {
 		jakartaQueue = (jakarta.jms.Queue)jndiContext.lookup(this.queueName);
