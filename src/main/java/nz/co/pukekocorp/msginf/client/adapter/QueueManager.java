@@ -41,7 +41,7 @@ public class QueueManager extends DestinationManager {
 	public AbstractMessageController getMessageController(String connector) throws MessageException {
 		QueueMessageController mc = (QueueMessageController) messageControllers.get(connector);
 		if (mc == null || !mc.isValid()) {
-			log.info("The message controller is null or invalid. Creating a new message controller for " + connector);
+			log.info("The message controller is null or invalid. Creating a new message controller for " + messagingSystem + ":" + connector);
 			mc = new QueueMessageController(parser, messagingSystem, connector, jndiContext);
 			messageControllers.put(connector, mc);
 		}

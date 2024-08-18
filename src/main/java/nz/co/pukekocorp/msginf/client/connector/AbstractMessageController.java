@@ -1,17 +1,23 @@
 package nz.co.pukekocorp.msginf.client.connector;
 
 import lombok.extern.slf4j.Slf4j;
+import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.create.MessageFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.create.MessageResponseFactory;
+import nz.co.pukekocorp.msginf.client.connector.message.receive.MessageReceiver;
+import nz.co.pukekocorp.msginf.client.connector.message.send.MessageSender;
+import nz.co.pukekocorp.msginf.client.connector.setup.MessageControllerInitializer;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
-import nz.co.pukekocorp.msginf.infrastructure.exception.DestinationUnavailableException;
 import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.models.configuration.JmsImplementation;
 import nz.co.pukekocorp.msginf.models.configuration.MessageProperty;
 import nz.co.pukekocorp.msginf.models.message.MessageRequest;
 import nz.co.pukekocorp.msginf.models.message.MessageResponse;
-import nz.co.pukekocorp.msginf.models.message.MessageType;
 
+import javax.jms.MessageProducer;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -84,6 +90,36 @@ public abstract class AbstractMessageController {
     protected final StatisticsCollector collector = StatisticsCollector.getInstance();
 
     /**
+     * Message factory.
+     */
+    protected final MessageFactory messageFactory = new MessageFactory(this);
+
+    /**
+     * Message response factory.
+     */
+    protected final MessageResponseFactory messageResponseFactory = new MessageResponseFactory();
+
+    /**
+     * Destination channel factory.
+     */
+    protected DestinationChannelFactory destinationChannelFactory;
+
+    /**
+     * Message controller initializer.
+     */
+    protected final MessageControllerInitializer messageControllerInitializer = new MessageControllerInitializer(this);
+
+    /**
+     * Message sender.
+     */
+    protected MessageSender messageSender;
+
+    /**
+     * Message receiver.
+     */
+    protected MessageReceiver messageReceiver;
+
+    /**
      * This method sends the message to the JMS objects.
      * @param messageRequest the message request.
      * @return the message response.
@@ -118,72 +154,7 @@ public abstract class AbstractMessageController {
      * @throws MessageException message exception
      */
     public synchronized List<MessageResponse> receiveMessages(long timeout) throws MessageException {
-        List<MessageResponse> messages = new ArrayList<>();
-        Instant start = Instant.now();
-        try {
-            if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-                // create a consumer based on the request queue
-                javax.jms.MessageConsumer messageConsumer = destinationChannel.createConsumer(getJavaxDestination());
-                while (true) {
-                    MessageResponse messageResponse = new MessageResponse();
-                    javax.jms.Message m = messageConsumer.receive(timeout);
-                    if (m == null) {
-                        break;
-                    }
-                    if (m instanceof javax.jms.TextMessage textMessage) {
-                        messageResponse.setMessageType(MessageType.TEXT);
-                        messageResponse.setTextResponse(textMessage.getText());
-                    }
-                    if (m instanceof javax.jms.BytesMessage binaryMessage) {
-                        messageResponse.setMessageType(MessageType.BINARY);
-                        long messageLength = binaryMessage.getBodyLength();
-                        byte[] messageData = new byte[(int)messageLength];
-                        binaryMessage.readBytes(messageData);
-                        messageResponse.setBinaryResponse(messageData);
-                    }
-                    messages.add(messageResponse);
-                }
-                collateStats(connector, start);
-                messageConsumer.close();
-            }
-            if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-                // create a consumer based on the request queue
-                jakarta.jms.MessageConsumer messageConsumer = destinationChannel.createConsumer(getJakartaDestination());
-                while (true) {
-                    MessageResponse messageResponse = new MessageResponse();
-                    jakarta.jms.Message m = messageConsumer.receive(timeout);
-                    if (m == null) {
-                        break;
-                    }
-                    if (m instanceof javax.jms.TextMessage textMessage) {
-                        messageResponse.setMessageType(MessageType.TEXT);
-                        messageResponse.setTextResponse(textMessage.getText());
-                    }
-                    if (m instanceof javax.jms.BytesMessage binaryMessage) {
-                        messageResponse.setMessageType(MessageType.BINARY);
-                        long messageLength = binaryMessage.getBodyLength();
-                        byte[] messageData = new byte[(int)messageLength];
-                        binaryMessage.readBytes(messageData);
-                        messageResponse.setBinaryResponse(messageData);
-                    }
-                    messages.add(messageResponse);
-                }
-                collateStats(connector, start);
-                messageConsumer.close();
-            }
-        } catch (javax.jms.JMSException | jakarta.jms.JMSException e) {
-            // increment failed message count
-            collector.incrementFailedMessageCount(messagingSystem, connector);
-            // Invalidate the message controller.
-            setValid(false);
-            if (jmsImplementation == JmsImplementation.JAVAX_JMS) {
-                throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJavaxDestination().toString()), e);
-            }
-            if (jmsImplementation == JmsImplementation.JAKARTA_JMS) {
-                throw new DestinationUnavailableException(String.format("%s destination is unavailable", getJakartaDestination().toString()), e);
-            }
-        }
-        return messages;
+        return messageReceiver.receiveMessages(timeout, messagingSystem, connector, jmsImplementation);
     }
 
     /**
@@ -191,7 +162,7 @@ public abstract class AbstractMessageController {
      * @param connector the connector.
      * @param start the time to collate.
      */
-    protected void collateStats(String connector, Instant start) {
+    public void collateStats(String connector, Instant start) {
         Instant finish = Instant.now();
         long duration = Duration.between(start, finish).toMillis();
         collector.incrementMessageCount(messagingSystem, connector);
@@ -204,7 +175,7 @@ public abstract class AbstractMessageController {
      * @param messageProperties the message properties.
      * @throws javax.jms.JMSException the JMS Exception.
      */
-    protected void copyReplyMessageProperties(javax.jms.Message replyMsg, List<MessageProperty> messageProperties) throws javax.jms.JMSException {
+    public void copyReplyMessageProperties(javax.jms.Message replyMsg, List<MessageProperty> messageProperties) throws javax.jms.JMSException {
         if (messageProperties != null) {
             Enumeration propertyNames = replyMsg.getPropertyNames();
             while (propertyNames.hasMoreElements()) {
@@ -220,7 +191,7 @@ public abstract class AbstractMessageController {
      * @param messageProperties the message properties.
      * @throws jakarta.jms.JMSException the JMS Exception.
      */
-    protected void copyReplyMessageProperties(jakarta.jms.Message replyMsg, List<MessageProperty> messageProperties) throws jakarta.jms.JMSException {
+    public void copyReplyMessageProperties(jakarta.jms.Message replyMsg, List<MessageProperty> messageProperties) throws jakarta.jms.JMSException {
         if (messageProperties != null) {
             Enumeration propertyNames = replyMsg.getPropertyNames();
             while (propertyNames.hasMoreElements()) {
@@ -235,7 +206,7 @@ public abstract class AbstractMessageController {
      * @return the bytes message.
      * @throws javax.jms.JMSException the JMS exception.
      */
-    protected javax.jms.BytesMessage createJavaxBytesMessage() throws javax.jms.JMSException {
+    public javax.jms.BytesMessage createJavaxBytesMessage() throws javax.jms.JMSException {
         return destinationChannel.createJavaxBytesMessage();
     }
 
@@ -244,8 +215,17 @@ public abstract class AbstractMessageController {
      * @return the text message.
      * @throws javax.jms.JMSException the JMS exception.
      */
-    protected javax.jms.TextMessage createJavaxTextMessage() throws javax.jms.JMSException {
+    public javax.jms.TextMessage createJavaxTextMessage() throws javax.jms.JMSException {
         return destinationChannel.createJavaxTextMessage();
+    }
+
+    /**
+     * Create a JAVAX_JMS consumer
+     * @return the JMS Consumer
+     * @throws javax.jms.JMSException
+     */
+    public javax.jms.MessageConsumer createJavaxMessageConsumer() throws javax.jms.JMSException {
+        return destinationChannel.createConsumer(this.getJavaxDestination());
     }
 
     /**
@@ -253,7 +233,7 @@ public abstract class AbstractMessageController {
      * @return the bytes message.
      * @throws jakarta.jms.JMSException the JMS exception.
      */
-    protected jakarta.jms.BytesMessage createJakartaBytesMessage() throws jakarta.jms.JMSException {
+    public jakarta.jms.BytesMessage createJakartaBytesMessage() throws jakarta.jms.JMSException {
         return destinationChannel.createJakartaBytesMessage();
     }
 
@@ -262,8 +242,17 @@ public abstract class AbstractMessageController {
      * @return the text message.
      * @throws jakarta.jms.JMSException the JMS exception.
      */
-    protected jakarta.jms.TextMessage createJakartaTextMessage() throws jakarta.jms.JMSException {
+    public jakarta.jms.TextMessage createJakartaTextMessage() throws jakarta.jms.JMSException {
         return destinationChannel.createJakartaTextMessage();
+    }
+
+    /**
+     * Create a JAKARTA_JMS consumer
+     * @return the JMS Consumer
+     * @throws jakarta.jms.JMSException
+     */
+    public jakarta.jms.MessageConsumer createJakartaMessageConsumer() throws jakarta.jms.JMSException {
+        return destinationChannel.createConsumer(this.getJakartaDestination());
     }
 
     /**
@@ -271,11 +260,15 @@ public abstract class AbstractMessageController {
      * @param parser the properties file parser
      * @param messagingSystem the messaging system
      * @param jndiContext the JNDI context
-     * @throws MessageException Message exception
-     * @throws javax.jms.JMSException JAVAX_JMS exception
-     * @throws jakarta.jms.JMSException JAKARTA_JMS exception
+     * @throws Exception exception
      */
-    public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws MessageException, javax.jms.JMSException, jakarta.jms.JMSException;
+    public abstract void setupJMSObjects(MessageInfrastructurePropertiesFileParser parser, String messagingSystem, Context jndiContext) throws Exception;
+
+    public abstract void setupJavaxJMSObjects(Context jndiContext)
+            throws javax.jms.JMSException, NamingException;
+
+    public abstract void setupJakartaJMSObjects(Context jndiContext)
+                    throws jakarta.jms.JMSException, NamingException;
 
     /**
      * Create the destination channel
@@ -292,40 +285,20 @@ public abstract class AbstractMessageController {
      * Create a JAVAX_JMS message.
      * @param messageRequest the message request.
      * @return the message
-     * @throws javax.jms.JMSException the JMS exception.
+     * @throws Exception the exception.
      */
-    protected Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest) throws javax.jms.JMSException {
-        if (messageRequest.getMessageType() == MessageType.TEXT) {
-            javax.jms.TextMessage message = createJavaxTextMessage();
-            message.setText(messageRequest.getTextMessage());
-            return Optional.of(message);
-        }
-        if (messageRequest.getMessageType() == MessageType.BINARY) {
-            javax.jms.BytesMessage message = createJavaxBytesMessage();
-            message.writeBytes(messageRequest.getBinaryMessage());
-            return Optional.of(message);
-        }
-        return Optional.empty();
+    public Optional<javax.jms.Message> createJavaxMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
+        return Optional.of((javax.jms.Message) messageFactory.createMessage(messageRequest, jmsImplementation));
     }
 
     /**
      * Create a JAKARTA_JMS message.
      * @param messageRequest the message request.
      * @return the message
-     * @throws jakarta.jms.JMSException the JMS exception.
+     * @throws Exception the exception.
      */
-    protected Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest) throws jakarta.jms.JMSException {
-        if (messageRequest.getMessageType() == MessageType.TEXT) {
-            jakarta.jms.TextMessage message = createJakartaTextMessage();
-            message.setText(messageRequest.getTextMessage());
-            return Optional.of(message);
-        }
-        if (messageRequest.getMessageType() == MessageType.BINARY) {
-            jakarta.jms.BytesMessage message = createJakartaBytesMessage();
-            message.writeBytes(messageRequest.getBinaryMessage());
-            return Optional.of(message);
-        }
-        return Optional.empty();
+    public Optional<jakarta.jms.Message> createJakartaMessage(MessageRequest messageRequest, JmsImplementation jmsImplementation) throws Exception {
+        return Optional.of((jakarta.jms.Message) messageFactory.createMessage(messageRequest, jmsImplementation));
     }
 
     /**
@@ -333,7 +306,7 @@ public abstract class AbstractMessageController {
      * @param jmsMessage the message.
      * @param requestMessageProperties the message properties.
      */
-    protected void setMessageProperties(javax.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
+    public void setMessageProperties(javax.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
         // Apply header properties from message request and properties from config. Request properties have priority.
         List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
         if (requestMessageProperties != null) {
@@ -355,7 +328,7 @@ public abstract class AbstractMessageController {
      * @param jmsMessage the message.
      * @param requestMessageProperties the message properties.
      */
-    protected void setMessageProperties(jakarta.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
+    public void setMessageProperties(jakarta.jms.Message jmsMessage, List<MessageProperty> requestMessageProperties) {
         // Apply header properties from message request and properties from config. Request properties have priority.
         List<MessageProperty> combinedMessageProperties = new ArrayList<>(configMessageProperties);
         if (requestMessageProperties != null) {
@@ -370,6 +343,39 @@ public abstract class AbstractMessageController {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public MessageResponseFactory getMessageResponseFactory() {
+        return messageResponseFactory;
+    }
+
+    public MessageProducer getJavaxMessageProducer() {
+        return javaxMessageProducer;
+    }
+
+    public jakarta.jms.MessageProducer getJakartaMessageProducer() {
+        return jakartaMessageProducer;
+    }
+
+    public StatisticsCollector getCollector() {
+        return collector;
+    }
+
+    public DestinationChannel getDestinationChannel() {
+        return destinationChannel;
+    }
+
+    /**
+     * Increment the failed message count for the system and connector.
+     * @param systemName the system name.
+     * @param connectorName the connector name.
+     */
+    public void incrementFailedMessageCount(String systemName, String connectorName) {
+        collector.incrementFailedMessageCount(systemName, connectorName);
+    }
+
+    public MessageResponse createMessageResponse(Object message, JmsImplementation jmsImplementation) throws Exception {
+        return messageResponseFactory.createMessageResponse(message, jmsImplementation);
     }
 
     /**

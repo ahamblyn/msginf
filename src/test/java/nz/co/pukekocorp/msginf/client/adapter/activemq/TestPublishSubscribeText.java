@@ -3,7 +3,7 @@ package nz.co.pukekocorp.msginf.client.adapter.activemq;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
-import nz.co.pukekocorp.msginf.client.adapter.TestUtil;
+import nz.co.pukekocorp.msginf.util.TestUtil;
 import nz.co.pukekocorp.msginf.client.connector.TopicMessageController;
 import nz.co.pukekocorp.msginf.client.listener.TestSubscriber;
 import nz.co.pukekocorp.msginf.infrastructure.data.StatisticsCollector;
