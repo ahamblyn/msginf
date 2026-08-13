@@ -1,8 +1,8 @@
 package nz.co.pukekocorp.msginf.infrastructure.properties;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
 import nz.co.pukekocorp.msginf.models.configuration.*;
@@ -11,7 +11,6 @@ import nz.co.pukekocorp.msginf.models.message.MessageRequestType;
 import nz.co.pukekocorp.msginf.models.message.MessageType;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,21 +39,22 @@ public class MessageInfrastructurePropertiesFileParser {
     private void parseFile() throws PropertiesFileException {
         // get the properties file name from the system properties: -Dmsginf.propertiesfile
         String fileName = java.lang.System.getProperty("msginf.propertiesfile");
+        log.info("-Dmsginf.propertiesfile value: " + fileName);
         try {
             if (fileName == null || fileName.isEmpty()) {
                 // load the default
                 InputStream is = MessageInfrastructurePropertiesFileParser.class.getResourceAsStream("/msginf-config.json");
-                ObjectMapper objectMapper = new ObjectMapper();
-                configuration = objectMapper.readValue(is, Configuration.class);
+                JsonMapper jsonMapper = new JsonMapper();
+                configuration = jsonMapper.readValue(is, Configuration.class);
                 log.info("Default msginf config file loaded");
             } else {
                 // load the file directly
                 File file = new File(fileName);
-                log.info("msginf config file: " + file.getAbsolutePath());
-                ObjectMapper objectMapper = new ObjectMapper();
-                configuration = objectMapper.readValue(file, Configuration.class);
+                log.info("Loading -Dmsginf.propertiesfile msginf config file: " + file.getAbsolutePath());
+                JsonMapper jsonMapper = new JsonMapper();
+                configuration = jsonMapper.readValue(file, Configuration.class);
             }
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new PropertiesFileException(e);
         }
     }
@@ -64,11 +64,11 @@ public class MessageInfrastructurePropertiesFileParser {
      * @return the instance as a String.
      */
     public String toString() {
-        ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        JsonMapper jsonMapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
         Optional<String> s = Optional.ofNullable(configuration).flatMap(config -> {
             try {
-                return Optional.ofNullable(objectMapper.writeValueAsString(config));
-            } catch (JsonProcessingException e) {
+                return Optional.ofNullable(jsonMapper.writeValueAsString(config));
+            } catch (JacksonException e) {
                 return Optional.empty();
             }
         });

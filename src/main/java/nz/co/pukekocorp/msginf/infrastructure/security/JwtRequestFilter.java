@@ -1,6 +1,5 @@
 package nz.co.pukekocorp.msginf.infrastructure.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Map<String, Object> errorDetails = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper jsonMapper = new JsonMapper();
         try {
             String accessToken = jwtTokenUtil.resolveToken(request);
             if (accessToken == null) {
@@ -50,7 +50,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             errorDetails.put("details", e.getMessage());
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            mapper.writeValue(response.getWriter(), errorDetails);
+            jsonMapper.writeValue(response.getWriter(), errorDetails);
         }
         filterChain.doFilter(request, response);
     }

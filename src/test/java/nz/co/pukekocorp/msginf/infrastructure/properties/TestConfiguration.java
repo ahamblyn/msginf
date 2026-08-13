@@ -1,6 +1,5 @@
 package nz.co.pukekocorp.msginf.infrastructure.properties;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import nz.co.pukekocorp.msginf.models.configuration.*;
 import nz.co.pukekocorp.msginf.models.configuration.System;
@@ -8,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.File;
 
@@ -22,11 +22,11 @@ public class TestConfiguration {
     public static void setUp() {
         try {
             parser = new MessageInfrastructurePropertiesFileParser();
-            ObjectMapper objectMapper = new ObjectMapper();
+            JsonMapper jsonMapper = new JsonMapper();
             //read json file and convert to customer object
             Resource resource = new ClassPathResource("msginf-config.json");
             File file = resource.getFile();
-            configurationJSON = objectMapper.readValue(file, Configuration.class);
+            configurationJSON = jsonMapper.readValue(file, Configuration.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -90,7 +90,7 @@ public class TestConfiguration {
         assertNotNull(system);
         assertEquals("activemq", system.name());
         assertEquals(MessagingModel.POINT_TO_POINT, system.messagingModel());
-        assertEquals(JmsImplementation.JAKARTA_JMS, system.jmsImplementation());
+        assertEquals(JmsImplementation.JAVAX_JMS, system.jmsImplementation());
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", system.jndiProperties().initialContextFactory());
         assertTrue(validateQueueJNDIName(system, "TestQueue"));
         assertTrue(validateQueueJNDIName(system, "RequestQueue"));
@@ -117,7 +117,7 @@ public class TestConfiguration {
         assertNotNull(system);
         assertEquals("activemq_pubsub", system.name());
         assertEquals(MessagingModel.PUBLISH_SUBSCRIBE, system.messagingModel());
-        assertEquals(JmsImplementation.JAKARTA_JMS, system.jmsImplementation());
+        assertEquals(JmsImplementation.JAVAX_JMS, system.jmsImplementation());
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", system.jndiProperties().initialContextFactory());
         assertTrue(validateTopicJNDIName(system, "TestTopic"));
         assertFalse(validateTopicJNDIName(system, "XXXXXXXX"));

@@ -123,7 +123,7 @@
         },
         "name": "activemq",
         "messagingModel": "point-to-point",
-        "jmsImplementation": "jakarta-jms",
+        "jmsImplementation": "javax-jms",
         "jndiProperties": {
           "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
         }
@@ -165,7 +165,7 @@
         },
         "name": "activemq_pubsub",
         "messagingModel": "publish-subscribe",
-        "jmsImplementation": "jakarta-jms",
+        "jmsImplementation": "javax-jms",
         "jndiProperties": {
           "initialContextFactory": "org.apache.activemq.jndi.ActiveMQInitialContextFactory"
         }

@@ -19,7 +19,7 @@ import nz.co.pukekocorp.msginf.infrastructure.exception.MessageException;
 import nz.co.pukekocorp.msginf.infrastructure.properties.MessageInfrastructurePropertiesFileParser;
 import nz.co.pukekocorp.msginf.infrastructure.properties.PropertiesDestination;
 import nz.co.pukekocorp.msginf.models.configuration.VendorJNDIProperty;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -88,7 +88,7 @@ public class Util {
 		String namingFactoryUrlPkgs = parser.getSystemNamingFactoryUrlPkgs(messagingSystem);
 		// if url is a resource then look in class path
 		if (jndiUrl.startsWith("resource://")) {
-			jndiUrl = StringUtils.removeStart(jndiUrl, "resource://");
+			jndiUrl = Strings.CS.removeStart(jndiUrl, "resource://");
 			Resource resource = new ClassPathResource(jndiUrl);
 			try {
 				jndiUrl = resource.getURL().toString();

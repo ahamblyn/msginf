@@ -102,6 +102,32 @@ public class TestBinaryRequestBinaryReply {
 
     @Test
     @Order(3)
+    public void replyVirtualThreads() throws Exception {
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Thread newThread = Thread.ofVirtual()
+                    .start(()-> {
+                try {
+                    for (int j = 0; j < 10; j++) {
+                        MessageResponse response = messenger.sendMessage("activemq", TestUtil.createBinaryMessageRequest(MessageRequestType.REQUEST_RESPONSE,
+                                "binary_request_binary_reply", "data/test.bin"));
+                        assertNotNull(response);
+                        assertEquals(response.getMessageRequest().getBinaryMessage().length, response.getBinaryResponse().length);
+                        assertEquals(MessageType.BINARY, response.getMessageType());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            threads.add(newThread);
+        }
+        for (Thread thread : threads) {
+            thread.join();
+        }
+    }
+
+    @Test
+    @Order(4)
     public void replyAsync() {
         List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
@@ -122,11 +148,11 @@ public class TestBinaryRequestBinaryReply {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
         TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
-                "binary_request_binary_reply", new TestUtil.ExpectedStats(80, 0));
+                "binary_request_binary_reply", new TestUtil.ExpectedStats(130, 0));
     }
 
 }

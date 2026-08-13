@@ -123,6 +123,40 @@ public class TestPublishSubscribeText {
 
     @Test
     @Order(3)
+    public void publishSubscribeVirtualThreads() throws Exception {
+        List<String> messages = new ArrayList<>();
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Thread newThread = Thread.ofVirtual()
+                    .start(()-> {
+                try {
+                    for (int j = 0; j < 10; j++) {
+                        String textMessage = "Current time is " + Instant.now().toString();
+                        messages.add(textMessage);
+                        MessageResponse response = messenger.publish("kafka_pubsub", TestUtil.createTextMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                                "pubsub_text", textMessage));
+                        assertNotNull(response);
+                    }
+                } catch (MessageException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            threads.add(newThread);
+        }
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+        }
+        var subscriberResponses = getSubscriberResponses();
+        assertTrue(CollectionUtils.isEqualCollection(messages, subscriberResponses),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
+    }
+
+    @Test
+    @Order(4)
     public void publishAsync() {
         List<String> messages = new ArrayList<>();
         List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
@@ -151,10 +185,10 @@ public class TestPublishSubscribeText {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
         TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "kafka_pubsub",
-                "pubsub_text", new TestUtil.ExpectedStats(80, 0));
+                "pubsub_text", new TestUtil.ExpectedStats(130, 0));
     }
 }
