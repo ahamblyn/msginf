@@ -122,6 +122,40 @@ public class TestPublishSubscribeBinary {
 
     @Test
     @Order(3)
+    public void publishSubscribeVirtualThreads() throws Exception {
+        List<String> messages = new ArrayList<>();
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Thread newThread = Thread.ofVirtual()
+                    .start(()-> {
+                try {
+                    for (int j = 0; j < 10; j++) {
+                        String textMessage = "Current time is " + Instant.now().toString();
+                        messages.add(textMessage);
+                        MessageResponse response = messenger.publish("kafka_pubsub", TestUtil.createBinaryMessageRequest(MessageRequestType.PUBLISH_SUBSCRIBE,
+                                "pubsub_binary", "data/test.bin"));
+                        assertNotNull(response);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            threads.add(newThread);
+        }
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+        }
+        var subscriberResponses = getSubscriberResponses();
+        assertEquals(messages.size(), subscriberResponses.size(),
+                messages.size() + " messages sent, " + subscriberResponses.size() + " messages consumed by subscribers");
+    }
+
+    @Test
+    @Order(4)
     public void publishAsync() {
         List<String> messages = new ArrayList<>();
         List<CompletableFuture<MessageResponse>> futureList = new ArrayList<>();
@@ -150,10 +184,10 @@ public class TestPublishSubscribeBinary {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
         TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "kafka_pubsub",
-                "pubsub_binary", new TestUtil.ExpectedStats(80, 0));
+                "pubsub_binary", new TestUtil.ExpectedStats(130, 0));
     }
 }

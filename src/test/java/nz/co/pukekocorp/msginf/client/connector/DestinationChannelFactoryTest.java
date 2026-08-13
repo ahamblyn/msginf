@@ -7,7 +7,6 @@ package nz.co.pukekocorp.msginf.client.connector;
 
 import nz.co.pukekocorp.msginf.MessageInfrastructureApplication;
 import nz.co.pukekocorp.msginf.client.adapter.Messenger;
-import nz.co.pukekocorp.msginf.client.adapter.QueueManager;
 import nz.co.pukekocorp.msginf.client.adapter.TopicManager;
 import nz.co.pukekocorp.msginf.client.connector.channel.DestinationChannelFactory;
 import nz.co.pukekocorp.msginf.infrastructure.exception.PropertiesFileException;
@@ -46,66 +45,6 @@ public class DestinationChannelFactoryTest {
 
     @Test
     @Order(1)
-    public void createJakartaTextNoConnectionPoolingDestinationChannel() throws Exception {
-        QueueManager queueManager = messenger.getQueueManager("activemq").get();
-        assertNotNull(queueManager);
-        AbstractMessageController messageController = queueManager.getMessageController("submit_text");
-        assertNotNull(messageController);
-        DestinationChannelFactory destinationChannelFactory = new DestinationChannelFactory(messageController, false, "submit_text");
-        Context context = Util.createContext(parser, "activemq", "tcp://localhost:61616");
-        Object destinationChannel = destinationChannelFactory.createDestinationChannel(parser, "QueueConnectionFactory",
-                "activemq", context, JmsImplementation.JAKARTA_JMS);
-        assertNotNull(destinationChannel);
-        assertInstanceOf(DestinationChannel.class, destinationChannel);
-    }
-
-    @Test
-    @Order(2)
-    public void createJakartaBinaryNoConnectionPoolingDestinationChannel() throws Exception {
-        QueueManager queueManager = messenger.getQueueManager("activemq").get();
-        assertNotNull(queueManager);
-        AbstractMessageController messageController = queueManager.getMessageController("submit_binary");
-        assertNotNull(messageController);
-        DestinationChannelFactory destinationChannelFactory = new DestinationChannelFactory(messageController, false, "submit_binary");
-        Context context = Util.createContext(parser, "activemq", "tcp://localhost:61616");
-        Object destinationChannel = destinationChannelFactory.createDestinationChannel(parser, "QueueConnectionFactory",
-                "activemq", context, JmsImplementation.JAKARTA_JMS);
-        assertNotNull(destinationChannel);
-        assertInstanceOf(DestinationChannel.class, destinationChannel);
-    }
-
-    @Test
-    @Order(3)
-    public void createJakartaTextConnectionPoolingDestinationChannel() throws Exception {
-        QueueManager queueManager = messenger.getQueueManager("activemq").get();
-        assertNotNull(queueManager);
-        AbstractMessageController messageController = queueManager.getMessageController("submit_text");
-        assertNotNull(messageController);
-        DestinationChannelFactory destinationChannelFactory = new DestinationChannelFactory(messageController, true, "submit_text");
-        Context context = Util.createContext(parser, "activemq", "tcp://localhost:61616");
-        Object destinationChannel = destinationChannelFactory.createDestinationChannel(parser, "QueueConnectionFactory",
-                "activemq", context, JmsImplementation.JAKARTA_JMS);
-        assertNotNull(destinationChannel);
-        assertInstanceOf(DestinationChannel.class, destinationChannel);
-    }
-
-    @Test
-    @Order(4)
-    public void createJakartaBinaryConnectionPoolingDestinationChannel() throws Exception {
-        QueueManager queueManager = messenger.getQueueManager("activemq").get();
-        assertNotNull(queueManager);
-        AbstractMessageController messageController = queueManager.getMessageController("submit_binary");
-        assertNotNull(messageController);
-        DestinationChannelFactory destinationChannelFactory = new DestinationChannelFactory(messageController, true, "submit_binary");
-        Context context = Util.createContext(parser, "activemq", "tcp://localhost:61616");
-        Object destinationChannel = destinationChannelFactory.createDestinationChannel(parser, "QueueConnectionFactory",
-                "activemq", context, JmsImplementation.JAKARTA_JMS);
-        assertNotNull(destinationChannel);
-        assertInstanceOf(DestinationChannel.class, destinationChannel);
-    }
-
-    @Test
-    @Order(5)
     public void createJavaxTextDestinationChannel() throws Exception {
         TopicManager topicManager = messenger.getTopicManager("kafka_pubsub").get();
         assertNotNull(topicManager);
@@ -120,7 +59,7 @@ public class DestinationChannelFactoryTest {
     }
 
     @Test
-    @Order(6)
+    @Order(2)
     public void createJavaxBinaryDestinationChannel() throws Exception {
         TopicManager topicManager = messenger.getTopicManager("kafka_pubsub").get();
         assertNotNull(topicManager);

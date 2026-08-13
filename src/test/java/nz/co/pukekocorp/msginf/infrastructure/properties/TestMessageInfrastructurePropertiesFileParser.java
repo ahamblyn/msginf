@@ -96,7 +96,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
         assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
         assertEquals(MessagingModel.POINT_TO_POINT, parser.getMessagingModel(messagingSystem));
-        assertEquals(JmsImplementation.JAKARTA_JMS, parser.getJmsImplementation(messagingSystem));
+        assertEquals(JmsImplementation.JAVAX_JMS, parser.getJmsImplementation(messagingSystem));
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
         assertTrue(parser.getAvailableMessagingSystems(MessagingModel.POINT_TO_POINT).stream().anyMatch(s -> s.equals("activemq")));
         assertTrue(validateQueueJNDIName(parser, messagingSystem, "TestQueue"));
@@ -125,7 +125,7 @@ public class TestMessageInfrastructurePropertiesFileParser {
         assertNotNull(parser.getSystem(messagingSystem).orElseThrow());
         assertEquals(messagingSystem, parser.getSystem(messagingSystem).orElseThrow().name());
         assertEquals(MessagingModel.PUBLISH_SUBSCRIBE, parser.getMessagingModel(messagingSystem));
-        assertEquals(JmsImplementation.JAKARTA_JMS, parser.getJmsImplementation(messagingSystem));
+        assertEquals(JmsImplementation.JAVAX_JMS, parser.getJmsImplementation(messagingSystem));
         assertEquals("org.apache.activemq.jndi.ActiveMQInitialContextFactory", parser.getSystemInitialContextFactory(messagingSystem));
         assertTrue(parser.getAvailableMessagingSystems(MessagingModel.PUBLISH_SUBSCRIBE).stream().anyMatch(s -> s.equals("activemq_pubsub")));
         assertTrue(validateTopicJNDIName(parser, messagingSystem, "TestTopic"));

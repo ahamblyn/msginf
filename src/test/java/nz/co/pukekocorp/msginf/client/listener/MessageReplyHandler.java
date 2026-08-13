@@ -108,14 +108,14 @@ public class MessageReplyHandler {
     }
 
     private javax.jms.BytesMessage createJavaxRandomBinaryMessage(int messageLength) throws javax.jms.JMSException {
-        String randomReply = RandomStringUtils.randomAlphanumeric(messageLength);
+        String randomReply = RandomStringUtils.secure().nextAlphanumeric(messageLength);
         javax.jms.BytesMessage replyMessage = javaxSession.createBytesMessage();
         replyMessage.writeBytes(randomReply.getBytes());
         return replyMessage;
     }
 
     private jakarta.jms.BytesMessage createJakartaRandomBinaryMessage(int messageLength) throws jakarta.jms.JMSException {
-        String randomReply = RandomStringUtils.randomAlphanumeric(messageLength);
+        String randomReply = RandomStringUtils.secure().nextAlphanumeric(messageLength);
         jakarta.jms.BytesMessage replyMessage = jakartaSession.createBytesMessage();
         replyMessage.writeBytes(randomReply.getBytes());
         return replyMessage;
