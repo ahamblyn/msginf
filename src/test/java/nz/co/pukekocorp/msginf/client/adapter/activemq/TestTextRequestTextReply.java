@@ -43,7 +43,7 @@ public class TestTextRequestTextReply {
             messageRequestReplyList = new ArrayList<>();
             for (int i = 0; i < 20; i++) {
                 var messageRequestReply = new MessageRequestReply(parser, "activemq",
-                        "tcp://localhost:61616", "jakarta-jms");
+                        "tcp://localhost:61616", "javax-jms");
                 messageRequestReply.run("QueueConnectionFactory", "RequestQueue",
                         "ReplyQueue");
                 messageRequestReplyList.add(messageRequestReply);

@@ -243,8 +243,8 @@ public class TestSubmit {
     public void stats() {
         log.info(StatisticsCollector.getInstance().toString());
         TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
-                "submit_text", new TestUtil.ExpectedStats(133, 0));
+                "submit_text", new TestUtil.ExpectedStats(134, 0));
         TestUtil.assertStats(StatisticsCollector.getInstance().toModel(), "activemq",
-                "submit_binary", new TestUtil.ExpectedStats(133, 0));
+                "submit_binary", new TestUtil.ExpectedStats(134, 0));
     }
 }
